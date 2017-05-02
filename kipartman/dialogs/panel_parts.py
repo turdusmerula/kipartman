@@ -8,17 +8,17 @@
 ###########################################################################
 
 import wx
-import wx.dataview
 import wx.xrc
-
+import wx.dataview
 
 ###########################################################################
 ## Class PanelParts
 ###########################################################################
+
 class PanelParts ( wx.Panel ):
 	
 	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL )
+		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 785,587 ), style = wx.TAB_TRAVERSAL )
 		
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -27,6 +27,20 @@ class PanelParts ( wx.Panel ):
 		
 		self.m_panel2 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_bpButton1 = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		bSizer4.Add( self.m_bpButton1, 0, wx.ALL, 5 )
+		
+		self.m_bpButton2 = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		bSizer4.Add( self.m_bpButton2, 0, wx.ALL, 5 )
+		
+		self.m_bpButton3 = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		bSizer4.Add( self.m_bpButton3, 0, wx.ALL, 5 )
+		
+		
+		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
 		
 		self.tree_catergories = wx.TreeCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE )
 		bSizer2.Add( self.tree_catergories, 1, wx.ALL|wx.EXPAND, 5 )
@@ -51,9 +65,17 @@ class PanelParts ( wx.Panel ):
 		
 		self.SetSizer( bSizer1 )
 		self.Layout()
+		
+		# Connect Events
+		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 	
 	def __del__( self ):
 		pass
+	
+	
+	# Virtual event handlers, overide them in your derived class
+	def onInitDialog( self, event ):
+		event.Skip()
 	
 	def m_splitter2OnIdle( self, event ):
 		self.m_splitter2.SetSashPosition( 294 )

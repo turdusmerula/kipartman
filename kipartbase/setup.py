@@ -21,24 +21,24 @@ def read(*names, **kwargs):
 
 
 setup(
-    name='csvip',
+    name='kipartbase',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.0.1',
-    description='CS ViP',
+    description='kipartbase',
     long_description='%s\n%s' %
     (re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub(
         '', read('README.rst')),
      re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))),
 
     # The project's main homepage.
-    url='https://thor.si.c-s.fr/gf/project/csvip/',
+    url='https://github.com/turdusmerula/kipartman',
 
     # Author details
-    author='CS SI',
-    author_email='csvip-dev@c-s.fr',
+    author='Sebastien Besombes',
+    author_email='sebastien.besombes@gmail.com',
 
     # Choose your license
     license='GPLv3',
@@ -69,15 +69,15 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='Cloud management tools: infrastructure, networks, containers, monitoring',
+    keywords='Kipart tools: development',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
+    packages=find_packages('.'),
+    package_dir={'': '.'},
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
-    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
+    py_modules=[splitext(basename(path))[0] for path in glob('*.py')],
     include_package_data=True,
 
     # List run-time dependencies here.  These will be installed by pip when
@@ -85,16 +85,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'apache-libcloud',
-        'docker',
-        'eventlet',
-        'future',
-        'IPy',
-        'paramiko',
-        'pexpect',
-        'pycrypto',
-        'python-neutronclient',
-        'python-openstackclient',
+        'django'
     ],
 
     # List additional groups of dependencies here (e.g. development
@@ -102,5 +93,5 @@ setup(
     # for example:
     # $ pip install -e .[test]
     extras_require={
-        'test': ['libcloud-vagrant', 'pytest', 'python-vagrant', 'sh'],
+        'test': ['pytest'],
     }, )

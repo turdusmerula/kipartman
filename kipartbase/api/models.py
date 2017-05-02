@@ -20,7 +20,7 @@ class Part(models.Model):
         return '%d: %s' % (self.id, self.name)
 
 class FootprintCategory(models.Model):
-    parent = models.ForeignKey('FootprintCategory', models.DO_NOTHING)
+    parent = models.ForeignKey('FootprintCategory', models.DO_NOTHING, null=True, default=None, blank=True)
     name = models.TextField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
