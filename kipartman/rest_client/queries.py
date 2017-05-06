@@ -20,19 +20,50 @@ class GenericQuery():
         return cloned
 
 
+class ReadOnlyQuery(mixins.GetQueryMixin,
+            GenericQuery):
+    pass
+        
 class Query(mixins.GetQueryMixin,
             mixins.UpdateQueryMixin,
-            mixins.CreateQueryMixin,
             mixins.DeleteQueryMixin,
             GenericQuery):
     pass
 
-class ReadOnlyQuery(mixins.GetQueryMixin,
+
+class QueryId(mixins.GetQueryMixin,
+            mixins.UpdateQueryMixin,
+            mixins.DeleteQueryMixin,
             GenericQuery):
-    pass
+    def __init__(self, object_id):
+        self.path += "/"+object_id 
 
 
-class ReadOnlyQuerySet(mixins.GetQueryMixin,
+class QueryUrl(mixins.GetQueryMixin,
+            mixins.UpdateQueryMixin,
+            mixins.DeleteQueryMixin,
+            GenericQuery):
+    def __init__(self, url):
+        self.path = url.replace(self.baseurl, "")
+
+
+# class QueryIterator:
+#     def __init__(self, items, model):
+#         self.list = items
+#         self.model = model
+#         self.index = 0
+# 
+#     def __iter__(self):
+#         return self
+# 
+#     def next(self): # Python 3: def __next__(self)
+#         if self.index > len(self.list):
+#             raise StopIteration
+#         else:
+#             self.index += 1
+#             return self.current - 1
+        
+class QuerySet(mixins.GetQuerySetMixin,
                GenericQuery):
     def filter(self, **kwargs):
         pass
@@ -45,7 +76,3 @@ class ReadOnlyQuerySet(mixins.GetQueryMixin,
 
     def __getitem__(self, index):
         return self.get()[index]
-
-class QuerySet(mixins.CreateQueryMixin,
-               ReadOnlyQuerySet):
-    pass

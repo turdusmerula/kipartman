@@ -8,4 +8,5 @@ encoding//kipartbase/setup.py=utf-8
 encoding//kipartman/api/models.py=utf-8
 encoding//kipartman/dialogs/dialog_main.py=utf-8
 encoding//kipartman/dialogs/panel_parts.py=utf-8
+encoding//kipartman/rest_client/fields.py=utf-8
 encoding//kipartman/setup.py=utf-8

@@ -1,33 +1,35 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import models
+from rest_client import fields
+from rest_client import models
 
 class PartCategory(models.Model):
-    parent = models.ForeignKey('PartCategory', models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
+    id = fields.IntField(read_only=True)
+    path = fields.TextField(read_only=True)
+    name = fields.TextField()
+    parent = fields.HyperlinkField('PartCategory')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
 class Part(models.Model):
-    category = models.ForeignKey('PartCategory', models.DO_NOTHING)
-    metapart = models.BooleanField()
-    name = models.TextField()
-    description = models.TextField(blank=True)
-    footprint = models.ForeignKey('Footprint', models.DO_NOTHING, null=True, default=None, blank=True)
+    category = fields.HyperlinkField('PartCategory')
+    metapart = fields.BooleanField()
+    name = fields.TextField()
+    description = fields.TextField()
+    footprint = fields.HyperlinkField('Footprint')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
 class FootprintCategory(models.Model):
-    parent = models.ForeignKey('FootprintCategory', models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
+    parent = fields.HyperlinkField('FootprintCategory')
+    name = fields.TextField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
 class Footprint(models.Model):
-    category = models.ForeignKey('FootprintCategory', models.DO_NOTHING)
-    name = models.TextField()
-    description = models.TextField(blank=True)
+    category = fields.HyperlinkField('FootprintCategory')
+    name = fields.TextField()
+    description = fields.TextField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
+
