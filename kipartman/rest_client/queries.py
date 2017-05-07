@@ -46,22 +46,6 @@ class QueryUrl(mixins.GetQueryMixin,
     def __init__(self, url):
         self.path = url.replace(self.baseurl, "")
 
-
-# class QueryIterator:
-#     def __init__(self, items, model):
-#         self.list = items
-#         self.model = model
-#         self.index = 0
-# 
-#     def __iter__(self):
-#         return self
-# 
-#     def next(self): # Python 3: def __next__(self)
-#         if self.index > len(self.list):
-#             raise StopIteration
-#         else:
-#             self.index += 1
-#             return self.current - 1
         
 class QuerySet(mixins.GetQuerySetMixin,
                GenericQuery):

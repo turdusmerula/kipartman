@@ -26,6 +26,5 @@ class GetQuerySetMixin(object):
         # transform request result to a list of elements from model
         l = list()
         for el in request:
-            print el
             l.append(self.model(**el))
         return l

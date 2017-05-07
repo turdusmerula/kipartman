@@ -30,20 +30,30 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_bpButton1 = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer4.Add( self.m_bpButton1, 0, wx.ALL, 5 )
+		bSizer5 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_bpButton2 = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer4.Add( self.m_bpButton2, 0, wx.ALL, 5 )
+		self.button_add_category = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		bSizer5.Add( self.button_add_category, 0, wx.ALL, 5 )
 		
-		self.m_bpButton3 = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer4.Add( self.m_bpButton3, 0, wx.ALL, 5 )
+		self.button_remove_category = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		bSizer5.Add( self.button_remove_category, 0, wx.ALL, 5 )
+		
+		
+		bSizer4.Add( bSizer5, 1, wx.EXPAND, 5 )
+		
+		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.button_refresh_categories = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		bSizer6.Add( self.button_refresh_categories, 0, wx.ALL, 5 )
+		
+		
+		bSizer4.Add( bSizer6, 0, 0, 5 )
 		
 		
 		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
 		
-		self.tree_catergories = wx.TreeCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE )
-		bSizer2.Add( self.tree_catergories, 1, wx.ALL|wx.EXPAND, 5 )
+		self.tree_categories = wx.TreeCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE|wx.TR_EXTENDED|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT|wx.TR_ROW_LINES )
+		bSizer2.Add( self.tree_categories, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
 		self.m_panel2.SetSizer( bSizer2 )
@@ -68,6 +78,9 @@ class PanelParts ( wx.Panel ):
 		
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
+		self.button_add_category.Bind( wx.EVT_BUTTON, self.onCategoriesAddClick )
+		self.button_remove_category.Bind( wx.EVT_BUTTON, self.onCategoriesRemoveClick )
+		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onCategoriesRefreshClick )
 	
 	def __del__( self ):
 		pass
@@ -75,6 +88,15 @@ class PanelParts ( wx.Panel ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def onInitDialog( self, event ):
+		event.Skip()
+	
+	def onCategoriesAddClick( self, event ):
+		event.Skip()
+	
+	def onCategoriesRemoveClick( self, event ):
+		event.Skip()
+	
+	def onCategoriesRefreshClick( self, event ):
 		event.Skip()
 	
 	def m_splitter2OnIdle( self, event ):

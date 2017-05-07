@@ -16,3 +16,4 @@ class FootprintsQuery(queries.QuerySet):
 class FootprintCategoriesQuery(queries.QuerySet):
     path = '/footprints/categories'
     model = models.FootprintCategory
+
