@@ -6,7 +6,7 @@ from rest_client import registry
 class Field(object):
 
     def __init__(self, read_only=False):
-        self.read_only = read_only
+        self._read_only = read_only
     
     def get_value(self):
         return self.value
@@ -14,8 +14,11 @@ class Field(object):
     def set_value(self, value):
         self.value = value
 
+    def serialize(self):
+        return self.get_value()
+
     def is_read_only(self):
-        return self.read_only
+        return self._read_only
 
 class IntField(Field):
     def __init__(self, default=0, **kwargs):
@@ -88,5 +91,13 @@ class HyperlinkField(Field):
         #issubclass(type(value), vars()[self.model]):
             self.loaded = True
             self.value = value
+            if not value is None: 
+                self.url = value.path
 #        else:
 #            raise exceptions.FieldError("HyperlinkField: value is not an URL nor a %s" % (self.model))
+
+    def serialize(self):
+        if self.url is None:
+            return ""
+        else:
+            return self.url

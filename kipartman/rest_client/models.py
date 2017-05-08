@@ -43,7 +43,7 @@ class Model(object):
                 self.__values__[f] = copy.copy(self.__fields__[f])
 
     def __setattr__(self, name, value):
-        if hasattr(self, 'values') and self.__values__.has_key(name):
+        if hasattr(self, '__values__') and self.__values__.has_key(name):
             self.__values__[name].set_value(value)
         else:
             super(Model, self).__setattr__(name, value)
@@ -52,4 +52,6 @@ class Model(object):
         if self.__values__.has_key(name):
             return self.__values__[name].get_value()
         else:
-            return super(Model, self).__getattr_(name)
+            return super(Model, self).__getattr__(name)
+
+        

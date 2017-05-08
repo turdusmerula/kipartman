@@ -5,8 +5,12 @@ from rest_framework import viewsets, routers, exceptions
 import models
 import serializers
 
+class VerboseModelViewSet(viewsets.ModelViewSet):
+    def create(self, request, *args, **kwargs):
+        print "create: ", request.data
+        return super(VerboseModelViewSet, self).create(request, *args, **kwargs)
 
-class PartCategoryViewSet(viewsets.ModelViewSet):
+class PartCategoryViewSet(VerboseModelViewSet):
     queryset = models.PartCategory.objects.all()
     serializer_class = serializers.PartCategorySerializer
 
@@ -21,12 +25,12 @@ class PartCategoryViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
-class PartViewSet(viewsets.ModelViewSet):
+class PartViewSet(VerboseModelViewSet):
     queryset = models.Part.objects.all()
     serializer_class = serializers.PartSerializer
 
 
-class FootprintCategoryViewSet(viewsets.ModelViewSet):
+class FootprintCategoryViewSet(VerboseModelViewSet):
     queryset = models.FootprintCategory.objects.all()
     serializer_class = serializers.FootprintCategorySerializer
  
@@ -43,7 +47,7 @@ class FootprintCategoryViewSet(viewsets.ModelViewSet):
         models.Footprint.objects.filter(category=instance.id).update(category=instance.parent)
         instance.delete()
  
-class FootprintViewSet(viewsets.ModelViewSet):
+class FootprintViewSet(VerboseModelViewSet):
     queryset = models.Footprint.objects.all()
     serializer_class = serializers.FootprintSerializer
 

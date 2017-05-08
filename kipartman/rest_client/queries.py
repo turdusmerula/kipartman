@@ -1,6 +1,7 @@
 from rest_client import mixins
 import copy
 
+    
 class GenericQuery():
     path = '/'
     baseurl = 'http://localhost:8100/api'
@@ -30,25 +31,12 @@ class Query(mixins.GetQueryMixin,
             GenericQuery):
     pass
 
-
-class QueryId(mixins.GetQueryMixin,
-            mixins.UpdateQueryMixin,
-            mixins.DeleteQueryMixin,
-            GenericQuery):
-    def __init__(self, object_id):
-        self.path += "/"+object_id 
-
-
-class QueryUrl(mixins.GetQueryMixin,
-            mixins.UpdateQueryMixin,
-            mixins.DeleteQueryMixin,
-            GenericQuery):
-    def __init__(self, url):
-        self.path = url.replace(self.baseurl, "")
-
         
 class QuerySet(mixins.GetQuerySetMixin,
-               GenericQuery):
+            mixins.CreateQueryMixin,
+            mixins.UpdateQueryMixin,
+            mixins.DeleteQueryMixin,
+           GenericQuery):
     def filter(self, **kwargs):
         pass
     

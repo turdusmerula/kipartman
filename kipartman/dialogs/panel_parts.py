@@ -81,6 +81,7 @@ class PanelParts ( wx.Panel ):
 		self.button_add_category.Bind( wx.EVT_BUTTON, self.onCategoriesAddClick )
 		self.button_remove_category.Bind( wx.EVT_BUTTON, self.onCategoriesRemoveClick )
 		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onCategoriesRefreshClick )
+		self.tree_categories.Bind( wx.EVT_TREE_SEL_CHANGED, self.onTreeCategoriesSelChanged )
 	
 	def __del__( self ):
 		pass
@@ -97,6 +98,9 @@ class PanelParts ( wx.Panel ):
 		event.Skip()
 	
 	def onCategoriesRefreshClick( self, event ):
+		event.Skip()
+	
+	def onTreeCategoriesSelChanged( self, event ):
 		event.Skip()
 	
 	def m_splitter2OnIdle( self, event ):
