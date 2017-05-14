@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//kipartbase/api/admin.py=utf-8
 encoding//kipartbase/api/apps.py=utf-8
 encoding//kipartbase/api/migrations/0001_initial.py=utf-8
 encoding//kipartbase/api/models.py=utf-8

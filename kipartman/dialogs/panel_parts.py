@@ -18,7 +18,7 @@ import wx.dataview
 class PanelParts ( wx.Panel ):
 	
 	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 785,587 ), style = wx.TAB_TRAVERSAL )
+		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1086,756 ), style = wx.TAB_TRAVERSAL )
 		
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -34,6 +34,9 @@ class PanelParts ( wx.Panel ):
 		
 		self.button_add_category = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer5.Add( self.button_add_category, 0, wx.ALL, 5 )
+		
+		self.button_edit_category = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		bSizer5.Add( self.button_edit_category, 0, wx.ALL, 5 )
 		
 		self.button_remove_category = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer5.Add( self.button_remove_category, 0, wx.ALL, 5 )
@@ -79,9 +82,14 @@ class PanelParts ( wx.Panel ):
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.button_add_category.Bind( wx.EVT_BUTTON, self.onCategoriesAddClick )
+		self.button_edit_category.Bind( wx.EVT_BUTTON, self.onCategoriesEditClick )
 		self.button_remove_category.Bind( wx.EVT_BUTTON, self.onCategoriesRemoveClick )
 		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onCategoriesRefreshClick )
+		self.tree_categories.Bind( wx.EVT_CHAR, self.onTreeCategoriesOnChar )
+		self.tree_categories.Bind( wx.EVT_TREE_BEGIN_DRAG, self.onTreeCategoriesBeginDrag )
+		self.tree_categories.Bind( wx.EVT_TREE_END_DRAG, self.onTreeCategoriesEndDrag )
 		self.tree_categories.Bind( wx.EVT_TREE_SEL_CHANGED, self.onTreeCategoriesSelChanged )
+		self.tree_categories.Bind( wx.EVT_TREE_SEL_CHANGING, self.onTreeCategoriesSelChanging )
 	
 	def __del__( self ):
 		pass
@@ -94,13 +102,28 @@ class PanelParts ( wx.Panel ):
 	def onCategoriesAddClick( self, event ):
 		event.Skip()
 	
+	def onCategoriesEditClick( self, event ):
+		event.Skip()
+	
 	def onCategoriesRemoveClick( self, event ):
 		event.Skip()
 	
 	def onCategoriesRefreshClick( self, event ):
 		event.Skip()
 	
+	def onTreeCategoriesOnChar( self, event ):
+		event.Skip()
+	
+	def onTreeCategoriesBeginDrag( self, event ):
+		event.Skip()
+	
+	def onTreeCategoriesEndDrag( self, event ):
+		event.Skip()
+	
 	def onTreeCategoriesSelChanged( self, event ):
+		event.Skip()
+	
+	def onTreeCategoriesSelChanging( self, event ):
 		event.Skip()
 	
 	def m_splitter2OnIdle( self, event ):

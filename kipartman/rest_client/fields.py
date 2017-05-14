@@ -7,7 +7,7 @@ class Field(object):
 
     def __init__(self, read_only=False):
         self._read_only = read_only
-    
+        
     def get_value(self):
         return self.value
     

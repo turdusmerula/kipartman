@@ -6,7 +6,7 @@ class PartsQuery(queries.QuerySet):
     model = models.Part
     
 class PartCategoriesQuery(queries.QuerySet):
-    path = '/parts/categories'
+    path = '/parts/categories/{category}'
     model = models.PartCategory
 
 class FootprintsQuery(queries.QuerySet):

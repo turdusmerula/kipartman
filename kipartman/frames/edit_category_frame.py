@@ -19,7 +19,7 @@ class EditCategoryFrame(DialogEditCategory):
     def editCategory(self, category):
         self.Title = "Edit category"
         self.button_validate.LabelText = "Apply"
-        self.text_name.Value = category['name']
+        self.text_name.Value = category.name
         result = self.ShowModal()
         if result==wx.ID_OK:
             category.name = self.text_name.Value
