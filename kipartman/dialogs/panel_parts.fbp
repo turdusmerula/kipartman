@@ -742,9 +742,9 @@
                                             <event name="OnTreeEndLabelEdit"></event>
                                             <event name="OnTreeGetInfo"></event>
                                             <event name="OnTreeItemActivated"></event>
-                                            <event name="OnTreeItemCollapsed"></event>
+                                            <event name="OnTreeItemCollapsed">onTreeCategoriesCollapsed</event>
                                             <event name="OnTreeItemCollapsing"></event>
-                                            <event name="OnTreeItemExpanded"></event>
+                                            <event name="OnTreeItemExpanded">onTreeCategoriesExpanded</event>
                                             <event name="OnTreeItemExpanding"></event>
                                             <event name="OnTreeItemGetTooltip"></event>
                                             <event name="OnTreeItemMenu"></event>

@@ -88,6 +88,8 @@ class PanelParts ( wx.Panel ):
 		self.tree_categories.Bind( wx.EVT_CHAR, self.onTreeCategoriesOnChar )
 		self.tree_categories.Bind( wx.EVT_TREE_BEGIN_DRAG, self.onTreeCategoriesBeginDrag )
 		self.tree_categories.Bind( wx.EVT_TREE_END_DRAG, self.onTreeCategoriesEndDrag )
+		self.tree_categories.Bind( wx.EVT_TREE_ITEM_COLLAPSED, self.onTreeCategoriesCollapsed )
+		self.tree_categories.Bind( wx.EVT_TREE_ITEM_EXPANDED, self.onTreeCategoriesExpanded )
 		self.tree_categories.Bind( wx.EVT_TREE_SEL_CHANGED, self.onTreeCategoriesSelChanged )
 		self.tree_categories.Bind( wx.EVT_TREE_SEL_CHANGING, self.onTreeCategoriesSelChanging )
 	
@@ -118,6 +120,12 @@ class PanelParts ( wx.Panel ):
 		event.Skip()
 	
 	def onTreeCategoriesEndDrag( self, event ):
+		event.Skip()
+	
+	def onTreeCategoriesCollapsed( self, event ):
+		event.Skip()
+	
+	def onTreeCategoriesExpanded( self, event ):
 		event.Skip()
 	
 	def onTreeCategoriesSelChanged( self, event ):
