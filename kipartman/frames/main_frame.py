@@ -7,4 +7,8 @@ class MainFrame(DialogMain):
         DialogMain.__init__(self, parent)
         self.partsframe = PartsFrame(self.notebook)
         self.notebook.AddPage(self.partsframe, "parts", False)
+        #TODO: footprints
+        #TODO: projects
+        #TODO: providers
+        #TODO: manufacturers
         self.partsframe.load()

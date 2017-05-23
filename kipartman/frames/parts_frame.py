@@ -1,10 +1,13 @@
 from dialogs.panel_parts import PanelParts
 from frames.edit_category_frame import EditCategoryFrame
+from frames.edit_part_frame import EditPartFrame
 from api.queries import PartsQuery, PartCategoriesQuery
 from rest_client.exceptions import QueryError
 import wx
+import wx.dataview
 import json
 from api import models
+import copy
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -20,7 +23,7 @@ class TreeState:
         self.state = {}
     
     def update(self, item, selected=None, expanded=None):
-        data = self.tree.GetItemPyData(item)
+        data = self.tree.GetItemData(item)
         if data:
             path = data.path
         else:
@@ -83,37 +86,176 @@ class PartCategoryDataObject(wx.TextDataObject):
         
     
 class PartCategoryDropTarget(wx.TextDropTarget):
-    def __init__(self, tree, frame):
-        self.obj = tree
+    def __init__(self, frame):
         self.frame = frame
         super(PartCategoryDropTarget, self).__init__()
     
     #TODO: set drag cursor depending on accept/reject drop
     def OnDropText(self, x, y, text):
         data = json.loads(text)
-        print "OnDropText", data, x, y
-        item, _ = self.obj.HitTest((x, y))
+        print "PartCategoryDropTarget.OnDropText", data, x, y
+        item, _ = self.frame.part_categories_tree.HitTest((x, y))
         if item.IsOk():
-            target_category = self.obj.GetItemPyData(item)
+            target_category = self.frame.part_categories_tree.GetItemData(item)
         else:
             target_category = None
-        source_category = PartCategoriesQuery().get(data['id'])[0]
-        if source_category:
-            source_category.parent = target_category
-        PartCategoriesQuery().update(source_category)
-        
-        self.frame._loadCategories()
-        return text
+        if data['model']=='PartCategory':
+            source_category = PartCategoriesQuery().get(data['id'])[0]
+            if source_category:
+                source_category.parent = target_category
+            PartCategoriesQuery().update(source_category)
+        elif data['model']=='Part':
+            source_part = PartsQuery().get(data['id'])[0]
+            if source_part:
+                source_part.category = target_category
+                PartsQuery().update(source_part)
+        self.frame.load()
+        return wx.DragMove
+
+
+class PartDataObject(wx.TextDataObject):
+    def __init__(self, category): 
+        super(PartDataObject, self).__init__()
+        self.category = category
+        self.SetText(json.dumps({'model': 'Part', 'url': category.path, 'id': category.id}))
+
+class PartDropTarget(wx.TextDropTarget):
+    def __init__(self, frame):
+        self.frame = frame
+        super(PartDropTarget, self).__init__()
     
+    #TODO: set drag cursor depending on accept/reject drop
+    def OnDropText(self, x, y, text):
+        data = json.loads(text)
+        print "PartDropTarget.OnDropText", data, x, y
+        item, _ = self.frame.tree_parts.HitTest((x, y))
+        if item.IsOk():
+            # do a copy to avoid nasty things
+            target_part = copy.deepcopy(self.frame.parts_model.ItemToObject(item))
+        else:
+            target_part = None
+        if data['model']=='Part':
+            source_part = PartsQuery().get(data['id'])[0]
+            if source_part and target_part:
+                target_part.parts.append(source_part.id)
+                PartsQuery().update(target_part)
+        self.frame._loadParts()
+        return wx.DragMove
+
+
+
+class PartDataModel(wx.dataview.PyDataViewModel):
+    def __init__(self):
+        super(PartDataModel, self).__init__()
+        self.data = PartsQuery().get()
+        #self.UseWeakRefs(True)
+    
+    def Filter(self, part_filter=None):
+        if part_filter:
+            self.data = PartsQuery(**part_filter).get()
+        
+    def GetColumnCount(self):
+        return 4
+
+    def GetColumnType(self, col):
+        mapper = { 
+            0 : 'long',
+            1 : 'string',
+            2 : 'string',
+            3 : 'string'
+        }
+        return mapper[col]
+
+    def GetChildren(self, parent, children):
+        # check root node
+        if not parent:
+            for part in self.data:
+                # mark root parts to avoid recursion
+                part.parent = None
+                children.append(self.ObjectToItem(part))
+            return len(self.data)
+        
+        # load childrens
+        parent_part = self.ItemToObject(parent)
+        for id in parent_part.parts:
+            subpart = PartsQuery().get(id)[0]
+            subpart.parent = parent_part
+            print "subpart", subpart.id
+            children.append(self.ObjectToItem(subpart))
+        return len(parent_part.parts)
+    
+    def IsContainer(self, item):
+        if not item:
+            return True
+        part = self.ItemToObject(item)
+        return len(part.parts)>0
+
+    def HasContainerColumns(self, item):
+        return True
+
+    def GetParent(self, item):
+        if not item:
+            return wx.dataview.NullDataViewItem
+
+        part = self.ItemToObject(item)
+        if not part.parent:
+            return wx.dataview.NullDataViewItem
+        else:
+            return self.ObjectToItem(part.parent)
+    
+    def GetValue(self, item, col):
+        obj = self.ItemToObject(item)
+        vMap = { 
+            0 : str(obj.id),
+            1 : obj.name,
+            2 : obj.description,
+            3 : obj.comment
+        }
+        if vMap[col] is None:
+            return ""
+        return vMap[col]
+
+    def SetValue(self, value, item, col):
+        pass
+    
+    def GetAttr(self, item, col, attr):
+        if col == 0:
+            attr.Bold = True
+            return True
+        return False
+
 class PartsFrame(PanelParts): 
     def __init__(self, parent): 
         super(PartsFrame, self).__init__(parent)
+        # create categories data
         self.part_categories_state = TreeState(self.tree_categories)
         self.part_categories_tree = Tree(self.tree_categories)
-        # create drop targets
-        pc_dt = PartCategoryDropTarget(self.tree_categories, self)
-        self.tree_categories.SetDropTarget(pc_dt)
-        
+        # create parts data
+        self.part_state = TreeState(self.tree_parts)
+        self.part_tree = Tree(self.tree_parts)
+        # create category drop targets
+        pc_dt = PartCategoryDropTarget(self)
+        self.tree_categories.SetDropTarget(pc_dt)        
+        # parts filters
+        self.part_filter={}
+        # create parts list
+        self.parts_model = PartDataModel()
+        self.tree_parts.AssociateModel(self.parts_model)
+        # add default columns
+        self.tree_parts.AppendTextColumn("id", 0, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_parts.AppendTextColumn("name", 1, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_parts.AppendTextColumn("description", 2, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_parts.AppendTextColumn("comment", 3, width=wx.COL_WIDTH_AUTOSIZE)
+        for c in self.tree_parts.Columns:
+            c.Sortable = True
+            c.Reorderable = True
+
+        # create parts drag and drop targets
+        self.tree_parts.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
+        p_dt = PartDropTarget(self)
+        self.tree_parts.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
+        self.tree_parts.SetDropTarget(p_dt)
+
     def _loadCategories(self):
         self.tree_categories.DeleteAllItems()
         
@@ -150,7 +292,7 @@ class PartsFrame(PanelParts):
                     # remove treated item from stack
                     category_stack.remove(category)
                     # add category to item element
-                    self.tree_categories.SetItemPyData(newitem, category)
+                    self.tree_categories.SetItemData(newitem, category)
         # set items status
         for path in path_to_item:
             if path and self.part_categories_state.expanded(path):
@@ -161,40 +303,40 @@ class PartsFrame(PanelParts):
         self.part_categories_tree.sort()
         
     def _loadParts(self):
-        parts = PartsQuery().get()
-        for part in parts:
-            print "Part: ", type(part), part.name
-
+        # apply new filter and reload
+        self.parts_model.Cleared()
+        self.parts_model = PartDataModel()
+        self.parts_model.Filter(self.part_filter)
+        self.tree_parts.AssociateModel(self.parts_model)
 
     # Virtual event handlers, overide them in your derived class
     def load(self):
         try:
             self._loadCategories()
-            self._loadParts()
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
         
-    def onCategoriesRefreshClick( self, event ):
+    def onButtonRefreshCategoriesClick( self, event ):
         try:
             self._loadCategories()
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             
 
-    def onCategoriesAddClick( self, event ):
+    def onButtonAddCategoryClick( self, event ):
         category = EditCategoryFrame(self).addCategory()
         if category:
             try:
                 # retrieve parent item from selection
                 parentitem = self.tree_categories.GetSelection()
-                category.parent = self.tree_categories.GetItemPyData(parentitem)
+                category.parent = self.tree_categories.GetItemData(parentitem)
                 # create category on server
                 category = PartCategoriesQuery().create(category)
                 # create category on treeview
                 newitem = self.tree_categories.AppendItem(parent=parentitem, text=category.name) 
                 # add category to item element
-                self.tree_categories.SetItemPyData(newitem, category)
+                self.tree_categories.SetItemData(newitem, category)
                 self.tree_categories.SelectItem(newitem)
                 self.part_categories_tree.sort(parentitem)
                 # set node state
@@ -202,24 +344,24 @@ class PartsFrame(PanelParts):
             except QueryError as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-    def onCategoriesEditClick( self, event ):
+    def onButtonEditCategoryClick( self, event ):
         sel = self.tree_categories.GetSelection()
-        if self.tree_categories.GetItemPyData(sel) is None:
+        if self.tree_categories.GetItemData(sel) is None:
             return
         # TODO: refresh category from database before edit
-        category = EditCategoryFrame(self).editCategory(self.tree_categories.GetItemPyData(sel))
+        category = EditCategoryFrame(self).editCategory(self.tree_categories.GetItemData(sel))
         if not category is None:
             try:
                 category = PartCategoriesQuery().update(category)
-                self.tree_categories.SetItemPyData(sel, category)
+                self.tree_categories.SetItemData(sel, category)
                 self.tree_categories.SetItemText(sel, category.name)
                 self.part_categories_tree.sort(self.tree_categories.GetItemParent(sel))
             except QueryError as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             
-    def onCategoriesRemoveClick( self, event ):
+    def onButtonRemoveCategoryClick( self, event ):
         sel = self.tree_categories.GetSelection()
-        category = self.tree_categories.GetItemPyData(sel)
+        category = self.tree_categories.GetItemData(sel)
         if category is None:
             return
         try:
@@ -247,8 +389,17 @@ class PartsFrame(PanelParts):
         
     def onTreeCategoriesSelChanged( self, event ):
         item = self.tree_categories.GetSelection()
+        category = self.tree_categories.GetItemData(item)
         self.part_categories_state.update(item, selected=True)
         self.part_categories_state.debug()
+        # set category filter
+        if category:
+            self.part_filter['category'] = category.id
+        else:
+            self.part_filter.pop('category')
+        # apply new filter and reload
+        self._loadParts()
+
 
     def onTreeCategoriesCollapsed( self, event ):
         self.part_categories_state.update(event.GetItem(), expanded=False)
@@ -259,8 +410,7 @@ class PartsFrame(PanelParts):
         event.Skip()
         
     def onTreeCategoriesBeginDrag( self, event ):
-        print "+ onTreeCategoriesBeginDrag"
-        category = self.tree_categories.GetItemPyData(event.GetItem())
+        category = self.tree_categories.GetItemData(event.GetItem())
         data = PartCategoryDataObject(category)
         dropSource = wx.DropSource(self)
         dropSource.SetData(data)
@@ -274,5 +424,40 @@ class PartsFrame(PanelParts):
             pass
 
     def onTreeCategoriesEndDrag( self, event ):
-        print "+ onTreeCategoriesEndDrag"
+        event.Allow()
+
+
+    def onButtonAddPartClick( self, event ):
+        part = EditPartFrame(self).addPart()
+        if part:
+            try:
+                # create part on server
+                category_item = self.tree_categories.GetSelection()
+                part.category = self.tree_categories.GetItemData(category_item)
+                part = PartsQuery().create(part)
+                self._loadParts()
+            except QueryError as e:
+                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+
+    def onButtonEditPartClick( self, event ):
+        event.Skip()
+
+    def onButtonRemovePartClick( self, event ):
+        event.Skip()
+
+    def onSearchPartsTextEnter( self, event ):
+        event.Skip()
+
+    def onButtonRefreshPartsClick( self, event ):
+        event.Skip()
+
+    def onTreePartsItemBeginDrag( self, event ):
+        print "+ onTreePartsBeginDrag"
+        part = self.parts_model.ItemToObject(event.GetItem())
+        data =  PartDataObject(part)
+        event.SetDataObject(data)
+
+        
+    def onTreePartsItemDrop( self, event ):
+        print "+ onTreePartsItemDrop"
         event.Allow()

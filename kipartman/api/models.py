@@ -3,7 +3,7 @@ from rest_client import fields
 from rest_client import models
 
 class PartCategory(models.Model):
-    id = fields.IntField(read_only=True)
+    id = fields.IntegerField(read_only=True)
     path = fields.TextField(read_only=True)
     name = fields.TextField()
     parent = fields.HyperlinkField('PartCategory')
@@ -11,11 +11,14 @@ class PartCategory(models.Model):
         return '%d: %s' % (self.id, self.name)
 
 class Part(models.Model):
-    category = fields.HyperlinkField('PartCategory')
-    metapart = fields.BooleanField()
+    id = fields.IntegerField(read_only=True)
+    path = fields.TextField(read_only=True)
     name = fields.TextField()
     description = fields.TextField()
+    category = fields.HyperlinkField('PartCategory')
     footprint = fields.HyperlinkField('Footprint')
+    comment = fields.TextField()
+    parts = fields.ListField(model='Part')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 

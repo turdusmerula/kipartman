@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'mptt',
     'crispy_forms',
     'rest_framework',
+    'filters',
+    'rest_framework_nested',
     'api',
 ]
 

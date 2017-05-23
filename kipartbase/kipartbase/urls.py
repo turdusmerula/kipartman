@@ -17,11 +17,22 @@ from django.conf.urls import include
 from django.conf.urls import url
 from django.contrib import admin
 
-import api.views
+#see https://www.machinalis.com/blog/nested-resources-with-django/
 
+#from rest_framework import routers
+from rest_framework_nested import routers
+from api.views import PartViewSet, PartCategoryViewSet, FootprintViewSet, FootprintCategoryViewSet
 
+router = routers.SimpleRouter()
+
+router.register(r'parts-categories', PartCategoryViewSet, base_name="parts-categories")
+router.register(r'parts', PartViewSet, base_name="parts")
+
+router.register(r'footprints-categories', FootprintCategoryViewSet, base_name="footprints-categories")
+router.register(r'footprints', FootprintViewSet, base_name="footprints")
+
+print router.urls
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/', include(api.views.router.urls)),
-    url(r'^api/auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api/', include(router.urls)),
 ]

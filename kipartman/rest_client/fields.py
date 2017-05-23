@@ -20,10 +20,10 @@ class Field(object):
     def is_read_only(self):
         return self._read_only
 
-class IntField(Field):
+class IntegerField(Field):
     def __init__(self, default=0, **kwargs):
         self.set_value(default)
-        super(IntField, self).__init__(**kwargs)
+        super(IntegerField, self).__init__(**kwargs)
 
     def set_value(self, value):
         try:
@@ -48,6 +48,13 @@ class TextField(Field):
     def __init__(self, default='', **kwargs):
         self.set_value(default)
         super(TextField, self).__init__(**kwargs)
+
+
+class ListField(Field):
+    def __init__(self, model=None, default=[], **kwargs):
+        self.set_value(default)
+        self.model = model
+        super(ListField, self).__init__(**kwargs)
 
 
 class HyperlinkField(Field):

@@ -2,11 +2,11 @@ from rest_client import queries
 from api import models
 
 class PartsQuery(queries.QuerySet):
-    path = '/parts'
+    path = '/parts/{part}'
     model = models.Part
-    
+
 class PartCategoriesQuery(queries.QuerySet):
-    path = '/parts/categories/{category}'
+    path = '/parts-categories/{category}'
     model = models.PartCategory
 
 class FootprintsQuery(queries.QuerySet):
@@ -14,6 +14,6 @@ class FootprintsQuery(queries.QuerySet):
     model = models.Footprint
 
 class FootprintCategoriesQuery(queries.QuerySet):
-    path = '/footprints/categories'
+    path = '/footprints-categories'
     model = models.FootprintCategory
 
