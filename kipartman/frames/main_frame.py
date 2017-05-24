@@ -1,5 +1,6 @@
 from dialogs.dialog_main import DialogMain
 from frames.parts_frame import PartsFrame
+from frames.footprints_frame import FootprintsFrame
 
 
 class MainFrame(DialogMain): 
@@ -7,7 +8,9 @@ class MainFrame(DialogMain):
         DialogMain.__init__(self, parent)
         self.partsframe = PartsFrame(self.notebook)
         self.notebook.AddPage(self.partsframe, "parts", False)
-        #TODO: footprints
+        
+        self.footprintsframe = FootprintsFrame(self.notebook)
+        self.notebook.AddPage(self.footprintsframe, "footprints", False)
         #TODO: projects
         #TODO: providers
         #TODO: manufacturers

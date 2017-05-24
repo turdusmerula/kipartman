@@ -32,7 +32,7 @@ class GetQueryMixin(object):
             res.raise_for_status()
             return self.model(**res.json())
         except requests.HTTPError as e:
-            raise QueryError(format(e))
+            raise QueryError(format(e), res.json())
         
 
 class UpdateQueryMixin(object):
@@ -45,7 +45,7 @@ class UpdateQueryMixin(object):
             res.raise_for_status()
             return self.model(**res.json())
         except requests.HTTPError as e:
-            raise QueryError(format(e))
+            raise QueryError(format(e), res.json())
 
 
 class CreateQueryMixin(object):
@@ -59,7 +59,7 @@ class CreateQueryMixin(object):
             res.raise_for_status()
             return self.model(**res.json())
         except requests.HTTPError as e:
-            raise QueryError(format(e))
+            raise QueryError(format(e), res.json())
 
 class DeleteQueryMixin(object):
     def delete(self, obj):
@@ -70,7 +70,7 @@ class DeleteQueryMixin(object):
             res = requests.delete(url)
             res.raise_for_status()
         except requests.HTTPError as e:
-            raise QueryError(format(e))
+            raise QueryError(format(e), res.json())
     
 class GetQuerySetMixin(object):
     def get(self, *args, **kwargs):

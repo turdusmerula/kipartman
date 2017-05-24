@@ -20,7 +20,7 @@ class Part(models.Model):
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('Footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     comment = models.TextField(null=True, blank=True, default='')
-    parts = models.ManyToManyField('Part')
+    parts = models.ManyToManyField('Part', blank=True)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 

@@ -1,7 +1,6 @@
-from dialogs.panel_parts import PanelParts
+from dialogs.panel_footprints import PanelFootprints
 from frames.edit_category_frame import EditCategoryFrame
-from frames.edit_part_frame import EditPartFrame
-from api.queries import PartsQuery, PartCategoriesQuery
+from api.queries import FootprintsQuery, FootprintCategoriesQuery
 from rest_client.exceptions import QueryError
 import wx
 import wx.dataview
@@ -15,80 +14,80 @@ from helper.tree import Tree
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
 
 
-class PartCategoryDataObject(wx.TextDataObject):
+class FootprintCategoryDataObject(wx.TextDataObject):
     def __init__(self, category): 
-        super(PartCategoryDataObject, self).__init__()
+        super(FootprintCategoryDataObject, self).__init__()
         self.category = category
-        self.SetText(json.dumps({'model': 'PartCategory', 'url': category.path, 'id': category.id}))
+        self.SetText(json.dumps({'model': 'FootprintCategory', 'url': category.path, 'id': category.id}))
         
     
-class PartCategoryDropTarget(wx.TextDropTarget):
+class FootprintCategoryDropTarget(wx.TextDropTarget):
     def __init__(self, frame):
         self.frame = frame
-        super(PartCategoryDropTarget, self).__init__()
+        super(FootprintCategoryDropTarget, self).__init__()
     
     #TODO: set drag cursor depending on accept/reject drop
     def OnDropText(self, x, y, text):
         data = json.loads(text)
-        print "PartCategoryDropTarget.OnDropText", data, x, y
+        print "FootprintCategoryDropTarget.OnDropText", data, x, y
         item, _ = self.frame.tree_categories.HitTest((x, y))
         if item.IsOk():
             target_category = self.frame.tree_categories.GetItemData(item)
         else:
             target_category = None
-        if data['model']=='PartCategory':
-            source_category = PartCategoriesQuery().get(data['id'])[0]
+        if data['model']=='FootprintCategory':
+            source_category = FootprintCategoriesQuery().get(data['id'])[0]
             if source_category:
                 source_category.parent = target_category
-            PartCategoriesQuery().update(source_category)
-        elif data['model']=='Part':
-            source_part = PartsQuery().get(data['id'])[0]
-            if source_part:
-                source_part.category = target_category
-                PartsQuery().update(source_part)
+            FootprintCategoriesQuery().update(source_category)
+        elif data['model']=='Footprint':
+            source_footprint = FootprintsQuery().get(data['id'])[0]
+            if source_footprint:
+                source_footprint.category = target_category
+                FootprintsQuery().update(source_footprint)
         self.frame.load()
         return wx.DragMove
 
 
-class PartDataObject(wx.TextDataObject):
+class FootprintDataObject(wx.TextDataObject):
     def __init__(self, category): 
-        super(PartDataObject, self).__init__()
+        super(FootprintDataObject, self).__init__()
         self.category = category
-        self.SetText(json.dumps({'model': 'Part', 'url': category.path, 'id': category.id}))
+        self.SetText(json.dumps({'model': 'Footprint', 'url': category.path, 'id': category.id}))
 
-class PartDropTarget(wx.TextDropTarget):
+class FootprintDropTarget(wx.TextDropTarget):
     def __init__(self, frame):
         self.frame = frame
-        super(PartDropTarget, self).__init__()
+        super(FootprintDropTarget, self).__init__()
     
     #TODO: set drag cursor depending on accept/reject drop
     def OnDropText(self, x, y, text):
         data = json.loads(text)
-        print "PartDropTarget.OnDropText", data, x, y
-        item, _ = self.frame.tree_parts.HitTest((x, y))
+        print "FootprintDropTarget.OnDropText", data, x, y
+        item, _ = self.frame.tree_footprints.HitTest((x, y))
         if item.IsOk():
             # do a copy to avoid nasty things
-            target_part = copy.deepcopy(self.frame.parts_model.ItemToObject(item))
+            target_footprint = copy.deepcopy(self.frame.footprints_model.ItemToObject(item))
         else:
-            target_part = None
-        if data['model']=='Part':
-            source_part = PartsQuery().get(data['id'])[0]
-            if source_part and target_part:
-                target_part.parts.append(source_part.id)
-                PartsQuery().update(target_part)
-        self.frame._loadParts()
+            target_footprint = None
+        if data['model']=='Footprint':
+            source_footprint = FootprintsQuery().get(data['id'])[0]
+            if source_footprint and target_footprint:
+                target_footprint.footprints.append(source_footprint.id)
+                FootprintsQuery().update(target_footprint)
+        self.frame._loadFootprints()
         return wx.DragMove
 
 
-class PartDataModel(wx.dataview.PyDataViewModel):
+class FootprintDataModel(wx.dataview.PyDataViewModel):
     def __init__(self):
-        super(PartDataModel, self).__init__()
-        self.data = PartsQuery().get()
+        super(FootprintDataModel, self).__init__()
+        self.data = FootprintsQuery().get()
         #self.UseWeakRefs(True)
     
-    def Filter(self, part_filter=None):
-        if part_filter:
-            self.data = PartsQuery(**part_filter).get()
+    def Filter(self, footprint_filter=None):
+        if footprint_filter:
+            self.data = FootprintsQuery(**footprint_filter).get()
         
     def GetColumnCount(self):
         return 4
@@ -105,26 +104,26 @@ class PartDataModel(wx.dataview.PyDataViewModel):
     def GetChildren(self, parent, children):
         # check root node
         if not parent:
-            for part in self.data:
-                # mark root parts to avoid recursion
-                part.parent = None
-                children.append(self.ObjectToItem(part))
+            for footprint in self.data:
+                # mark root footprints to avoid recursion
+                footprint.parent = None
+                children.append(self.ObjectToItem(footprint))
             return len(self.data)
         
         # load childrens
-        parent_part = self.ItemToObject(parent)
-        for id in parent_part.parts:
-            subpart = PartsQuery().get(id)[0]
-            subpart.parent = parent_part
-            print "subpart", subpart.id
-            children.append(self.ObjectToItem(subpart))
-        return len(parent_part.parts)
+        parent_footprint = self.ItemToObject(parent)
+        for id in parent_footprint.footprints:
+            subfootprint = FootprintsQuery().get(id)[0]
+            subfootprint.parent = parent_footprint
+            print "subfootprint", subfootprint.id
+            children.append(self.ObjectToItem(subfootprint))
+        return len(parent_footprint.footprints)
     
     def IsContainer(self, item):
         if not item:
             return True
-        part = self.ItemToObject(item)
-        return len(part.parts)>0
+        footprint = self.ItemToObject(item)
+        return len(footprint.footprints)>0
 
     def HasContainerColumns(self, item):
         return True
@@ -133,11 +132,11 @@ class PartDataModel(wx.dataview.PyDataViewModel):
         if not item:
             return wx.dataview.NullDataViewItem
 
-        part = self.ItemToObject(item)
-        if not part.parent:
+        footprint = self.ItemToObject(item)
+        if not footprint.parent:
             return wx.dataview.NullDataViewItem
         else:
-            return self.ObjectToItem(part.parent)
+            return self.ObjectToItem(footprint.parent)
     
     def GetValue(self, item, col):
         obj = self.ItemToObject(item)
@@ -160,36 +159,36 @@ class PartDataModel(wx.dataview.PyDataViewModel):
             return True
         return False
 
-class PartsFrame(PanelParts): 
+class FootprintsFrame(PanelFootprints): 
     def __init__(self, parent): 
-        super(PartsFrame, self).__init__(parent)
+        super(FootprintsFrame, self).__init__(parent)
         # create categories data
-        self.part_categories_state = TreeState(self.tree_categories)
-        self.part_categories_tree = Tree(self.tree_categories)
-        # create parts data
-        self.part_state = TreeState(self.tree_parts)
+        self.footprint_categories_state = TreeState(self.tree_categories)
+        self.footprint_categories_tree = Tree(self.tree_categories)
+        # create footprints data
+        self.footprint_state = TreeState(self.tree_footprints)
         # create category drop targets
-        pc_dt = PartCategoryDropTarget(self)
+        pc_dt = FootprintCategoryDropTarget(self)
         self.tree_categories.SetDropTarget(pc_dt)        
-        # parts filters
-        self.part_filter={}
-        # create parts list
-        self.parts_model = PartDataModel()
-        self.tree_parts.AssociateModel(self.parts_model)
+        # footprints filters
+        self.footprint_filter={}
+        # create footprints list
+        self.footprints_model = FootprintDataModel()
+        self.tree_footprints.AssociateModel(self.footprints_model)
         # add default columns
-        self.tree_parts.AppendTextColumn("id", 0, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parts.AppendTextColumn("name", 1, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parts.AppendTextColumn("description", 2, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parts.AppendTextColumn("comment", 3, width=wx.COL_WIDTH_AUTOSIZE)
-        for c in self.tree_parts.Columns:
+        self.tree_footprints.AppendTextColumn("id", 0, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_footprints.AppendTextColumn("name", 1, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_footprints.AppendTextColumn("description", 2, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_footprints.AppendTextColumn("comment", 3, width=wx.COL_WIDTH_AUTOSIZE)
+        for c in self.tree_footprints.Columns:
             c.Sortable = True
             c.Reorderable = True
 
-        # create parts drag and drop targets
-        self.tree_parts.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
-        p_dt = PartDropTarget(self)
-        self.tree_parts.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
-        self.tree_parts.SetDropTarget(p_dt)
+        # create footprints drag and drop targets
+        self.tree_footprints.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
+        p_dt = FootprintDropTarget(self)
+        self.tree_footprints.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
+        self.tree_footprints.SetDropTarget(p_dt)
 
     def _loadCategories(self):
         self.tree_categories.DeleteAllItems()
@@ -199,11 +198,11 @@ class PartsFrame(PanelParts):
         
         # root node
         self.tree_categories.AddRoot('root')
-        self.part_categories_state.update(self.tree_categories.GetRootItem())
+        self.footprint_categories_state.update(self.tree_categories.GetRootItem())
         path_to_item[None] = self.tree_categories.GetRootItem()
 
         # retrieve categories
-        categories = PartCategoriesQuery().get()
+        categories = FootprintCategoriesQuery().get()
 
         # first loop to initialize a category stack
         # the stack allows to load parents before childrens in case of an unordered request
@@ -230,25 +229,25 @@ class PartsFrame(PanelParts):
                     self.tree_categories.SetItemData(newitem, category)
         # set items status
         for path in path_to_item:
-            if path and self.part_categories_state.expanded(path):
+            if path and self.footprint_categories_state.expanded(path):
                 self.tree_categories.Expand(path_to_item[path])
-            if self.part_categories_state.selected(path):
+            if self.footprint_categories_state.selected(path):
                 self.tree_categories.SelectItem(path_to_item[path])
 
-        self.part_categories_tree.sort()
+        self.footprint_categories_tree.sort()
         
-    def _loadParts(self):
+    def _loadFootprints(self):
         # apply new filter and reload
-        self.parts_model.Cleared()
-        self.parts_model = PartDataModel()
-        self.parts_model.Filter(self.part_filter)
-        self.tree_parts.AssociateModel(self.parts_model)
+        self.footprints_model.Cleared()
+        self.footprints_model = FootprintDataModel()
+        self.footprints_model.Filter(self.footprint_filter)
+        self.tree_footprints.AssociateModel(self.footprints_model)
 
     # Virtual event handlers, overide them in your derived class
     def load(self):
         try:
             self._loadCategories()
-            self._loadParts()
+            self._loadFootprints()
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
@@ -268,15 +267,15 @@ class PartsFrame(PanelParts):
                 parentitem = self.tree_categories.GetSelection()
                 category.parent = self.tree_categories.GetItemData(parentitem)
                 # create category on server
-                category = PartCategoriesQuery().create(category)
+                category = FootprintCategoriesQuery().create(category)
                 # create category on treeview
                 newitem = self.tree_categories.AppendItem(parent=parentitem, text=category.name) 
                 # add category to item element
                 self.tree_categories.SetItemData(newitem, category)
                 self.tree_categories.SelectItem(newitem)
-                self.part_categories_tree.sort(parentitem)
+                self.footprint_categories_tree.sort(parentitem)
                 # set node state
-                self.part_categories_state.update(newitem)
+                self.footprint_categories_state.update(newitem)
             except QueryError as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
@@ -288,10 +287,10 @@ class PartsFrame(PanelParts):
         category = EditCategoryFrame(self).editCategory(self.tree_categories.GetItemData(sel))
         if not category is None:
             try:
-                category = PartCategoriesQuery().update(category)
+                category = FootprintCategoriesQuery().update(category)
                 self.tree_categories.SetItemData(sel, category)
                 self.tree_categories.SetItemText(sel, category.name)
-                self.part_categories_tree.sort(self.tree_categories.GetItemParent(sel))
+                self.footprint_categories_tree.sort(self.tree_categories.GetItemParent(sel))
             except QueryError as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             
@@ -301,12 +300,12 @@ class PartsFrame(PanelParts):
         if category is None:
             return
         try:
-            PartCategoriesQuery().delete(category)
+            FootprintCategoriesQuery().delete(category)
             self._loadCategories()
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         # remove category status
-        self.part_categories_state.remove(category.path)        
+        self.footprint_categories_state.remove(category.path)        
 
     def onTreeCategoriesOnChar( self, event ):
         keycode = event.GetKeyCode()
@@ -315,45 +314,45 @@ class PartsFrame(PanelParts):
             # unselect current item
             self.tree_categories.SelectItem(self.tree_categories.RootItem)
             # update state
-            self.part_categories_state.update(sel)
-            self.part_categories_state.update(self.tree_categories.RootItem)            
+            self.footprint_categories_state.update(sel)
+            self.footprint_categories_state.update(self.tree_categories.RootItem)            
         event.Skip()
 
     def onTreeCategoriesSelChanging( self, event ):
         item = self.tree_categories.GetSelection()
-        self.part_categories_state.update(item, selected=False)
+        self.footprint_categories_state.update(item, selected=False)
         
     def onTreeCategoriesSelChanged( self, event ):
         item = self.tree_categories.GetSelection()
         category = self.tree_categories.GetItemData(item)
-        self.part_categories_state.update(item, selected=True)
-        self.part_categories_state.debug()
+        self.footprint_categories_state.update(item, selected=True)
+        self.footprint_categories_state.debug()
         # set category filter
         if category:
-            self.part_filter['category'] = category.id
+            self.footprint_filter['category'] = category.id
         else:
-            self.part_filter.pop('category')
+            self.footprint_filter.pop('category')
         # apply new filter and reload
-        self._loadParts()
+        self._loadFootprints()
 
 
     def onTreeCategoriesCollapsed( self, event ):
-        self.part_categories_state.update(event.GetItem(), expanded=False)
+        self.footprint_categories_state.update(event.GetItem(), expanded=False)
         event.Skip()
     
     def onTreeCategoriesExpanded( self, event ):
-        self.part_categories_state.update(event.GetItem(), expanded=True)
+        self.footprint_categories_state.update(event.GetItem(), expanded=True)
         event.Skip()
         
     def onTreeCategoriesBeginDrag( self, event ):
         category = self.tree_categories.GetItemData(event.GetItem())
-        data = PartCategoryDataObject(category)
+        data = FootprintCategoryDataObject(category)
         dropSource = wx.DropSource(self)
         dropSource.SetData(data)
         result = dropSource.DoDragDrop(flags=wx.Drag_DefaultMove)
         print type(result)
         if result==wx.DragCopy:
-#            CopyPartCategory()
+#            CopyFootprintCategory()
             pass
         elif result==wx.DragMove:
 #            MoveMyData()
@@ -363,56 +362,58 @@ class PartsFrame(PanelParts):
         event.Allow()
 
 
-    def onButtonAddPartClick( self, event ):
-        part = EditPartFrame(self).add()
-        if part:
-            try:
-                # create part on server
-                category_item = self.tree_categories.GetSelection()
-                part.category = self.tree_categories.GetItemData(category_item)
-                part = PartsQuery().create(part)
-                self._loadParts()
-            except QueryError as e:
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+    def onButtonAddFootprintClick( self, event ):
+        pass
+#         footprint = EditFootprintFrame(self).add()
+#         if footprint:
+#             try:
+#                 # create footprint on server
+#                 category_item = self.tree_categories.GetSelection()
+#                 footprint.category = self.tree_categories.GetItemData(category_item)
+#                 footprint = FootprintsQuery().create(footprint)
+#                 self._loadFootprints()
+#             except QueryError as e:
+#                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-    def onButtonEditPartClick( self, event ):
-        part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
-        part = EditPartFrame(self).edit(part)
-        if part:
-            try:
-                # update part on server
-                part = PartsQuery().update(part)
-                self._loadParts()
-            except QueryError as e:
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+    def onButtonEditFootprintClick( self, event ):
+        pass
+#         footprint = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
+#         footprint = EditFootprintFrame(self).edit(footprint)
+#         if footprint:
+#             try:
+#                 # update footprint on server
+#                 footprint = FootprintsQuery().update(footprint)
+#                 self._loadFootprints()
+#             except QueryError as e:
+#                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-    def onButtonRemovePartClick( self, event ):
-        part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
-        if part.parent:
-            # remove selected part from subparts
-            print "----", part.parent.parts
-            part.parent.parts.remove(part.id)
-            print "----", part.parent.parts
-            PartsQuery().update(part)
+    def onButtonRemoveFootprintClick( self, event ):
+        footprint = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
+        if footprint.parent:
+            # remove selected footprint from subfootprints
+            print "----", footprint.parent.footprints
+            footprint.parent.footprints.remove(footprint.id)
+            print "----", footprint.parent.footprints
+            FootprintsQuery().update(footprint)
         else:
-            # remove part
-            PartsQuery().delete(part)
-        self._loadParts()
+            # remove footprint
+            FootprintsQuery().delete(footprint)
+        self._loadFootprints()
         event.Skip()
 
-    def onSearchPartsTextEnter( self, event ):
+    def onSearchFootprintsTextEnter( self, event ):
         event.Skip()
 
-    def onButtonRefreshPartsClick( self, event ):
+    def onButtonRefreshFootprintsClick( self, event ):
         event.Skip()
 
-    def onTreePartsItemBeginDrag( self, event ):
-        print "+ onTreePartsBeginDrag"
-        part = self.parts_model.ItemToObject(event.GetItem())
-        data =  PartDataObject(part)
+    def onTreeFootprintsItemBeginDrag( self, event ):
+        print "+ onTreeFootprintsBeginDrag"
+        footprint = self.footprints_model.ItemToObject(event.GetItem())
+        data =  FootprintDataObject(footprint)
         event.SetDataObject(data)
 
         
-    def onTreePartsItemDrop( self, event ):
-        print "+ onTreePartsItemDrop"
+    def onTreeFootprintsItemDrop( self, event ):
+        print "+ onTreeFootprintsItemDrop"
         event.Allow()

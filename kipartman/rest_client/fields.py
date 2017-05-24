@@ -55,7 +55,9 @@ class ListField(Field):
         self.set_value(default)
         self.model = model
         super(ListField, self).__init__(**kwargs)
-
+    
+    def remove(self, item):
+        self.get_value(self).remove(item)
 
 class HyperlinkField(Field):
     def __init__(self, model, **kwargs):

@@ -12,19 +12,18 @@ import wx.xrc
 import wx.dataview
 
 ###########################################################################
-## Class PanelParts
+## Class PanelFootprints
 ###########################################################################
 
-class PanelParts ( wx.Panel ):
+class PanelFootprints ( wx.Panel ):
 	
 	def __init__( self, parent ):
 		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1086,756 ), style = wx.TAB_TRAVERSAL )
 		
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_splitter2 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.m_splitter2 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
 		self.m_splitter2.Bind( wx.EVT_IDLE, self.m_splitter2OnIdle )
-		self.m_splitter2.SetMinimumPaneSize( 300 )
 		
 		self.m_panel2 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
@@ -66,35 +65,13 @@ class PanelParts ( wx.Panel ):
 		self.m_panel3 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 		
-		bSizer7 = wx.BoxSizer( wx.VERTICAL )
-		
-		self.m_splitter21 = wx.SplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.m_splitter21 = wx.SplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
 		self.m_splitter21.Bind( wx.EVT_IDLE, self.m_splitter21OnIdle )
-		self.m_splitter21.SetMinimumPaneSize( 300 )
 		
 		self.m_panel31 = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer12 = wx.BoxSizer( wx.VERTICAL )
 		
-		bSizer111 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.m_staticText2 = wx.StaticText( self.m_panel31, wx.ID_ANY, u"Filters:", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText2.Wrap( -1 )
-		bSizer111.Add( self.m_staticText2, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.button_remove_filter = wx.Button( self.m_panel31, wx.ID_ANY, u"x", wx.DefaultPosition, wx.DefaultSize, 0|wx.NO_BORDER )
-		self.button_remove_filter.SetMaxSize( wx.Size( 16,16 ) )
-		
-		bSizer111.Add( self.button_remove_filter, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.label_filter = wx.StaticText( self.m_panel31, wx.ID_ANY, u"MyLabel", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.label_filter.Wrap( -1 )
-		bSizer111.Add( self.label_filter, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.line_filter = wx.StaticLine( self.m_panel31, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_VERTICAL )
-		bSizer111.Add( self.line_filter, 0, wx.EXPAND |wx.ALL, 5 )
-		
-		
-		bSizer12.Add( bSizer111, 0, wx.EXPAND, 5 )
+		bSizer7 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
 		
@@ -128,55 +105,62 @@ class PanelParts ( wx.Panel ):
 		bSizer11.Add( bSizer61, 0, 0, 5 )
 		
 		
-		bSizer12.Add( bSizer11, 0, wx.EXPAND, 5 )
+		bSizer7.Add( bSizer11, 0, wx.EXPAND, 5 )
 		
-		self.tree_parts = wx.dataview.DataViewCtrl( self.m_panel31, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer12.Add( self.tree_parts, 1, wx.ALL|wx.EXPAND, 5 )
+		self.tree_footprints = wx.dataview.DataViewCtrl( self.m_panel31, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer7.Add( self.tree_footprints, 1, wx.ALL|wx.EXPAND, 5 )
+		
+		
+		bSizer12.Add( bSizer7, 1, wx.EXPAND, 5 )
 		
 		
 		self.m_panel31.SetSizer( bSizer12 )
 		self.m_panel31.Layout()
 		bSizer12.Fit( self.m_panel31 )
 		self.m_panel4 = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer13 = wx.BoxSizer( wx.VERTICAL )
+		self.m_panel4.SetMinSize( wx.Size( -1,300 ) )
+		
+		bSizer14 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		bSizer15 = wx.BoxSizer( wx.VERTICAL )
 		
 		fgSizer1 = wx.FlexGridSizer( 0, 2, 0, 0 )
 		fgSizer1.AddGrowableCol( 1 )
-		fgSizer1.SetFlexibleDirection( wx.BOTH )
+		fgSizer1.SetFlexibleDirection( wx.VERTICAL )
 		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText3 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Name", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText1 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Name", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText1.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrl1 = wx.TextCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.m_textCtrl1, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText2 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText2.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText2, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_textCtrl2 = wx.TextCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.m_textCtrl2, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText3 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrl1 = wx.TextCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.m_textCtrl1, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
-		
-		self.m_staticText4 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText4.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_textCtrl2 = wx.TextCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.m_textCtrl2, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_staticText5 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Footprint", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText5.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_choicebook1 = wx.Choicebook( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.CHB_DEFAULT )
-		fgSizer1.Add( self.m_choicebook1, 1, wx.EXPAND|wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_staticText6 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText6.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
 		self.m_textCtrl3 = wx.TextCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
-		self.m_textCtrl3.SetMinSize( wx.Size( -1,120 ) )
+		self.m_textCtrl3.SetMinSize( wx.Size( -1,110 ) )
 		
 		fgSizer1.Add( self.m_textCtrl3, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		self.m_staticText4 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Image", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText4.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		bSizer13.Add( fgSizer1, 1, wx.EXPAND, 5 )
+		self.m_filePicker1 = wx.FilePickerCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, u"Select a file", u"*.*", wx.DefaultPosition, wx.DefaultSize, wx.FLP_DEFAULT_STYLE )
+		fgSizer1.Add( self.m_filePicker1, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		bSizer15.Add( fgSizer1, 1, wx.EXPAND, 5 )
 		
 		m_sdbSizer1 = wx.StdDialogButtonSizer()
 		self.m_sdbSizer1Apply = wx.Button( self.m_panel4, wx.ID_APPLY )
@@ -185,17 +169,25 @@ class PanelParts ( wx.Panel ):
 		m_sdbSizer1.AddButton( self.m_sdbSizer1Cancel )
 		m_sdbSizer1.Realize();
 		
-		bSizer13.Add( m_sdbSizer1, 0, wx.EXPAND, 5 )
+		bSizer15.Add( m_sdbSizer1, 0, wx.EXPAND, 5 )
 		
 		
-		self.m_panel4.SetSizer( bSizer13 )
+		bSizer14.Add( bSizer15, 1, wx.EXPAND, 5 )
+		
+		bSizer16 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_bitmap1 = wx.StaticBitmap( self.m_panel4, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer16.Add( self.m_bitmap1, 0, wx.ALL, 5 )
+		
+		
+		bSizer14.Add( bSizer16, 1, wx.EXPAND, 5 )
+		
+		
+		self.m_panel4.SetSizer( bSizer14 )
 		self.m_panel4.Layout()
-		bSizer13.Fit( self.m_panel4 )
-		self.m_splitter21.SplitHorizontally( self.m_panel31, self.m_panel4, 442 )
-		bSizer7.Add( self.m_splitter21, 1, wx.EXPAND, 5 )
-		
-		
-		bSizer3.Add( bSizer7, 1, wx.EXPAND, 5 )
+		bSizer14.Fit( self.m_panel4 )
+		self.m_splitter21.SplitHorizontally( self.m_panel31, self.m_panel4, 476 )
+		bSizer3.Add( self.m_splitter21, 1, wx.EXPAND, 5 )
 		
 		
 		self.m_panel3.SetSizer( bSizer3 )
@@ -226,11 +218,11 @@ class PanelParts ( wx.Panel ):
 		self.button_remove_part.Bind( wx.EVT_BUTTON, self.onButtonRemovePartClick )
 		self.search_parts.Bind( wx.EVT_TEXT_ENTER, self.onSearchPartsTextEnter )
 		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
-		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_ITEM_BEGIN_DRAG, self.onTreePartsItemBeginDrag, id = wx.ID_ANY )
-		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_ITEM_COLLAPSED, self.onTreePartsItemCollapsed, id = wx.ID_ANY )
-		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_ITEM_DROP, self.onTreePartsItemDrop, id = wx.ID_ANY )
-		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_ITEM_EXPANDED, self.onTreePartsItemExpanded, id = wx.ID_ANY )
-		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartsSelectionChanged, id = wx.ID_ANY )
+		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_BEGIN_DRAG, self.onTreePartsItemBeginDrag, id = wx.ID_ANY )
+		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_COLLAPSED, self.onTreePartsItemCollapsed, id = wx.ID_ANY )
+		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_DROP, self.onTreePartsItemDrop, id = wx.ID_ANY )
+		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_EXPANDED, self.onTreePartsItemExpanded, id = wx.ID_ANY )
+		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartsSelectionChanged, id = wx.ID_ANY )
 	
 	def __del__( self ):
 		pass
@@ -308,7 +300,7 @@ class PanelParts ( wx.Panel ):
 		self.m_splitter2.Unbind( wx.EVT_IDLE )
 	
 	def m_splitter21OnIdle( self, event ):
-		self.m_splitter21.SetSashPosition( 442 )
+		self.m_splitter21.SetSashPosition( 476 )
 		self.m_splitter21.Unbind( wx.EVT_IDLE )
 	
 
