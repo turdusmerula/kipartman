@@ -10,7 +10,10 @@ from api import models
 import copy
 from helper.tree_state import ItemState, TreeState
 from helper.tree import Tree
- 
+from helper.filter import Filter
+
+import time
+
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
 
@@ -170,9 +173,9 @@ class PartsFrame(PanelParts):
         self.part_state = TreeState(self.tree_parts)
         # create category drop targets
         pc_dt = PartCategoryDropTarget(self)
-        self.tree_categories.SetDropTarget(pc_dt)        
+        self.tree_categories.SetDropTarget(pc_dt)
         # parts filters
-        self.part_filter={}
+        self.parts_filter = Filter(self.filters_panel, self.onButtonRemoveFilterClick)
         # create parts list
         self.parts_model = PartDataModel()
         self.tree_parts.AssociateModel(self.parts_model)
@@ -190,6 +193,11 @@ class PartsFrame(PanelParts):
         p_dt = PartDropTarget(self)
         self.tree_parts.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
         self.tree_parts.SetDropTarget(p_dt)
+
+        # initial edit state
+        self.show_part(None)
+        self.edit_state = None
+        self.edit_part_object = None
 
     def _loadCategories(self):
         self.tree_categories.DeleteAllItems()
@@ -236,12 +244,12 @@ class PartsFrame(PanelParts):
                 self.tree_categories.SelectItem(path_to_item[path])
 
         self.part_categories_tree.sort()
-        
+
     def _loadParts(self):
         # apply new filter and reload
         self.parts_model.Cleared()
         self.parts_model = PartDataModel()
-        self.parts_model.Filter(self.part_filter)
+        self.parts_model.Filter(self.parts_filter.query_filter())
         self.tree_parts.AssociateModel(self.parts_model)
 
     # Virtual event handlers, overide them in your derived class
@@ -252,7 +260,42 @@ class PartsFrame(PanelParts):
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
+
+    def show_part(self, part):
+        # disable editing
+        self.panel_edit_part.Enabled = False
+        # enable evrything else
+        self.panel_category.Enabled = True
+        self.panel_parts.Enabled = True
+        if part:
+            self.edit_part_name.Value = part.name
+            self.edit_part_description.Value = part.description
+            self.edit_part_comment.Value = part.comment
+        else:
+            self.edit_part_name.Value = ''
+            self.edit_part_description.Value = ''
+            self.edit_part_comment.Value = ''
+            
+    
+    def edit_part(self, part):
+        self.show_part(part)
+        self.edit_part_object = part
+        # enable editing
+        self.panel_edit_part.Enabled = True
+        # disable evrything else
+        self.panel_category.Enabled = False
+        self.panel_parts.Enabled = False
         
+    def new_part(self):
+        self.edit_part(models.Part())
+
+
+    def onButtonRemoveFilterClick( self, event ):
+        button = event.GetEventObject()
+        self.parts_filter.remove(button.GetName())
+        self.tree_categories.UnselectAll()
+        self._loadParts()
+    
     def onButtonRefreshCategoriesClick( self, event ):
         try:
             self._loadCategories()
@@ -301,8 +344,12 @@ class PartsFrame(PanelParts):
         if category is None:
             return
         try:
-            PartCategoriesQuery().delete(category)
-            self._loadCategories()
+            res = wx.MessageDialog(self, "Remove category '"+category.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+            if res==wx.ID_OK:
+                PartCategoriesQuery().delete(category)
+                self._loadCategories()
+            else:
+                return
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         # remove category status
@@ -329,10 +376,9 @@ class PartsFrame(PanelParts):
         self.part_categories_state.update(item, selected=True)
         self.part_categories_state.debug()
         # set category filter
+        self.parts_filter.remove('category')
         if category:
-            self.part_filter['category'] = category.id
-        else:
-            self.part_filter.pop('category')
+            self.parts_filter.add('category', category.id, category.name)
         # apply new filter and reload
         self._loadParts()
 
@@ -364,55 +410,82 @@ class PartsFrame(PanelParts):
 
 
     def onButtonAddPartClick( self, event ):
-        part = EditPartFrame(self).add()
-        if part:
-            try:
-                # create part on server
-                category_item = self.tree_categories.GetSelection()
-                part.category = self.tree_categories.GetItemData(category_item)
-                part = PartsQuery().create(part)
-                self._loadParts()
-            except QueryError as e:
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+        self.edit_state = 'add'
+        self.new_part()
 
     def onButtonEditPartClick( self, event ):
         part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
-        part = EditPartFrame(self).edit(part)
-        if part:
-            try:
-                # update part on server
-                part = PartsQuery().update(part)
-                self._loadParts()
-            except QueryError as e:
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+        self.edit_state = 'edit'
+        self.edit_part(part)
 
     def onButtonRemovePartClick( self, event ):
         part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
         if part.parent:
-            # remove selected part from subparts
-            print "----", part.parent.parts
-            part.parent.parts.remove(part.id)
-            print "----", part.parent.parts
-            PartsQuery().update(part)
+            res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+part.parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+            if res==wx.ID_OK:
+                # remove selected part from subparts
+                part.parent.parts.remove(part.id)
+                PartsQuery().update(part.parent)
+            else:
+                return 
         else:
-            # remove part
-            PartsQuery().delete(part)
+            res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+            if res==wx.ID_OK:
+                # remove part
+                PartsQuery().delete(part)
+            else:
+                return
         self._loadParts()
         event.Skip()
 
     def onSearchPartsTextEnter( self, event ):
-        event.Skip()
+        # set search filter
+        self.parts_filter.remove('search')
+        if self.search_parts.Value!='':
+            self.parts_filter.add('search', self.search_parts.Value)
+        # apply new filter and reload
+        self._loadParts()
 
     def onButtonRefreshPartsClick( self, event ):
-        event.Skip()
+        self._loadParts()
 
     def onTreePartsItemBeginDrag( self, event ):
-        print "+ onTreePartsBeginDrag"
         part = self.parts_model.ItemToObject(event.GetItem())
         data =  PartDataObject(part)
         event.SetDataObject(data)
 
         
     def onTreePartsItemDrop( self, event ):
-        print "+ onTreePartsItemDrop"
         event.Allow()
+
+    def onTreePartsItemCollapsed( self, event ):
+        event.Skip()
+    
+    def onTreePartsItemExpanded( self, event ):
+        event.Skip()
+    
+    def onTreePartsSelectionChanged( self, event ):
+        part = None
+        if event.GetItem():
+            part = self.parts_model.ItemToObject(event.GetItem())
+        self.show_part(part)
+    
+    def onButtonPartEditApply( self, event ):
+        try:
+            self.edit_part_object.name = self.edit_part_name.Value
+            self.edit_part_object.description = self.edit_part_description.Value
+            self.edit_part_object.comment = self.edit_part_comment.Value
+            if self.edit_state=='edit':
+                # update part on server
+                PartsQuery().update(self.edit_part_object)
+            elif self.edit_state=='add':
+                PartsQuery().create(self.edit_part_object)
+            self._loadParts()
+        except QueryError as e:
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+        self.edit_state = None
+    
+    def onButtonPartEditCancel( self, event ):
+        part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
+        self.edit_state = None
+        self.show_part(part)

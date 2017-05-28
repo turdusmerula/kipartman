@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, get_list_or_404
 import models
 import serializers
+from django.db.models import Q
 
 
 class VerboseModelViewSet(viewsets.ModelViewSet):
@@ -76,6 +77,7 @@ class PartViewSet(VerboseModelViewSet):
     def list(self, request, *args, **kwargs):
         print "list: ", request.data, request.query_params
         parts = models.Part.objects
+        
         if request.query_params.has_key('category'):
             print "Filter by category"
             # add a category filter
@@ -83,6 +85,19 @@ class PartViewSet(VerboseModelViewSet):
             categories = models.PartCategory.objects.get(pk=int(request.query_params['category'])).get_descendants(include_self=True)
             category_ids = [category.id for category in categories]
             parts = parts.filter(category__in=category_ids)
+        
+        if request.query_params.has_key('search'):
+            print "Filter by search pattern"
+            # add a category filter
+            # extract category
+            pattern = request.query_params['search']
+            parts = parts.filter(
+                Q(name__contains=pattern) |
+                Q(description__contains=pattern) |
+                Q(comment__contains=pattern)
+                )
+
+        
         queryset = parts.all()
         serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return response.Response(serializer.data)

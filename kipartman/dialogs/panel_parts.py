@@ -26,20 +26,20 @@ class PanelParts ( wx.Panel ):
 		self.m_splitter2.Bind( wx.EVT_IDLE, self.m_splitter2OnIdle )
 		self.m_splitter2.SetMinimumPaneSize( 300 )
 		
-		self.m_panel2 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_category = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		bSizer5 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_add_category = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_add_category = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer5.Add( self.button_add_category, 0, wx.ALL, 5 )
 		
-		self.button_edit_category = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_edit_category = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer5.Add( self.button_edit_category, 0, wx.ALL, 5 )
 		
-		self.button_remove_category = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_remove_category = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer5.Add( self.button_remove_category, 0, wx.ALL, 5 )
 		
 		
@@ -47,7 +47,7 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_refresh_categories = wx.BitmapButton( self.m_panel2, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_refresh_categories = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer6.Add( self.button_refresh_categories, 0, wx.ALL, 5 )
 		
 		
@@ -56,13 +56,13 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
 		
-		self.tree_categories = wx.TreeCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT|wx.TR_ROW_LINES )
+		self.tree_categories = wx.TreeCtrl( self.panel_category, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT|wx.TR_ROW_LINES )
 		bSizer2.Add( self.tree_categories, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
-		self.m_panel2.SetSizer( bSizer2 )
-		self.m_panel2.Layout()
-		bSizer2.Fit( self.m_panel2 )
+		self.panel_category.SetSizer( bSizer2 )
+		self.panel_category.Layout()
+		bSizer2.Fit( self.panel_category )
 		self.m_panel3 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -72,41 +72,38 @@ class PanelParts ( wx.Panel ):
 		self.m_splitter21.Bind( wx.EVT_IDLE, self.m_splitter21OnIdle )
 		self.m_splitter21.SetMinimumPaneSize( 300 )
 		
-		self.m_panel31 = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_parts = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer12 = wx.BoxSizer( wx.VERTICAL )
 		
-		bSizer111 = wx.BoxSizer( wx.HORIZONTAL )
+		filters_sizer = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_staticText2 = wx.StaticText( self.m_panel31, wx.ID_ANY, u"Filters:", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText2.Wrap( -1 )
-		bSizer111.Add( self.m_staticText2, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.filters_panel = wx.Panel( self.panel_parts, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer16 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_remove_filter = wx.Button( self.m_panel31, wx.ID_ANY, u"x", wx.DefaultPosition, wx.DefaultSize, 0|wx.NO_BORDER )
-		self.button_remove_filter.SetMaxSize( wx.Size( 16,16 ) )
-		
-		bSizer111.Add( self.button_remove_filter, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.label_filter = wx.StaticText( self.m_panel31, wx.ID_ANY, u"MyLabel", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.label_filter.Wrap( -1 )
-		bSizer111.Add( self.label_filter, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.line_filter = wx.StaticLine( self.m_panel31, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_VERTICAL )
-		bSizer111.Add( self.line_filter, 0, wx.EXPAND |wx.ALL, 5 )
+		self.m_staticText15 = wx.StaticText( self.filters_panel, wx.ID_ANY, u"Filters: ", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText15.Wrap( -1 )
+		bSizer16.Add( self.m_staticText15, 0, wx.ALL, 5 )
 		
 		
-		bSizer12.Add( bSizer111, 0, wx.EXPAND, 5 )
+		self.filters_panel.SetSizer( bSizer16 )
+		self.filters_panel.Layout()
+		bSizer16.Fit( self.filters_panel )
+		filters_sizer.Add( self.filters_panel, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		bSizer12.Add( filters_sizer, 0, wx.EXPAND|wx.RIGHT|wx.LEFT, 5 )
 		
 		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		bSizer10 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_add_part = wx.BitmapButton( self.m_panel31, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_add_part = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer10.Add( self.button_add_part, 0, wx.ALL, 5 )
 		
-		self.button_edit_part = wx.BitmapButton( self.m_panel31, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_edit_part = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer10.Add( self.button_edit_part, 0, wx.ALL, 5 )
 		
-		self.button_remove_part = wx.BitmapButton( self.m_panel31, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_remove_part = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer10.Add( self.button_remove_part, 0, wx.ALL, 5 )
 		
 		
@@ -114,14 +111,14 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.search_parts = wx.SearchCtrl( self.m_panel31, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.search_parts = wx.SearchCtrl( self.panel_parts, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		self.search_parts.ShowSearchButton( True )
 		self.search_parts.ShowCancelButton( False )
 		self.search_parts.SetMinSize( wx.Size( 200,-1 ) )
 		
 		bSizer61.Add( self.search_parts, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		self.button_refresh_parts = wx.BitmapButton( self.m_panel31, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_refresh_parts = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer61.Add( self.button_refresh_parts, 0, wx.ALL, 5 )
 		
 		
@@ -130,14 +127,14 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer12.Add( bSizer11, 0, wx.EXPAND, 5 )
 		
-		self.tree_parts = wx.dataview.DataViewCtrl( self.m_panel31, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.tree_parts = wx.dataview.DataViewCtrl( self.panel_parts, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer12.Add( self.tree_parts, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
-		self.m_panel31.SetSizer( bSizer12 )
-		self.m_panel31.Layout()
-		bSizer12.Fit( self.m_panel31 )
-		self.m_panel4 = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_parts.SetSizer( bSizer12 )
+		self.panel_parts.Layout()
+		bSizer12.Fit( self.panel_parts )
+		self.panel_edit_part = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer13 = wx.BoxSizer( wx.VERTICAL )
 		
 		fgSizer1 = wx.FlexGridSizer( 0, 2, 0, 0 )
@@ -145,53 +142,53 @@ class PanelParts ( wx.Panel ):
 		fgSizer1.SetFlexibleDirection( wx.BOTH )
 		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
-		self.m_staticText3 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Name", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText3 = wx.StaticText( self.panel_edit_part, wx.ID_ANY, u"Name", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrl1 = wx.TextCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.m_textCtrl1, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		self.edit_part_name = wx.TextCtrl( self.panel_edit_part, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.edit_part_name, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
-		self.m_staticText4 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText4 = wx.StaticText( self.panel_edit_part, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText4.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrl2 = wx.TextCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.m_textCtrl2, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.edit_part_description = wx.TextCtrl( self.panel_edit_part, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.edit_part_description, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText5 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Footprint", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText5 = wx.StaticText( self.panel_edit_part, wx.ID_ANY, u"Footprint", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText5.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_choicebook1 = wx.Choicebook( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.CHB_DEFAULT )
-		fgSizer1.Add( self.m_choicebook1, 1, wx.EXPAND|wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.choice_part_footprint = wx.Choicebook( self.panel_edit_part, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.CHB_DEFAULT )
+		fgSizer1.Add( self.choice_part_footprint, 1, wx.EXPAND|wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText6 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText6 = wx.StaticText( self.panel_edit_part, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_textCtrl3 = wx.TextCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
-		self.m_textCtrl3.SetMinSize( wx.Size( -1,120 ) )
+		self.edit_part_comment = wx.TextCtrl( self.panel_edit_part, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
+		self.edit_part_comment.SetMinSize( wx.Size( -1,120 ) )
 		
-		fgSizer1.Add( self.m_textCtrl3, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer1.Add( self.edit_part_comment, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
 		bSizer13.Add( fgSizer1, 1, wx.EXPAND, 5 )
 		
-		m_sdbSizer1 = wx.StdDialogButtonSizer()
-		self.m_sdbSizer1Apply = wx.Button( self.m_panel4, wx.ID_APPLY )
-		m_sdbSizer1.AddButton( self.m_sdbSizer1Apply )
-		self.m_sdbSizer1Cancel = wx.Button( self.m_panel4, wx.ID_CANCEL )
-		m_sdbSizer1.AddButton( self.m_sdbSizer1Cancel )
-		m_sdbSizer1.Realize();
+		button_part_edit = wx.StdDialogButtonSizer()
+		self.button_part_editApply = wx.Button( self.panel_edit_part, wx.ID_APPLY )
+		button_part_edit.AddButton( self.button_part_editApply )
+		self.button_part_editCancel = wx.Button( self.panel_edit_part, wx.ID_CANCEL )
+		button_part_edit.AddButton( self.button_part_editCancel )
+		button_part_edit.Realize();
 		
-		bSizer13.Add( m_sdbSizer1, 0, wx.EXPAND, 5 )
+		bSizer13.Add( button_part_edit, 0, wx.EXPAND, 5 )
 		
 		
-		self.m_panel4.SetSizer( bSizer13 )
-		self.m_panel4.Layout()
-		bSizer13.Fit( self.m_panel4 )
-		self.m_splitter21.SplitHorizontally( self.m_panel31, self.m_panel4, 442 )
+		self.panel_edit_part.SetSizer( bSizer13 )
+		self.panel_edit_part.Layout()
+		bSizer13.Fit( self.panel_edit_part )
+		self.m_splitter21.SplitHorizontally( self.panel_parts, self.panel_edit_part, 442 )
 		bSizer7.Add( self.m_splitter21, 1, wx.EXPAND, 5 )
 		
 		
@@ -201,7 +198,7 @@ class PanelParts ( wx.Panel ):
 		self.m_panel3.SetSizer( bSizer3 )
 		self.m_panel3.Layout()
 		bSizer3.Fit( self.m_panel3 )
-		self.m_splitter2.SplitVertically( self.m_panel2, self.m_panel3, 294 )
+		self.m_splitter2.SplitVertically( self.panel_category, self.m_panel3, 294 )
 		bSizer1.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
 		
 		
@@ -231,6 +228,12 @@ class PanelParts ( wx.Panel ):
 		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_ITEM_DROP, self.onTreePartsItemDrop, id = wx.ID_ANY )
 		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_ITEM_EXPANDED, self.onTreePartsItemExpanded, id = wx.ID_ANY )
 		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartsSelectionChanged, id = wx.ID_ANY )
+		self.edit_part_name.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
+		self.edit_part_description.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
+		self.choice_part_footprint.Bind( wx.EVT_CHOICEBOOK_PAGE_CHANGED, self.onChoiceEditPartPartChanged )
+		self.edit_part_comment.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
+		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartEditApply )
+		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartEditCancel )
 	
 	def __del__( self ):
 		pass
@@ -301,6 +304,20 @@ class PanelParts ( wx.Panel ):
 		event.Skip()
 	
 	def onTreePartsSelectionChanged( self, event ):
+		event.Skip()
+	
+	def onTextEditPartPartText( self, event ):
+		event.Skip()
+	
+	
+	def onChoiceEditPartPartChanged( self, event ):
+		event.Skip()
+	
+	
+	def onButtonPartEditApply( self, event ):
+		event.Skip()
+	
+	def onButtonPartEditCancel( self, event ):
 		event.Skip()
 	
 	def m_splitter2OnIdle( self, event ):

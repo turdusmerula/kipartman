@@ -82,7 +82,7 @@ class GetQuerySetMixin(object):
         for arg in kwargs:
             url.replace('{'+arg+'}', kwargs[arg])
         url = re.sub('{.*}', '', url)
-        print url
+        print url, self.args
         request = requests.get(url, params=self.args).json()
         # transform request result to a list of elements from model
         l = list()
