@@ -414,7 +414,6 @@ class FootprintsFrame(PanelFootprints):
         event.Skip()
 
     def onSearchFootprintsTextEnter( self, event ):
-        print "###################"
         # set search filter
         self.footprints_filter.remove('search')
         if self.search_footprints.Value!='':
@@ -455,7 +454,6 @@ class FootprintsFrame(PanelFootprints):
                 # update footprint on server
                 FootprintsQuery().update(self.edit_footprint_object)
             elif self.edit_state=='add':
-                print "##########"
                 FootprintsQuery().create(self.edit_footprint_object)
             self._loadFootprints()
         except QueryError as e:

@@ -27,7 +27,7 @@ class VerboseModelViewSet(viewsets.ModelViewSet):
         return super(VerboseModelViewSet, self).create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        print "get: ", request.data, request.query_params
+        print "update: ", request.data, request.query_params
         return super(VerboseModelViewSet, self).update(request, *args, **kwargs)
 
 

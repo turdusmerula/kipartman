@@ -68,7 +68,6 @@ class PartSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         # check there is no recursion
-        print "++", instance, "++", validated_data
         subparts = []
         for part in validated_data.get('parts'):
             subparts.append(part)

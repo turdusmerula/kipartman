@@ -33,7 +33,7 @@ class PanelSelectFootprint ( wx.Panel ):
 		
 		bSizer4.Add( self.m_searchCtrl1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
 		
-		self.tree_footprints = wx.dataview.DataViewTreeCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.tree_footprints = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer4.Add( self.tree_footprints, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
