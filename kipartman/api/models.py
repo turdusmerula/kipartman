@@ -23,15 +23,20 @@ class Part(models.Model):
         return '%d: %s' % (self.id, self.name)
 
 class FootprintCategory(models.Model):
+    id = fields.IntegerField(read_only=True)
+    path = fields.TextField(read_only=True)
     parent = fields.HyperlinkField('FootprintCategory')
     name = fields.TextField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
 class Footprint(models.Model):
+    id = fields.IntegerField(read_only=True)
+    path = fields.TextField(read_only=True)
     category = fields.HyperlinkField('FootprintCategory')
     name = fields.TextField()
     description = fields.TextField()
+    comment = fields.TextField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     

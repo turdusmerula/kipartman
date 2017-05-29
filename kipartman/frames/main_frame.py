@@ -14,4 +14,3 @@ class MainFrame(DialogMain):
         #TODO: projects
         #TODO: providers
         #TODO: manufacturers
-        self.partsframe.load()

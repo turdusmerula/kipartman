@@ -2,17 +2,16 @@ from dialogs.panel_footprints import PanelFootprints
 from frames.edit_category_frame import EditCategoryFrame
 from api.queries import FootprintsQuery, FootprintCategoriesQuery
 from rest_client.exceptions import QueryError
-import wx
 import wx.dataview
 import json
 from api import models
 import copy
-from helper.tree_state import ItemState, TreeState
+from helper.tree_state import TreeState
 from helper.tree import Tree
- 
+from helper.filter import Filter
+
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
-
 
 class FootprintCategoryDataObject(wx.TextDataObject):
     def __init__(self, category): 
@@ -83,7 +82,6 @@ class FootprintDataModel(wx.dataview.PyDataViewModel):
     def __init__(self):
         super(FootprintDataModel, self).__init__()
         self.data = FootprintsQuery().get()
-        #self.UseWeakRefs(True)
     
     def Filter(self, footprint_filter=None):
         if footprint_filter:
@@ -105,38 +103,18 @@ class FootprintDataModel(wx.dataview.PyDataViewModel):
         # check root node
         if not parent:
             for footprint in self.data:
-                # mark root footprints to avoid recursion
-                footprint.parent = None
                 children.append(self.ObjectToItem(footprint))
             return len(self.data)
-        
-        # load childrens
-        parent_footprint = self.ItemToObject(parent)
-        for id in parent_footprint.footprints:
-            subfootprint = FootprintsQuery().get(id)[0]
-            subfootprint.parent = parent_footprint
-            print "subfootprint", subfootprint.id
-            children.append(self.ObjectToItem(subfootprint))
-        return len(parent_footprint.footprints)
+        return 0
     
     def IsContainer(self, item):
-        if not item:
-            return True
-        footprint = self.ItemToObject(item)
-        return len(footprint.footprints)>0
+        return False
 
     def HasContainerColumns(self, item):
         return True
 
     def GetParent(self, item):
-        if not item:
-            return wx.dataview.NullDataViewItem
-
-        footprint = self.ItemToObject(item)
-        if not footprint.parent:
-            return wx.dataview.NullDataViewItem
-        else:
-            return self.ObjectToItem(footprint.parent)
+        return wx.dataview.NullDataViewItem
     
     def GetValue(self, item, col):
         obj = self.ItemToObject(item)
@@ -160,7 +138,7 @@ class FootprintDataModel(wx.dataview.PyDataViewModel):
         return False
 
 class FootprintsFrame(PanelFootprints): 
-    def __init__(self, parent): 
+    def __init__(self, parent):
         super(FootprintsFrame, self).__init__(parent)
         # create categories data
         self.footprint_categories_state = TreeState(self.tree_categories)
@@ -169,9 +147,9 @@ class FootprintsFrame(PanelFootprints):
         self.footprint_state = TreeState(self.tree_footprints)
         # create category drop targets
         pc_dt = FootprintCategoryDropTarget(self)
-        self.tree_categories.SetDropTarget(pc_dt)        
+        self.tree_categories.SetDropTarget(pc_dt)
         # footprints filters
-        self.footprint_filter={}
+        self.footprints_filter = Filter(self.filters_panel, self.onButtonRemoveFilterClick)
         # create footprints list
         self.footprints_model = FootprintDataModel()
         self.tree_footprints.AssociateModel(self.footprints_model)
@@ -190,6 +168,13 @@ class FootprintsFrame(PanelFootprints):
         self.tree_footprints.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
         self.tree_footprints.SetDropTarget(p_dt)
 
+        # initial edit state
+        self.show_footprint(None)
+        self.edit_state = None
+        self.edit_footprint_object = None
+
+        self.load() 
+        
     def _loadCategories(self):
         self.tree_categories.DeleteAllItems()
         
@@ -235,12 +220,12 @@ class FootprintsFrame(PanelFootprints):
                 self.tree_categories.SelectItem(path_to_item[path])
 
         self.footprint_categories_tree.sort()
-        
+
     def _loadFootprints(self):
         # apply new filter and reload
         self.footprints_model.Cleared()
         self.footprints_model = FootprintDataModel()
-        self.footprints_model.Filter(self.footprint_filter)
+        self.footprints_model.Filter(self.footprints_filter.query_filter())
         self.tree_footprints.AssociateModel(self.footprints_model)
 
     # Virtual event handlers, overide them in your derived class
@@ -251,7 +236,42 @@ class FootprintsFrame(PanelFootprints):
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
+
+    def show_footprint(self, footprint):
+        # disable editing
+        self.panel_edit_footprint.Enabled = False
+        # enable evrything else
+        self.panel_category.Enabled = True
+        self.panel_footprints.Enabled = True
+        if footprint:
+            self.edit_footprint_name.Value = footprint.name
+            self.edit_footprint_description.Value = footprint.description
+            self.edit_footprint_comment.Value = footprint.comment
+        else:
+            self.edit_footprint_name.Value = ''
+            self.edit_footprint_description.Value = ''
+            self.edit_footprint_comment.Value = ''
+            
+    
+    def edit_footprint(self, footprint):
+        self.show_footprint(footprint)
+        self.edit_footprint_object = footprint
+        # enable editing
+        self.panel_edit_footprint.Enabled = True
+        # disable evrything else
+        self.panel_category.Enabled = False
+        self.panel_footprints.Enabled = False
         
+    def new_footprint(self):
+        self.edit_footprint(models.Footprint())
+
+
+    def onButtonRemoveFilterClick( self, event ):
+        button = event.GetEventObject()
+        self.footprints_filter.remove(button.GetName())
+        self.tree_categories.UnselectAll()
+        self._loadFootprints()
+    
     def onButtonRefreshCategoriesClick( self, event ):
         try:
             self._loadCategories()
@@ -260,14 +280,17 @@ class FootprintsFrame(PanelFootprints):
             
 
     def onButtonAddCategoryClick( self, event ):
-        category = EditCategoryFrame(self).addCategory()
+        category = EditCategoryFrame(self).addCategory(models.FootprintCategory)
         if category:
             try:
                 # retrieve parent item from selection
                 parentitem = self.tree_categories.GetSelection()
-                category.parent = self.tree_categories.GetItemData(parentitem)
+                category.parent = None
+                if parentitem:
+                    category.parent = self.tree_categories.GetItemData(parentitem)
                 # create category on server
                 category = FootprintCategoriesQuery().create(category)
+                print "-----------", category.id
                 # create category on treeview
                 newitem = self.tree_categories.AppendItem(parent=parentitem, text=category.name) 
                 # add category to item element
@@ -300,8 +323,12 @@ class FootprintsFrame(PanelFootprints):
         if category is None:
             return
         try:
-            FootprintCategoriesQuery().delete(category)
-            self._loadCategories()
+            res = wx.MessageDialog(self, "Remove category '"+category.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+            if res==wx.ID_OK:
+                FootprintCategoriesQuery().delete(category)
+                self._loadCategories()
+            else:
+                return
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         # remove category status
@@ -328,10 +355,9 @@ class FootprintsFrame(PanelFootprints):
         self.footprint_categories_state.update(item, selected=True)
         self.footprint_categories_state.debug()
         # set category filter
+        self.footprints_filter.remove('category')
         if category:
-            self.footprint_filter['category'] = category.id
-        else:
-            self.footprint_filter.pop('category')
+            self.footprints_filter.add('category', category.id, category.name)
         # apply new filter and reload
         self._loadFootprints()
 
@@ -363,57 +389,82 @@ class FootprintsFrame(PanelFootprints):
 
 
     def onButtonAddFootprintClick( self, event ):
-        pass
-#         footprint = EditFootprintFrame(self).add()
-#         if footprint:
-#             try:
-#                 # create footprint on server
-#                 category_item = self.tree_categories.GetSelection()
-#                 footprint.category = self.tree_categories.GetItemData(category_item)
-#                 footprint = FootprintsQuery().create(footprint)
-#                 self._loadFootprints()
-#             except QueryError as e:
-#                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+        self.edit_state = 'add'
+        self.new_footprint()
 
     def onButtonEditFootprintClick( self, event ):
-        pass
-#         footprint = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
-#         footprint = EditFootprintFrame(self).edit(footprint)
-#         if footprint:
-#             try:
-#                 # update footprint on server
-#                 footprint = FootprintsQuery().update(footprint)
-#                 self._loadFootprints()
-#             except QueryError as e:
-#                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+        if not self.tree_footprints.GetSelection():
+            return
+        footprint = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
+        self.edit_state = 'edit'
+        self.edit_footprint(footprint)
 
     def onButtonRemoveFootprintClick( self, event ):
-        footprint = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
-        if footprint.parent:
-            # remove selected footprint from subfootprints
-            print "----", footprint.parent.footprints
-            footprint.parent.footprints.remove(footprint.id)
-            print "----", footprint.parent.footprints
-            FootprintsQuery().update(footprint)
-        else:
+        item = self.tree_footprints.GetSelection()
+        if not item:
+            return 
+        footprint = self.footprints_model.ItemToObject(item)
+        res = wx.MessageDialog(self, "Remove footprint '"+footprint.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+        if res==wx.ID_OK:
             # remove footprint
             FootprintsQuery().delete(footprint)
+        else:
+            return
         self._loadFootprints()
         event.Skip()
 
     def onSearchFootprintsTextEnter( self, event ):
-        event.Skip()
+        print "###################"
+        # set search filter
+        self.footprints_filter.remove('search')
+        if self.search_footprints.Value!='':
+            self.footprints_filter.add('search', self.search_footprints.Value)
+        # apply new filter and reload
+        self._loadFootprints()
 
     def onButtonRefreshFootprintsClick( self, event ):
-        event.Skip()
+        self._loadFootprints()
 
     def onTreeFootprintsItemBeginDrag( self, event ):
-        print "+ onTreeFootprintsBeginDrag"
         footprint = self.footprints_model.ItemToObject(event.GetItem())
         data =  FootprintDataObject(footprint)
         event.SetDataObject(data)
 
         
     def onTreeFootprintsItemDrop( self, event ):
-        print "+ onTreeFootprintsItemDrop"
         event.Allow()
+
+    def onTreeFootprintsItemCollapsed( self, event ):
+        event.Skip()
+    
+    def onTreeFootprintsItemExpanded( self, event ):
+        event.Skip()
+    
+    def onTreeFootprintsSelectionChanged( self, event ):
+        footprint = None
+        if event.GetItem():
+            footprint = self.footprints_model.ItemToObject(event.GetItem())
+        self.show_footprint(footprint)
+    
+    def onButtonFootprintEditApply( self, event ):
+        try:
+            self.edit_footprint_object.name = self.edit_footprint_name.Value
+            self.edit_footprint_object.description = self.edit_footprint_description.Value
+            self.edit_footprint_object.comment = self.edit_footprint_comment.Value
+            if self.edit_state=='edit':
+                # update footprint on server
+                FootprintsQuery().update(self.edit_footprint_object)
+            elif self.edit_state=='add':
+                print "##########"
+                FootprintsQuery().create(self.edit_footprint_object)
+            self._loadFootprints()
+        except QueryError as e:
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+        self.edit_state = None
+    
+    def onButtonFootprintEditCancel( self, event ):
+        footprint = None
+        if self.tree_footprints.GetSelection():
+            footprint = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
+        self.edit_state = None
+        self.show_footprint(footprint)

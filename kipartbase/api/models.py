@@ -35,6 +35,12 @@ class Footprint(models.Model):
     category = models.ForeignKey('FootprintCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     name = models.TextField()
     description = models.TextField(blank=True)
+    comment = models.TextField(null=True, blank=True, default='')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
+class File(models.Model):
+    filename = models.TextField()
+    uuid = models.TextField()
+    def __unicode__(self):
+        return '%d: %s' % (self.uuid, self.filename)

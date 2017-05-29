@@ -10,10 +10,10 @@ class PartCategoriesQuery(queries.QuerySet):
     model = models.PartCategory
 
 class FootprintsQuery(queries.QuerySet):
-    path = '/footprints'
+    path = '/footprints/{footprint}'
     model = models.Footprint
 
 class FootprintCategoriesQuery(queries.QuerySet):
-    path = '/footprints-categories'
+    path = '/footprints-categories/{category}'
     model = models.FootprintCategory
 

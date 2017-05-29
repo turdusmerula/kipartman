@@ -1,22 +1,19 @@
 from dialogs.panel_parts import PanelParts
 from frames.edit_category_frame import EditCategoryFrame
-from frames.edit_part_frame import EditPartFrame
+from frames.select_footprint_frame import SelectFootprintFrame
+from frames.dropdown_frame import DropdownFrame
 from api.queries import PartsQuery, PartCategoriesQuery
 from rest_client.exceptions import QueryError
-import wx
 import wx.dataview
 import json
 from api import models
 import copy
-from helper.tree_state import ItemState, TreeState
+from helper.tree_state import TreeState
 from helper.tree import Tree
 from helper.filter import Filter
 
-import time
-
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
-
 
 class PartCategoryDataObject(wx.TextDataObject):
     def __init__(self, category): 
@@ -198,7 +195,9 @@ class PartsFrame(PanelParts):
         self.show_part(None)
         self.edit_state = None
         self.edit_part_object = None
-
+        
+        self.load()
+        
     def _loadCategories(self):
         self.tree_categories.DeleteAllItems()
         
@@ -304,12 +303,14 @@ class PartsFrame(PanelParts):
             
 
     def onButtonAddCategoryClick( self, event ):
-        category = EditCategoryFrame(self).addCategory()
+        category = EditCategoryFrame(self).addCategory(models.PartCategory)
         if category:
             try:
                 # retrieve parent item from selection
                 parentitem = self.tree_categories.GetSelection()
-                category.parent = self.tree_categories.GetItemData(parentitem)
+                category.parent = None
+                if parentitem:
+                    category.parent = self.tree_categories.GetItemData(parentitem)
                 # create category on server
                 category = PartCategoriesQuery().create(category)
                 # create category on treeview
@@ -414,12 +415,17 @@ class PartsFrame(PanelParts):
         self.new_part()
 
     def onButtonEditPartClick( self, event ):
+        if not self.tree_parts.GetSelection():
+            return
         part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
         self.edit_state = 'edit'
         self.edit_part(part)
 
     def onButtonRemovePartClick( self, event ):
-        part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
+        item = self.tree_parts.GetSelection()
+        if not item:
+            return 
+        part = self.parts_model.ItemToObject(item)
         if part.parent:
             res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+part.parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
             if res==wx.ID_OK:
@@ -469,6 +475,11 @@ class PartsFrame(PanelParts):
         if event.GetItem():
             part = self.parts_model.ItemToObject(event.GetItem())
         self.show_part(part)
+
+    def onButtonPartFootprintClick( self, event ):
+#        frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame(self))
+        frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame)
+        frame.Dropdown()
     
     def onButtonPartEditApply( self, event ):
         try:
@@ -486,6 +497,8 @@ class PartsFrame(PanelParts):
         self.edit_state = None
     
     def onButtonPartEditCancel( self, event ):
-        part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
+        part = None
+        if self.tree_parts.GetSelection():
+            part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
         self.edit_state = None
         self.show_part(part)

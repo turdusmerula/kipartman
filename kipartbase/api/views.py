@@ -9,7 +9,6 @@ import models
 import serializers
 from django.db.models import Q
 
-
 class VerboseModelViewSet(viewsets.ModelViewSet):
     def get(self, request, *args, **kwargs):
         print "get: ", request.data, request.query_params
@@ -97,22 +96,77 @@ class PartViewSet(VerboseModelViewSet):
                 Q(comment__contains=pattern)
                 )
 
-        
         queryset = parts.all()
         serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return response.Response(serializer.data)
 
 
-class FootprintCategoryViewSet(VerboseModelViewSet):
+class FootprintCategoryViewSet(viewsets.ModelViewSet):
     queryset = models.FootprintCategory.objects.all()
     serializer_class = serializers.FootprintCategorySerializer
- 
+    
+    def list(self, request, *args, **kwargs):
+        print "list: ", request.data, request.query_params
+        queryset = models.FootprintCategory.objects.all()
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return response.Response(serializer.data)
+    
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        print "retrieve: ", request.data, request.query_params
+
+        queryset = models.FootprintCategory.objects.all()
+        if request.query_params.has_key('recursive'):
+            category = get_object_or_404(queryset, pk=pk).get_descendants(include_self=True)
+            serializer = self.serializer_class(category, many=True, context={'request': request})
+        else:
+            category = get_object_or_404(queryset, pk=pk)
+            serializer = self.serializer_class(category, context={'request': request})
+        return response.Response(serializer.data)
+    
     def perform_destroy(self, instance):
         # set childrens to parent id
-        models.FootprintCategory.objects.filter(parent=instance.id).update(parent=instance.parent)
+        for child in instance.get_children():
+            if instance.is_child_node():
+                parent = instance.get_ancestors(ascending=True)[0]
+            else:
+                parent = None 
+            current_child = models.FootprintCategory.objects.get(id = child.id)
+            current_child.move_to(parent, 'last-child')
         models.Footprint.objects.filter(category=instance.id).update(category=instance.parent)
+        # delete category
         instance.delete()
- 
+        # cleanup tree inconsistencies
+        models.FootprintCategory._tree_manager.rebuild()
+
+
 class FootprintViewSet(VerboseModelViewSet):
     queryset = models.Footprint.objects.all()
     serializer_class = serializers.FootprintSerializer
+
+    def list(self, request, *args, **kwargs):
+        print "list: ", request.data, request.query_params
+        footprints = models.Footprint.objects
+        
+        if request.query_params.has_key('category'):
+            print "Filter by category"
+            # add a category filter
+            # extract category
+            categories = models.FootprintCategory.objects.get(pk=int(request.query_params['category'])).get_descendants(include_self=True)
+            category_ids = [category.id for category in categories]
+            parts = footprints.filter(category__in=category_ids)
+        
+        if request.query_params.has_key('search'):
+            print "Filter by search pattern"
+            # add a category filter
+            # extract category
+            pattern = request.query_params['search']
+            footprints = footprints.filter(
+                Q(name__contains=pattern) |
+                Q(description__contains=pattern) |
+                Q(comment__contains=pattern)
+                )
+
+        queryset = footprints.all()
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return response.Response(serializer.data)
+

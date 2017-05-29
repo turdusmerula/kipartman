@@ -160,8 +160,8 @@ class PanelParts ( wx.Panel ):
 		self.m_staticText5.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.choice_part_footprint = wx.Choicebook( self.panel_edit_part, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.CHB_DEFAULT )
-		fgSizer1.Add( self.choice_part_footprint, 1, wx.EXPAND|wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.button_part_footprint = wx.Button( self.panel_edit_part, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
+		fgSizer1.Add( self.button_part_footprint, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.m_staticText6 = wx.StaticText( self.panel_edit_part, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
@@ -230,7 +230,7 @@ class PanelParts ( wx.Panel ):
 		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartsSelectionChanged, id = wx.ID_ANY )
 		self.edit_part_name.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.edit_part_description.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
-		self.choice_part_footprint.Bind( wx.EVT_CHOICEBOOK_PAGE_CHANGED, self.onChoiceEditPartPartChanged )
+		self.button_part_footprint.Bind( wx.EVT_BUTTON, self.onButtonPartFootprintClick )
 		self.edit_part_comment.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartEditApply )
 		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartEditCancel )
@@ -310,7 +310,7 @@ class PanelParts ( wx.Panel ):
 		event.Skip()
 	
 	
-	def onChoiceEditPartPartChanged( self, event ):
+	def onButtonPartFootprintClick( self, event ):
 		event.Skip()
 	
 	

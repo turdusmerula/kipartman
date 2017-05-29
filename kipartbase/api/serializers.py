@@ -1,10 +1,5 @@
 from rest_framework import serializers, exceptions
-
 import api.models as models
-from rest_framework.serializers import HyperlinkedModelSerializer
-from rest_framework_nested.relations import NestedHyperlinkedRelatedField, NestedHyperlinkedIdentityField
-from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
-
 
 class PartCategorySerializer(serializers.ModelSerializer):
     path = serializers.HyperlinkedIdentityField(view_name='parts-categories-detail')
@@ -118,10 +113,10 @@ class FootprintSerializer(serializers.ModelSerializer):
     path = serializers.HyperlinkedIdentityField(view_name='footprints-detail')
     category = serializers.HyperlinkedRelatedField(
         queryset=models.FootprintCategory.objects.all(),
-        view_name='footprints-categories-detail'
+        view_name='footprints-categories-detail',
+        allow_null=True
     )
     
     class Meta:
         model = models.Footprint
-        fields = ('id', 'path', 'category', 'name', 'description')
-
+        fields = ('id', 'path', 'category', 'name', 'description', 'comment')
