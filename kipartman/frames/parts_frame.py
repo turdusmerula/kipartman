@@ -12,7 +12,6 @@ import copy
 from helper.tree_state import TreeState
 from helper.tree import Tree
 from helper.filter import Filter
-from octopart import queries as octopart
 from frames.select_octopart_frame import SelectOctopartFrame
 
 # help pages:
