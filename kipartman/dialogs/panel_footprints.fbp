@@ -2533,7 +2533,7 @@
                                                                                 <event name="OnChar"></event>
                                                                                 <event name="OnEnterWindow"></event>
                                                                                 <event name="OnEraseBackground"></event>
-                                                                                <event name="OnFileChanged"></event>
+                                                                                <event name="OnFileChanged">onFileFootprintImageChanged</event>
                                                                                 <event name="OnKeyDown"></event>
                                                                                 <event name="OnKeyUp"></event>
                                                                                 <event name="OnKillFocus"></event>
@@ -2597,8 +2597,8 @@
                                                                 <property name="permission">none</property>
                                                                 <object class="sizeritem" expanded="0">
                                                                     <property name="border">5</property>
-                                                                    <property name="flag">wxALL</property>
-                                                                    <property name="proportion">0</property>
+                                                                    <property name="flag">wxALL|wxEXPAND</property>
+                                                                    <property name="proportion">1</property>
                                                                     <object class="wxStaticBitmap" expanded="0">
                                                                         <property name="BottomDockable">1</property>
                                                                         <property name="LeftDockable">1</property>

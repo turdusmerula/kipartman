@@ -466,3 +466,22 @@ class FootprintsFrame(PanelFootprints):
             footprint = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
         self.edit_state = None
         self.show_footprint(footprint)
+
+    def onFileFootprintImageChanged( self, event ):
+        #self.file_footprint_image.GetPath()
+        img = wx.Image(self.file_footprint_image.GetPath(), wx.BITMAP_TYPE_ANY)
+        #img = wx.Bitmap(self.file_footprint_image.GetPath(), wx.BITMAP_TYPE_ANY)
+        self.PhotoMaxSize = self.bitmap_edit_footprint.GetSize().x
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        img = img.Scale(NewW,NewH)
+        img = img.ConvertToBitmap()
+
+        self.bitmap_edit_footprint.SetBitmap(img)
+    

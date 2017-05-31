@@ -191,7 +191,7 @@ class PanelFootprints ( wx.Panel ):
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.bitmap_edit_footprint = wx.StaticBitmap( self.panel_edit_footprint, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer16.Add( self.bitmap_edit_footprint, 0, wx.ALL, 5 )
+		bSizer16.Add( self.bitmap_edit_footprint, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
 		bSizer14.Add( bSizer16, 1, wx.EXPAND, 5 )
@@ -237,6 +237,7 @@ class PanelFootprints ( wx.Panel ):
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_DROP, self.onTreeFootprintsItemDrop, id = wx.ID_ANY )
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_EXPANDED, self.onTreeFootprintsItemExpanded, id = wx.ID_ANY )
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeFootprintsSelectionChanged, id = wx.ID_ANY )
+		self.file_footprint_image.Bind( wx.EVT_FILEPICKER_CHANGED, self.onFileFootprintImageChanged )
 		self.button_footprint_editApply.Bind( wx.EVT_BUTTON, self.onButtonFootprintEditApply )
 		self.button_footprint_editCancel.Bind( wx.EVT_BUTTON, self.onButtonFootprintEditCancel )
 	
@@ -309,6 +310,9 @@ class PanelFootprints ( wx.Panel ):
 		event.Skip()
 	
 	def onTreeFootprintsSelectionChanged( self, event ):
+		event.Skip()
+	
+	def onFileFootprintImageChanged( self, event ):
 		event.Skip()
 	
 	def onButtonFootprintEditApply( self, event ):

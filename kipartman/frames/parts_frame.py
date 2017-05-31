@@ -2,6 +2,7 @@ from dialogs.panel_parts import PanelParts
 from frames.edit_category_frame import EditCategoryFrame
 from frames.select_footprint_frame import SelectFootprintFrame
 from frames.dropdown_frame import DropdownFrame
+from frames.dropdown_dialog import DropdownDialog
 from api.queries import PartsQuery, PartCategoriesQuery
 from rest_client.exceptions import QueryError
 import wx.dataview
@@ -11,6 +12,8 @@ import copy
 from helper.tree_state import TreeState
 from helper.tree import Tree
 from helper.filter import Filter
+from octopart import queries as octopart
+from frames.select_octopart_frame import SelectOctopartFrame
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -515,3 +518,12 @@ class PartsFrame(PanelParts):
             part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
         self.edit_state = None
         self.show_part(part)
+
+    def onButtonOctopartClick( self, event ):
+        search = self.edit_part_name.Value
+        frame = DropdownDialog(self.button_part_footprint, SelectOctopartFrame, search)
+        frame.Dropdown(self.onSetOctopartCallback)
+
+    def onSetOctopartCallback(self, part):
+        if part:
+            print part

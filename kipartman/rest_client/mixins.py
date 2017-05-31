@@ -84,6 +84,7 @@ class GetQuerySetMixin(object):
         url = re.sub('{.*}', '', url)
         print url, self.args
         request = requests.get(url, params=self.args).json()
+        print "---", request
         # transform request result to a list of elements from model
         l = list()
         if isinstance(request, list): 
