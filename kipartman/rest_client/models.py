@@ -52,7 +52,6 @@ class Model(object):
             super(Model, self).__setattr__(name, value)
 
     def __getattr__(self, name):
-        #print "---", name[0:1], name[1:]
         if self.__values__.has_key(name):
             return self.__values__[name].get_value()
         else:

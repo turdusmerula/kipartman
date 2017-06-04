@@ -9,6 +9,7 @@
 
 import wx
 import wx.xrc
+import wx.aui
 
 ###########################################################################
 ## Class PanelEditPart
@@ -89,7 +90,7 @@ class PanelEditPart ( wx.Panel ):
 		self.panel_edit_part_extended = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer17 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.notebook_part = wx.Notebook( self.panel_edit_part_extended, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.notebook_part = wx.aui.AuiNotebook( self.panel_edit_part_extended, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		
 		bSizer17.Add( self.notebook_part, 1, wx.EXPAND |wx.ALL, 5 )
 		

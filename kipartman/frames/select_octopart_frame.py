@@ -1,16 +1,21 @@
 from dialogs.panel_select_octopart import PanelSelectOctopart
 from octopart.queries import PartsQuery
-import wx
 import wx.dataview
+import wx.lib.newevent
 
+SelectOctopartOkEvent, EVT_SELECT_OCTOPART_OK_EVENT = wx.lib.newevent.NewEvent()
+SelectOctopartCancelEvent, EVT_SELECT_OCTOPART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 
 class OctopartDataModel(wx.dataview.PyDataViewModel):
     def __init__(self, searchpart):
         super(OctopartDataModel, self).__init__()
-        q = PartsQuery()
-        q.get(searchpart)
-        self.data = q.results()
-        
+        if searchpart!='':
+            q = PartsQuery()
+            q.get(searchpart)
+            self.data = q.results()
+        else:
+            self.data = []
+            
     def GetColumnCount(self):
         return 7
 
@@ -78,7 +83,7 @@ class SelectOctopartFrame(PanelSelectOctopart):
         :param initial: item to select by default
         """
         super(SelectOctopartFrame, self).__init__(parent)
-    
+
         self.search_octopart.Value = initial_search
     
         # create octoparts list
@@ -117,6 +122,8 @@ class SelectOctopartFrame(PanelSelectOctopart):
         self._search()
     
     def onButtonCancelClick( self, event ):
+        event = SelectOctopartCancelEvent()
+        wx.PostEvent(self, event)
         if self.cancel:
             self.cancel()
     
@@ -124,7 +131,13 @@ class SelectOctopartFrame(PanelSelectOctopart):
         sel = self.tree_octoparts.GetSelection()
         if not sel:
             return
-        
         octopart = self.octoparts_model.ItemToObject(self.tree_octoparts.GetSelection())
+        
+        # convert octopart to part values
+        #TODO
+        
+        # trigger result event
+        event = SelectOctopartOkEvent(data=octopart)
+        wx.PostEvent(self, event)
         if self.result:
             self.result(octopart)

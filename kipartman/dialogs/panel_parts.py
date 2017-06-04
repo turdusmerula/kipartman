@@ -68,11 +68,10 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer7 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_splitter21 = wx.SplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
-		self.m_splitter21.Bind( wx.EVT_IDLE, self.m_splitter21OnIdle )
-		self.m_splitter21.SetMinimumPaneSize( 300 )
+		self.part_splitter = wx.SplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.part_splitter.SetMinimumPaneSize( 300 )
 		
-		self.panel_parts = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_parts = wx.Panel( self.part_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer12 = wx.BoxSizer( wx.VERTICAL )
 		
 		filters_sizer = wx.BoxSizer( wx.HORIZONTAL )
@@ -134,94 +133,8 @@ class PanelParts ( wx.Panel ):
 		self.panel_parts.SetSizer( bSizer12 )
 		self.panel_parts.Layout()
 		bSizer12.Fit( self.panel_parts )
-		self.panel_edit_part = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer13 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.m_splitter3 = wx.SplitterWindow( self.panel_edit_part, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
-		self.m_splitter3.Bind( wx.EVT_IDLE, self.m_splitter3OnIdle )
-		
-		self.panel_edit_part_basic = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer15 = wx.BoxSizer( wx.VERTICAL )
-		
-		fgSizer1 = wx.FlexGridSizer( 0, 2, 0, 0 )
-		fgSizer1.AddGrowableCol( 1 )
-		fgSizer1.SetFlexibleDirection( wx.BOTH )
-		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
-		
-		self.m_staticText3 = wx.StaticText( self.panel_edit_part_basic, wx.ID_ANY, u"Name", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText3.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.edit_part_name = wx.TextCtrl( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer18.Add( self.edit_part_name, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
-		
-		self.button_octopart = wx.Button( self.panel_edit_part_basic, wx.ID_ANY, u"Octopart", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer18.Add( self.button_octopart, 0, wx.ALL, 5 )
-		
-		
-		fgSizer1.Add( bSizer18, 1, wx.EXPAND, 5 )
-		
-		self.m_staticText4 = wx.StaticText( self.panel_edit_part_basic, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText4.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.edit_part_description = wx.TextCtrl( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_part_description, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_staticText5 = wx.StaticText( self.panel_edit_part_basic, wx.ID_ANY, u"Footprint", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText5.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.button_part_footprint = wx.Button( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
-		fgSizer1.Add( self.button_part_footprint, 0, wx.ALL|wx.EXPAND, 5 )
-		
-		self.m_staticText6 = wx.StaticText( self.panel_edit_part_basic, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText6.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.edit_part_comment = wx.TextCtrl( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
-		self.edit_part_comment.SetMinSize( wx.Size( -1,120 ) )
-		
-		fgSizer1.Add( self.edit_part_comment, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		
-		bSizer15.Add( fgSizer1, 1, wx.EXPAND, 5 )
-		
-		button_part_edit = wx.StdDialogButtonSizer()
-		self.button_part_editApply = wx.Button( self.panel_edit_part_basic, wx.ID_APPLY )
-		button_part_edit.AddButton( self.button_part_editApply )
-		self.button_part_editCancel = wx.Button( self.panel_edit_part_basic, wx.ID_CANCEL )
-		button_part_edit.AddButton( self.button_part_editCancel )
-		button_part_edit.Realize();
-		
-		bSizer15.Add( button_part_edit, 0, wx.EXPAND, 5 )
-		
-		
-		self.panel_edit_part_basic.SetSizer( bSizer15 )
-		self.panel_edit_part_basic.Layout()
-		bSizer15.Fit( self.panel_edit_part_basic )
-		self.panel_edit_part_extended = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer17 = wx.BoxSizer( wx.VERTICAL )
-		
-		self.notebook_part = wx.Notebook( self.panel_edit_part_extended, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		
-		bSizer17.Add( self.notebook_part, 1, wx.EXPAND |wx.ALL, 5 )
-		
-		
-		self.panel_edit_part_extended.SetSizer( bSizer17 )
-		self.panel_edit_part_extended.Layout()
-		bSizer17.Fit( self.panel_edit_part_extended )
-		self.m_splitter3.SplitVertically( self.panel_edit_part_basic, self.panel_edit_part_extended, 0 )
-		bSizer13.Add( self.m_splitter3, 1, wx.EXPAND, 5 )
-		
-		
-		self.panel_edit_part.SetSizer( bSizer13 )
-		self.panel_edit_part.Layout()
-		bSizer13.Fit( self.panel_edit_part )
-		self.m_splitter21.SplitHorizontally( self.panel_parts, self.panel_edit_part, 442 )
-		bSizer7.Add( self.m_splitter21, 1, wx.EXPAND, 5 )
+		self.part_splitter.Initialize( self.panel_parts )
+		bSizer7.Add( self.part_splitter, 1, wx.EXPAND, 5 )
 		
 		
 		bSizer3.Add( bSizer7, 1, wx.EXPAND, 5 )
@@ -260,13 +173,6 @@ class PanelParts ( wx.Panel ):
 		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_ITEM_DROP, self.onTreePartsItemDrop, id = wx.ID_ANY )
 		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_ITEM_EXPANDED, self.onTreePartsItemExpanded, id = wx.ID_ANY )
 		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartsSelectionChanged, id = wx.ID_ANY )
-		self.edit_part_name.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
-		self.button_octopart.Bind( wx.EVT_BUTTON, self.onButtonOctopartClick )
-		self.edit_part_description.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
-		self.button_part_footprint.Bind( wx.EVT_BUTTON, self.onButtonPartFootprintClick )
-		self.edit_part_comment.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
-		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartEditApply )
-		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartEditCancel )
 	
 	def __del__( self ):
 		pass
@@ -339,33 +245,8 @@ class PanelParts ( wx.Panel ):
 	def onTreePartsSelectionChanged( self, event ):
 		event.Skip()
 	
-	def onTextEditPartPartText( self, event ):
-		event.Skip()
-	
-	def onButtonOctopartClick( self, event ):
-		event.Skip()
-	
-	
-	def onButtonPartFootprintClick( self, event ):
-		event.Skip()
-	
-	
-	def onButtonPartEditApply( self, event ):
-		event.Skip()
-	
-	def onButtonPartEditCancel( self, event ):
-		event.Skip()
-	
 	def m_splitter2OnIdle( self, event ):
 		self.m_splitter2.SetSashPosition( 294 )
 		self.m_splitter2.Unbind( wx.EVT_IDLE )
-	
-	def m_splitter21OnIdle( self, event ):
-		self.m_splitter21.SetSashPosition( 442 )
-		self.m_splitter21.Unbind( wx.EVT_IDLE )
-	
-	def m_splitter3OnIdle( self, event ):
-		self.m_splitter3.SetSashPosition( 0 )
-		self.m_splitter3.Unbind( wx.EVT_IDLE )
 	
 

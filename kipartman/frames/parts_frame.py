@@ -1,5 +1,6 @@
 from dialogs.panel_parts import PanelParts
 from frames.edit_category_frame import EditCategoryFrame
+from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
 from frames.select_footprint_frame import SelectFootprintFrame
 from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
@@ -193,10 +194,15 @@ class PartsFrame(PanelParts):
         self.tree_parts.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
         self.tree_parts.SetDropTarget(p_dt)
 
+        # create edit part panel
+        self.panel_edit_part = EditPartFrame(self.part_splitter)
+        self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
+        self.panel_edit_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
+        self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+
         # initial edit state
         self.show_part(None)
         self.edit_state = None
-        self.edit_part_object = None
         
         self.load()
         
@@ -268,24 +274,11 @@ class PartsFrame(PanelParts):
         # enable evrything else
         self.panel_category.Enabled = True
         self.panel_parts.Enabled = True
-        if part:
-            self.edit_part_name.Value = part.name
-            self.edit_part_description.Value = part.description
-            self.edit_part_comment.Value = part.comment
-            if part.footprint:
-                self.button_part_footprint.Label = part.footprint.name
-            else:
-                self.button_part_footprint.Label = "<none>"
-            self.button_part_footprint.Value = part.footprint
-        else:
-            self.edit_part_name.Value = ''
-            self.edit_part_description.Value = ''
-            self.edit_part_comment.Value = ''
-            self.button_part_footprint.Label = "<none>"
-    
+        # set part
+        self.panel_edit_part.SetPart(part)
+        
     def edit_part(self, part):
         self.show_part(part)
-        self.edit_part_object = part
         # enable editing
         self.panel_edit_part.Enabled = True
         # disable evrything else
@@ -483,46 +476,26 @@ class PartsFrame(PanelParts):
             part = self.parts_model.ItemToObject(event.GetItem())
         self.show_part(part)
 
-    def onButtonPartFootprintClick( self, event ):
-        footprint = self.button_part_footprint.Value
-        frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame, footprint)
-        frame.Dropdown(self.onSetFootprintCallback)
-    
-    def onSetFootprintCallback(self, footprint):
-        if footprint:
-            self.button_part_footprint.Label = footprint.name
-        else:
-            self.button_part_footprint.Label = "<none>"
-        self.button_part_footprint.Value = footprint
-        
-    def onButtonPartEditApply( self, event ):
+    def onEditPartApply( self, event ):
+        part = event.data
         try:
-            self.edit_part_object.name = self.edit_part_name.Value
-            self.edit_part_object.description = self.edit_part_description.Value
-            self.edit_part_object.comment = self.edit_part_comment.Value
-            self.edit_part_object.footprint = self.button_part_footprint.Value
             if self.edit_state=='edit':
                 # update part on server
-                PartsQuery().update(self.edit_part_object)
+                PartsQuery().update(part)
             elif self.edit_state=='add':
-                PartsQuery().create(self.edit_part_object)
+                part = PartsQuery().create(part)
+            
+            # apply changes on readonly parameters, this is not made through the previous request 
+            self.panel_edit_part.ApplyChanges(part)
+            
             self._loadParts()
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         self.edit_state = None
     
-    def onButtonPartEditCancel( self, event ):
+    def onEditPartCancel( self, event ):
         part = None
         if self.tree_parts.GetSelection():
             part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
         self.edit_state = None
         self.show_part(part)
-
-    def onButtonOctopartClick( self, event ):
-        search = self.edit_part_name.Value
-        frame = DropdownDialog(self.button_part_footprint, SelectOctopartFrame, search)
-        frame.Dropdown(self.onSetOctopartCallback)
-
-    def onSetOctopartCallback(self, part):
-        if part:
-            print part

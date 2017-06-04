@@ -19,7 +19,6 @@ class FootPrintCategoryList(object):
         print category.parent._url
         return ""
         parent = self.dict[category.parent._url]
-        print "----", parent.name
         while parent:
             path = "/"+parent.name+path
             parent = self.dict[parent.parent._url]

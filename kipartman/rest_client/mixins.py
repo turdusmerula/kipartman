@@ -1,6 +1,7 @@
 import requests
 from rest_client.exceptions import QueryError
 import re
+import json
 
 # TODO: implement patch to update only modified elements
 
@@ -55,11 +56,12 @@ class CreateQueryMixin(object):
         try:
             url = self.baseurl+self.path
             url = re.sub('{.*}', '', url)
+            print "####", json.dumps(create_serialize(obj))
             res = requests.post(url, json=create_serialize(obj))
             res.raise_for_status()
             return self.model(**res.json())
         except requests.HTTPError as e:
-            raise QueryError(format(e), res.json())
+            raise QueryError(format(e), res)
 
 class DeleteQueryMixin(object):
     def delete(self, obj):
@@ -80,11 +82,10 @@ class GetQuerySetMixin(object):
             url = url.replace('{'+self.params[iarg]+'}', str(arg))
             iarg += 1
         for arg in kwargs:
-            url.replace('{'+arg+'}', kwargs[arg])
+            url.replace('{'+arg+'}', str(kwargs[arg]))
         url = re.sub('{.*}', '', url)
         print url, self.args
         request = requests.get(url, params=self.args).json()
-        print "---", request
         # transform request result to a list of elements from model
         l = list()
         if isinstance(request, list): 

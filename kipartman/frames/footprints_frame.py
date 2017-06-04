@@ -290,7 +290,6 @@ class FootprintsFrame(PanelFootprints):
                     category.parent = self.tree_categories.GetItemData(parentitem)
                 # create category on server
                 category = FootprintCategoriesQuery().create(category)
-                print "-----------", category.id
                 # create category on treeview
                 newitem = self.tree_categories.AppendItem(parent=parentitem, text=category.name) 
                 # add category to item element

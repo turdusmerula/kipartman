@@ -100,6 +100,16 @@ class PartViewSet(VerboseModelViewSet):
         serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return response.Response(serializer.data)
 
+    def perform_destroy(self, instance):
+        # remove subitems
+        models.PartParameter.objects.filter(part=instance).delete()
+        models.PartManufacturer.objects.filter(part=instance).delete()
+        models.PartDistributor.objects.filter(part=instance).delete()
+        #TODO: files
+        
+        # delete part
+        instance.delete()
+
 
 class FootprintCategoryViewSet(viewsets.ModelViewSet):
     queryset = models.FootprintCategory.objects.all()
@@ -169,4 +179,43 @@ class FootprintViewSet(VerboseModelViewSet):
         queryset = footprints.all()
         serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return response.Response(serializer.data)
+
+
+class PartParameterViewSet(VerboseModelViewSet):
+    queryset = models.PartParameter.objects.all()
+    serializer_class = serializers.PartParameterSerializer
+
+    def list(self, request, *args, **kwargs):
+        print "list: ", request.data, request.query_params
+        parameters = models.PartParameter.objects
+        
+        if request.query_params.has_key('part'):
+            print "Filter by part"
+            # add a category filter
+            # extract category
+            parameters = parameters.filter(part=int(request.query_params['part']))
+
+        queryset = parameters.all()
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return response.Response(serializer.data)
+
+
+class PartManufacturerViewSet(VerboseModelViewSet):
+    queryset = models.PartManufacturer.objects.all()
+    serializer_class = serializers.PartManufacturerSerializer
+
+
+class ManufacturerViewSet(VerboseModelViewSet):
+    queryset = models.Manufacturer.objects.all()
+    serializer_class = serializers.ManufacturerSerializer
+
+
+class UnitViewSet(VerboseModelViewSet):
+    queryset = models.Unit.objects.all()
+    serializer_class = serializers.UnitSerializer
+
+
+class UnitPrefixViewSet(VerboseModelViewSet):
+    queryset = models.UnitPrefix.objects.all()
+    serializer_class = serializers.UnitPrefixSerializer
 

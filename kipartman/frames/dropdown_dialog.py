@@ -7,7 +7,7 @@ class DropdownDialog(wx.Dialog):
     
     def __init__( self, parent, frame, initial=None ):
         """
-        Create a popup window from frame
+        Create a popup modal dialog window from frame
         :param parent: owner
         :param frame: type of frame to create
         :param initial: item to select by default
@@ -24,7 +24,7 @@ class DropdownDialog(wx.Dialog):
         self.SetSizer(sizer)
         self.Layout()
 
-    def Dropdown(self, result_callback):
+    def Dropdown(self):
         pos = self.Parent.GetScreenPosition()
         pos.y = pos.y+self.Parent.GetSize().y
         
@@ -36,13 +36,11 @@ class DropdownDialog(wx.Dialog):
 
         # callbacks from panel
         self.panel.SetResult(self.result, self.cancel)
-        self.result_callback = result_callback
         
         self.SetPosition(pos)
         self.ShowModal()
     
     def result(self, data):
-        self.result_callback(data)
         self.Destroy()
 
     def cancel(self):

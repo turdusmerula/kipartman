@@ -2,16 +2,20 @@ from rest_client import exceptions
 from rfc3987 import parse
 import requests
 from rest_client import registry
+from numpy import integer
 
 class Field(object):
 
-    def __init__(self, read_only=False):
+    def __init__(self, read_only=False, null=False):
         self._read_only = read_only
+        self.null = null
         
     def get_value(self):
         return self.value
     
     def set_value(self, value):
+        if value is None and self.null==False:
+            raise exceptions.FieldError('None encountered')
         self.value = value
 
     def serialize(self):
@@ -22,8 +26,8 @@ class Field(object):
 
 class IntegerField(Field):
     def __init__(self, default=0, **kwargs):
-        self.set_value(default)
         super(IntegerField, self).__init__(**kwargs)
+        self.set_value(default)
 
     def set_value(self, value):
         try:
@@ -32,10 +36,24 @@ class IntegerField(Field):
             raise exceptions.FieldError('%s: invalid integer' % (value))
 
 
+class ModelField(Field):
+    def __init__(self, model, default=None, **kwargs):
+        super(ModelField, self).__init__(**kwargs)
+        self.model = model
+        self.set_value(default)
+
+    def set_value(self, value):
+        if value and isinstance(value, self.model)==False:
+            raise exceptions.FieldError('%s: invalid, %s requested ' % (type(value), self.model))
+        super(ModelField, self).set_value(value)
+
+    def serialize(self):
+        return self.id
+
 class BooleanField(Field):
     def __init__(self, default=False, **kwargs):
-        self.set_value(default)
         super(BooleanField, self).__init__(**kwargs)
+        self.set_value(default)
 
     def set_value(self, value):
         try:
@@ -44,29 +62,52 @@ class BooleanField(Field):
             raise exceptions.FieldError('%s: invalid boolean' % (value))
 
 
+class FloatField(Field):
+    def __init__(self, default=False, **kwargs):
+        super(FloatField, self).__init__(**kwargs)
+        self.set_value(default)
+
+    def set_value(self, value):
+        try:
+            if value is None:
+                super(FloatField, self).set_value(value)
+            else:
+                self.value = float(value)
+        except Exception:
+            raise exceptions.FieldError('%s: invalid float' % (value))
+
+
 class TextField(Field):
     def __init__(self, default='', **kwargs):
-        self.set_value(default)
         super(TextField, self).__init__(**kwargs)
+        self.set_value(default)
 
 
 class ListField(Field):
     def __init__(self, model=None, default=[], **kwargs):
+        super(ListField, self).__init__(**kwargs)
         self.set_value(default)
         self.model = model
-        super(ListField, self).__init__(**kwargs)
     
     def remove(self, item):
         self.get_value(self).remove(item)
 
+    def set_value(self, value):
+#        try:
+            self.value = []
+            for v in value:
+                self.value.append(registry.registered_model(self.model)(**v))
+#        except Exception:
+#            raise exceptions.FieldError('%s: invalid list for mo' % (value))
+
 class HyperlinkField(Field):
     def __init__(self, model, **kwargs):
+        super(HyperlinkField, self).__init__(**kwargs)
         #TODO: check that model exists
         self.model = model
         self.url = None
         self.loaded = False
         self.value = None
-        super(HyperlinkField, self).__init__(**kwargs)
         
     def get_value(self):
         if self.loaded==True:

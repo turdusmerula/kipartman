@@ -32,4 +32,3 @@ class EditCategoryFrame(DialogEditCategory):
     
     def onCancelClick( self, event ):
         self.EndModal(wx.ID_CANCEL)
-    
