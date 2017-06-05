@@ -80,7 +80,6 @@ class PartParameterSerializer(serializers.ModelSerializer):
     }
 
     def create(self, validated_data):
-        print "----", validated_data
         # check if name already exist
         if models.PartParameter.objects.filter(part=validated_data.get('part')).filter(name=validated_data.get('name')).count()>0:
             raise exceptions.PermissionDenied((self.default_error_messages['already_exist']) % (validated_data.get('name')))
@@ -106,15 +105,46 @@ class PartManufacturerSerializer(serializers.ModelSerializer):
 
 
 class DistributorSerializer(serializers.ModelSerializer):
+    path = serializers.HyperlinkedIdentityField(view_name='distributors-detail')
+
     class Meta:
         model = models.Distributor
-        fields = ('id', 'name')
+        fields = ('id', 'path', 'name', 'address', 'website', 'sku_url', 'email', 'phone', 'comment')
+
+    default_error_messages = {
+        'already_exist': '%s: Distributor already exists.',
+    }
+
+    def create(self, validated_data):
+        # check if name already exist
+        if models.Distributor.objects.filter(name=validated_data.get('name')).count()>0:
+            raise exceptions.PermissionDenied((self.default_error_messages['already_exist']) % (validated_data.get('name')))
+        return super(DistributorSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        # check if update to a name that already exist
+        if models.Distributor.objects.filter(~Q(pk=instance.pk)).filter(name=validated_data.get('name')).count()>0:
+            raise exceptions.PermissionDenied((self.default_error_messages['already_exist']) % (validated_data.get('name')))
+        return super(DistributorSerializer, self).update(instance, validated_data)
+
 
 
 class PartDistributorSerializer(serializers.ModelSerializer):
+    path = serializers.HyperlinkedIdentityField(view_name='part-distributors-detail')
+    part = serializers.HyperlinkedRelatedField(
+        queryset=models.Part.objects.all(),
+        view_name='parts-detail',
+        allow_null=True
+    )
+    distributor = serializers.HyperlinkedRelatedField(
+        queryset=models.Distributor.objects.all(),
+        view_name='distributors-detail',
+        allow_null=True
+    )
+
     class Meta:
         model = models.PartDistributor
-        fields = ('id', 'distributor', 'packaging_unit', 'item_price', 'currency', 'package_price', 'sku')
+        fields = ('id', 'path', 'part', 'distributor', 'packaging_unit', 'unit_price', 'currency', 'sku')
 
 
 class PartSerializer(serializers.ModelSerializer):

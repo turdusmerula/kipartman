@@ -63,12 +63,11 @@ class PartManufacturer(models.Model):
 
 class PartDistributor(models.Model):
     part = models.ForeignKey('Part', on_delete=models.DO_NOTHING, null=False, blank=False, default=None)
-    distributor = models.ForeignKey('Distributor', on_delete=models.DO_NOTHING, null=False)
+    distributor = models.ForeignKey('Distributor', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     packaging_unit = models.IntegerField()
-    item_price = models.FloatField()
-    currency = models.TextField()
-    package_price = models.FloatField()
-    sku = models.TextField()
+    unit_price = models.FloatField()
+    currency = models.TextField(blank=True)
+    sku = models.TextField(blank=True)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
@@ -80,7 +79,13 @@ class Manufacturer(models.Model):
 
 
 class Distributor(models.Model):
-    name = models.TextField()
+    name = models.TextField(blank=False)
+    address = models.TextField(blank=True, default='')
+    website = models.TextField(blank=True, default='')
+    sku_url = models.TextField(blank=True, default='')
+    email = models.TextField(blank=True, default='')
+    phone = models.TextField(blank=True, default='')
+    comment = models.TextField(blank=True, default='')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 

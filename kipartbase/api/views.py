@@ -200,6 +200,36 @@ class PartParameterViewSet(VerboseModelViewSet):
         return response.Response(serializer.data)
 
 
+class PartDistributorViewSet(VerboseModelViewSet):
+    queryset = models.PartDistributor.objects.all()
+    serializer_class = serializers.PartDistributorSerializer
+
+
+class DistributorViewSet(VerboseModelViewSet):
+    queryset = models.Distributor.objects.all()
+    serializer_class = serializers.DistributorSerializer
+
+    def list(self, request, *args, **kwargs):
+        print "list: ", request.data, request.query_params
+        parameters = models.Distributor.objects
+        
+        if request.query_params.has_key('name'):
+            print "Filter by name"
+            # add a category filter
+            # extract category
+            parameters = parameters.filter(name=request.query_params['name'])
+
+        queryset = parameters.all()
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return response.Response(serializer.data)
+
+    def perform_destroy(self, instance):
+        # remove subitems
+        models.PartDistributor.objects.filter(distributor=instance).delete()
+        # delete part
+        instance.delete()
+
+
 class PartManufacturerViewSet(VerboseModelViewSet):
     queryset = models.PartManufacturer.objects.all()
     serializer_class = serializers.PartManufacturerSerializer
@@ -209,6 +239,11 @@ class ManufacturerViewSet(VerboseModelViewSet):
     queryset = models.Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
 
+    def perform_destroy(self, instance):
+        # remove subitems
+#TODO        models.PartManufacturer.objects.filter(manufacturer=instance).delete()
+        # delete part
+        instance.delete()
 
 class UnitViewSet(VerboseModelViewSet):
     queryset = models.Unit.objects.all()

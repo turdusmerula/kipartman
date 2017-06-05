@@ -23,16 +23,18 @@ from django.contrib import admin
 
 #from rest_framework import routers
 from rest_framework_nested import routers
-from api.views import PartViewSet, PartCategoryViewSet, PartParameterViewSet, PartManufacturerViewSet
+from api.views import PartViewSet, PartCategoryViewSet, PartParameterViewSet, PartManufacturerViewSet, PartDistributorViewSet
 from api.views import FootprintViewSet, FootprintCategoryViewSet
 from api.views import UnitViewSet, UnitPrefixViewSet
 from api.views import ManufacturerViewSet
+from api.views import DistributorViewSet
 
 router = routers.DefaultRouter()
 
 router.register(r'parts-categories', PartCategoryViewSet, base_name="parts-categories")
 router.register(r'parts', PartViewSet, base_name="parts")
 router.register(r'part-parameters', PartParameterViewSet, base_name="part-parameters")
+router.register(r'part-distributors', PartDistributorViewSet, base_name="part-distributors")
 router.register(r'part-manufacturers', PartManufacturerViewSet, base_name="part-manufacturers")
 
 router.register(r'footprints-categories', FootprintCategoryViewSet, base_name="footprints-categories")
@@ -41,6 +43,7 @@ router.register(r'footprints', FootprintViewSet, base_name="footprints")
 router.register(r'units', UnitViewSet, base_name="units")
 router.register(r'unitprefixes', UnitPrefixViewSet, base_name="unitprefixes")
 
+router.register(r'distributors', DistributorViewSet, base_name="distributors")
 router.register(r'manufacturers', ManufacturerViewSet, base_name="manufacturers")
 
 print router.urls

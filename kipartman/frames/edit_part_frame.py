@@ -1,12 +1,13 @@
 from dialogs.panel_edit_part import PanelEditPart
 from frames.select_footprint_frame import SelectFootprintFrame
 from frames.part_parameters_frame import PartParametersFrame
+from frames.part_distributors_frame import PartDistributorsFrame
 from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
 import wx.lib.newevent
 from api import models
-from api.queries import UnitsQuery, UnitPrefixesQuery
+from api.queries import UnitsQuery, UnitPrefixesQuery, DistributorsQuery
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -18,7 +19,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_parameters = PartParametersFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_parameters, "Parameters")
         
-        self.edit_part_distributors = wx.Panel(self.notebook_part)
+        self.edit_part_distributors = PartDistributorsFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_distributors, "Distributors")
 
         self.edit_part_manufacturers = wx.Panel(self.notebook_part)
@@ -43,11 +44,13 @@ class EditPartFrame(PanelEditPart):
             self.edit_part_description.Value = ''
             self.edit_part_comment.Value = ''
             self.button_part_footprint.Label = "<none>"
+        
         self.edit_part_parameters.SetPart(part)
-    
+        self.edit_part_distributors.SetPart(part)
+        
     def ApplyChanges(self, part):
         self.edit_part_parameters.ApplyChanges(part)
-#        self.edit_part_distributors.ApplyChanges(part)
+        self.edit_part_distributors.ApplyChanges(part)
 #        self.edit_part_manufacturers.ApplyChanges(part)
 #        self.edit_part_attachements.ApplyChanges(part)
         
@@ -106,12 +109,13 @@ class EditPartFrame(PanelEditPart):
         return None
         
     def GetUnitSymbol(self, spec):
-        print "unit", spec.metadata().unit()
         if spec.metadata().unit():
             return spec.metadata().unit().symbol()
         return ""
 
     def GetUnitPrefixSymbol(self, spec):
+        if spec.display_value() is None:
+            return ""
         display_value = spec.display_value().split(" ")
         unit = self.GetUnitSymbol(spec)
         if len(display_value)<2:
@@ -131,7 +135,8 @@ class EditPartFrame(PanelEditPart):
             return
 
         # convert octopart to part values
-
+        print "octopart:", octopart.json
+        
         # import part fields
         self.part.name = octopart.item().mpn()
         self.part.description = octopart.snippet()
@@ -147,7 +152,7 @@ class EditPartFrame(PanelEditPart):
             parameter.nom_prefix = self.GetUnitPrefix(spec)
             parameter.nom_value = None
             parameter.text_value = None
-            if spec.value():
+            if spec.value() and len(spec.value())>0:
                 try:
                     if parameter.unit:
                         parameter.nom_value = self.GetPrefixedValue(spec.value()[0], parameter.nom_prefix)
@@ -160,24 +165,59 @@ class EditPartFrame(PanelEditPart):
             if spec.min_value():
                 try:
                     if parameter.unit:
-                        parameter.min_value = self.GetPrefixedValue(spec.min_value()[0], parameter.nom_prefix)
+                        parameter.min_value = self.GetPrefixedValue(spec.min_value(), parameter.nom_prefix)
                     else:
                         parameter.min_value = float(spec.value()[0])
+                    parameter.numeric = True
                 except:
-                    pass
+                    parameter.numeric = False
             else:
                 parameter.min_value = None
             if spec.max_value():
                 try:
                     if parameter.unit:
-                        parameter.max_value = self.GetPrefixedValue(spec.max_value()[0], parameter.nom_prefix)
+                        parameter.max_value = self.GetPrefixedValue(spec.max_value(), parameter.nom_prefix)
                     else:
                         parameter.max_value = float(spec.value()[0])
+                    parameter.numeric = True
                 except:
-                    pass
+                    parameter.numeric = False
             else:
                 parameter.max_value = None
             
             self.edit_part_parameters.AddParameter(parameter)
 
-#        self.SetPart(self.part)
+        # import distributors
+        for offer in octopart.item().offers():
+            
+            distributor_name = offer.seller().name()
+            distributor = None
+            try:
+                distributors = DistributorsQuery(name=distributor_name).get()
+                if len(distributors)>0:
+                    distributor = distributors[0]
+                else:
+                    # distributor does not exists, create it
+                    distributor = models.Distributor()
+                    distributor.name = offer.seller().name()
+                    distributor.website = offer.seller().homepage_url()
+                    distributor = DistributorsQuery().create(distributor)
+            except:
+                wx.MessageBox('%s: unknown error retrieving distributor' % (distributor_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+            
+            # remove distributor prior to add new offers
+            self.edit_part_distributors.RemoveDistributor(distributor_name)
+            
+            for price_name in offer.prices():
+                for quantity in offer.prices()[price_name]:
+#                    print "--", quantity
+                    part_distributor = models.PartDistributor()
+                    part_distributor.name = distributor_name
+                    part_distributor.distributor = distributor
+                    part_distributor.currency = price_name
+                    part_distributor.packaging_unit = quantity[0]
+                    part_distributor.unit_price = float(quantity[1])
+                    part_distributor.sku = offer.sku()
+                    self.edit_part_distributors.AddDistributor(part_distributor)
+        
+        

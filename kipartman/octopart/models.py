@@ -359,8 +359,10 @@ class SpecValue(Model):
         return self.json['value']
 
     def display_value(self):
-        return self.json['display_value']
-
+        if 'display_value' in self.json:
+            return self.json['display_value']
+        return None
+    
     def metadata(self):
         if self.json['metadata']:
             return SpecMetadata(self.json['metadata'])

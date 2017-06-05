@@ -20,6 +20,7 @@ class Part(models.Model):
     comment = fields.TextField()
     parts = fields.ListField(model='Part')
     parameters = fields.ListField(model='PartParameter', read_only=True)
+    distributors = fields.ListField(model='PartDistributor', read_only=True)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -93,4 +94,28 @@ class PartParameter(models.Model):
     def unit_string(self):
         if self.unit is None:
             return ""
-        return self.unit.name 
+        return self.unit.name
+
+class PartDistributor(models.Model):
+    id = fields.IntegerField(read_only=True, default=-1)
+    path = fields.TextField(read_only=True)
+    part = fields.HyperlinkField('Part')
+    distributor = fields.HyperlinkField('Distributor')
+    packaging_unit = fields.IntegerField()
+    unit_price = fields.FloatField()
+    currency = fields.TextField()
+    sku = fields.TextField()
+    def item_price(self):
+        return self.unit_price*self.packaging_unit
+
+class Distributor(models.Model):
+    id = fields.IntegerField(read_only=True, default=-1)
+    path = fields.TextField(read_only=True)
+    name = fields.TextField()
+    address = fields.TextField()
+    website = fields.TextField()
+    sku_url = fields.TextField()
+    email = fields.TextField()
+    phone = fields.TextField()
+    comment = fields.TextField()
+    

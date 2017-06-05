@@ -45,7 +45,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
         return None
 
     def EditParameter(self, part, parameter):
-        self.Title = "Edit category"
+        self.Title = "Edit parameter"
         self.part = part
         self.previous_name = parameter.name 
         self.parameter = parameter
@@ -98,7 +98,6 @@ class EditPartParameterFrame(DialogEditPartParameter):
         try:
             if self.edit_part_parameter_name.Value=='':
                 raise ValueError('Name should not be empty')
-            print "---", self.previous_name
             # check parameter not exists
             for param in self.part.parameters:
                 if self.edit_part_parameter_name.Value!=self.previous_name and param.name==self.edit_part_parameter_name.Value:
@@ -153,7 +152,6 @@ class EditPartParameterFrame(DialogEditPartParameter):
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return 
 
-        self.parameter.unit
         self.EndModal(wx.ID_OK)
 
     def onButtonPartParameterEditCancel( self, event ):
