@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rest_framework import viewsets, response
+from rest_framework import viewsets, response, exceptions
 from rest_framework.response import Response
 
 from django.shortcuts import get_object_or_404, get_list_or_404
@@ -214,8 +214,35 @@ class UnitViewSet(VerboseModelViewSet):
     queryset = models.Unit.objects.all()
     serializer_class = serializers.UnitSerializer
 
+    def list(self, request, *args, **kwargs):
+        print "list: ", request.data, request.query_params
+        parameters = models.Unit.objects
+        
+        if request.query_params.has_key('symbol'):
+            print "Filter by symbol"
+            # add a category filter
+            # extract category
+            parameters = parameters.filter(symbol=request.query_params['symbol'])
+
+        queryset = parameters.all()
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return response.Response(serializer.data)
+
 
 class UnitPrefixViewSet(VerboseModelViewSet):
     queryset = models.UnitPrefix.objects.all()
     serializer_class = serializers.UnitPrefixSerializer
 
+    def list(self, request, *args, **kwargs):
+        print "list: ", request.data, request.query_params
+        parameters = models.UnitPrefix.objects
+        
+        if request.query_params.has_key('symbol'):
+            print "Filter by symbol"
+            # add a category filter
+            # extract category
+            parameters = parameters.filter(symbol=request.query_params['symbol'])
+
+        queryset = parameters.all()
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return response.Response(serializer.data)

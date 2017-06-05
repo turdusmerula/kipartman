@@ -6,6 +6,7 @@ from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
 import wx.lib.newevent
 from api import models
+from api.queries import UnitsQuery, UnitPrefixesQuery
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -87,6 +88,96 @@ class EditPartFrame(PanelEditPart):
         dropdown.panel.Bind( EVT_SELECT_OCTOPART_OK_EVENT, self.onSelectOctopartFrameOk )
         dropdown.Dropdown()
 
-    def onSelectOctopartFrameOk(self, part):
-        if part:
-            print part
+    def GetUnit(self, spec):
+        if spec.metadata().unit():
+            try:
+                return UnitsQuery(symbol=self.GetUnitSymbol(spec))[0]
+            except:
+                pass #TODO create unit if not found
+        return None
+    
+    def GetUnitPrefix(self, spec):
+        symbol = self.GetUnitPrefixSymbol(spec)
+        if spec.metadata().unit():
+            try:
+                return UnitPrefixesQuery(symbol=symbol)[0]
+            except:
+                wx.MessageBox('%s: unit prefix unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+        return None
+        
+    def GetUnitSymbol(self, spec):
+        print "unit", spec.metadata().unit()
+        if spec.metadata().unit():
+            return spec.metadata().unit().symbol()
+        return ""
+
+    def GetUnitPrefixSymbol(self, spec):
+        display_value = spec.display_value().split(" ")
+        unit = self.GetUnitSymbol(spec)
+        if len(display_value)<2:
+            return ""
+        display_unit = display_value[1]
+        prefix = display_unit[:-len(unit)]
+        return prefix
+    
+    def GetPrefixedValue(self, value, prefix):
+        if prefix is None:
+            return float(value)
+        return float(value)/float(prefix.power)
+    
+    def onSelectOctopartFrameOk(self, event):
+        octopart = event.data
+        if not octopart:
+            return
+
+        # convert octopart to part values
+
+        # import part fields
+        self.part.name = octopart.item().mpn()
+        self.part.description = octopart.snippet()
+        
+        # import parameters
+        for spec_name in octopart.item().specs():
+            parameter = models.PartParameter()
+            spec = octopart.item().specs()[spec_name]
+            
+            parameter.name = spec_name
+            parameter.description = spec.metadata().name()
+            parameter.unit = self.GetUnit(spec)
+            parameter.nom_prefix = self.GetUnitPrefix(spec)
+            parameter.nom_value = None
+            parameter.text_value = None
+            if spec.value():
+                try:
+                    if parameter.unit:
+                        parameter.nom_value = self.GetPrefixedValue(spec.value()[0], parameter.nom_prefix)
+                    else:
+                        parameter.nom_value = float(spec.value()[0])
+                    parameter.numeric = True
+                except:
+                    parameter.text_value = spec.value()[0]
+                    parameter.numeric = False
+            if spec.min_value():
+                try:
+                    if parameter.unit:
+                        parameter.min_value = self.GetPrefixedValue(spec.min_value()[0], parameter.nom_prefix)
+                    else:
+                        parameter.min_value = float(spec.value()[0])
+                except:
+                    pass
+            else:
+                parameter.min_value = None
+            if spec.max_value():
+                try:
+                    if parameter.unit:
+                        parameter.max_value = self.GetPrefixedValue(spec.max_value()[0], parameter.nom_prefix)
+                    else:
+                        parameter.max_value = float(spec.value()[0])
+                except:
+                    pass
+            else:
+                parameter.max_value = None
+            
+            self.edit_part_parameters.AddParameter(parameter)
+
+#        self.SetPart(self.part)

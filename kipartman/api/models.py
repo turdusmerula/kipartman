@@ -76,7 +76,7 @@ class PartParameter(models.Model):
         res = ""
         if value is None:
             return res
-        res = res+str(value)
+        res = res+"%g"%value+" "
         if not prefix is None:
             res = res+prefix.symbol
         if not unit is None:

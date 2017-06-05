@@ -133,9 +133,6 @@ class SelectOctopartFrame(PanelSelectOctopart):
             return
         octopart = self.octoparts_model.ItemToObject(self.tree_octoparts.GetSelection())
         
-        # convert octopart to part values
-        #TODO
-        
         # trigger result event
         event = SelectOctopartOkEvent(data=octopart)
         wx.PostEvent(self, event)

@@ -10,9 +10,6 @@ class EditPartParameterFrame(DialogEditPartParameter):
         super(EditPartParameterFrame, self).__init__(parent)
         self.loadUnits()
         self.loadPrefixes()
-        # set result functions
-        self.cancel = None
-        self.result = None
 
     def loadUnits(self):
         units = UnitsQuery().get()
@@ -20,7 +17,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
         for unit in units:
             choices.append(unit.symbol+"  "+unit.name)
         self.choice_part_parameter_unit.SetItems(choices)
-                
+        
     def loadPrefixes(self):
         prefixes = UnitPrefixesQuery().get()
         choices = ["<none>"]
@@ -30,8 +27,10 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.choice_part_parameter_nom_prefix.SetItems(choices)
         self.choice_part_parameter_max_prefix.SetItems(choices)
         
-    def AddParameter(self):
+    def AddParameter(self, part):
         self.Title = "Add parameter"
+        self.part = part
+        self.previous_name = "" 
         self.onRadioNumeric(None)
         self.parameter = PartParameter()
 
@@ -45,8 +44,10 @@ class EditPartParameterFrame(DialogEditPartParameter):
             return self.parameter
         return None
 
-    def EditParameter(self, parameter):
+    def EditParameter(self, part, parameter):
         self.Title = "Edit category"
+        self.part = part
+        self.previous_name = parameter.name 
         self.parameter = parameter
 
         self.edit_part_parameter_name.Value = parameter.name
@@ -97,6 +98,12 @@ class EditPartParameterFrame(DialogEditPartParameter):
         try:
             if self.edit_part_parameter_name.Value=='':
                 raise ValueError('Name should not be empty')
+            print "---", self.previous_name
+            # check parameter not exists
+            for param in self.part.parameters:
+                if self.edit_part_parameter_name.Value!=self.previous_name and param.name==self.edit_part_parameter_name.Value:
+                    raise ValueError('%s: parameter already exists' % (self.edit_part_parameter_name.Value))
+
             self.parameter.name = self.edit_part_parameter_name.Value
             self.parameter.description = self.edit_part_parameter_description.Value
             if self.choice_part_parameter_unit.GetSelection()==0:

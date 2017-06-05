@@ -1,5 +1,6 @@
 from rest_framework import serializers, exceptions
 import api.models as models
+from django.db.models import Q
 
 class PartCategorySerializer(serializers.ModelSerializer):
     path = serializers.HyperlinkedIdentityField(view_name='parts-categories-detail')
@@ -73,6 +74,23 @@ class PartParameterSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.PartParameter
         fields = ('id', 'path', 'part', 'name', 'description', 'unit', 'numeric', 'text_value', 'min_value', 'min_prefix', 'nom_value', 'nom_prefix', 'max_value', 'max_prefix')
+
+    default_error_messages = {
+        'already_exist': '%s: Parameter already exists.',
+    }
+
+    def create(self, validated_data):
+        print "----", validated_data
+        # check if name already exist
+        if models.PartParameter.objects.filter(part=validated_data.get('part')).filter(name=validated_data.get('name')).count()>0:
+            raise exceptions.PermissionDenied((self.default_error_messages['already_exist']) % (validated_data.get('name')))
+        return super(PartParameterSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        # check if update to a name that already exist
+        if models.PartParameter.objects.filter(part=validated_data.get('part')).filter(~Q(pk=instance.pk)).filter(name=validated_data.get('name')).count()>0:
+            raise exceptions.PermissionDenied((self.default_error_messages['already_exist']) % (validated_data.get('name')))
+        return super(PartParameterSerializer, self).update(instance, validated_data)
 
 
 class ManufacturerSerializer(serializers.ModelSerializer):
@@ -148,7 +166,7 @@ class PartSerializer(serializers.ModelSerializer):
                 subparts.append(part)
         return super(PartSerializer, self).update(instance, validated_data)
 
-    
+
 class FootprintCategorySerializer(serializers.ModelSerializer):
     path = serializers.HyperlinkedIdentityField(view_name='footprints-categories-detail')
     parent = serializers.HyperlinkedRelatedField(

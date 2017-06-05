@@ -29,6 +29,7 @@ class GetQueryMixin(object):
         for arg in kwargs:
             url.replace('{'+arg+'}', kwargs[arg])
         try:
+            print "get:", url, self.args, self.kwargs
             res = requests.get(url, *self.args, **self.kwargs)
             res.raise_for_status()
             return self.model(**res.json())
@@ -42,6 +43,7 @@ class UpdateQueryMixin(object):
             raise QueryError("Cannot update object in %s: type mismatch" % (self.path))
         try:
             url = obj.path
+            print "update:", url, update_serialize(obj)
             res = requests.put(url, json=update_serialize(obj))
             res.raise_for_status()
             return self.model(**res.json())
@@ -56,12 +58,12 @@ class CreateQueryMixin(object):
         try:
             url = self.baseurl+self.path
             url = re.sub('{.*}', '', url)
-            print "####", json.dumps(create_serialize(obj))
+            print "create:", url, update_serialize(obj)
             res = requests.post(url, json=create_serialize(obj))
             res.raise_for_status()
             return self.model(**res.json())
         except requests.HTTPError as e:
-            raise QueryError(format(e), res)
+            raise QueryError(format(e), res.json())
 
 class DeleteQueryMixin(object):
     def delete(self, obj):
@@ -69,6 +71,7 @@ class DeleteQueryMixin(object):
             raise QueryError("Cannot delete object in %s: type mismatch" % (self.path))
         try:
             url = obj.path
+            print "delete:", url
             res = requests.delete(url)
             res.raise_for_status()
         except requests.HTTPError as e:
@@ -84,7 +87,7 @@ class GetQuerySetMixin(object):
         for arg in kwargs:
             url.replace('{'+arg+'}', str(kwargs[arg]))
         url = re.sub('{.*}', '', url)
-        print url, self.args
+        print "get:", url, self.args
         request = requests.get(url, params=self.args).json()
         # transform request result to a list of elements from model
         l = list()

@@ -32,8 +32,10 @@ class Part(Model):
         return self.json['mpn']
     
     def brand(self):
-        return Brand(self.json['brand'])
-
+        if self.json['brand']:
+            return Brand(self.json['brand'])
+        return None
+    
     def datasheets(self):
         list = []
         for datasheet in self.json['datasheets']:
@@ -50,7 +52,9 @@ class Part(Model):
         return self.json['short_description']
     
     def manufacturer(self):
-        return Manufacturer(self.json['manufacturer'])
+        if self.json['manufacturer']:
+            return Manufacturer(self.json['manufacturer'])
+        return None
     
     def octopart_url(self):
         return self.json['octopart_url']
@@ -107,8 +111,10 @@ class ComplianceDocument(Model):
         return self.json['mimetype']
 
     def attribution(self):
-        return Attribution(self.json['attribution'])
-
+        if self.json['attribution']:
+            return Attribution(self.json['attribution'])
+        return None
+    
     def url(self):
         return self.json['url']
 
@@ -130,8 +136,9 @@ class Datasheet(Model):
         return self.json['metadata']
     
     def attribution(self):
-        return Attribution(self.json['attribution'])
-
+        if self.json['attribution']:
+            return Attribution(self.json['attribution'])
+        return None
 
 class Attribution(Model):
     def sources(self):
@@ -146,8 +153,10 @@ class Attribution(Model):
 
 class Description(Model):
     def attribution(self):
-        return Attribution(self.json['attribution'])
-
+        if self.json['attribution']:
+            return Attribution(self.json['attribution'])
+        return None
+    
     def value(self):
         return self.json['value']
 
@@ -165,23 +174,35 @@ class ExternalLinks(Model):
 
 class Imageset(Model):
     def medium_image(self):
-        return Asset(self.json['medium_image'])
-
+        if self.json['medium_image']:
+            return Asset(self.json['medium_image'])
+        return None
+    
     def large_image(self):
-        return Asset(self.json['large_image'])
-
+        if self.json['large_image']:
+            return Asset(self.json['large_image'])
+        return None
+    
     def credit_string(self):
-        return self.json['credit_string']
-
+        if self.json['credit_string']:
+            return self.json['credit_string']
+        return None
+    
     def attribution(self):
-        return Attribution(self.json['attribution'])
-
+        if self.json['attribution']:
+            return Attribution(self.json['attribution'])
+        return None
+    
     def small_image(self):
-        return Asset(self.json['small_image'])
-
+        if self.json['small_image']:
+            return Asset(self.json['small_image'])
+        return None
+    
     def swatch_image(self):
-        return Asset(self.json['swatch_image'])
-
+        if self.json['swatch_image']:
+            return Asset(self.json['swatch_image'])
+        return None
+    
     def credit_url(self):
         return self.json['credit_url']
 
@@ -229,8 +250,10 @@ class PartOffer(Model):
         return self.json['octopart_rfq_url']
 
     def seller(self):
-        return Seller(self.json['seller'])
-
+        if self.json['seller']:
+            return Seller(self.json['seller'])
+        return None
+    
     def product_url(self):
         return self.json['product_url']
 
@@ -258,8 +281,10 @@ class ReferenceDesign(Model):
         return self.json['mimetype']
 
     def attribution(self):
-        return Attribution(self.json['attribution'])
-
+        if self.json['attribution']:
+            return Attribution(self.json['attribution'])
+        return None
+    
     def description(self):
         return self.json['description']
 
@@ -307,8 +332,10 @@ class SpecMetadata(Model):
         return self.json['datatype']
 
     def unit(self):
-        return UnitOfMeasurement(self.json['unit'])
-
+        if self.json['unit']:
+            return UnitOfMeasurement(self.json['unit'])
+        return None
+    
     def key(self):
         return self.json['key']
 
@@ -318,8 +345,10 @@ class SpecMetadata(Model):
 
 class SpecValue(Model):
     def attribution(self):
-        return Attribution(self.json['attribution'])
-
+        if self.json['attribution']:
+            return Attribution(self.json['attribution'])
+        return None
+    
     def max_value(self):
         return self.json['max_value']
 
@@ -333,8 +362,9 @@ class SpecValue(Model):
         return self.json['display_value']
 
     def metadata(self):
-        return SpecMetadata(self.json['metadata'])
-
+        if self.json['metadata']:
+            return SpecMetadata(self.json['metadata'])
+        return None
 
 class UnitOfMeasurement(Model):
     def symbol(self):
