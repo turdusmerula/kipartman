@@ -30,6 +30,11 @@ class EditPartFrame(PanelEditPart):
 
     def SetPart(self, part):
         self.part = part
+        self.ShowPart(part)
+        self.edit_part_parameters.SetPart(part)
+        self.edit_part_distributors.SetPart(part)
+    
+    def ShowPart(self, part):
         if part:
             self.edit_part_name.Value = part.name
             self.edit_part_description.Value = part.description
@@ -44,10 +49,7 @@ class EditPartFrame(PanelEditPart):
             self.edit_part_description.Value = ''
             self.edit_part_comment.Value = ''
             self.button_part_footprint.Label = "<none>"
-        
-        self.edit_part_parameters.SetPart(part)
-        self.edit_part_distributors.SetPart(part)
-        
+
     def ApplyChanges(self, part):
         self.edit_part_parameters.ApplyChanges(part)
         self.edit_part_distributors.ApplyChanges(part)
@@ -220,4 +222,4 @@ class EditPartFrame(PanelEditPart):
                     part_distributor.sku = offer.sku()
                     self.edit_part_distributors.AddDistributor(part_distributor)
         
-        
+        self.ShowPart(self.part)

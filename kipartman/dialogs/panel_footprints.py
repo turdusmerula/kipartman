@@ -140,15 +140,23 @@ class PanelFootprints ( wx.Panel ):
 		
 		fgSizer1 = wx.FlexGridSizer( 0, 2, 0, 0 )
 		fgSizer1.AddGrowableCol( 1 )
-		fgSizer1.SetFlexibleDirection( wx.VERTICAL )
+		fgSizer1.SetFlexibleDirection( wx.BOTH )
 		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
 		self.m_staticText1 = wx.StaticText( self.panel_edit_footprint, wx.ID_ANY, u"Name", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText1.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		bSizer162 = wx.BoxSizer( wx.HORIZONTAL )
+		
 		self.edit_footprint_name = wx.TextCtrl( self.panel_edit_footprint, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_footprint_name, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer162.Add( self.edit_footprint_name, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.button_snapeda = wx.Button( self.panel_edit_footprint, wx.ID_ANY, u"SnapEDA", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer162.Add( self.button_snapeda, 0, wx.ALL, 5 )
+		
+		
+		fgSizer1.Add( bSizer162, 1, wx.EXPAND, 5 )
 		
 		self.m_staticText2 = wx.StaticText( self.panel_edit_footprint, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText2.Wrap( -1 )
@@ -237,6 +245,7 @@ class PanelFootprints ( wx.Panel ):
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_DROP, self.onTreeFootprintsItemDrop, id = wx.ID_ANY )
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_EXPANDED, self.onTreeFootprintsItemExpanded, id = wx.ID_ANY )
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeFootprintsSelectionChanged, id = wx.ID_ANY )
+		self.button_snapeda.Bind( wx.EVT_BUTTON, self.onButtonSnapedaClick )
 		self.file_footprint_image.Bind( wx.EVT_FILEPICKER_CHANGED, self.onFileFootprintImageChanged )
 		self.button_footprint_editApply.Bind( wx.EVT_BUTTON, self.onButtonFootprintEditApply )
 		self.button_footprint_editCancel.Bind( wx.EVT_BUTTON, self.onButtonFootprintEditCancel )
@@ -310,6 +319,9 @@ class PanelFootprints ( wx.Panel ):
 		event.Skip()
 	
 	def onTreeFootprintsSelectionChanged( self, event ):
+		event.Skip()
+	
+	def onButtonSnapedaClick( self, event ):
 		event.Skip()
 	
 	def onFileFootprintImageChanged( self, event ):

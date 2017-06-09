@@ -1,5 +1,3 @@
-from rest_client import fields
-from rest_client import models
 
 class Model(object):
     def __init__(self, json):

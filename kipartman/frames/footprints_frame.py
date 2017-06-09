@@ -9,6 +9,8 @@ import copy
 from helper.tree_state import TreeState
 from helper.tree import Tree
 from helper.filter import Filter
+from frames.select_snapeda_frame import SelectSnapedaFrame, EVT_SELECT_SNAPEDA_OK_EVENT
+from frames.dropdown_dialog import DropdownDialog
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -484,3 +486,18 @@ class FootprintsFrame(PanelFootprints):
 
         self.bitmap_edit_footprint.SetBitmap(img)
     
+    def onButtonSnapedaClick( self, event ):
+        # create a snapeda frame
+        # dropdown frame
+        dropdown = DropdownDialog(self.button_snapeda, SelectSnapedaFrame, self.edit_footprint_name.Value)
+        dropdown.panel.Bind( EVT_SELECT_SNAPEDA_OK_EVENT, self.onSelectSnapedaFrameOk )
+        dropdown.Dropdown()
+
+    def onSelectSnapedaFrameOk(self, event):
+        snapeda = event.data
+        if not snapeda:
+            return
+#        res = wx.MessageBox(format(e), 'Open SnapEDA to the selected ', wx.YES | wx.NO | wx.ICON_QUESTION)
+
+        print snapeda._links().self().href()
+

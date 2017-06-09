@@ -18,7 +18,7 @@ class Part(models.Model):
     category = fields.HyperlinkField('PartCategory')
     footprint = fields.HyperlinkField('Footprint')
     comment = fields.TextField()
-    parts = fields.ListField(model='Part')
+    parts = fields.IndexListField(model='Part')
     parameters = fields.ListField(model='PartParameter', read_only=True)
     distributors = fields.ListField(model='PartDistributor', read_only=True)
     def __unicode__(self):

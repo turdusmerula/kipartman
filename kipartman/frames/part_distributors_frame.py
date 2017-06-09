@@ -11,6 +11,7 @@ class PartDistributorsDataModel(wx.dataview.PyDataViewModel):
             self.data = part.distributors
         else:
             self.data = []
+            
     def GetColumnCount(self):
         return 6
 

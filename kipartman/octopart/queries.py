@@ -1,5 +1,3 @@
-#69c36198
-from rest_client import queries
 from octopart import models
 import json
 import urllib

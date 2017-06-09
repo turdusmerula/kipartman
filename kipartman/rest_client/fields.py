@@ -83,6 +83,16 @@ class TextField(Field):
         self.set_value(default)
 
 
+class IndexListField(Field):
+    def __init__(self, model=None, default=[], **kwargs):
+        super(IndexListField, self).__init__(**kwargs)
+        self.set_value(default)
+        self.model = model
+    
+    def remove(self, item):
+        self.get_value(self).remove(item)
+
+
 class ListField(Field):
     def __init__(self, model=None, default=[], **kwargs):
         super(ListField, self).__init__(**kwargs)
@@ -93,12 +103,12 @@ class ListField(Field):
         self.get_value(self).remove(item)
 
     def set_value(self, value):
-#        try:
+        try:
             self.value = []
             for v in value:
                 self.value.append(registry.registered_model(self.model)(**v))
-#        except Exception:
-#            raise exceptions.FieldError('%s: invalid list for mo' % (value))
+        except Exception as e:
+            raise exceptions.FieldError('%s: invalid list for model (%s)' % (value, format(e)))
 
 class HyperlinkField(Field):
     def __init__(self, model, **kwargs):
