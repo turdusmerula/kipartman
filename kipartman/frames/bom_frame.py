@@ -1,18 +1,11 @@
 from dialogs.panel_bom import PanelBom
-from rest_client.exceptions import QueryError
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_part_frame import SelectPartFrame, EVT_SELECT_PART_OK_EVENT
-import wx
 from kicad.pcb import Pcb
 from bom.bom import Bom
 import wx.dataview
-import ctypes
 import os
 from docutils.parsers.rst.directives import path
-from os.path import expanduser
-from click.exceptions import FileError
-
-home = expanduser("~")
 
 pcb = Pcb()
 bom = Bom(pcb)
@@ -224,6 +217,9 @@ class BomFrame(PanelBom):
         for c in self.tree_bom_modules.Columns:
             c.Sortable = True
 
+        self.enableBom(False)
+        self.enableBrd(False)
+
     def load(self):
         self.loadModules()
         self.loadBomParts()
@@ -249,6 +245,13 @@ class BomFrame(PanelBom):
         self.bom_modules_model = BomModulesModel(part)
         self.tree_bom_modules.AssociateModel(self.bom_modules_model)
     
+    def enableBrd(self, enabled=True):
+        self.tree_modules.Enabled = enabled
+    
+    def enableBom(self, enabled=True):
+        self.tree_bom_parts.Enabled = enabled
+        self.tree_bom_modules.Enabled = enabled
+
     # Virtual event handlers, overide them in your derived class
     def onButtonAddBomModuleClick( self, event ):
         item = self.tree_modules.GetSelection()
@@ -303,7 +306,7 @@ class BomFrame(PanelBom):
     
     def onToolOpenBrdClicked( self, event ):
         if bom.saved==False:
-            res = wx.MessageBox("Error: %s modified, save it?" % bom.filename, "File error", wx.YES_NO | wx.ICON_QUESTION)
+            res = wx.MessageDialog(self, "%s modified, save it?" % bom.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
             if res == wx.ID_YES:
                 self.onToolSaveBomClicked(event)
     
@@ -321,22 +324,28 @@ class BomFrame(PanelBom):
         # Show the dialog and retrieve the user response. If it is the OK response,
         # process the data.
         if dlg.ShowModal() == wx.ID_OK:
-#             self.bom_modules_model.Cleared()
-#             self.bom_parts_model.Cleared()
-#             self.module_model.Cleared()
-            
             pcb_filename = dlg.GetPath()
             pcb.LoadFile(pcb_filename)
+            self.enableBrd(True)
             
             # open BOM
             bom_filename = pcb_filename.replace('kicad_pcb', 'bom')
             if(os.path.isfile(bom_filename)==False):
                 bom_filename = None
+                self.enableBom(False)
             else:
                 bom.LoadFile(bom_filename)
+                self.enableBom(True)
             self.load()
 
     def onToolOpenBomClicked( self, event ):
+        if bom.saved==False:
+            res = wx.MessageDialog(self, "%s modified, save it?" % bom.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+            print res
+            if res==wx.ID_YES:
+                print "-----"
+                self.onToolSaveBomClicked(event)
+
         dlg = wx.FileDialog(
             self, message="Choose a Kipartman BOM file",
             defaultDir=os.getcwd(),
@@ -353,7 +362,7 @@ class BomFrame(PanelBom):
         if dlg.ShowModal() == wx.ID_OK:
             bom.LoadFile(dlg.GetPath())
             self.load()
-        
+            self.enableBom(True)
     
     def onToolSaveBomClicked( self, event ):
         if bom.filename==None and bom.saved==False:

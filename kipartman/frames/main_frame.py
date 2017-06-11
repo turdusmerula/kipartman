@@ -3,6 +3,7 @@ from frames.parts_frame import PartsFrame
 from frames.footprints_frame import FootprintsFrame
 from frames.distributors_frame import DistributorsFrame
 from frames.bom_frame import BomFrame
+from frames.configuration_frame import ConfigurationFrame
 
 import wx
 
@@ -30,3 +31,6 @@ class MainFrame(DialogMain):
         
         #TODO: projects
         #TODO: manufacturers
+
+    def onMenuViewConfigurationSelection( self, event ):
+        ConfigurationFrame(self).ShowModal()

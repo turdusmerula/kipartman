@@ -44,6 +44,7 @@ class DialogMain ( wx.Frame ):
 		
 		# Connect Events
 		self.Bind( wx.EVT_KILL_FOCUS, self.onKillFocus )
+		self.Bind( wx.EVT_MENU, self.onMenuViewConfigurationSelection, id = self.menu_view_configuration.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -51,6 +52,9 @@ class DialogMain ( wx.Frame ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def onKillFocus( self, event ):
+		event.Skip()
+	
+	def onMenuViewConfigurationSelection( self, event ):
 		event.Skip()
 	
 
