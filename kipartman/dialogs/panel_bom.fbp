@@ -343,7 +343,7 @@
                                                 <property name="name">tool_open_brd</property>
                                                 <property name="permission">protected</property>
                                                 <property name="statusbar"></property>
-                                                <property name="tooltip"></property>
+                                                <property name="tooltip">Open a kicad board</property>
                                                 <event name="OnAuiToolBarBeginDrag"></event>
                                                 <event name="OnAuiToolBarMiddleClick"></event>
                                                 <event name="OnAuiToolBarOverflowClick"></event>
@@ -364,7 +364,7 @@
                                                 <property name="name">tool_refresh_brd</property>
                                                 <property name="permission">protected</property>
                                                 <property name="statusbar"></property>
-                                                <property name="tooltip"></property>
+                                                <property name="tooltip">Refresh module list</property>
                                                 <event name="OnAuiToolBarBeginDrag"></event>
                                                 <event name="OnAuiToolBarMiddleClick"></event>
                                                 <event name="OnAuiToolBarOverflowClick"></event>
@@ -828,7 +828,7 @@
                                                         <property name="name">tool_open_bom1</property>
                                                         <property name="permission">protected</property>
                                                         <property name="statusbar"></property>
-                                                        <property name="tooltip"></property>
+                                                        <property name="tooltip">Open kipartman BOM file</property>
                                                         <event name="OnAuiToolBarBeginDrag"></event>
                                                         <event name="OnAuiToolBarMiddleClick"></event>
                                                         <event name="OnAuiToolBarOverflowClick"></event>
@@ -849,7 +849,7 @@
                                                         <property name="name">tool_save_bom1</property>
                                                         <property name="permission">protected</property>
                                                         <property name="statusbar"></property>
-                                                        <property name="tooltip"></property>
+                                                        <property name="tooltip">Save kipartman BOM file</property>
                                                         <event name="OnAuiToolBarBeginDrag"></event>
                                                         <event name="OnAuiToolBarMiddleClick"></event>
                                                         <event name="OnAuiToolBarOverflowClick"></event>
@@ -954,7 +954,7 @@
                                             <event name="OnSplitterUnsplit"></event>
                                             <event name="OnUpdateUI"></event>
                                             <object class="splitteritem" expanded="1">
-                                                <object class="wxPanel" expanded="0">
+                                                <object class="wxPanel" expanded="1">
                                                     <property name="BottomDockable">1</property>
                                                     <property name="LeftDockable">1</property>
                                                     <property name="RightDockable">1</property>
@@ -1028,7 +1028,7 @@
                                                     <event name="OnSetFocus"></event>
                                                     <event name="OnSize"></event>
                                                     <event name="OnUpdateUI"></event>
-                                                    <object class="wxBoxSizer" expanded="0">
+                                                    <object class="wxBoxSizer" expanded="1">
                                                         <property name="minimum_size"></property>
                                                         <property name="name">bSizer41</property>
                                                         <property name="orient">wxVERTICAL</property>
