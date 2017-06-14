@@ -2,22 +2,29 @@ import requests
 from rest_client.exceptions import QueryError
 import re
 import json
+import os
 
 # TODO: implement patch to update only modified elements
-
-def create_serialize(obj):
+def serialize_files(obj):
     res = {}
     for field in obj.__fields__:
         if obj.__fields__[field].is_read_only()==False:
-            res[field] = obj.__values__[field].serialize()
+            if obj.__fields__[field].as_file==True:
+                f = obj.__values__[field].file()
+                if f:
+                    res[field] = (os.path.basename(f), open(f, 'rb'), 'application/octet-stream')
     return res
 
-def update_serialize(obj):
+def serialize(obj):
     res = {}
     for field in obj.__fields__:
         if obj.__fields__[field].is_read_only()==False:
-            res[field] = obj.__values__[field].serialize()
+            if obj.__fields__[field].as_file==False:
+                res[field] = obj.__values__[field].serialize()
+            elif obj.__values__[field].get_value()=='':
+                res[field] = ''     # empty string means we want to delete the file
     return res
+
 
 class GetQueryMixin(object):
     def get(self, *args, **kwargs):
@@ -43,8 +50,10 @@ class UpdateQueryMixin(object):
             raise QueryError("Cannot update object in %s: type mismatch" % (self.path))
         try:
             url = obj.path
-            print "update:", url, update_serialize(obj)
-            res = requests.put(url, json=update_serialize(obj))
+            data = serialize(obj)
+            files = serialize_files(obj)
+            print "update:", url, data, files
+            res = requests.put(url, files=files, data=data)
             res.raise_for_status()
             return self.model(**res.json())
         except requests.HTTPError as e:
@@ -58,8 +67,10 @@ class CreateQueryMixin(object):
         try:
             url = self.baseurl+self.path
             url = re.sub('{.*}', '', url)
-            print "create:", url, update_serialize(obj)
-            res = requests.post(url, json=create_serialize(obj))
+            data = serialize(obj)
+            files = serialize_files(obj)
+            print "create:", url, data, files
+            res = requests.post(url, files=files, data=data)
             res.raise_for_status()
             return self.model(**res.json())
         except requests.HTTPError as e:

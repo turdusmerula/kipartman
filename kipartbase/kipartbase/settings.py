@@ -127,3 +127,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# FILE_STORAGE_OPTIONS = {
+#     'STORAGE_PATH': '.',
+#     'SUB_LEVELS': 3,
+#     'SUB_LEVEL_SIZE': 2
+# }
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "static"),
+#     '/var/www/static/',
+# ]
+
+MEDIA_ROOT = 'files/'
+MEDIA_URL = 'files/'

@@ -230,10 +230,9 @@ class FootprintSerializer(serializers.ModelSerializer):
         view_name='footprints-categories-detail',
         allow_null=True
     )
-    
     class Meta:
         model = models.Footprint
-        fields = ('id', 'path', 'category', 'name', 'description', 'comment')
+        fields = ('id', 'path', 'category', 'name', 'description', 'comment', 'image', 'footprint')
 
 
 class UnitSerializer(serializers.ModelSerializer):

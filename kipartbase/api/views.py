@@ -163,7 +163,7 @@ class FootprintViewSet(VerboseModelViewSet):
             # extract category
             categories = models.FootprintCategory.objects.get(pk=int(request.query_params['category'])).get_descendants(include_self=True)
             category_ids = [category.id for category in categories]
-            parts = footprints.filter(category__in=category_ids)
+            footprints = footprints.filter(category__in=category_ids)
         
         if request.query_params.has_key('search'):
             print "Filter by search pattern"

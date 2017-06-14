@@ -251,7 +251,7 @@ class PartsFrame(PanelParts):
                 self.tree_categories.SelectItem(path_to_item[path])
 
         self.part_categories_tree.sort()
-
+        
     def _loadParts(self):
         # apply new filter and reload
         self.parts_model.Cleared()
@@ -270,7 +270,7 @@ class PartsFrame(PanelParts):
 
     def show_part(self, part):
         # disable editing
-        self.panel_edit_part.Enabled = False
+        self.panel_edit_part.enable(False)
         # enable evrything else
         self.panel_category.Enabled = True
         self.panel_parts.Enabled = True
@@ -280,7 +280,7 @@ class PartsFrame(PanelParts):
     def edit_part(self, part):
         self.show_part(part)
         # enable editing
-        self.panel_edit_part.Enabled = True
+        self.panel_edit_part.enable(True)
         # disable evrything else
         self.panel_category.Enabled = False
         self.panel_parts.Enabled = False

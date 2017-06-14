@@ -18,6 +18,8 @@ Including another URLconf
 from django.conf.urls import include
 from django.conf.urls import url
 from django.contrib import admin
+from django.views.static import serve
+from django.conf import settings
 
 #see https://www.machinalis.com/blog/nested-resources-with-django/
 
@@ -49,6 +51,8 @@ router.register(r'manufacturers', ManufacturerViewSet, base_name="manufacturers"
 print router.urls
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api/footprints/files/(?P<path>.*)$', serve, {
+        'document_root': settings.MEDIA_ROOT,
+    }),
     url(r'^api/', include(router.urls)),
 ]
-

@@ -65,14 +65,14 @@ class PanelBom ( wx.Panel ):
 		
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_toolBar11 = wx.ToolBar( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
-		self.tool_open_bom1 = self.m_toolBar11.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/open-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Open kipartman BOM file", wx.EmptyString, None ) 
+		self.toolbar_bom = wx.ToolBar( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.tool_open_bom = self.toolbar_bom.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/open-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Open kipartman BOM file", wx.EmptyString, None ) 
 		
-		self.tool_save_bom1 = self.m_toolBar11.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/save-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Save kipartman BOM file", wx.EmptyString, None ) 
+		self.tool_save_bom = self.toolbar_bom.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/save-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Save kipartman BOM file", wx.EmptyString, None ) 
 		
-		self.m_toolBar11.Realize() 
+		self.toolbar_bom.Realize() 
 		
-		bSizer9.Add( self.m_toolBar11, 0, wx.EXPAND, 5 )
+		bSizer9.Add( self.toolbar_bom, 0, wx.EXPAND, 5 )
 		
 		
 		bSizer5.Add( bSizer9, 0, wx.EXPAND, 5 )
@@ -130,8 +130,8 @@ class PanelBom ( wx.Panel ):
 		self.Bind( wx.EVT_TOOL, self.onToolRefreshBrd, id = self.tool_refresh_brd.GetId() )
 		self.button_add_bom_module.Bind( wx.EVT_BUTTON, self.onButtonAddBomModuleClick )
 		self.button_remove_bom_module.Bind( wx.EVT_BUTTON, self.onButtonRemoveBomModuleClick )
-		self.Bind( wx.EVT_TOOL, self.onToolOpenBomClicked, id = self.tool_open_bom1.GetId() )
-		self.Bind( wx.EVT_TOOL, self.onToolSaveBomClicked, id = self.tool_save_bom1.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToolOpenBomClicked, id = self.tool_open_bom.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToolSaveBomClicked, id = self.tool_save_bom.GetId() )
 		self.button_add_bom_part.Bind( wx.EVT_BUTTON, self.onButtonAddBomPartClick )
 		self.button_remove_bom_part.Bind( wx.EVT_BUTTON, self.onButtonRemoveBomPartClick )
 		self.tree_bom_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomPartsSelectionChanged, id = wx.ID_ANY )

@@ -55,6 +55,17 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_distributors.ApplyChanges(part)
 #        self.edit_part_manufacturers.ApplyChanges(part)
 #        self.edit_part_attachements.ApplyChanges(part)
+
+    def enable(self, enabled=True):
+        self.edit_part_name.Enabled = enabled
+        self.button_octopart.Enabled = enabled
+        self.edit_part_description.Enabled = enabled
+        self.button_part_footprint.Enabled = enabled
+        self.edit_part_comment.Enabled = enabled
+        self.button_part_editApply.Enabled = enabled
+        self.button_part_editCancel.Enabled = enabled
+        self.edit_part_parameters.enable(enabled)
+        self.edit_part_distributors.enable(enabled)
         
     def onButtonPartFootprintClick( self, event ):
         footprint = self.button_part_footprint.Value

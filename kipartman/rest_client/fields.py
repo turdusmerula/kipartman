@@ -6,9 +6,10 @@ from numpy import integer
 
 class Field(object):
 
-    def __init__(self, read_only=False, null=False):
+    def __init__(self, read_only=False, null=False, as_file=False):
         self._read_only = read_only
         self.null = null
+        self.as_file = as_file
         
     def get_value(self):
         return self.value
@@ -20,6 +21,9 @@ class Field(object):
 
     def serialize(self):
         return self.get_value()
+
+    def file(self):
+        return None
 
     def is_read_only(self):
         return self._read_only
@@ -161,3 +165,19 @@ class HyperlinkField(Field):
             return ""
         else:
             return self.url
+
+
+class FileField(Field):
+    def __init__(self, **kwargs):
+        super(FileField, self).__init__(as_file=True, **kwargs)
+        self.set_value(None)
+
+    def file(self):
+        print self.get_value()
+        return self.get_value()
+        #if self.get_value():
+        #    return open(self.get_value(), 'rb')
+        #return None
+
+class ImageField(FileField):
+    pass

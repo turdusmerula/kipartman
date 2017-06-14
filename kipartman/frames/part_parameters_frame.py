@@ -105,6 +105,8 @@ class PartParametersFrame(PanelPartParameters):
         self.cancel = None
         self.result = None
         
+        self.enable(False)
+        
     def SetResult(self, result, cancel=None):
         """
         Callbacks for parent dialog
@@ -121,6 +123,11 @@ class PartParametersFrame(PanelPartParameters):
         self.part = part
         self._showParameters()
     
+    def enable(self, enabled=True):
+        self.button_add_parameter.Enabled = enabled
+        self.button_edit_parameter.Enabled = enabled
+        self.button_remove_parameter.Enabled = enabled
+
     def AddParameter(self, parameter):
         """
         Add a parameter to the part, or update if parameter already exists

@@ -777,7 +777,7 @@
                                                     <property name="minimize_button">0</property>
                                                     <property name="minimum_size"></property>
                                                     <property name="moveable">1</property>
-                                                    <property name="name">m_toolBar11</property>
+                                                    <property name="name">toolbar_bom</property>
                                                     <property name="packing">1</property>
                                                     <property name="pane_border">1</property>
                                                     <property name="pane_position"></property>
@@ -825,7 +825,7 @@
                                                         <property name="id">wxID_ANY</property>
                                                         <property name="kind">wxITEM_NORMAL</property>
                                                         <property name="label">tool</property>
-                                                        <property name="name">tool_open_bom1</property>
+                                                        <property name="name">tool_open_bom</property>
                                                         <property name="permission">protected</property>
                                                         <property name="statusbar"></property>
                                                         <property name="tooltip">Open kipartman BOM file</property>
@@ -846,7 +846,7 @@
                                                         <property name="id">wxID_ANY</property>
                                                         <property name="kind">wxITEM_NORMAL</property>
                                                         <property name="label">tool</property>
-                                                        <property name="name">tool_save_bom1</property>
+                                                        <property name="name">tool_save_bom</property>
                                                         <property name="permission">protected</property>
                                                         <property name="statusbar"></property>
                                                         <property name="tooltip">Save kipartman BOM file</property>

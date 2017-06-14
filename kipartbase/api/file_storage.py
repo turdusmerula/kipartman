@@ -4,13 +4,25 @@ import os
 import ntpath
 import models
 
-class FileStorage(object):
+from django.core.files.storage import Storage, FileSystemStorage
+from django.conf import settings
+
+class FileStorage(Storage):
+
+    def __init__(self, option=None):
+        if not option:
+            option = settings.FILE_STORAGE_OPTIONS
+        
+        self.storage_path = option['STORAGE_PATH']
+        self.sub_levels = option['SUB_LEVELS']
+        self.sub_level_size = option['SUB_LEVEL_SIZE']
     
-    def __init__(self, storage_path='.', sub_levels=3, sub_level_size=2):
-        self.storage_path = storage_path
-        self.sub_levels = sub_levels
-        self.sub_level_size = sub_level_size
+    def _open(self, name, mode='rb'):
+        return super(FileStorage, self)._open(name, mode)
     
+    def _save(self, name, content):
+        return super(FileStorage, self)._save(name, content)
+
     def get_sublevels(self, id):
         levels = []
         for level in range(self.sub_levels):

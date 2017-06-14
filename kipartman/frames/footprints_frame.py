@@ -1,5 +1,6 @@
 from dialogs.panel_footprints import PanelFootprints
 from frames.edit_category_frame import EditCategoryFrame
+from frames.edit_footprint_frame import EditFootprintFrame, EVT_EDIT_FOOTPRINT_APPLY_EVENT, EVT_EDIT_FOOTPRINT_CANCEL_EVENT
 from api.queries import FootprintsQuery, FootprintCategoriesQuery
 from rest_client.exceptions import QueryError
 import wx.dataview
@@ -9,8 +10,7 @@ import copy
 from helper.tree_state import TreeState
 from helper.tree import Tree
 from helper.filter import Filter
-from frames.select_snapeda_frame import SelectSnapedaFrame, EVT_SELECT_SNAPEDA_OK_EVENT
-from frames.dropdown_dialog import DropdownDialog
+
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -81,13 +81,10 @@ class FootprintDropTarget(wx.TextDropTarget):
 
 
 class FootprintDataModel(wx.dataview.PyDataViewModel):
-    def __init__(self):
+    def __init__(self, footprint_filter={}):
         super(FootprintDataModel, self).__init__()
-        self.data = FootprintsQuery().get()
-    
-    def Filter(self, footprint_filter=None):
-        if footprint_filter:
-            self.data = FootprintsQuery(**footprint_filter).get()
+        self.data = FootprintsQuery(**footprint_filter).get()
+        print "---", len(self.data)
         
     def GetColumnCount(self):
         return 4
@@ -169,7 +166,13 @@ class FootprintsFrame(PanelFootprints):
         p_dt = FootprintDropTarget(self)
         self.tree_footprints.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
         self.tree_footprints.SetDropTarget(p_dt)
-
+        
+        # create edit footprint panel
+        self.panel_edit_footprint = EditFootprintFrame(self.footprint_splitter)
+        self.footprint_splitter.SplitHorizontally(self.footprint_splitter.Window1, self.panel_edit_footprint, 400)
+        self.panel_edit_footprint.Bind( EVT_EDIT_FOOTPRINT_APPLY_EVENT, self.onEditFootprintApply )
+        self.panel_edit_footprint.Bind( EVT_EDIT_FOOTPRINT_CANCEL_EVENT, self.onEditFootprintCancel )
+        
         # initial edit state
         self.show_footprint(None)
         self.edit_state = None
@@ -226,8 +229,7 @@ class FootprintsFrame(PanelFootprints):
     def _loadFootprints(self):
         # apply new filter and reload
         self.footprints_model.Cleared()
-        self.footprints_model = FootprintDataModel()
-        self.footprints_model.Filter(self.footprints_filter.query_filter())
+        self.footprints_model = FootprintDataModel(self.footprints_filter.query_filter())
         self.tree_footprints.AssociateModel(self.footprints_model)
 
     # Virtual event handlers, overide them in your derived class
@@ -238,28 +240,20 @@ class FootprintsFrame(PanelFootprints):
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-
     def show_footprint(self, footprint):
         # disable editing
-        self.panel_edit_footprint.Enabled = False
+        self.panel_edit_footprint.enable(False)
         # enable evrything else
         self.panel_category.Enabled = True
         self.panel_footprints.Enabled = True
-        if footprint:
-            self.edit_footprint_name.Value = footprint.name
-            self.edit_footprint_description.Value = footprint.description
-            self.edit_footprint_comment.Value = footprint.comment
-        else:
-            self.edit_footprint_name.Value = ''
-            self.edit_footprint_description.Value = ''
-            self.edit_footprint_comment.Value = ''
-            
-    
+        # set part
+        self.panel_edit_footprint.SetFootprint(footprint)
+
     def edit_footprint(self, footprint):
         self.show_footprint(footprint)
         self.edit_footprint_object = footprint
         # enable editing
-        self.panel_edit_footprint.Enabled = True
+        self.panel_edit_footprint.enable(True)
         # disable evrything else
         self.panel_category.Enabled = False
         self.panel_footprints.Enabled = False
@@ -267,7 +261,7 @@ class FootprintsFrame(PanelFootprints):
     def new_footprint(self):
         self.edit_footprint(models.Footprint())
 
-
+        
     def onButtonRemoveFilterClick( self, event ):
         button = event.GetEventObject()
         self.footprints_filter.remove(button.GetName())
@@ -446,58 +440,24 @@ class FootprintsFrame(PanelFootprints):
             footprint = self.footprints_model.ItemToObject(event.GetItem())
         self.show_footprint(footprint)
     
-    def onButtonFootprintEditApply( self, event ):
+
+    def onEditFootprintApply( self, event ):
+        footprint = event.data
         try:
-            self.edit_footprint_object.name = self.edit_footprint_name.Value
-            self.edit_footprint_object.description = self.edit_footprint_description.Value
-            self.edit_footprint_object.comment = self.edit_footprint_comment.Value
             if self.edit_state=='edit':
-                # update footprint on server
-                FootprintsQuery().update(self.edit_footprint_object)
+                # update part on server
+                FootprintsQuery().update(footprint)
             elif self.edit_state=='add':
-                FootprintsQuery().create(self.edit_footprint_object)
+                part = FootprintsQuery().create(footprint)
+            
             self._loadFootprints()
         except QueryError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         self.edit_state = None
     
-    def onButtonFootprintEditCancel( self, event ):
+    def onEditFootprintCancel( self, event ):
         footprint = None
-        if self.tree_footprints.GetSelection():
-            footprint = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
+        if self.tree_parts.GetSelection():
+            part = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
         self.edit_state = None
         self.show_footprint(footprint)
-
-    def onFileFootprintImageChanged( self, event ):
-        #self.file_footprint_image.GetPath()
-        img = wx.Image(self.file_footprint_image.GetPath(), wx.BITMAP_TYPE_ANY)
-        #img = wx.Bitmap(self.file_footprint_image.GetPath(), wx.BITMAP_TYPE_ANY)
-        self.PhotoMaxSize = self.bitmap_edit_footprint.GetSize().x
-        W = img.GetWidth()
-        H = img.GetHeight()
-        if W > H:
-            NewW = self.PhotoMaxSize
-            NewH = self.PhotoMaxSize * H / W
-        else:
-            NewH = self.PhotoMaxSize
-            NewW = self.PhotoMaxSize * W / H
-        img = img.Scale(NewW,NewH)
-        img = img.ConvertToBitmap()
-
-        self.bitmap_edit_footprint.SetBitmap(img)
-    
-    def onButtonSnapedaClick( self, event ):
-        # create a snapeda frame
-        # dropdown frame
-        dropdown = DropdownDialog(self.button_snapeda, SelectSnapedaFrame, self.edit_footprint_name.Value)
-        dropdown.panel.Bind( EVT_SELECT_SNAPEDA_OK_EVENT, self.onSelectSnapedaFrameOk )
-        dropdown.Dropdown()
-
-    def onSelectSnapedaFrameOk(self, event):
-        snapeda = event.data
-        if not snapeda:
-            return
-#        res = wx.MessageBox(format(e), 'Open SnapEDA to the selected ', wx.YES | wx.NO | wx.ICON_QUESTION)
-
-        print snapeda._links().self().href()
-

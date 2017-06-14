@@ -96,7 +96,8 @@ class PartDistributorsFrame(PanelPartDistributors):
         for c in self.tree_distributors.Columns:
             c.Sortable = True
 
-    
+        self.enable(False)
+        
     def SetPart(self, part):
         # array of changes to apply
         self.create_list = []
@@ -105,7 +106,12 @@ class PartDistributorsFrame(PanelPartDistributors):
 
         self.part = part
         self._showDistributors()
-    
+
+    def enable(self, enabled=True):
+        self.button_add_distributor.Enabled = enabled
+        self.button_edit_distributor.Enabled = enabled
+        self.button_remove_distributor.Enabled = enabled
+
     def AddDistributor(self, distributor):
         """
         Add a distributor to the part

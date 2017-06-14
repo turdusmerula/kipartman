@@ -66,10 +66,10 @@ class PanelFootprints ( wx.Panel ):
 		self.m_panel3 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_splitter21 = wx.SplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
-		self.m_splitter21.Bind( wx.EVT_IDLE, self.m_splitter21OnIdle )
+		self.footprint_splitter = wx.SplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
+		self.footprint_splitter.Bind( wx.EVT_IDLE, self.footprint_splitterOnIdle )
 		
-		self.panel_footprints = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_footprints = wx.Panel( self.footprint_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer12 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.filters_panel = wx.Panel( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -131,85 +131,8 @@ class PanelFootprints ( wx.Panel ):
 		self.panel_footprints.SetSizer( bSizer12 )
 		self.panel_footprints.Layout()
 		bSizer12.Fit( self.panel_footprints )
-		self.panel_edit_footprint = wx.Panel( self.m_splitter21, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.panel_edit_footprint.SetMinSize( wx.Size( -1,300 ) )
-		
-		bSizer14 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		bSizer15 = wx.BoxSizer( wx.VERTICAL )
-		
-		fgSizer1 = wx.FlexGridSizer( 0, 2, 0, 0 )
-		fgSizer1.AddGrowableCol( 1 )
-		fgSizer1.SetFlexibleDirection( wx.BOTH )
-		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
-		
-		self.m_staticText1 = wx.StaticText( self.panel_edit_footprint, wx.ID_ANY, u"Name", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText1.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		bSizer162 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.edit_footprint_name = wx.TextCtrl( self.panel_edit_footprint, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer162.Add( self.edit_footprint_name, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.button_snapeda = wx.Button( self.panel_edit_footprint, wx.ID_ANY, u"SnapEDA", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer162.Add( self.button_snapeda, 0, wx.ALL, 5 )
-		
-		
-		fgSizer1.Add( bSizer162, 1, wx.EXPAND, 5 )
-		
-		self.m_staticText2 = wx.StaticText( self.panel_edit_footprint, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText2.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText2, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.edit_footprint_description = wx.TextCtrl( self.panel_edit_footprint, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_footprint_description, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_staticText3 = wx.StaticText( self.panel_edit_footprint, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText3.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.edit_footprint_comment = wx.TextCtrl( self.panel_edit_footprint, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
-		self.edit_footprint_comment.SetMinSize( wx.Size( -1,110 ) )
-		
-		fgSizer1.Add( self.edit_footprint_comment, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.m_staticText4 = wx.StaticText( self.panel_edit_footprint, wx.ID_ANY, u"Image", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText4.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.file_footprint_image = wx.FilePickerCtrl( self.panel_edit_footprint, wx.ID_ANY, wx.EmptyString, u"Select a file", u"*.*", wx.DefaultPosition, wx.DefaultSize, wx.FLP_DEFAULT_STYLE )
-		fgSizer1.Add( self.file_footprint_image, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		
-		bSizer15.Add( fgSizer1, 1, wx.EXPAND, 5 )
-		
-		button_footprint_edit = wx.StdDialogButtonSizer()
-		self.button_footprint_editApply = wx.Button( self.panel_edit_footprint, wx.ID_APPLY )
-		button_footprint_edit.AddButton( self.button_footprint_editApply )
-		self.button_footprint_editCancel = wx.Button( self.panel_edit_footprint, wx.ID_CANCEL )
-		button_footprint_edit.AddButton( self.button_footprint_editCancel )
-		button_footprint_edit.Realize();
-		
-		bSizer15.Add( button_footprint_edit, 0, wx.EXPAND, 5 )
-		
-		
-		bSizer14.Add( bSizer15, 1, wx.EXPAND, 5 )
-		
-		bSizer16 = wx.BoxSizer( wx.VERTICAL )
-		
-		self.bitmap_edit_footprint = wx.StaticBitmap( self.panel_edit_footprint, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer16.Add( self.bitmap_edit_footprint, 1, wx.ALL|wx.EXPAND, 5 )
-		
-		
-		bSizer14.Add( bSizer16, 1, wx.EXPAND, 5 )
-		
-		
-		self.panel_edit_footprint.SetSizer( bSizer14 )
-		self.panel_edit_footprint.Layout()
-		bSizer14.Fit( self.panel_edit_footprint )
-		self.m_splitter21.SplitHorizontally( self.panel_footprints, self.panel_edit_footprint, 476 )
-		bSizer3.Add( self.m_splitter21, 1, wx.EXPAND, 5 )
+		self.footprint_splitter.Initialize( self.panel_footprints )
+		bSizer3.Add( self.footprint_splitter, 1, wx.EXPAND, 5 )
 		
 		
 		self.m_panel3.SetSizer( bSizer3 )
@@ -245,10 +168,6 @@ class PanelFootprints ( wx.Panel ):
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_DROP, self.onTreeFootprintsItemDrop, id = wx.ID_ANY )
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_EXPANDED, self.onTreeFootprintsItemExpanded, id = wx.ID_ANY )
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeFootprintsSelectionChanged, id = wx.ID_ANY )
-		self.button_snapeda.Bind( wx.EVT_BUTTON, self.onButtonSnapedaClick )
-		self.file_footprint_image.Bind( wx.EVT_FILEPICKER_CHANGED, self.onFileFootprintImageChanged )
-		self.button_footprint_editApply.Bind( wx.EVT_BUTTON, self.onButtonFootprintEditApply )
-		self.button_footprint_editCancel.Bind( wx.EVT_BUTTON, self.onButtonFootprintEditCancel )
 	
 	def __del__( self ):
 		pass
@@ -321,24 +240,12 @@ class PanelFootprints ( wx.Panel ):
 	def onTreeFootprintsSelectionChanged( self, event ):
 		event.Skip()
 	
-	def onButtonSnapedaClick( self, event ):
-		event.Skip()
-	
-	def onFileFootprintImageChanged( self, event ):
-		event.Skip()
-	
-	def onButtonFootprintEditApply( self, event ):
-		event.Skip()
-	
-	def onButtonFootprintEditCancel( self, event ):
-		event.Skip()
-	
 	def m_splitter2OnIdle( self, event ):
 		self.m_splitter2.SetSashPosition( 294 )
 		self.m_splitter2.Unbind( wx.EVT_IDLE )
 	
-	def m_splitter21OnIdle( self, event ):
-		self.m_splitter21.SetSashPosition( 476 )
-		self.m_splitter21.Unbind( wx.EVT_IDLE )
+	def footprint_splitterOnIdle( self, event ):
+		self.footprint_splitter.SetSashPosition( 455 )
+		self.footprint_splitter.Unbind( wx.EVT_IDLE )
 	
 
