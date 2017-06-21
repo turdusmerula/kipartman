@@ -38,10 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mptt',
-    'crispy_forms',
     'rest_framework',
     'filters',
-    'rest_framework_nested',
     'api.apps.ApiConfig',
 ]
 
@@ -54,7 +52,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+ 
 ROOT_URLCONF = 'kipartbase.urls'
 
 TEMPLATES = [
@@ -105,9 +103,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
-}
+#REST_FRAMEWORK = {
+#    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+#}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

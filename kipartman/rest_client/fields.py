@@ -2,7 +2,8 @@ from rest_client import exceptions
 from rfc3987 import parse
 import requests
 from rest_client import registry
-from numpy import integer
+from urllib2 import urlopen
+import os
 
 class Field(object):
 
@@ -173,11 +174,15 @@ class FileField(Field):
         self.set_value(None)
 
     def file(self):
-        print self.get_value()
-        return self.get_value()
-        #if self.get_value():
-        #    return open(self.get_value(), 'rb')
-        #return None
-
+        try:
+            urlopen(self.get_value())
+            # object contains an URL, return None 
+            return None
+        except ValueError:  # invalid URL
+            # Object contains a file, open it
+            return (os.path.basename(self.get_value()), open(self.get_value(), 'rb'), 'application/octet-stream')
+        except:
+            return None
+        
 class ImageField(FileField):
     pass

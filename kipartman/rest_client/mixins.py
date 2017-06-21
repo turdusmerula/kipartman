@@ -12,7 +12,7 @@ def serialize_files(obj):
             if obj.__fields__[field].as_file==True:
                 f = obj.__values__[field].file()
                 if f:
-                    res[field] = (os.path.basename(f), open(f, 'rb'), 'application/octet-stream')
+                    res[field] = f
     return res
 
 def serialize(obj):

@@ -47,17 +47,27 @@ class EditFootprintFrame(PanelEditFootprint):
                 self.button_open_file_footprint.Label = footprint.footprint
             else:
                 self.button_open_file_footprint.Label = "<None>"
+
+            if footprint.snapeda:
+                self.button_open_url_snapeda.Label = footprint.snapeda
+            else:
+                self.button_open_url_snapeda.Label = "<None>"
+
             print "image:", footprint.image
             print "footprint:", footprint.footprint
         else:
             self.edit_footprint_name.Value = ''
             self.edit_footprint_description.Value = ''
             self.edit_footprint_comment.Value = ''
+            self.button_open_file_image.Label = "<None>"
+            self.button_open_file_footprint.Label = "<None>"
+            self.button_open_url_snapeda.Label = "<None>"
 
     def enable(self, enabled=True):
         self.edit_footprint_name.Enabled = enabled
         self.edit_footprint_description.Enabled = enabled
         self.edit_footprint_comment.Enabled = enabled
+        self.button_remove_url_snapeda.Enabled = enabled
         self.button_add_file_footprint.Enabled = enabled
         self.button_add_file_image.Enabled = enabled
         self.button_footprint_editApply.Enabled = enabled
@@ -108,6 +118,7 @@ class EditFootprintFrame(PanelEditFootprint):
 #        res = wx.MessageBox(format(e), 'Open SnapEDA to the selected ', wx.YES | wx.NO | wx.ICON_QUESTION)
         self.edit_footprint_name.Value = snapeda.part_number()
         self.edit_footprint_description.Value = snapeda.short_description()
+        self.button_open_url_snapeda.Label = "https://www.snapeda.com"+snapeda._links().self().href()
         # download image
         if snapeda.image()!='':
             try:
@@ -117,13 +128,13 @@ class EditFootprintFrame(PanelEditFootprint):
                     outfile.write(content)
                 outfile.close()
                 
-                self.button_open_file_image.Label = os.path.basename(filename)
+                self.button_open_file_image.Label = filename
                 self.local_file_image = filename
                 self.SetImage(filename)
             except:
                 print "%s: Error loading" % snapeda.image()
             
-        self.SetImage(self.file_footprint_image.GetPath())
+        self.SetImage(self.button_open_file_image.Label)
 
     def onButtonOpenFileImageClick( self, event ):
         if self.button_open_file_image.Label!="<None>":
@@ -191,7 +202,7 @@ class EditFootprintFrame(PanelEditFootprint):
         footprint.comment = self.edit_footprint_comment.Value            
         footprint.image = self.local_file_image
         footprint.footprint = self.local_file_footprint
-            
+        footprint.snapeda = self.button_open_url_snapeda.Label
         # send result event
         event = EditFootprintApplyEvent(data=footprint)
         wx.PostEvent(self, event)
@@ -199,3 +210,11 @@ class EditFootprintFrame(PanelEditFootprint):
     def onButtonFootprintEditCancel( self, event ):
         event = EditFootprintCancelEvent()
         wx.PostEvent(self, event)
+
+    def onButtonOpenUrlSnapedaClick( self, event ):
+        if self.button_open_url_snapeda.Label!="<None>":
+            webbrowser.open(self.button_open_url_snapeda.Label)
+    
+    def onButtonRemoveUrlSnapedaClick( self, event ):
+        self.button_open_url_snapeda.Label = "<None>"
+        self.button_open_url_snapeda = ''

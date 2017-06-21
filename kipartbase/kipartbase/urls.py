@@ -20,11 +20,11 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.views.static import serve
 from django.conf import settings
+from rest_framework import routers
 
 #see https://www.machinalis.com/blog/nested-resources-with-django/
 
 #from rest_framework import routers
-from rest_framework_nested import routers
 from api.views import PartViewSet, PartCategoryViewSet, PartParameterViewSet, PartManufacturerViewSet, PartDistributorViewSet
 from api.views import FootprintViewSet, FootprintCategoryViewSet
 from api.views import UnitViewSet, UnitPrefixViewSet

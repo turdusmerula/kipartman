@@ -17,7 +17,7 @@ import wx.xrc
 class PanelEditFootprint ( wx.Panel ):
 	
 	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 926,297 ), style = wx.TAB_TRAVERSAL )
+		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 926,343 ), style = wx.TAB_TRAVERSAL )
 		
 		bSizer1 = wx.BoxSizer( wx.HORIZONTAL )
 		
@@ -62,6 +62,21 @@ class PanelEditFootprint ( wx.Panel ):
 		self.edit_footprint_comment.SetMinSize( wx.Size( -1,90 ) )
 		
 		fgSizer1.Add( self.edit_footprint_comment, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText42 = wx.StaticText( self.m_panel7, wx.ID_ANY, u"Snapeda", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText42.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText42, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		bSizer172 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.button_open_url_snapeda = wx.Button( self.m_panel7, wx.ID_ANY, u"<None>", wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT|wx.NO_BORDER )
+		bSizer172.Add( self.button_open_url_snapeda, 1, wx.ALL|wx.EXPAND, 5 )
+		
+		self.button_remove_url_snapeda = wx.BitmapButton( self.m_panel7, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		bSizer172.Add( self.button_remove_url_snapeda, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		fgSizer1.Add( bSizer172, 1, wx.EXPAND, 5 )
 		
 		self.m_staticText4 = wx.StaticText( self.m_panel7, wx.ID_ANY, u"Image", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText4.Wrap( -1 )
@@ -135,6 +150,8 @@ class PanelEditFootprint ( wx.Panel ):
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.button_snapeda.Bind( wx.EVT_BUTTON, self.onButtonSnapedaClick )
+		self.button_open_url_snapeda.Bind( wx.EVT_BUTTON, self.onButtonOpenUrlSnapedaClick )
+		self.button_remove_url_snapeda.Bind( wx.EVT_BUTTON, self.onButtonRemoveUrlSnapedaClick )
 		self.button_open_file_image.Bind( wx.EVT_BUTTON, self.onButtonOpenFileImageClick )
 		self.button_add_file_image.Bind( wx.EVT_BUTTON, self.onButtonAddFileImageClick )
 		self.button_remove_file_image.Bind( wx.EVT_BUTTON, self.onButtonRemoveFileImageClick )
@@ -153,6 +170,12 @@ class PanelEditFootprint ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonSnapedaClick( self, event ):
+		event.Skip()
+	
+	def onButtonOpenUrlSnapedaClick( self, event ):
+		event.Skip()
+	
+	def onButtonRemoveUrlSnapedaClick( self, event ):
 		event.Skip()
 	
 	def onButtonOpenFileImageClick( self, event ):

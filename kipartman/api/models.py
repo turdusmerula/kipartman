@@ -41,6 +41,7 @@ class Footprint(models.Model):
     comment = fields.TextField()
     image = fields.ImageField(null=True)
     footprint = fields.FileField(null=True)
+    snapeda = fields.TextField(null=True)
     def __unicode__(self): 
         return '%d: %s' % (self.id, self.name)
 

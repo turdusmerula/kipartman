@@ -103,6 +103,7 @@ class Footprint(models.Model):
     comment = models.TextField(null=True, blank=True, default='')
     image = models.ImageField(null=True, upload_to='images/%y/%m/%d/%H%M/')
     footprint = models.FileField(null=True, upload_to='footprints/%y/%m/%d/%H%M/')
+    snapeda = models.TextField(null=True, blank=True)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     

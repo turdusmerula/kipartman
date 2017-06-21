@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  kipartbase:
+    build: kipartbase
+    restart: unless-stopped
+    ports:
+      - 8100:8100
+    volumes:
+      - ${KIPARTBASE_PATH}/kipartbase/db.sqlite3:/opt/db.sqlite3
+      - ${KIPARTBASE_PATH}/kipartbase/files:/opt/files

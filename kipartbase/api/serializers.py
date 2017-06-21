@@ -232,7 +232,7 @@ class FootprintSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = models.Footprint
-        fields = ('id', 'path', 'category', 'name', 'description', 'comment', 'image', 'footprint')
+        fields = ('id', 'path', 'category', 'name', 'description', 'comment', 'image', 'footprint', 'snapeda')
 
 
 class UnitSerializer(serializers.ModelSerializer):
