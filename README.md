@@ -18,3 +18,8 @@ The server part is delivered as a docker-compose file, it is installed throug th
 
 By default the database and file repository are searched in the current folder, this can be modified by editing the ''.env'' file and changing the ''KIPARTBASE_PATH'' variable.
 Copy the ''db.sqlite3 file'' in the destination folder.
+
+The client part is installed through pip
+
+  pip install kipartman
+

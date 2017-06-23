@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mptt',
     'rest_framework',
+#    'rest_framework.authtoken'
     'filters',
     'api.apps.ApiConfig',
 ]
@@ -104,7 +105,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 #REST_FRAMEWORK = {
-#    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+#    'DEFAULT_AUTHENTICATION_CLASSES': (
+#        'rest_framework.authentication.BasicAuthentication',
+#        'rest_framework.authentication.SessionAuthentication',
+#    )
 #}
 
 # Internationalization
