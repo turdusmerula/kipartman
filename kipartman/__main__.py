@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 
-if __name__ == '__main__' and __package__ is None:
-    from os import sys, path
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-
 import os
-os.chdir(os.path.dirname(os.path.abspath(__file__))+'/../..')
-print "------", os.path.dirname(os.path.abspath(__file__))
+os.sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+if not os.path.exists('resources'):
+    # we are in an installed package, set new path
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 # configure django to use the model
 #from django.core.wsgi import get_wsgi_application
 #import os
