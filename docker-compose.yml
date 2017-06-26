@@ -6,6 +6,8 @@ services:
     restart: unless-stopped
     ports:
       - 8100:8100
+    environment:
+     - KIPARTBASE_PATH=/opt
     volumes:
-      - ${KIPARTBASE_PATH}/kipartbase/db.sqlite3:/opt/db.sqlite3
-      - ${KIPARTBASE_PATH}/kipartbase/files:/opt/files
+      - ~/.kipartman/db.sqlite3:/opt/db.sqlite3
+      - ~/.kipartman/files:/opt/files

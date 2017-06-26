@@ -6,7 +6,9 @@ import wx.lib.newevent
 class Configuration(object):
     
     def __init__(self):
-        self.filename = expanduser("~")+'/'+'.kipartman'
+        if os.path.exists(expanduser("~")+'/.kipartman')==False:
+            os.mkdir(expanduser("~")+'/.kipartman')
+        self.filename = expanduser("~")+'/.kipartman/configure.json'
         self.octopart_api_key = ''
         self.kipartbase = 'http://localhost:8100'
         

@@ -15,7 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
+DATA_DIR=os.getenv('KIPARTBASE_PATH', os.path.expanduser("~")+'/.kipartman')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'kipartbase.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(DATA_DIR, 'db.sqlite3'),
     }
 }
 
@@ -142,5 +142,5 @@ STATIC_URL = '/static/'
 #     '/var/www/static/',
 # ]
 
-MEDIA_ROOT = 'files/'
-MEDIA_URL = 'files/'
+MEDIA_ROOT = os.path.join(DATA_DIR, 'files/')
+MEDIA_URL = os.path.join(DATA_DIR, 'files/')
