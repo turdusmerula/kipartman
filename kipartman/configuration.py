@@ -1,7 +1,6 @@
 from os.path import expanduser
 import os.path
 import json
-import wx.lib.newevent
 
 class Configuration(object):
     

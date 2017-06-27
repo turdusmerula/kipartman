@@ -68,7 +68,7 @@ Edit the file ~/.kipartman/configure.json and put your newly created api key:
 
 SnapEDA is a database containing a huge pool of footprints and schematic symbols, you will need an account to download files on their website.
 
-By now SnapEDA is poorly integrated but work with the SnapEDA team is in progress to have access to the full api from kipartman.
+By now SnapEDA is poorly integrated but works with the SnapEDA team is in progress to have access to the full api from kipartman.
 
 
 ## Kipartman
@@ -82,6 +82,7 @@ You can launch kipartman by simply calling it from the console:
 
   * Add part model view
   * Add filtering from parts parameters in part view
+  * Improve sorting of non string columns in treeview and listviews
   * Add manufacturers view
   * Prepare an order from BOM on distributors
   * Add a daemon to refresh prices regularly
@@ -89,5 +90,6 @@ You can launch kipartman by simply calling it from the console:
   * Add backup and restore
   * Add tutorials
   * Improve overall performances for part submission by providing bulk transactions
+  * Add a stock manager
 
  

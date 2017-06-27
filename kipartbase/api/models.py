@@ -29,7 +29,6 @@ class Part(models.Model):
         return PartManufacturer.objects.filter(part=self)
 #    def attachements(self):
 #        return PartAttachement.objects.filter(part=self)
-
     # octopart fields
     octopart = models.TextField(null=True, blank=True, default=None)
     updated = models.DateTimeField(null=True, blank=True, default=None)
@@ -73,7 +72,12 @@ class PartDistributor(models.Model):
     
 
 class Manufacturer(models.Model):
-    name = models.TextField()
+    name = models.TextField(blank=False)
+    address = models.TextField(blank=True, default='')
+    website = models.TextField(blank=True, default='')
+    email = models.TextField(blank=True, default='')
+    phone = models.TextField(blank=True, default='')
+    comment = models.TextField(blank=True, default='')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 

@@ -2,6 +2,7 @@ from dialogs.dialog_main import DialogMain
 from frames.parts_frame import PartsFrame
 from frames.footprints_frame import FootprintsFrame
 from frames.distributors_frame import DistributorsFrame
+from frames.manufacturers_frame import ManufacturersFrame
 from frames.bom_frame import BomFrame
 from frames.configuration_frame import ConfigurationFrame
 
@@ -26,7 +27,7 @@ class MainFrame(DialogMain):
         self.distributorsframe = DistributorsFrame(self.notebook)
         self.notebook.AddPage(self.distributorsframe, "Distributors", False)
 
-        self.partsframe = wx.Panel(self.notebook)
+        self.partsframe = ManufacturersFrame(self.notebook)
         self.notebook.AddPage(self.partsframe, "Manufacturers", False)
         
         #TODO: projects

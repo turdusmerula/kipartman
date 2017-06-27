@@ -21,6 +21,9 @@ class Part(models.Model):
     parts = fields.IndexListField(model='Part')
     parameters = fields.ListField(model='PartParameter', read_only=True)
     distributors = fields.ListField(model='PartDistributor', read_only=True)
+    manufacturers = fields.ListField(model='PartManufacturer', read_only=True)
+    octopart = fields.TextField(null=True)
+    updated = fields.DateTimeField(null=True)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -111,6 +114,15 @@ class PartDistributor(models.Model):
     def item_price(self):
         return self.unit_price*self.packaging_unit
 
+class PartManufacturer(models.Model):
+    id = fields.IntegerField(read_only=True, default=-1)
+    path = fields.TextField(read_only=True)
+    part = fields.HyperlinkField('Part')
+    manufacturer = fields.HyperlinkField('Manufacturer')
+    part_name = fields.TextField()
+    def item_price(self):
+        return self.unit_price*self.packaging_unit
+
 class Distributor(models.Model):
     id = fields.IntegerField(read_only=True, default=-1)
     path = fields.TextField(read_only=True)
@@ -121,4 +133,13 @@ class Distributor(models.Model):
     email = fields.TextField()
     phone = fields.TextField()
     comment = fields.TextField()
-    
+
+class Manufacturer(models.Model):
+    id = fields.IntegerField(read_only=True, default=-1)
+    path = fields.TextField(read_only=True)
+    name = fields.TextField()
+    address = fields.TextField()
+    website = fields.TextField()
+    email = fields.TextField()
+    phone = fields.TextField()
+    comment = fields.TextField()

@@ -88,6 +88,12 @@ class TextField(Field):
         self.set_value(default)
 
 
+class DateTimeField(Field):
+    def __init__(self, default='', **kwargs):
+        super(DateTimeField, self).__init__(**kwargs)
+        self.set_value(default)
+
+
 class IndexListField(Field):
     def __init__(self, model=None, default=[], **kwargs):
         super(IndexListField, self).__init__(**kwargs)

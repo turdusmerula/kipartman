@@ -87,6 +87,12 @@ class Bom(object):
     def Parts(self):
         return self.parts
 
+    def ExistPart(self, part):
+        for p in self.parts:
+            if p.id==part.id:
+                return True
+        return False
+
     def AddPart(self, part):
         self.parts.append(part)
         self.part_modules[part.id] = []

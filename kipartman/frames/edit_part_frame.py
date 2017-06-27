@@ -2,12 +2,14 @@ from dialogs.panel_edit_part import PanelEditPart
 from frames.select_footprint_frame import SelectFootprintFrame
 from frames.part_parameters_frame import PartParametersFrame
 from frames.part_distributors_frame import PartDistributorsFrame
+from frames.part_manufacturers_frame import PartManufacturersFrame
 from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
 import wx.lib.newevent
 from api import models
-from api.queries import UnitsQuery, UnitPrefixesQuery, DistributorsQuery
+from api.queries import UnitsQuery, UnitPrefixesQuery, DistributorsQuery, ManufacturersQuery
+import datetime
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -22,7 +24,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_distributors = PartDistributorsFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_distributors, "Distributors")
 
-        self.edit_part_manufacturers = wx.Panel(self.notebook_part)
+        self.edit_part_manufacturers = PartManufacturersFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_manufacturers, "Manufacturers")
 
         self.edit_part_attachements = wx.Panel(self.notebook_part)
@@ -33,6 +35,7 @@ class EditPartFrame(PanelEditPart):
         self.ShowPart(part)
         self.edit_part_parameters.SetPart(part)
         self.edit_part_distributors.SetPart(part)
+        self.edit_part_manufacturers.SetPart(part)
     
     def ShowPart(self, part):
         if part:
@@ -53,7 +56,7 @@ class EditPartFrame(PanelEditPart):
     def ApplyChanges(self, part):
         self.edit_part_parameters.ApplyChanges(part)
         self.edit_part_distributors.ApplyChanges(part)
-#        self.edit_part_manufacturers.ApplyChanges(part)
+        self.edit_part_manufacturers.ApplyChanges(part)
 #        self.edit_part_attachements.ApplyChanges(part)
 
     def enable(self, enabled=True):
@@ -66,6 +69,7 @@ class EditPartFrame(PanelEditPart):
         self.button_part_editCancel.Enabled = enabled
         self.edit_part_parameters.enable(enabled)
         self.edit_part_distributors.enable(enabled)
+        self.edit_part_manufacturers.enable(enabled)
         
     def onButtonPartFootprintClick( self, event ):
         footprint = self.button_part_footprint.Value
@@ -83,6 +87,9 @@ class EditPartFrame(PanelEditPart):
         part = self.part
         if not part:
             part = models.Part()
+        if part.name!=part.octopart:
+            part.octopart = None
+            
         # set part content
         part.name = self.edit_part_name.Value
         part.description = self.edit_part_description.Value
@@ -153,6 +160,10 @@ class EditPartFrame(PanelEditPart):
         # import part fields
         self.part.name = octopart.item().mpn()
         self.part.description = octopart.snippet()
+        
+        # set field octopart to indicatethat part was imported from octopart
+        self.part.octopart = octopart.item().mpn()
+        self.part.updated = datetime.datetime.now()
         
         # import parameters
         for spec_name in octopart.item().specs():
@@ -233,4 +244,28 @@ class EditPartFrame(PanelEditPart):
                     part_distributor.sku = offer.sku()
                     self.edit_part_distributors.AddDistributor(part_distributor)
         
+        # import manufacturer
+        manufacturer_name = octopart.item().manufacturer().name()
+        manufacturer = None
+        try:
+            manufacturers = ManufacturersQuery(name=manufacturer_name).get()
+            if len(distributors)>0:
+                manufacturer = manufacturers[0]
+            else:
+                # distributor does not exists, create it
+                manufacturer = models.Manufacturer()
+                manufacturer.name = manufacturer_name
+                manufacturer.website = octopart.item().manufacturer().homepage_url()
+                manufacturer = ManufacturersQuery().create(manufacturer)
+        except:
+            wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+        # remove manufacturer prior to add new manufacturer
+        self.edit_part_manufacturers.RemoveManufacturer(manufacturer_name)
+        # add new manufacturer
+        part_manufacturer = models.PartManufacturer()
+        part_manufacturer.manufacturer = manufacturer
+        part_manufacturer.part_name = self.part.name
+        self.edit_part_manufacturers.AddManufacturer(part_manufacturer)
+
         self.ShowPart(self.part)
+

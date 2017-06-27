@@ -93,15 +93,41 @@ class PartParameterSerializer(serializers.ModelSerializer):
 
 
 class ManufacturerSerializer(serializers.ModelSerializer):
+    path = serializers.HyperlinkedIdentityField(view_name='manufacturers-detail')
+
     class Meta:
         model = models.Manufacturer
-        fields = ('id', 'name')
+        fields = ('id', 'path', 'name', 'address', 'website', 'email', 'phone', 'comment')
+
+    def create(self, validated_data):
+        # check if name already exist
+        if models.Manufacturer.objects.filter(name=validated_data.get('name')).count()>0:
+            raise exceptions.PermissionDenied((self.default_error_messages['already_exist']) % (validated_data.get('name')))
+        return super(ManufacturerSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        # check if update to a name that already exist
+        if models.Manufacturer.objects.filter(~Q(pk=instance.pk)).filter(name=validated_data.get('name')).count()>0:
+            raise exceptions.PermissionDenied((self.default_error_messages['already_exist']) % (validated_data.get('name')))
+        return super(ManufacturerSerializer, self).update(instance, validated_data)
 
 
 class PartManufacturerSerializer(serializers.ModelSerializer):
+    path = serializers.HyperlinkedIdentityField(view_name='manufacturers-detail')
+    part = serializers.HyperlinkedRelatedField(
+        queryset=models.Part.objects.all(),
+        view_name='parts-detail',
+        allow_null=True
+    )
+    manufacturer = serializers.HyperlinkedRelatedField(
+        queryset=models.Manufacturer.objects.all(),
+        view_name='manufacturers-detail',
+        allow_null=True
+    )
+
     class Meta:
         model = models.PartManufacturer
-        fields = ('id', 'manufacturer', 'part_name')
+        fields = ('id', 'path', 'part', 'manufacturer', 'part_name')
 
 
 class DistributorSerializer(serializers.ModelSerializer):
@@ -179,7 +205,7 @@ class PartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Part
-        fields = ('id', 'path', 'category', 'name', 'description', 'footprint', 'comment', 'parts', 'parameters', 'distributors', 'manufacturers')
+        fields = ('id', 'path', 'category', 'name', 'description', 'footprint', 'comment', 'parts', 'parameters', 'distributors', 'manufacturers', 'octopart', 'updated')
 
     def update(self, instance, validated_data):
         # check there is no recursion

@@ -297,6 +297,10 @@ class BomFrame(PanelBom):
             self.load()
         
     def onSelectPartCallback(self, part):
+        if bom.ExistPart(part.data)==True:
+            wx.MessageDialog(self, "%s already added, skipped" % part.data.name, "Error adding part", wx.OK | wx.ICON_ERROR).ShowModal()
+            return
+        
         bom.AddPart(part.data)
         # refresh
         self.loadBomParts()

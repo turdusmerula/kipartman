@@ -17,6 +17,10 @@ class PartDistributorsQuery(queries.QuerySet):
     path = '/part-distributors/{distributor}'
     model = models.PartDistributor
 
+class PartManufacturersQuery(queries.QuerySet):
+    path = '/part-manufacturers/{manufacturer}'
+    model = models.PartManufacturer
+
 class FootprintsQuery(queries.QuerySet):
     path = '/footprints/{footprint}'
     model = models.Footprint
@@ -30,6 +34,9 @@ class DistributorsQuery(queries.QuerySet):
     path = '/distributors/{distributor}'
     model = models.Distributor
 
+class ManufacturersQuery(queries.QuerySet):
+    path = '/manufacturers/{manufacturer}'
+    model = models.Manufacturer
 
 class UnitsQuery(queries.QuerySet):
     path = '/units/{unit}'
