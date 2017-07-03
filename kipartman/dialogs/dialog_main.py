@@ -17,7 +17,7 @@ import wx.xrc
 class DialogMain ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1160,686 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Kipartman", pos = wx.DefaultPosition, size = wx.Size( 1160,686 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -27,12 +27,6 @@ class DialogMain ( wx.Frame ):
 		self.menu_view.Append( self.menu_view_configuration )
 		
 		self.menu_bar.Append( self.menu_view, u"View" ) 
-		
-		self.menu_kicad = wx.Menu()
-		self.menu_rebuild_footprints = wx.MenuItem( self.menu_kicad, wx.ID_ANY, u"Rebuild footprints", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_kicad.Append( self.menu_rebuild_footprints )
-		
-		self.menu_bar.Append( self.menu_kicad, u"Kicad" ) 
 		
 		self.menu_help = wx.Menu()
 		self.menu_about = wx.MenuItem( self.menu_help, wx.ID_ANY, u"About", wx.EmptyString, wx.ITEM_NORMAL )
@@ -57,7 +51,6 @@ class DialogMain ( wx.Frame ):
 		# Connect Events
 		self.Bind( wx.EVT_KILL_FOCUS, self.onKillFocus )
 		self.Bind( wx.EVT_MENU, self.onMenuViewConfigurationSelection, id = self.menu_view_configuration.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuKicadRebuildFootprintsSelection, id = self.menu_rebuild_footprints.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuHelpAboutSelection, id = self.menu_about.GetId() )
 		self.notebook.Bind( wx.EVT_NOTEBOOK_PAGE_CHANGED, self.onNotebookPageChanged )
 	
@@ -70,9 +63,6 @@ class DialogMain ( wx.Frame ):
 		event.Skip()
 	
 	def onMenuViewConfigurationSelection( self, event ):
-		event.Skip()
-	
-	def onMenuKicadRebuildFootprintsSelection( self, event ):
 		event.Skip()
 	
 	def onMenuHelpAboutSelection( self, event ):

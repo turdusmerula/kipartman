@@ -62,6 +62,13 @@ class PanelEditPart ( wx.Panel ):
 		self.button_part_footprint = wx.Button( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
 		fgSizer1.Add( self.button_part_footprint, 0, wx.ALL|wx.EXPAND, 5 )
 		
+		self.m_staticText51 = wx.StaticText( self.panel_edit_part_basic, wx.ID_ANY, u"Model", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText51.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText51, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.button_part_model = wx.Button( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
+		fgSizer1.Add( self.button_part_model, 1, wx.ALL|wx.EXPAND, 5 )
+		
 		self.m_staticText6 = wx.StaticText( self.panel_edit_part_basic, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -111,6 +118,7 @@ class PanelEditPart ( wx.Panel ):
 		self.button_octopart.Bind( wx.EVT_BUTTON, self.onButtonOctopartClick )
 		self.edit_part_description.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.button_part_footprint.Bind( wx.EVT_BUTTON, self.onButtonPartFootprintClick )
+		self.button_part_model.Bind( wx.EVT_BUTTON, self.onButtonPartModelClick )
 		self.edit_part_comment.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartEditApply )
 		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartEditCancel )
@@ -131,6 +139,9 @@ class PanelEditPart ( wx.Panel ):
 	
 	
 	def onButtonPartFootprintClick( self, event ):
+		event.Skip()
+	
+	def onButtonPartModelClick( self, event ):
 		event.Skip()
 	
 	
