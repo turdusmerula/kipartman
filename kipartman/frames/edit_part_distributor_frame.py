@@ -4,7 +4,7 @@ from api.queries import DistributorsQuery
 from rest_client.exceptions import QueryError
 import wx
  
-
+# TODO: switch to a list for currency
 class EditPartDistributorFrame(DialogEditPartDistributor):
     def __init__(self, parent): 
         super(EditPartDistributorFrame, self).__init__(parent)
@@ -24,6 +24,7 @@ class EditPartDistributorFrame(DialogEditPartDistributor):
  
         self.choice_distributor.SetSelection(0)
         self.edit_part_distributor_packaging_unit.Value = '1'
+        self.edit_part_distributor_quantity = '1'
         self.edit_part_distributor_unit_price.Value = '0'
         self.edit_part_distributor_currency.Value = 'USD'
         self.edit_part_distributor_sku.Value = ''
@@ -43,6 +44,7 @@ class EditPartDistributorFrame(DialogEditPartDistributor):
         else:
             self.choice_distributor.SetSelection(0)
         self.edit_part_distributor_packaging_unit.Value = str(distributor.packaging_unit)
+        self.edit_part_distributor_quantity.Value = str(distributor.quantity)
         self.edit_part_distributor_unit_price.Value = str(distributor.unit_price)
         self.edit_part_distributor_currency.Value = str(distributor.currency)
         self.edit_part_distributor_sku.Value = str(distributor.sku)
@@ -59,6 +61,7 @@ class EditPartDistributorFrame(DialogEditPartDistributor):
             else:
                 self.distributor.distributor = DistributorsQuery().get()[self.choice_distributor.GetSelection()-1]
             self.distributor.packaging_unit = int(self.edit_part_distributor_packaging_unit.Value)
+            self.distributor.quantity = int(self.edit_part_distributor_quantity.Value)
             self.distributor.unit_price = float(self.edit_part_distributor_unit_price.Value)
             self.distributor.currency = self.edit_part_distributor_currency.Value
             self.distributor.sku = self.edit_part_distributor_sku.Value

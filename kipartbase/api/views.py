@@ -239,9 +239,23 @@ class ManufacturerViewSet(VerboseModelViewSet):
     queryset = models.Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
 
+    def list(self, request, *args, **kwargs):
+        print "list: ", request.data, request.query_params
+        parameters = models.Manufacturer.objects
+        
+        if request.query_params.has_key('name'):
+            print "Filter by name"
+            # add a category filter
+            # extract category
+            parameters = parameters.filter(name=request.query_params['name'])
+
+        queryset = parameters.all()
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return response.Response(serializer.data)
+
     def perform_destroy(self, instance):
         # remove subitems
-#TODO        models.PartManufacturer.objects.filter(manufacturer=instance).delete()
+        models.PartDistributor.objects.filter(manufacturer=instance).delete()
         # delete part
         instance.delete()
 

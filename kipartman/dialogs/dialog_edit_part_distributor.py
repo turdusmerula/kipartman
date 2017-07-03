@@ -17,7 +17,7 @@ import wx.xrc
 class DialogEditPartDistributor ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 406,254 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 426,284 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -50,13 +50,26 @@ class DialogEditPartDistributor ( wx.Dialog ):
 		fgSizer1.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.edit_part_distributor_packaging_unit = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.edit_part_distributor_packaging_unit.SetHelpText( u"Number of items per package" )
+		
 		fgSizer1.Add( self.edit_part_distributor_packaging_unit, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.m_staticText6 = wx.StaticText( self, wx.ID_ANY, u"Quantity:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText6.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.edit_part_distributor_quantity = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.edit_part_distributor_quantity.SetHelpText( u"The minimum quantity at wich the price applies" )
+		
+		fgSizer1.Add( self.edit_part_distributor_quantity, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.static_value = wx.StaticText( self, wx.ID_ANY, u"Unit Price", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.static_value.Wrap( -1 )
 		fgSizer1.Add( self.static_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.edit_part_distributor_unit_price = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.edit_part_distributor_unit_price.SetHelpText( u"Price for one item" )
+		
 		fgSizer1.Add( self.edit_part_distributor_unit_price, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		self.static_min_value = wx.StaticText( self, wx.ID_ANY, u"Currency", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -64,6 +77,8 @@ class DialogEditPartDistributor ( wx.Dialog ):
 		fgSizer1.Add( self.static_min_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.edit_part_distributor_currency = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.edit_part_distributor_currency.SetHelpText( u"Currency for the price" )
+		
 		fgSizer1.Add( self.edit_part_distributor_currency, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.static_nom_value = wx.StaticText( self, wx.ID_ANY, u"SKU", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -71,6 +86,8 @@ class DialogEditPartDistributor ( wx.Dialog ):
 		fgSizer1.Add( self.static_nom_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.edit_part_distributor_sku = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.edit_part_distributor_sku.SetHelpText( u"Distributor reference" )
+		
 		fgSizer1.Add( self.edit_part_distributor_sku, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		

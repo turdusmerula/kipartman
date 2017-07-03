@@ -108,6 +108,7 @@ class PartDistributor(models.Model):
     part = fields.HyperlinkField('Part')
     distributor = fields.HyperlinkField('Distributor')
     packaging_unit = fields.IntegerField()
+    quantity = fields.IntegerField()
     unit_price = fields.FloatField()
     currency = fields.TextField()
     sku = fields.TextField()
@@ -120,8 +121,6 @@ class PartManufacturer(models.Model):
     part = fields.HyperlinkField('Part')
     manufacturer = fields.HyperlinkField('Manufacturer')
     part_name = fields.TextField()
-    def item_price(self):
-        return self.unit_price*self.packaging_unit
 
 class Distributor(models.Model):
     id = fields.IntegerField(read_only=True, default=-1)

@@ -64,6 +64,7 @@ class PartDistributor(models.Model):
     part = models.ForeignKey('Part', on_delete=models.DO_NOTHING, null=False, blank=False, default=None)
     distributor = models.ForeignKey('Distributor', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     packaging_unit = models.IntegerField()
+    quantity = models.IntegerField()
     unit_price = models.FloatField()
     currency = models.TextField(blank=True)
     sku = models.TextField(blank=True)

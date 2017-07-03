@@ -18,19 +18,20 @@ class PartDistributorsDataModel(wx.dataview.PyDataViewModel):
     def GetColumnType(self, col):
         mapper = { 
             0 : 'string',
-            1 : 'string',
-            2 : 'string',
-            3 : 'string',
-            4 : 'string',
+            1 : 'long',
+            2 : 'long',
+            3 : 'float',
+            4 : 'float',
             5 : 'string',
+            6 : 'string',
          }
         return mapper[col]
 
     def GetChildren(self, parent, children):
         # check root node
         if not parent:
-            for octopart in self.data:
-                children.append(self.ObjectToItem(octopart))
+            for distributor in self.data:
+                children.append(self.ObjectToItem(distributor))
             return len(self.data)
         return 0
     
@@ -52,10 +53,11 @@ class PartDistributorsDataModel(wx.dataview.PyDataViewModel):
         vMap = { 
             0 : distributor,
             1 : str(obj.packaging_unit),
-            2 : str(obj.item_price()),
-            3 : str(obj.unit_price),
-            4 : obj.currency,
-            5 : obj.sku,
+            2 : str(obj.quantity),
+            3 : str(obj.item_price()),
+            4 : str(obj.unit_price),
+            5 : obj.currency,
+            6 : obj.sku,
         }
             
         if vMap[col] is None:
@@ -89,10 +91,11 @@ class PartDistributorsFrame(PanelPartDistributors):
         # add default columns
         self.tree_distributors.AppendTextColumn("Distributor", 0, width=wx.COL_WIDTH_AUTOSIZE)
         self.tree_distributors.AppendTextColumn("Packaging Unit", 1, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Package Price", 2, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Price per Item", 3, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Currency", 4, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("SKU", 5, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_distributors.AppendTextColumn("Quantity", 2, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_distributors.AppendTextColumn("Price", 3, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_distributors.AppendTextColumn("Price per Item", 4, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_distributors.AppendTextColumn("Currency", 5, width=wx.COL_WIDTH_AUTOSIZE)
+        self.tree_distributors.AppendTextColumn("SKU", 6, width=wx.COL_WIDTH_AUTOSIZE)
         for c in self.tree_distributors.Columns:
             c.Sortable = True
 
@@ -125,11 +128,12 @@ class PartDistributorsFrame(PanelPartDistributors):
         """
         Remove a distributor using its name
         """
+        to_remove = []
         for distributor in self.part.distributors:
             if distributor.distributor and distributor.distributor.name==name:
                 if distributor.id!=-1:
                     self.remove_list.append(distributor)
-                    self.part.distributors.remove(distributor)
+                    to_remove.append(distributor)
                     # remove it from update list if present
                     try:
                         # remove it if already exists
@@ -137,9 +141,14 @@ class PartDistributorsFrame(PanelPartDistributors):
                     except:
                         pass
                 else:
-                    self.part.distributors.remove(distributor)
-                    
+                    to_remove.append(distributor)
+        
+        # don't remove in previous loop to avoid missing elements
+        for distributor in to_remove:
+            self.part.distributors.remove(distributor)
 
+        self._showDistributors()
+        
     def _showDistributors(self):
         # apply new filter and reload
         self.distributors_model.Cleared()

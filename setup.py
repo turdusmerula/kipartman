@@ -16,7 +16,7 @@ def read(*names, **kwargs):
 
 setup(
     name='kipartman',
-    version='0.0.24',
+    version='0.0.25',
     description='Kicad part manager',
 #     long_description='%s\n%s' %
 #     (re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub(

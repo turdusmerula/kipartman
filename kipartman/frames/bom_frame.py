@@ -182,9 +182,11 @@ class BomModulesModel(wx.dataview.PyDataViewModel):
 
 
 class BomFrame(PanelBom): 
-    def __init__(self, parent):
+    def __init__(self, parent, buy_frame):
         super(BomFrame, self).__init__(parent)
 
+        self.buy_frame = buy_frame
+        
         # create module list
         self.module_model = ModuleModel()
         self.tree_modules.AssociateModel(self.module_model)
@@ -224,7 +226,8 @@ class BomFrame(PanelBom):
         self.loadModules()
         self.loadBomParts()
         self.loadBomModules()
-    
+        self.buy_frame.load()
+        
     def loadModules(self):
         self.module_model.Cleared()
         self.module_model = ModuleModel()

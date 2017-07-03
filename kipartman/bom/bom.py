@@ -38,6 +38,7 @@ class Bom(object):
                 part_not_found.append(part)
 
         module_not_found= []
+        part_id_not_found = []
         for part_id in content['modules']:
             # get part from list
             for part in self.parts:
@@ -46,13 +47,16 @@ class Bom(object):
 
             # get modules from pcb
             for module in content['modules'][part_id]:
-                if self.pcb.ExistModule(module['timestamp']):
-                    print "----", module['timestamp']
-                    self.part_modules[int(part_id)].append(self.pcb.GetModule(module['timestamp']))
-                    self.module_part[module['timestamp']] = part
+                if self.part_modules.has_key(int(part_id)):
+                    if self.pcb.ExistModule(module['timestamp']):
+                        self.part_modules[int(part_id)].append(self.pcb.GetModule(module['timestamp']))
+                        self.module_part[module['timestamp']] = part
+                    else:
+                        module_not_found.append(module)
                 else:
-                    module_not_found.append(module)
-             
+                    part_id_not_found.append(int(part_id))
+        
+        # TODO: show error messages from part_not_found, module_not_found and part_id_not_found
         self.filename = filename
         self.saved = True
      
@@ -115,3 +119,4 @@ class Bom(object):
         self.module_part.pop(module.timestamp)
         self.part_modules[part.id].remove(module)
         self.saved = False
+        

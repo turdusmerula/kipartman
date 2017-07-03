@@ -10,6 +10,7 @@ import wx.lib.newevent
 from api import models
 from api.queries import UnitsQuery, UnitPrefixesQuery, DistributorsQuery, ManufacturersQuery
 import datetime
+import re
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -54,9 +55,18 @@ class EditPartFrame(PanelEditPart):
             self.button_part_footprint.Label = "<none>"
 
     def ApplyChanges(self, part):
-        self.edit_part_parameters.ApplyChanges(part)
-        self.edit_part_distributors.ApplyChanges(part)
-        self.edit_part_manufacturers.ApplyChanges(part)
+        try:
+            self.edit_part_parameters.ApplyChanges(part)
+        except:
+            pass
+        try:
+            self.edit_part_distributors.ApplyChanges(part)
+        except:
+            pass
+        try:
+            self.edit_part_manufacturers.ApplyChanges(part)
+        except:
+            pass
 #        self.edit_part_attachements.ApplyChanges(part)
 
     def enable(self, enabled=True):
@@ -139,8 +149,10 @@ class EditPartFrame(PanelEditPart):
         display_value = spec.display_value().split(" ")
         unit = self.GetUnitSymbol(spec)
         if len(display_value)<2:
-            return ""
+            return ""   # there is only a value, no unit
         display_unit = display_value[1]
+        # filter non alpha chars
+        display_unit = re.sub('[ ,.;]', '', display_unit)
         prefix = display_unit[:-len(unit)]
         return prefix
     
@@ -192,6 +204,7 @@ class EditPartFrame(PanelEditPart):
                         parameter.min_value = self.GetPrefixedValue(spec.min_value(), parameter.nom_prefix)
                     else:
                         parameter.min_value = float(spec.value()[0])
+                    parameter.min_prefix = parameter.nom_prefix
                     parameter.numeric = True
                 except:
                     parameter.numeric = False
@@ -204,6 +217,7 @@ class EditPartFrame(PanelEditPart):
                     else:
                         parameter.max_value = float(spec.value()[0])
                     parameter.numeric = True
+                    parameter.max_prefix = parameter.nom_prefix
                 except:
                     parameter.numeric = False
             else:
@@ -234,12 +248,15 @@ class EditPartFrame(PanelEditPart):
             
             for price_name in offer.prices():
                 for quantity in offer.prices()[price_name]:
-#                    print "--", quantity
                     part_distributor = models.PartDistributor()
                     part_distributor.name = distributor_name
                     part_distributor.distributor = distributor
                     part_distributor.currency = price_name
-                    part_distributor.packaging_unit = quantity[0]
+                    if offer.moq():
+                        part_distributor.packaging_unit = offer.moq()
+                    else:
+                        part_distributor.packaging_unit = 1
+                    part_distributor.quantity = quantity[0]
                     part_distributor.unit_price = float(quantity[1])
                     part_distributor.sku = offer.sku()
                     self.edit_part_distributors.AddDistributor(part_distributor)
@@ -249,7 +266,7 @@ class EditPartFrame(PanelEditPart):
         manufacturer = None
         try:
             manufacturers = ManufacturersQuery(name=manufacturer_name).get()
-            if len(distributors)>0:
+            if len(manufacturers)>0:
                 manufacturer = manufacturers[0]
             else:
                 # distributor does not exists, create it

@@ -170,7 +170,7 @@ class PartDistributorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.PartDistributor
-        fields = ('id', 'path', 'part', 'distributor', 'packaging_unit', 'unit_price', 'currency', 'sku')
+        fields = ('id', 'path', 'part', 'distributor', 'packaging_unit', 'quantity', 'unit_price', 'currency', 'sku')
 
 
 class PartSerializer(serializers.ModelSerializer):

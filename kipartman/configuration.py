@@ -8,6 +8,8 @@ class Configuration(object):
         if os.path.exists(expanduser("~")+'/.kipartman')==False:
             os.mkdir(expanduser("~")+'/.kipartman')
         self.filename = expanduser("~")+'/.kipartman/configure.json'
+        
+        self.base_currency = 'EUR'
         self.octopart_api_key = ''
         self.kipartbase = 'http://localhost:8100'
         
