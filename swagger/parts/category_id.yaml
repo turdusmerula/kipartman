@@ -1,0 +1,7 @@
+category_id:
+  name: category_id
+  in: path
+  description: Part category to update
+  required: true
+  type: integer
+  format: int32

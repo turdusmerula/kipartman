@@ -1,0 +1,86 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: Kipartman
+  description: Kipartman api specifications
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: Sebastien Besombes
+    email: --
+    url: https://github.com/turdusmerula/kipartman
+  license:
+    name: GPL V3
+    url: https://raw.githubusercontent.com/turdusmerula/kipartman/master/LICENSE
+host: kipartman.swagger.io
+basePath: /api
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /parts/categories:
+    get:
+      description: Return all categories for parts
+      operationId: findPartsCategories
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            type: array
+            items:
+              $ref: './parts/Category.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+    
+    post:
+      description: Creates a new part category
+      operationId: addPartsCategory
+      parameters:
+        - name: category
+          in: body
+          description: Category to add
+          required: true
+          schema:
+            $ref: './parts/NewCategory.yaml'
+      responses:
+        "200":
+          description: Created category
+          schema:
+            $ref: './parts/Category.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+    
+  /parts/categories/{category_id}:
+    put:
+      description: Update part category
+      operationId: updatePartsCategory
+      parameters:
+        - $ref: './parts/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Updated pärt category
+          schema:
+            $ref: './parts/Category.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete part category
+      operationId: deletePartsCategory
+      parameters:
+        - $ref: './parts/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'

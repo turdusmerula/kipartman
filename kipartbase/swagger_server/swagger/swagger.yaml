@@ -1,0 +1,133 @@
+---
+swagger: "2.0"
+info:
+  description: "Kipartman api specifications"
+  version: "1.0.0"
+  title: "Kipartman"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    name: "Sebastien Besombes"
+    url: "https://github.com/turdusmerula/kipartman"
+    email: "--"
+  license:
+    name: "GPL V3"
+    url: "https://raw.githubusercontent.com/turdusmerula/kipartman/master/LICENSE"
+host: "kipartman.swagger.io"
+basePath: "/api"
+schemes:
+- "http"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /parts/categories:
+    get:
+      description: "Return all categories for parts"
+      operationId: "find_parts_categories"
+      parameters: []
+      responses:
+        200:
+          description: "List of categories"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Category"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+    post:
+      description: "Creates a new part category"
+      operationId: "add_parts_category"
+      parameters:
+      - in: "body"
+        name: "category"
+        description: "Category to add"
+        required: true
+        schema:
+          $ref: "#/definitions/NewCategory"
+      responses:
+        200:
+          description: "Created category"
+          schema:
+            $ref: "#/definitions/Category"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /parts/categories/{category_id}:
+    put:
+      description: "Update part category"
+      operationId: "update_parts_category"
+      parameters:
+      - name: "category_id"
+        in: "path"
+        description: "Part category to update"
+        required: true
+        type: "integer"
+        format: "int32"
+      responses:
+        200:
+          description: "Updated pärt category"
+          schema:
+            $ref: "#/definitions/Category"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+    delete:
+      description: "Delete part category"
+      operationId: "delete_parts_category"
+      parameters:
+      - name: "category_id"
+        in: "path"
+        description: "Part category to update"
+        required: true
+        type: "integer"
+        format: "int32"
+      responses:
+        200:
+          description: "Deleted ok"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+definitions:
+  Category:
+    type: "object"
+    required:
+    - "id"
+    - "name"
+    - "parent"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      parent:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+  Error:
+    type: "object"
+    required:
+    - "code"
+    - "message"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+  NewCategory:
+    allOf:
+    - $ref: "#/definitions/Category"
+    - properties:
+        description:
+          type: "integer"
+          format: "int64"
