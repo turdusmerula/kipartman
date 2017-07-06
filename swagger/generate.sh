@@ -9,6 +9,7 @@ then
 fi
 
 # generate client
+rm -rf client
 java -jar /tmp/swagger-codegen-cli.jar generate \
   -i api.yaml \
   -l python \
@@ -21,13 +22,19 @@ rsync --delete -rv swagger_client/ ${swagger_client}
 cd -
 
 # generate server
+rm -rf server
 java -jar /tmp/swagger-codegen-cli.jar generate \
   -i api.yaml \
   -l python-flask \
   -o server/ \
   -D supportPython2=true
 
-sed -i -e "s/8080/8200/g" server/swagger_server/__main__.py
+# patch main to change flask parameters
+sed -i -e "s/8080/8200, debug=True/g" server/swagger_server/__main__.py
+sed -i -e "s/\.encoder/encoder/g" server/swagger_server/__main__.py
+
+# patch category.py to remove wrong recursive import
+sed -i -e "s/from swagger_server.models.part_category import PartCategory//g" server/swagger_server/models/part_category.py
 
 # copy server inside kipartbase
 cd server

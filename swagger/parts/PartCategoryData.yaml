@@ -1,12 +1,7 @@
 type: object
 required:
-  - id
-  - parent
   - name
 properties:
-  id:
-    type: integer
-    format: int64
   parent:
     type: integer
     format: int64

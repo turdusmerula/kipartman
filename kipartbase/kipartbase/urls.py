@@ -31,28 +31,37 @@ from api.views import UnitViewSet, UnitPrefixViewSet
 from api.views import ManufacturerViewSet
 from api.views import DistributorViewSet
 
-router = routers.DefaultRouter()
+from rest_framework_swagger.views import get_swagger_view
 
-router.register(r'parts-categories', PartCategoryViewSet, base_name="parts-categories")
-router.register(r'parts', PartViewSet, base_name="parts")
-router.register(r'part-parameters', PartParameterViewSet, base_name="part-parameters")
-router.register(r'part-distributors', PartDistributorViewSet, base_name="part-distributors")
-router.register(r'part-manufacturers', PartManufacturerViewSet, base_name="part-manufacturers")
+schema_view = get_swagger_view(title='Pastebin API')
 
-router.register(r'footprints-categories', FootprintCategoryViewSet, base_name="footprints-categories")
-router.register(r'footprints', FootprintViewSet, base_name="footprints")
-
-router.register(r'units', UnitViewSet, base_name="units")
-router.register(r'unitprefixes', UnitPrefixViewSet, base_name="unitprefixes")
-
-router.register(r'distributors', DistributorViewSet, base_name="distributors")
-router.register(r'manufacturers', ManufacturerViewSet, base_name="manufacturers")
-
-print router.urls
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^api/footprints/files/(?P<path>.*)$', serve, {
-        'document_root': settings.MEDIA_ROOT,
-    }),
-    url(r'^api/', include(router.urls)),
+    url(r'^$', schema_view)
 ]
+
+
+# router = routers.DefaultRouter()
+# 
+# router.register(r'parts-categories', PartCategoryViewSet, base_name="parts-categories")
+# router.register(r'parts', PartViewSet, base_name="parts")
+# router.register(r'part-parameters', PartParameterViewSet, base_name="part-parameters")
+# router.register(r'part-distributors', PartDistributorViewSet, base_name="part-distributors")
+# router.register(r'part-manufacturers', PartManufacturerViewSet, base_name="part-manufacturers")
+# 
+# router.register(r'footprints-categories', FootprintCategoryViewSet, base_name="footprints-categories")
+# router.register(r'footprints', FootprintViewSet, base_name="footprints")
+# 
+# router.register(r'units', UnitViewSet, base_name="units")
+# router.register(r'unitprefixes', UnitPrefixViewSet, base_name="unitprefixes")
+# 
+# router.register(r'distributors', DistributorViewSet, base_name="distributors")
+# router.register(r'manufacturers', ManufacturerViewSet, base_name="manufacturers")
+# 
+# print router.urls
+# urlpatterns = [
+#     url(r'^admin/', admin.site.urls),
+#     url(r'^api/footprints/files/(?P<path>.*)$', serve, {
+#         'document_root': settings.MEDIA_ROOT,
+#     }),
+#     url(r'^api/', include(router.urls)),
+# ]

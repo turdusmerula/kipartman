@@ -45,7 +45,7 @@ class Configuration(object):
         Constructor
         """
         # Default Base url
-        self.host = "http://kipartman.swagger.io/api"
+        self.host = "http://localhost:8200/api"
         # Default api client
         self.api_client = None
         # Temp file folder for downloading files

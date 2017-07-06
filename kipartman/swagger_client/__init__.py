@@ -14,9 +14,9 @@
 from __future__ import absolute_import
 
 # import models into sdk package
-from .models.category import Category
 from .models.error import Error
-from .models.new_category import NewCategory
+from .models.part_category import PartCategory
+from .models.part_category_data import PartCategoryData
 
 # import apis into sdk package
 from .apis.default_api import DefaultApi

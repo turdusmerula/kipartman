@@ -11,7 +11,8 @@ info:
   license:
     name: GPL V3
     url: https://raw.githubusercontent.com/turdusmerula/kipartman/master/LICENSE
-host: kipartman.swagger.io
+host: localhost:8200
+#host: kipartman.swagger.io
 basePath: /api
 schemes:
   - http
@@ -30,7 +31,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: './parts/Category.yaml'
+              $ref: './parts/PartCategory.yaml'
         default:
           description: unexpected error
           schema:
@@ -45,12 +46,12 @@ paths:
           description: Category to add
           required: true
           schema:
-            $ref: './parts/NewCategory.yaml'
+            $ref: './parts/PartCategoryData.yaml'
       responses:
         "200":
           description: Created category
           schema:
-            $ref: './parts/Category.yaml'
+            $ref: './parts/PartCategory.yaml'
         default:
           description: unexpected error
           schema:
@@ -61,12 +62,18 @@ paths:
       description: Update part category
       operationId: updatePartsCategory
       parameters:
-        - $ref: './parts/category_id.yaml#/category_id'
+        - $ref: './types/category_id.yaml#/category_id'
+        - name: category
+          in: body
+          description: Category to update
+          required: true
+          schema:
+            $ref: './parts/PartCategoryData.yaml'
       responses:
         "200":
           description: Updated pärt category
           schema:
-            $ref: './parts/Category.yaml'
+            $ref: './parts/PartCategory.yaml'
         default:
           description: unexpected error
           schema:
@@ -76,7 +83,7 @@ paths:
       description: Delete part category
       operationId: deletePartsCategory
       parameters:
-        - $ref: './parts/category_id.yaml#/category_id'
+        - $ref: './types/category_id.yaml#/category_id'
       responses:
         "200":
           description: Deleted ok

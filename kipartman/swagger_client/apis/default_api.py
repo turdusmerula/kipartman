@@ -53,8 +53,8 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
-        :param NewCategory category: Category to add (required)
-        :return: Category
+        :param PartCategoryData category: Category to add (required)
+        :return: PartCategory
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -78,8 +78,8 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
-        :param NewCategory category: Category to add (required)
-        :return: Category
+        :param PartCategoryData category: Category to add (required)
+        :return: PartCategory
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -137,7 +137,7 @@ class DefaultApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='Category',
+                                        response_type='PartCategory',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -158,7 +158,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
-        :param int category_id: Part category to update (required)
+        :param int category_id: Category id (required)
         :return: None
                  If the method is called asynchronously,
                  returns the request thread.
@@ -183,7 +183,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
-        :param int category_id: Part category to update (required)
+        :param int category_id: Category id (required)
         :return: None
                  If the method is called asynchronously,
                  returns the request thread.
@@ -263,7 +263,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
-        :return: list[Category]
+        :return: list[PartCategory]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -287,7 +287,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
-        :return: list[Category]
+        :return: list[PartCategory]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -339,7 +339,7 @@ class DefaultApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='list[Category]',
+                                        response_type='list[PartCategory]',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -347,7 +347,7 @@ class DefaultApi(object):
                                         _request_timeout=params.get('_request_timeout'),
                                         collection_formats=collection_formats)
 
-    def update_parts_category(self, category_id, **kwargs):
+    def update_parts_category(self, category_id, category, **kwargs):
         """
         Update part category
         This method makes a synchronous HTTP request by default. To make an
@@ -356,23 +356,24 @@ class DefaultApi(object):
         >>> def callback_function(response):
         >>>     pprint(response)
         >>>
-        >>> thread = api.update_parts_category(category_id, callback=callback_function)
+        >>> thread = api.update_parts_category(category_id, category, callback=callback_function)
 
         :param callback function: The callback function
             for asynchronous request. (optional)
-        :param int category_id: Part category to update (required)
-        :return: Category
+        :param int category_id: Category id (required)
+        :param PartCategoryData category: Category to update (required)
+        :return: PartCategory
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
-            return self.update_parts_category_with_http_info(category_id, **kwargs)
+            return self.update_parts_category_with_http_info(category_id, category, **kwargs)
         else:
-            (data) = self.update_parts_category_with_http_info(category_id, **kwargs)
+            (data) = self.update_parts_category_with_http_info(category_id, category, **kwargs)
             return data
 
-    def update_parts_category_with_http_info(self, category_id, **kwargs):
+    def update_parts_category_with_http_info(self, category_id, category, **kwargs):
         """
         Update part category
         This method makes a synchronous HTTP request by default. To make an
@@ -381,17 +382,18 @@ class DefaultApi(object):
         >>> def callback_function(response):
         >>>     pprint(response)
         >>>
-        >>> thread = api.update_parts_category_with_http_info(category_id, callback=callback_function)
+        >>> thread = api.update_parts_category_with_http_info(category_id, category, callback=callback_function)
 
         :param callback function: The callback function
             for asynchronous request. (optional)
-        :param int category_id: Part category to update (required)
-        :return: Category
+        :param int category_id: Category id (required)
+        :param PartCategoryData category: Category to update (required)
+        :return: PartCategory
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['category_id']
+        all_params = ['category_id', 'category']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -409,6 +411,9 @@ class DefaultApi(object):
         # verify the required parameter 'category_id' is set
         if ('category_id' not in params) or (params['category_id'] is None):
             raise ValueError("Missing the required parameter `category_id` when calling `update_parts_category`")
+        # verify the required parameter 'category' is set
+        if ('category' not in params) or (params['category'] is None):
+            raise ValueError("Missing the required parameter `category` when calling `update_parts_category`")
 
 
         collection_formats = {}
@@ -426,6 +431,8 @@ class DefaultApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'category' in params:
+            body_params = params['category']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.\
             select_header_accept(['application/json'])
@@ -444,7 +451,7 @@ class DefaultApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='Category',
+                                        response_type='PartCategory',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),

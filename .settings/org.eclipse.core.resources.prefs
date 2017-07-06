@@ -28,6 +28,5 @@ encoding//kipartman/dialogs/panel_select_part.py=utf-8
 encoding//kipartman/dialogs/panel_select_snapeda.py=utf-8
 encoding//kipartman/rest_client/fields.py=utf-8
 encoding//swagger/server/setup.py=utf-8
-encoding//swagger/server/swagger_server/models/category.py=utf-8
 encoding//swagger/server/swagger_server/test/test_default_controller.py=utf-8
 encoding/setup.py=utf-8
