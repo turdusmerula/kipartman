@@ -1,0 +1,28 @@
+type: object
+required:
+  - name
+  - description
+  - numeric
+properties:
+  name:
+    type: string
+  description:
+    type: string
+  unit:
+    $ref: '../../unit/Unit.yaml'
+  numeric:
+    type: boolean
+  text_value:
+    type: string
+  min_value:
+    type: double
+  min_prefix:
+    $ref: '../../unit/UnitPrefix.yaml'
+  nom_value:
+    type: double
+  nom_prefix:
+    $ref: '../../unit/UnitPrefix.yaml'
+  max_value:
+    type: double
+  max_prefix:
+    $ref: '../../unit/UnitPrefix.yaml'

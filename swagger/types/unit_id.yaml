@@ -1,0 +1,7 @@
+unit_id:
+  name: unit_id
+  in: path
+  description: Unit id
+  required: true
+  type: integer
+  format: int64

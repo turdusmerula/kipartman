@@ -196,3 +196,204 @@ paths:
           description: unexpected error
           schema:
             $ref: './Error.yaml'
+
+
+  /parts/{part_id}/parameters:    
+    get:
+      description: Return all parameters for part
+      operationId: findPartParameters
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
+      responses:
+        "200":
+          description: List of part parameters
+          schema:
+            type: array
+            items:
+              $ref: './part/parameter/PartParameter.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    post:
+      description: Create some new part parameters
+      operationId: addPartParameters
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
+        - name: parameters
+          in: body
+          description: Parameters to add
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: './part/parameter/PartParameterNew.yaml'
+      responses:
+        "200":
+          description: Created parameters
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete list of part parameters
+      operationId: deletePartParameters
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
+        - name: parameters
+          in: body
+          description: Parameters to delete
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: './part/parameter/PartParameterRef.yaml'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update list of part parameters
+      operationId: updatePartParameters
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
+        - name: parameters
+          in: body
+          description: Parameters to update
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: './part/parameter/PartParameter.yaml'
+      responses:
+        "200":
+          description: Created parameters
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /parts/{part_id}/parameters/{parameter_id}:
+    get:
+      description: Return a part parameter
+      operationId: findPartParameter
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
+        - $ref: './types/parameter_id.yaml#/parameter_id'
+      responses:
+        "200":
+          description: Parameter
+          schema:
+            type: array
+            items:
+              $ref: './part/parameter/PartParameter.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update part parameter
+      operationId: updatePartParameter
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
+        - $ref: './types/parameter_id.yaml#/parameter_id'
+        - name: category
+          in: body
+          description: Parameter to update
+          required: true
+          schema:
+            $ref: './part/parameter/PartParameterNew.yaml'
+      responses:
+        "200":
+          description: Updated pärt parameter
+          schema:
+            $ref: './part/parameter/PartParameter.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete part parameter
+      operationId: deletePartParameter
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
+        - $ref: './types/parameter_id.yaml#/parameter_id'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /units:    
+    get:
+      description: Return list of units
+      operationId: findUnits
+      responses:
+        "200":
+          description: Units
+          schema:
+            type: array
+            items:
+              $ref: './unit/Unit.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /units/{unit_id}:    
+    get:
+      description: Return a unit
+      operationId: findUnit
+      parameters:
+        - $ref: './types/unit_id.yaml#/unit_id'
+      responses:
+        "200":
+          description: Unit
+          schema:
+            $ref: './unit/Unit.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /unitprefixes:    
+    get:
+      description: Return list of unit prefixes
+      operationId: findUnitPrefixes
+      responses:
+        "200":
+          description: Unit prefixes
+          schema:
+            type: array
+            items:
+              $ref: './unit/UnitPrefix.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /unitprefixes/{unit_prefix_id}:    
+    get:
+      description: Return a unit prefixes
+      operationId: findUnitPrefix
+      parameters:
+        - $ref: './types/unit_prefix_id.yaml#/unit_prefix_id'
+      responses:
+        "200":
+          description: Unit prefix
+          schema:
+            $ref: './unit/UnitPrefix.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'

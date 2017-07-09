@@ -1,0 +1,11 @@
+type: object
+allOf:
+  - $ref: './part/parameter/PartParameterData.yaml'
+  - required:
+      - id
+      - name
+      - numeric
+    properties:
+      id:
+        type: integer
+        format: int64

@@ -1,0 +1,7 @@
+parameter_id:
+  name: parameter_id
+  in: path
+  description: Parameter id
+  required: true
+  type: integer
+  format: int64

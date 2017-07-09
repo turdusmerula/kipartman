@@ -23,8 +23,14 @@ from .models.part_category_ref import PartCategoryRef
 from .models.part_category_tree import PartCategoryTree
 from .models.part_data import PartData
 from .models.part_new import PartNew
+from .models.part_parameter import PartParameter
+from .models.part_parameter_data import PartParameterData
+from .models.part_parameter_new import PartParameterNew
+from .models.part_parameter_ref import PartParameterRef
 from .models.part_ref import PartRef
 from .models.part_tree import PartTree
+from .models.unit import Unit
+from .models.unit_prefix import UnitPrefix
 
 # import apis into sdk package
 from .apis.default_api import DefaultApi

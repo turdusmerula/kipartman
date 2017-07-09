@@ -23,5 +23,11 @@ from .part_category_ref import PartCategoryRef
 from .part_category_tree import PartCategoryTree
 from .part_data import PartData
 from .part_new import PartNew
+from .part_parameter import PartParameter
+from .part_parameter_data import PartParameterData
+from .part_parameter_new import PartParameterNew
+from .part_parameter_ref import PartParameterRef
 from .part_ref import PartRef
 from .part_tree import PartTree
+from .unit import Unit
+from .unit_prefix import UnitPrefix

@@ -145,6 +145,118 @@ class DefaultApi(object):
                                         _request_timeout=params.get('_request_timeout'),
                                         collection_formats=collection_formats)
 
+    def add_part_parameters(self, part_id, parameters, **kwargs):
+        """
+        Create some new part parameters
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_part_parameters(part_id, parameters, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param list[PartParameterNew] parameters: Parameters to add (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.add_part_parameters_with_http_info(part_id, parameters, **kwargs)
+        else:
+            (data) = self.add_part_parameters_with_http_info(part_id, parameters, **kwargs)
+            return data
+
+    def add_part_parameters_with_http_info(self, part_id, parameters, **kwargs):
+        """
+        Create some new part parameters
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_part_parameters_with_http_info(part_id, parameters, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param list[PartParameterNew] parameters: Parameters to add (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['part_id', 'parameters']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method add_part_parameters" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'part_id' is set
+        if ('part_id' not in params) or (params['part_id'] is None):
+            raise ValueError("Missing the required parameter `part_id` when calling `add_part_parameters`")
+        # verify the required parameter 'parameters' is set
+        if ('parameters' not in params) or (params['parameters'] is None):
+            raise ValueError("Missing the required parameter `parameters` when calling `add_part_parameters`")
+
+
+        collection_formats = {}
+
+        resource_path = '/parts/{part_id}/parameters'.replace('{format}', 'json')
+        path_params = {}
+        if 'part_id' in params:
+            path_params['part_id'] = params['part_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'parameters' in params:
+            body_params = params['parameters']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'POST',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type=None,
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
     def add_parts_category(self, category, **kwargs):
         """
         Creates a new part category
@@ -329,6 +441,230 @@ class DefaultApi(object):
         local_var_files = {}
 
         body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'DELETE',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type=None,
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def delete_part_parameter(self, part_id, parameter_id, **kwargs):
+        """
+        Delete part parameter
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_part_parameter(part_id, parameter_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param int parameter_id: Parameter id (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.delete_part_parameter_with_http_info(part_id, parameter_id, **kwargs)
+        else:
+            (data) = self.delete_part_parameter_with_http_info(part_id, parameter_id, **kwargs)
+            return data
+
+    def delete_part_parameter_with_http_info(self, part_id, parameter_id, **kwargs):
+        """
+        Delete part parameter
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_part_parameter_with_http_info(part_id, parameter_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param int parameter_id: Parameter id (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['part_id', 'parameter_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method delete_part_parameter" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'part_id' is set
+        if ('part_id' not in params) or (params['part_id'] is None):
+            raise ValueError("Missing the required parameter `part_id` when calling `delete_part_parameter`")
+        # verify the required parameter 'parameter_id' is set
+        if ('parameter_id' not in params) or (params['parameter_id'] is None):
+            raise ValueError("Missing the required parameter `parameter_id` when calling `delete_part_parameter`")
+
+
+        collection_formats = {}
+
+        resource_path = '/parts/{part_id}/parameters/{parameter_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'part_id' in params:
+            path_params['part_id'] = params['part_id']
+        if 'parameter_id' in params:
+            path_params['parameter_id'] = params['parameter_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'DELETE',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type=None,
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def delete_part_parameters(self, part_id, parameters, **kwargs):
+        """
+        Delete list of part parameters
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_part_parameters(part_id, parameters, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param list[PartParameterRef] parameters: Parameters to delete (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.delete_part_parameters_with_http_info(part_id, parameters, **kwargs)
+        else:
+            (data) = self.delete_part_parameters_with_http_info(part_id, parameters, **kwargs)
+            return data
+
+    def delete_part_parameters_with_http_info(self, part_id, parameters, **kwargs):
+        """
+        Delete list of part parameters
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_part_parameters_with_http_info(part_id, parameters, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param list[PartParameterRef] parameters: Parameters to delete (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['part_id', 'parameters']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method delete_part_parameters" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'part_id' is set
+        if ('part_id' not in params) or (params['part_id'] is None):
+            raise ValueError("Missing the required parameter `part_id` when calling `delete_part_parameters`")
+        # verify the required parameter 'parameters' is set
+        if ('parameters' not in params) or (params['parameters'] is None):
+            raise ValueError("Missing the required parameter `parameters` when calling `delete_part_parameters`")
+
+
+        collection_formats = {}
+
+        resource_path = '/parts/{part_id}/parameters'.replace('{format}', 'json')
+        path_params = {}
+        if 'part_id' in params:
+            path_params['part_id'] = params['part_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'parameters' in params:
+            body_params = params['parameters']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.\
             select_header_accept(['application/json'])
@@ -558,6 +894,223 @@ class DefaultApi(object):
                                         post_params=form_params,
                                         files=local_var_files,
                                         response_type='list[PartTree]',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_part_parameter(self, part_id, parameter_id, **kwargs):
+        """
+        Return a part parameter
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_part_parameter(part_id, parameter_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param int parameter_id: Parameter id (required)
+        :return: list[PartParameter]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_part_parameter_with_http_info(part_id, parameter_id, **kwargs)
+        else:
+            (data) = self.find_part_parameter_with_http_info(part_id, parameter_id, **kwargs)
+            return data
+
+    def find_part_parameter_with_http_info(self, part_id, parameter_id, **kwargs):
+        """
+        Return a part parameter
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_part_parameter_with_http_info(part_id, parameter_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param int parameter_id: Parameter id (required)
+        :return: list[PartParameter]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['part_id', 'parameter_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_part_parameter" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'part_id' is set
+        if ('part_id' not in params) or (params['part_id'] is None):
+            raise ValueError("Missing the required parameter `part_id` when calling `find_part_parameter`")
+        # verify the required parameter 'parameter_id' is set
+        if ('parameter_id' not in params) or (params['parameter_id'] is None):
+            raise ValueError("Missing the required parameter `parameter_id` when calling `find_part_parameter`")
+
+
+        collection_formats = {}
+
+        resource_path = '/parts/{part_id}/parameters/{parameter_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'part_id' in params:
+            path_params['part_id'] = params['part_id']
+        if 'parameter_id' in params:
+            path_params['parameter_id'] = params['parameter_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='list[PartParameter]',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_part_parameters(self, part_id, **kwargs):
+        """
+        Return all parameters for part
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_part_parameters(part_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :return: list[PartParameter]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_part_parameters_with_http_info(part_id, **kwargs)
+        else:
+            (data) = self.find_part_parameters_with_http_info(part_id, **kwargs)
+            return data
+
+    def find_part_parameters_with_http_info(self, part_id, **kwargs):
+        """
+        Return all parameters for part
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_part_parameters_with_http_info(part_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :return: list[PartParameter]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['part_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_part_parameters" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'part_id' is set
+        if ('part_id' not in params) or (params['part_id'] is None):
+            raise ValueError("Missing the required parameter `part_id` when calling `find_part_parameters`")
+
+
+        collection_formats = {}
+
+        resource_path = '/parts/{part_id}/parameters'.replace('{format}', 'json')
+        path_params = {}
+        if 'part_id' in params:
+            path_params['part_id'] = params['part_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='list[PartParameter]',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -864,6 +1417,410 @@ class DefaultApi(object):
                                         _request_timeout=params.get('_request_timeout'),
                                         collection_formats=collection_formats)
 
+    def find_unit(self, unit_id, **kwargs):
+        """
+        Return a unit
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_unit(unit_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int unit_id: Unit id (required)
+        :return: Unit
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_unit_with_http_info(unit_id, **kwargs)
+        else:
+            (data) = self.find_unit_with_http_info(unit_id, **kwargs)
+            return data
+
+    def find_unit_with_http_info(self, unit_id, **kwargs):
+        """
+        Return a unit
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_unit_with_http_info(unit_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int unit_id: Unit id (required)
+        :return: Unit
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['unit_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_unit" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'unit_id' is set
+        if ('unit_id' not in params) or (params['unit_id'] is None):
+            raise ValueError("Missing the required parameter `unit_id` when calling `find_unit`")
+
+
+        collection_formats = {}
+
+        resource_path = '/units/{unit_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'unit_id' in params:
+            path_params['unit_id'] = params['unit_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='Unit',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_unit_prefix(self, unit_prefix_id, **kwargs):
+        """
+        Return a unit prefixes
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_unit_prefix(unit_prefix_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int unit_prefix_id: Unit prefix id (required)
+        :return: UnitPrefix
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_unit_prefix_with_http_info(unit_prefix_id, **kwargs)
+        else:
+            (data) = self.find_unit_prefix_with_http_info(unit_prefix_id, **kwargs)
+            return data
+
+    def find_unit_prefix_with_http_info(self, unit_prefix_id, **kwargs):
+        """
+        Return a unit prefixes
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_unit_prefix_with_http_info(unit_prefix_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int unit_prefix_id: Unit prefix id (required)
+        :return: UnitPrefix
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['unit_prefix_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_unit_prefix" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'unit_prefix_id' is set
+        if ('unit_prefix_id' not in params) or (params['unit_prefix_id'] is None):
+            raise ValueError("Missing the required parameter `unit_prefix_id` when calling `find_unit_prefix`")
+
+
+        collection_formats = {}
+
+        resource_path = '/unitprefixes/{unit_prefix_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'unit_prefix_id' in params:
+            path_params['unit_prefix_id'] = params['unit_prefix_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='UnitPrefix',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_unit_prefixes(self, **kwargs):
+        """
+        Return list of unit prefixes
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_unit_prefixes(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :return: list[UnitPrefix]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_unit_prefixes_with_http_info(**kwargs)
+        else:
+            (data) = self.find_unit_prefixes_with_http_info(**kwargs)
+            return data
+
+    def find_unit_prefixes_with_http_info(self, **kwargs):
+        """
+        Return list of unit prefixes
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_unit_prefixes_with_http_info(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :return: list[UnitPrefix]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = []
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_unit_prefixes" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        resource_path = '/unitprefixes'.replace('{format}', 'json')
+        path_params = {}
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='list[UnitPrefix]',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_units(self, **kwargs):
+        """
+        Return list of units
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_units(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :return: list[Unit]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_units_with_http_info(**kwargs)
+        else:
+            (data) = self.find_units_with_http_info(**kwargs)
+            return data
+
+    def find_units_with_http_info(self, **kwargs):
+        """
+        Return list of units
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_units_with_http_info(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :return: list[Unit]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = []
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_units" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        resource_path = '/units'.replace('{format}', 'json')
+        path_params = {}
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='list[Unit]',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
     def update_part(self, part_id, part, **kwargs):
         """
         Update part
@@ -969,6 +1926,237 @@ class DefaultApi(object):
                                         post_params=form_params,
                                         files=local_var_files,
                                         response_type='Part',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def update_part_parameter(self, part_id, parameter_id, category, **kwargs):
+        """
+        Update part parameter
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_part_parameter(part_id, parameter_id, category, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param int parameter_id: Parameter id (required)
+        :param PartParameterNew category: Parameter to update (required)
+        :return: PartParameter
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.update_part_parameter_with_http_info(part_id, parameter_id, category, **kwargs)
+        else:
+            (data) = self.update_part_parameter_with_http_info(part_id, parameter_id, category, **kwargs)
+            return data
+
+    def update_part_parameter_with_http_info(self, part_id, parameter_id, category, **kwargs):
+        """
+        Update part parameter
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_part_parameter_with_http_info(part_id, parameter_id, category, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param int parameter_id: Parameter id (required)
+        :param PartParameterNew category: Parameter to update (required)
+        :return: PartParameter
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['part_id', 'parameter_id', 'category']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method update_part_parameter" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'part_id' is set
+        if ('part_id' not in params) or (params['part_id'] is None):
+            raise ValueError("Missing the required parameter `part_id` when calling `update_part_parameter`")
+        # verify the required parameter 'parameter_id' is set
+        if ('parameter_id' not in params) or (params['parameter_id'] is None):
+            raise ValueError("Missing the required parameter `parameter_id` when calling `update_part_parameter`")
+        # verify the required parameter 'category' is set
+        if ('category' not in params) or (params['category'] is None):
+            raise ValueError("Missing the required parameter `category` when calling `update_part_parameter`")
+
+
+        collection_formats = {}
+
+        resource_path = '/parts/{part_id}/parameters/{parameter_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'part_id' in params:
+            path_params['part_id'] = params['part_id']
+        if 'parameter_id' in params:
+            path_params['parameter_id'] = params['parameter_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'category' in params:
+            body_params = params['category']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'PUT',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='PartParameter',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def update_part_parameters(self, part_id, parameters, **kwargs):
+        """
+        Update list of part parameters
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_part_parameters(part_id, parameters, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param list[PartParameter] parameters: Parameters to update (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.update_part_parameters_with_http_info(part_id, parameters, **kwargs)
+        else:
+            (data) = self.update_part_parameters_with_http_info(part_id, parameters, **kwargs)
+            return data
+
+    def update_part_parameters_with_http_info(self, part_id, parameters, **kwargs):
+        """
+        Update list of part parameters
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_part_parameters_with_http_info(part_id, parameters, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int part_id: Part id (required)
+        :param list[PartParameter] parameters: Parameters to update (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['part_id', 'parameters']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method update_part_parameters" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'part_id' is set
+        if ('part_id' not in params) or (params['part_id'] is None):
+            raise ValueError("Missing the required parameter `part_id` when calling `update_part_parameters`")
+        # verify the required parameter 'parameters' is set
+        if ('parameters' not in params) or (params['parameters'] is None):
+            raise ValueError("Missing the required parameter `parameters` when calling `update_part_parameters`")
+
+
+        collection_formats = {}
+
+        resource_path = '/parts/{part_id}/parameters'.replace('{format}', 'json')
+        path_params = {}
+        if 'part_id' in params:
+            path_params['part_id'] = params['part_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'parameters' in params:
+            body_params = params['parameters']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'PUT',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type=None,
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),

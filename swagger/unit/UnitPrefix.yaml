@@ -1,0 +1,16 @@
+type: object
+required:
+  - id
+  - name
+  - symbol
+  - power
+properties:
+  id:
+    type: integer
+    format: int64
+  name:
+    type: string
+  symbol:
+    type: string
+  power:
+    type: string

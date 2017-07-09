@@ -16,6 +16,7 @@ from six import iteritems
 from ..util import deserialize_date, deserialize_datetime
 
 from swagger_server.controllers.controller_part_category import find_parts_category
+from swagger_server.controllers.controller_part_parameter import find_part_parameters
 
 import api.models
 #import jsonpickle
@@ -31,6 +32,8 @@ def serialize_PartData(fpart, part=None):
     if fpart.updated:
         part.updated = fpart.updated
     #part.footprint
+    if fpart.id:
+        part.parameters = find_part_parameters(fpart.id)
     #parameters
     #distributors
     #manufacturers

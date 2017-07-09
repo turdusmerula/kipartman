@@ -1,0 +1,7 @@
+type: object
+allOf:
+  - $ref: './part/parameter/PartParameterData.yaml'
+  - required:
+      - name
+      - description
+    properties:

@@ -18,12 +18,11 @@ class PartCategory(MPTTModel):
 class Part(models.Model):
     name = models.TextField()
     description = models.TextField(blank=True, default='')
+    comment = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('Footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    comment = models.TextField(blank=True, default='')
     childs = models.ManyToManyField('Part', blank=True)
-    def parameters(self):
-        return PartParameter.objects.filter(part=self)
+    #parameters is defined inside PartParameter inside ForeignKey part
     def distributors(self):
         return PartDistributor.objects.filter(part=self)
     def manufacturers(self):
@@ -37,7 +36,7 @@ class Part(models.Model):
         return '%d: %s' % (self.id, self.name)
 
 class PartParameter(models.Model):
-    part = models.ForeignKey('Part', on_delete=models.DO_NOTHING, null=False, blank=False, default=None)
+    part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None)
     name = models.TextField()
     description = models.TextField(blank=True)
     unit = models.ForeignKey('Unit', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
