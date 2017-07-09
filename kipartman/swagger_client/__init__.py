@@ -15,8 +15,16 @@ from __future__ import absolute_import
 
 # import models into sdk package
 from .models.error import Error
+from .models.part import Part
 from .models.part_category import PartCategory
 from .models.part_category_data import PartCategoryData
+from .models.part_category_new import PartCategoryNew
+from .models.part_category_ref import PartCategoryRef
+from .models.part_category_tree import PartCategoryTree
+from .models.part_data import PartData
+from .models.part_new import PartNew
+from .models.part_ref import PartRef
+from .models.part_tree import PartTree
 
 # import apis into sdk package
 from .apis.default_api import DefaultApi

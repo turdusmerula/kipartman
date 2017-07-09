@@ -31,7 +31,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: './parts/PartCategory.yaml'
+              $ref: './part/category/PartCategory.yaml'
         default:
           description: unexpected error
           schema:
@@ -46,18 +46,35 @@ paths:
           description: Category to add
           required: true
           schema:
-            $ref: './parts/PartCategoryData.yaml'
+            $ref: './part/category/PartCategoryNew.yaml'
       responses:
         "200":
           description: Created category
           schema:
-            $ref: './parts/PartCategory.yaml'
+            $ref: './part/category/PartCategory.yaml'
         default:
           description: unexpected error
           schema:
             $ref: './Error.yaml'
     
   /parts/categories/{category_id}:
+    get:
+      description: Return a part category
+      operationId: findPartsCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Categories
+          schema:
+            type: array
+            items:
+              $ref: './part/category/PartCategoryTree.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
     put:
       description: Update part category
       operationId: updatePartsCategory
@@ -68,12 +85,12 @@ paths:
           description: Category to update
           required: true
           schema:
-            $ref: './parts/PartCategoryData.yaml'
+            $ref: './part/category/PartCategoryNew.yaml'
       responses:
         "200":
           description: Updated pärt category
           schema:
-            $ref: './parts/PartCategory.yaml'
+            $ref: './part/category/PartCategory.yaml'
         default:
           description: unexpected error
           schema:
@@ -84,6 +101,94 @@ paths:
       operationId: deletePartsCategory
       parameters:
         - $ref: './types/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /parts:
+    get:
+      description: Return all parts
+      operationId: findParts
+      responses:
+        "200":
+          description: List of parts
+          schema:
+            type: array
+            items:
+              $ref: './part/Part.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    post:
+      description: Creates a new part
+      operationId: addPart
+      parameters:
+        - name: part
+          in: body
+          description: Part to add
+          required: true
+          schema:
+            $ref: './part/PartNew.yaml'
+      responses:
+        "200":
+          description: Created part
+          schema:
+            $ref: './part/Part.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /parts/{part_id}:
+    get:
+      description: Return a part
+      operationId: findPart
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
+      responses:
+        "200":
+          description: Categories
+          schema:
+            type: array
+            items:
+              $ref: './part/PartTree.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update part
+      operationId: updatePart
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
+        - name: part
+          in: body
+          description: Part to update
+          required: true
+          schema:
+            $ref: './part/PartNew.yaml'
+      responses:
+        "200":
+          description: Updated pärt
+          schema:
+            $ref: './part/Part.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete part
+      operationId: deletePart
+      parameters:
+        - $ref: './types/part_id.yaml#/part_id'
       responses:
         "200":
           description: Deleted ok

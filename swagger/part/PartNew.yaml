@@ -1,0 +1,14 @@
+type: object
+allOf:
+  - $ref: './part/PartData.yaml'
+  - required:
+      - name
+      - description
+      - comment
+    properties:
+      category:
+        $ref: "./part/category/PartCategoryRef.yaml"
+      childs:
+        type: "array"
+        items: 
+          $ref: "./part/PartRef.yaml"

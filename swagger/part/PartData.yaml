@@ -1,0 +1,17 @@
+type: object
+required:
+  - name
+  - description
+  - comment
+properties:
+  name:
+    type: string
+  description:
+    type: string
+  #footprint: TODO
+  comment:
+    type: string
+  octopart:
+    type: string
+  updated:
+    type: string

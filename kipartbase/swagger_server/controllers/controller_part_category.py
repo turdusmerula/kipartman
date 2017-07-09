@@ -1,6 +1,11 @@
 import connexion
+
 from swagger_server.models.part_category import PartCategory
+from swagger_server.models.part_category_new import PartCategoryNew
+from swagger_server.models.part_category_ref import PartCategoryRef
+from swagger_server.models.part_category_tree import PartCategoryTree
 from swagger_server.models.part_category_data import PartCategoryData
+
 from swagger_server.models.error import Error
 from datetime import date, datetime
 from typing import List, Dict
@@ -10,21 +15,34 @@ from ..util import deserialize_date, deserialize_datetime
 import api.models
 #import jsonpickle
 
+def serialize_PartCategoryData(fcategory, category=None):
+    if category is None:
+        category = PartCategoryData()
+    category.name = fcategory.name
+    return category
 
 def serialize_PartCategory(fcategory, category=None):
     if category is None:
         category = PartCategory()
     category.id = fcategory.id
     if fcategory.parent:
-        category.parent = fcategory.parent.id
-    category.name = fcategory.name
+        category.parent = PartCategoryRef(fcategory.parent.id)
+    serialize_PartCategoryData(fcategory, category)
     return category
+
+def serialize_PartCategoryTree(fcategory, category=None):
+    if category is None:
+        category = PartCategoryTree()
+    category.id = fcategory.id
+    if fcategory.parent:
+        category.parent = PartCategoryTree(fcategory.parent.id)
+    serialize_PartCategoryData(fcategory, category)
+    return category
+
 
 def deserialize_PartCategoryData(category, fcategory=None):
     if fcategory is None:
         fcategory = api.models.PartCategory()
-#    if category.parent:
-#        fcategory.parent = category.parent.id
     fcategory.name = category.name
     return fcategory
 
@@ -33,6 +51,9 @@ def deserialize_PartCategory(category, fcategory=None):
     fcategory.pk = category.id
     return fcategory
 
+def deserialize_PartCategoryNew(category, fcategory=None):
+    fcategory = deserialize_PartCategoryData(category, fcategory)
+    return fcategory
 
 
 def add_parts_category(category):
@@ -42,17 +63,17 @@ def add_parts_category(category):
     :param category: Category to add
     :type category: dict | bytes
 
-    :rtype: Category
+    :rtype: PartCategory
     """
     if connexion.request.is_json:
-        category = PartCategoryData.from_dict(connexion.request.get_json())
+        category = PartCategoryNew.from_dict(connexion.request.get_json())
     
-    fcategory = deserialize_PartCategoryData(category)
+    fcategory = deserialize_PartCategoryNew(category)
     if category.parent:
         try:
-            fcategory.parent = api.models.PartCategory.objects.get(pk=category.parent)
+            fcategory.parent = api.models.PartCategory.objects.get(pk=category.parent.id)
         except:
-            return Error(code=1000, message='Parent %d does not exists'%category.parent)
+            return Error(code=1000, message='Parent %d does not exists'%category.parent.id)
     fcategory.save()
     
     return serialize_PartCategory(fcategory)
@@ -62,7 +83,7 @@ def delete_parts_category(category_id):
     """
     delete_parts_category
     Delete part category
-    :param category_id: Part category to update
+    :param category_id: Category id
     :type category_id: int
 
     :rtype: None
@@ -85,9 +106,6 @@ def delete_parts_category(category_id):
     fcategory.delete()
     # cleanup tree inconsistencies
     api.models.PartCategory._tree_manager.rebuild()
-
-    #TODO: remove category from parts
-    
     return None
 
 
@@ -96,7 +114,7 @@ def find_parts_categories():
     find_parts_categories
     Return all categories for parts
 
-    :rtype: List[Category]
+    :rtype: List[PartCategory]
     """
     categories = []      # result list of root categories
     id_category_map = {} # map of id to container
@@ -112,16 +130,16 @@ def find_parts_categories():
         
         if fcategory.parent is None:
             categories.append(category)
-            
-        # if parent does not yet exists precreate it
-        if id_category_map.has_key(category.parent)==False:
-            id_category_map[category.parent] = PartCategory()
-            
-        parent = id_category_map[category.parent]
-        if parent.childs is None:
-            parent.childs = [category]
         else:
-            parent.childs.append(category)
+            # if parent does not yet exists precreate it
+            if id_category_map.has_key(category.parent.id)==False:
+                id_category_map[category.parent.id] = PartCategory()
+            
+            parent = id_category_map[category.parent.id]
+            if parent.childs is None:
+                parent.childs = [category]
+            else:
+                parent.childs.append(category)
         
 #    for category in api.models.PartCategory.objects.all():
 #        print category.name
@@ -129,22 +147,51 @@ def find_parts_categories():
         
     return categories
 
+def find_parts_category(category_id):
+    """
+    find_parts_category
+    Return a part category
+    :param category_id: Category id
+    :type category_id: int
 
-def update_parts_category(category_id):
+    :rtype: List[PartCategoryTree]
+    """
+    id_fcategory_map = {} # map of id to container
+
+    for fcategory in api.models.PartCategory.objects.all():
+        id_fcategory_map[fcategory.pk] = fcategory
+    
+    try:
+        category = serialize_PartCategoryTree(id_fcategory_map[category_id])
+    except:
+        return Error(code=1000, message='Category %d does not exists'%category_id)
+    
+    fparent = id_fcategory_map[category_id].parent
+    parent = category.parent
+    while fparent:
+        serialize_PartCategoryTree(fparent, parent)
+        fparent = fparent.parent
+        parent = parent.parent
+
+    return category
+
+def update_parts_category(category_id, category):
     """
     update_parts_category
     Update part category
-    :param category_id: Part category to update
+    :param category_id: Category id
     :type category_id: int
+    :param category: Category to update
+    :type category: dict | bytes
 
-    :rtype: Category
+    :rtype: PartCategory
     """
     if connexion.request.is_json:
-        category = PartCategoryData.from_dict(connexion.request.get_json())
+        category = PartCategoryNew.from_dict(connexion.request.get_json())
     else:
         return Error(code=1000, message='Missing payload')
     try:
-        fcategory = deserialize_PartCategoryData(category, api.models.PartCategory.objects.get(pk=category_id))
+        fcategory = deserialize_PartCategoryNew(category, api.models.PartCategory.objects.get(pk=category_id))
     except:
         return Error(code=1000, message='Category %d does not exists'%category_id)
     
@@ -152,9 +199,9 @@ def update_parts_category(category_id):
         # check that instance will not be child of itself
         # TODO: with mptt there is surely a non recursive way to do this
         try:
-            fcategory.parent = api.models.PartCategory.objects.get(pk=category.parent)
+            fcategory.parent = api.models.PartCategory.objects.get(pk=category.parent.id)
         except:
-            return Error(code=1000, message='Parent %d does not exists'%category.parent)
+            return Error(code=1000, message='Parent %d does not exists'%category.parent.id)
             
         fparent = fcategory.parent
         while fparent is not None:
@@ -167,4 +214,4 @@ def update_parts_category(category_id):
                 
     fcategory.save()
     
-    return None
+    return serialize_PartCategory(fcategory)

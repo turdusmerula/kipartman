@@ -1,6 +1,6 @@
 type: object
 allOf:
-  - $ref: './parts/PartCategoryData.yaml'
+  - $ref: './part/category/PartCategoryData.yaml'
   - required:
       - id
       - name
@@ -8,7 +8,9 @@ allOf:
       id:
         type: integer
         format: int64
+      parent:
+        $ref: "./part/category/PartCategoryRef.yaml"
       childs:
         type: "array"
         items: 
-          $ref: "./parts/PartCategory.yaml"
+          $ref: "./part/category/PartCategory.yaml"

@@ -33,8 +33,11 @@ java -jar /tmp/swagger-codegen-cli.jar generate \
 sed -i -e "s/8080/8200, debug=True/g" server/swagger_server/__main__.py
 sed -i -e "s/\.encoder/encoder/g" server/swagger_server/__main__.py
 
-# patch category.py to remove wrong recursive import
+# patch py files to remove wrong recursive imports
 sed -i -e "s/from swagger_server.models.part_category import PartCategory//g" server/swagger_server/models/part_category.py
+sed -i -e "s/from swagger_server.models.part_category_tree import PartCategoryTree//g" server/swagger_server/models/part_category_tree.py
+sed -i -e "s/from swagger_server.models.part import Part//g" server/swagger_server/models/part.py
+sed -i -e "s/from swagger_server.models.part_tree import PartTree//g" server/swagger_server/models/part_tree.py
 
 # copy server inside kipartbase
 cd server

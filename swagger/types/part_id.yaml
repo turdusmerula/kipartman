@@ -1,0 +1,7 @@
+part_id:
+  name: part_id
+  in: path
+  description: Part id
+  required: true
+  type: integer
+  format: int64

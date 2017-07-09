@@ -2,8 +2,5 @@ type: object
 required:
   - name
 properties:
-  parent:
-    type: integer
-    format: int64
   name:
     type: string

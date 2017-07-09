@@ -8,6 +8,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 class PartCategory(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, db_index=True)
     name = models.TextField()
+    description = models.TextField(blank=True, default='')
     class MPTTMeta:
         order_insertion_by = ['name']
     def __unicode__(self):
@@ -16,11 +17,11 @@ class PartCategory(MPTTModel):
 
 class Part(models.Model):
     name = models.TextField()
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('Footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    comment = models.TextField(null=True, blank=True, default='')
-    parts = models.ManyToManyField('Part', blank=True)
+    comment = models.TextField(blank=True, default='')
+    childs = models.ManyToManyField('Part', blank=True)
     def parameters(self):
         return PartParameter.objects.filter(part=self)
     def distributors(self):
