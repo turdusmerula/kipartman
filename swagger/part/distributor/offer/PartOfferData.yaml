@@ -1,0 +1,18 @@
+type: object
+properties:
+  packaging_unit:
+    type: integer
+    format: int64
+  quantity:
+    type: number
+    format: double
+  unit_price:
+    type: number
+    format: double
+  currency:
+    type: string
+  sku:
+    type: string
+  updated:
+    type: string
+    format: dateTime

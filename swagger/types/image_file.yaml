@@ -1,0 +1,6 @@
+image_file:
+  name: image_file
+  in: formData
+  description: Image to upload
+  required: false
+  type: file

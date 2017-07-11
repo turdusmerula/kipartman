@@ -1,0 +1,8 @@
+type: object
+allOf:
+  - $ref: './footprint/category/FootprintCategoryData.yaml'
+  - required:
+      - name
+    properties:
+      parent:
+        $ref: "./footprint/category/FootprintCategoryRef.yaml"

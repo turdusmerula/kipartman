@@ -14,3 +14,5 @@ allOf:
         type: "array"
         items: 
           $ref: "./part/category/PartCategory.yaml"
+      path:
+        type: string

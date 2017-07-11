@@ -1,0 +1,7 @@
+footprint_id:
+  name: footprint_id
+  in: path
+  description: Footprint id
+  required: true
+  type: integer
+  format: int64

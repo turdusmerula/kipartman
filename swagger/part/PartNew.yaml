@@ -12,3 +12,11 @@ allOf:
         type: "array"
         items: 
           $ref: "./part/PartRef.yaml"
+      parameters:
+        type: "array"
+        items: 
+          $ref: "./part/parameter/PartParameter.yaml"
+      distributors:
+        type: "array"
+        items: 
+          $ref: "./part/distributor/PartDistributor.yaml"

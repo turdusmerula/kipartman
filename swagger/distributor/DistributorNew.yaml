@@ -1,0 +1,12 @@
+type: object
+allOf:
+  - $ref: './distributor/DistributorData.yaml'
+  - required:
+    - name
+    - address
+    - website
+    - sku_url
+    - email
+    - phone
+    - comment
+    properties:

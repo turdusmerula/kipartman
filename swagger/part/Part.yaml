@@ -11,6 +11,19 @@ allOf:
         type: integer
         format: int64
       category:
-        $ref: "./part/category/PartCategoryRef.yaml"
+        $ref: "./part/category/PartCategory.yaml"
       has_childs:
-        type: boolean
+        type: integer
+        format: int64
+      childs:
+        type: "array"
+        items: 
+          $ref: "./part/Part.yaml"
+      parameters:
+        type: "array"
+        items: 
+          $ref: "./part/parameter/PartParameter.yaml"
+      distributors:
+        type: array
+        items:
+          $ref: './part/distributor/PartDistributor.yaml'

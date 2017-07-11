@@ -6,6 +6,3 @@ allOf:
       - name
       - numeric
     properties:
-      id:
-        type: integer
-        format: int64

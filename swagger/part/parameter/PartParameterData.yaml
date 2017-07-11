@@ -15,14 +15,17 @@ properties:
   text_value:
     type: string
   min_value:
-    type: double
+    type: number
+    format: double
   min_prefix:
     $ref: '../../unit/UnitPrefix.yaml'
   nom_value:
-    type: double
+    type: number
+    format: double
   nom_prefix:
     $ref: '../../unit/UnitPrefix.yaml'
   max_value:
-    type: double
+    type: number
+    format: double
   max_prefix:
     $ref: '../../unit/UnitPrefix.yaml'

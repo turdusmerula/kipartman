@@ -22,13 +22,10 @@ class Part(models.Model):
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('Footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     childs = models.ManyToManyField('Part', blank=True)
-    #parameters is defined inside PartParameter inside ForeignKey part
-    def distributors(self):
-        return PartDistributor.objects.filter(part=self)
-    def manufacturers(self):
-        return PartManufacturer.objects.filter(part=self)
-#    def attachements(self):
-#        return PartAttachement.objects.filter(part=self)
+    #parameters is defined inside PartParameter by ForeignKey part
+    #offers is defined inside PartOffer by ForeignKey part
+    #manufacturers is defined inside PartManufacturers by ForeignKey part
+    #attachements: TODO
     # octopart fields
     octopart = models.TextField(null=True, blank=True, default=None)
     updated = models.DateTimeField(null=True, blank=True, default=None)
@@ -49,25 +46,30 @@ class PartParameter(models.Model):
     max_value = models.FloatField(null=True)
     max_prefix = models.ForeignKey('UnitPrefix', related_name='max', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
+        if self.id:
+            return '%d: %s' % (self.id, self.name)
+        else:
+            return '<None>: %s' % (self.name)
+            
 
 
 class PartManufacturer(models.Model):
-    part = models.ForeignKey('Part', on_delete=models.DO_NOTHING, null=False, blank=False, default=None)
+    part = models.ForeignKey('Part', related_name='manufacturers', null=False, blank=False, default=None)
     manufacturer = models.ForeignKey('Manufacturer', on_delete=models.DO_NOTHING, null=False)
     part_name = models.TextField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
 
-class PartDistributor(models.Model):
-    part = models.ForeignKey('Part', on_delete=models.DO_NOTHING, null=False, blank=False, default=None)
+class PartOffer(models.Model):
+    part = models.ForeignKey('Part', related_name='offers', null=False, blank=False, default=None)
     distributor = models.ForeignKey('Distributor', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     packaging_unit = models.IntegerField()
     quantity = models.IntegerField()
     unit_price = models.FloatField()
     currency = models.TextField(blank=True)
     sku = models.TextField(blank=True)
+    updated = models.DateTimeField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
@@ -104,8 +106,8 @@ class FootprintCategory(MPTTModel):
 class Footprint(models.Model):
     category = models.ForeignKey('FootprintCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     name = models.TextField()
-    description = models.TextField(blank=True)
-    comment = models.TextField(null=True, blank=True, default='')
+    description = models.TextField(blank=True, default='')
+    comment = models.TextField(blank=True, default='')
     image = models.ImageField(null=True, upload_to='images/%y/%m/%d/%H%M/')
     footprint = models.FileField(null=True, upload_to='footprints/%y/%m/%d/%H%M/')
     snapeda = models.TextField(null=True, blank=True)

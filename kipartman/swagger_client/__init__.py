@@ -14,21 +14,30 @@
 from __future__ import absolute_import
 
 # import models into sdk package
+from .models.distributor import Distributor
+from .models.distributor_data import DistributorData
+from .models.distributor_new import DistributorNew
 from .models.error import Error
+from .models.footprint import Footprint
+from .models.footprint_category import FootprintCategory
+from .models.footprint_category_data import FootprintCategoryData
+from .models.footprint_category_new import FootprintCategoryNew
+from .models.footprint_category_ref import FootprintCategoryRef
+from .models.footprint_data import FootprintData
+from .models.footprint_new import FootprintNew
 from .models.part import Part
 from .models.part_category import PartCategory
 from .models.part_category_data import PartCategoryData
 from .models.part_category_new import PartCategoryNew
 from .models.part_category_ref import PartCategoryRef
-from .models.part_category_tree import PartCategoryTree
 from .models.part_data import PartData
+from .models.part_distributor import PartDistributor
 from .models.part_new import PartNew
+from .models.part_offer import PartOffer
+from .models.part_offer_data import PartOfferData
 from .models.part_parameter import PartParameter
 from .models.part_parameter_data import PartParameterData
-from .models.part_parameter_new import PartParameterNew
-from .models.part_parameter_ref import PartParameterRef
 from .models.part_ref import PartRef
-from .models.part_tree import PartTree
 from .models.unit import Unit
 from .models.unit_prefix import UnitPrefix
 

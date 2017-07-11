@@ -1,0 +1,10 @@
+type: object
+allOf:
+  - $ref: './part/distributor/offer/PartOfferData.yaml'
+  - required:
+      - packaging_unit
+      - quantity
+      - unit_price
+      - currency
+      - sku
+    properties:

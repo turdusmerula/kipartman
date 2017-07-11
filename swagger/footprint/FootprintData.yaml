@@ -1,0 +1,14 @@
+type: object
+required:
+  - name
+  - description
+  - comment
+properties:
+  name:
+    type: string
+  description:
+    type: string
+  comment:
+    type: string
+  snapeda:
+    type: string

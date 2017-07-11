@@ -3,7 +3,6 @@ import connexion
 from swagger_server.models.part_category import PartCategory
 from swagger_server.models.part_category_new import PartCategoryNew
 from swagger_server.models.part_category_ref import PartCategoryRef
-from swagger_server.models.part_category_tree import PartCategoryTree
 from swagger_server.models.part_category_data import PartCategoryData
 
 from swagger_server.models.error import Error
@@ -27,15 +26,16 @@ def serialize_PartCategory(fcategory, category=None):
     category.id = fcategory.id
     if fcategory.parent:
         category.parent = PartCategoryRef(fcategory.parent.id)
-    serialize_PartCategoryData(fcategory, category)
-    return category
 
-def serialize_PartCategoryTree(fcategory, category=None):
-    if category is None:
-        category = PartCategoryTree()
-    category.id = fcategory.id
-    if fcategory.parent:
-        category.parent = PartCategoryTree(fcategory.parent.id)
+    # TODO: optimiser cette partie
+    path = "/"+fcategory.name
+    fparent = fcategory.parent
+    while fparent:
+        fparent = fparent.parent
+        if fparent:
+            path = "/"+fparent.name+path
+    category.path = path
+    
     serialize_PartCategoryData(fcategory, category)
     return category
 
@@ -162,17 +162,10 @@ def find_parts_category(category_id):
         id_fcategory_map[fcategory.pk] = fcategory
     
     try:
-        category = serialize_PartCategoryTree(id_fcategory_map[category_id])
+        category = serialize_PartCategory(id_fcategory_map[category_id])
     except:
         return Error(code=1000, message='Category %d does not exists'%category_id)
     
-    fparent = id_fcategory_map[category_id].parent
-    parent = category.parent
-    while fparent:
-        serialize_PartCategoryTree(fparent, parent)
-        fparent = fparent.parent
-        parent = parent.parent
-
     return category
 
 def update_parts_category(category_id, category):

@@ -3,11 +3,9 @@ from swagger_server.models.part import Part
 from swagger_server.models.part_data import PartData
 from swagger_server.models.part_ref import PartRef
 from swagger_server.models.part_new import PartNew
-from swagger_server.models.part_tree import PartTree
 
 from swagger_server.models.part_category import PartCategory
 from swagger_server.models.part_category_ref import PartCategoryRef
-from swagger_server.models.part_category_tree import PartCategoryTree
 
 from swagger_server.models.error import Error
 from datetime import date, datetime
@@ -16,12 +14,14 @@ from six import iteritems
 from ..util import deserialize_date, deserialize_datetime
 
 from swagger_server.controllers.controller_part_category import find_parts_category
-from swagger_server.controllers.controller_part_parameter import find_part_parameters
+from swagger_server.controllers.controller_part_parameter import find_part_parameters, deserialize_PartParameter
+from swagger_server.controllers.controller_part_distributor import find_part_distributors
+from swagger_server.controllers.controller_part_offer import deserialize_PartOffer
 
 import api.models
 #import jsonpickle
 
-def serialize_PartData(fpart, part=None):
+def serialize_PartData(fpart, part=None, with_parameters=True):
     if part is None:
         part = PartData()
     part.name = fpart.name
@@ -32,33 +32,29 @@ def serialize_PartData(fpart, part=None):
     if fpart.updated:
         part.updated = fpart.updated
     #part.footprint
-    if fpart.id:
+    if fpart.id and with_parameters:
         part.parameters = find_part_parameters(fpart.id)
     #parameters
-    #distributors
     #manufacturers
     return part
 
-def serialize_Part(fpart, part=None):
+def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, with_childs=True):
     if part is None:
         part = Part()
     part.id = fpart.id
-    serialize_PartData(fpart, part)
+    serialize_PartData(fpart, part, with_parameters)
     if fpart.category:
-        part.category = PartCategoryRef(fpart.category.id)
-    part.has_childs = (fpart.childs.count()>0)
-    return part
-
-def serialize_PartTree(fpart, part=None):
-    if part is None:
-        part = PartTree()
-    part.id = fpart.id
-    serialize_PartData(fpart, part)
-    if fpart.category:
-        part.category = PartCategoryTree(fpart.category.id)
-    if fpart.childs.count()>0:
+        part.category = find_parts_category(fpart.category.id)
+    # extract childs
+    if with_childs:
         part.childs = []
+        for fchild in fpart.childs.all():
+            part.childs.append(find_part(fchild.id))
     part.has_childs = (fpart.childs.count()>0)
+    
+    if with_offers:
+        part.distributors = find_part_distributors(fpart.id)
+    
     return part
 
 
@@ -81,10 +77,28 @@ def deserialize_PartData(part, fpart=None):
 
 def deserialize_PartNew(part, fpart=None):
     fpart = deserialize_PartData(part, fpart)
-    if part.parent:
-        fpart.parent
     if part.category:
-        fpart.category
+        try:
+            fpart.category = api.models.PartCategory.objects.get(pk=part.category.id)
+        except:
+            return Error(code=1000, message='Category %d does not exists'%part.category.id)
+
+    if part.childs:
+        fchilds = []
+        for child in part.childs:
+            try:
+                fchilds.append(api.models.Part.objects.get(pk=child.id))
+            except:
+                return Error(code=1000, message='Part %d does not exists'%part.id)
+        fpart.childs.set(fchilds)
+        # recursive check
+        while len(fchilds)>0:
+            fchild = fchilds.pop()
+            if fchild.pk==part.id:
+                return Error(code=1000, message='Part cannot be child of itself')
+            for fchild in fchild.childs.all():
+                fchilds.append(fchild)
+
     return fpart
 
 
@@ -100,22 +114,38 @@ def add_part(part):
     if connexion.request.is_json:
         part = PartNew.from_dict(connexion.request.get_json())
 
-    fpart = deserialize_PartNew(part)
-    if part.category:
-        try:
-            fpart.category = api.models.PartCategory.objects.get(pk=part.category.id)
-        except:
-            return Error(code=1000, message='Category %d does not exists'%part.category.id)
-    if part.childs:
-        childs = []
-        for child in part.childs:
-            try:
-                childs.append(api.models.Part.objects.get(pk=child.id))
-            except:
-                return Error(code=1000, message='Part %d does not exists'%part.id)
-        fpart.childs.set(childs)
+    try:
+        fpart = deserialize_PartNew(part)
+    except Error as e:
+        return e
+    
     fpart.save()
     
+    fparameters = []
+    if part.parameters:
+        for parameter in part.parameters:
+            fparameter = deserialize_PartParameter(parameter)
+            fparameter.part = fpart
+            fparameter.save()
+            fparameters.append(fparameter)
+        fpart.parameters.set(fparameters)
+
+    foffers = []
+    if part.distributors:
+        for part_distributor in part.distributors:
+            try:
+                fdistributor = api.models.Distributor.objects.get(pk=part_distributor.id)
+            except:
+                return Error(code=1000, message='Distributor %d does not exists'%part_distributor.id)
+                
+            for offer in part_distributor.offers:
+                foffer = deserialize_PartOffer(offer)
+                foffer.part = fpart
+                foffer.distributor = fdistributor
+                foffer.save()
+                foffers.append(foffer)
+        fpart.offers.set(foffers)
+        
     return serialize_Part(fpart)
 
 
@@ -137,7 +167,7 @@ def delete_part(part_id):
     return None
 
 
-def find_part(part_id):
+def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None):
     """
     find_part
     Return a part
@@ -151,18 +181,13 @@ def find_part(part_id):
     except:
         return Error(code=1000, message='Part %d does not exists'%part_id)
     
-    part = serialize_PartTree(fpart)
-    if fpart.category:
-        part.category = find_parts_category(fpart.category.id)
-
-    # extract childs
-    if part.has_childs:
-        part.childs = []
-    for fchild in fpart.childs.all():
-        part.childs.append(find_part(fchild.id))
+    try:
+        part = serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs)
+    except Error as e:
+        return e
     return part
 
-def find_parts():
+def find_parts(with_offers=None, with_parameters=None, with_childs=None):
     """
     find_parts
     Return all parts
@@ -171,8 +196,11 @@ def find_parts():
     """
     parts = []
     
-    for fpart in api.models.Part.objects.all():
-        parts.append(serialize_Part(fpart))
+    try:
+        for fpart in api.models.Part.objects.all():
+            parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs))
+    except Error as e:
+        return e
 
     return parts
 
@@ -195,26 +223,19 @@ def update_part(part_id, part):
         fpart = deserialize_PartNew(part, api.models.Part.objects.get(pk=part_id))
     except:
         return Error(code=1000, message='Part %d does not exists'%part_id)
-
-    if part.childs:
-        # check there is no recursion
-        fchilds = []
-        for child in part.childs:
-            try:
-                fchild = api.models.Part.objects.get(pk=child.id)
-            except:
-                return Error(code=1000, message='Part %d does not exists'%child.id)
-            fchilds.append(fchild)
-        fpart.childs.set(fchilds)
-        # recursive check
-        while len(fchilds)>0:
-            fchild = fchilds.pop()
-            if fchild.pk==part.id:
-                return Error(code=1000, message='Part cannot be child of itself')
-            for fchild in fchild.childs.all():
-                fchilds.append(fchild)
-        
         
     fpart.save()
+    
+    fparameters = []
+    if part.parameters:
+        # remove all parameters
+        api.models.PartParameter.objects.filter(part=part_id).delete()
+        # replace by interface ones
+        for parameter in part.parameters:
+            fparameter = deserialize_PartParameter(parameter)
+            fparameter.part = fpart
+            fparameter.save()
+            fparameters.append(fparameter)
+        fpart.parameters.set(fparameters)
     
     return part

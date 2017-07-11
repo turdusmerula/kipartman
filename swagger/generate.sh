@@ -38,6 +38,8 @@ sed -i -e "s/from swagger_server.models.part_category import PartCategory//g" se
 sed -i -e "s/from swagger_server.models.part_category_tree import PartCategoryTree//g" server/swagger_server/models/part_category_tree.py
 sed -i -e "s/from swagger_server.models.part import Part//g" server/swagger_server/models/part.py
 sed -i -e "s/from swagger_server.models.part_tree import PartTree//g" server/swagger_server/models/part_tree.py
+sed -i -e "s/from swagger_server.models.footprint_category import FootprintCategory//g" server/swagger_server/models/footprint_category.py
+sed -i -e "s/from swagger_server.models.footprint_category_tree import FootprintCategoryTree//g" server/swagger_server/models/footprint_category_tree.py
 
 # copy server inside kipartbase
 cd server

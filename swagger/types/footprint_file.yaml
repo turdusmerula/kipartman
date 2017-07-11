@@ -1,0 +1,6 @@
+footprint_file:
+  name: footprint_file
+  in: formData
+  description: Footprint to upload
+  required: false
+  type: file

@@ -69,7 +69,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: './part/category/PartCategoryTree.yaml'
+              $ref: './part/category/PartCategory.yaml'
         default:
           description: unexpected error
           schema:
@@ -113,6 +113,19 @@ paths:
     get:
       description: Return all parts
       operationId: findParts
+      parameters:
+        - name: with_offers
+          in: query
+          description: Include offers in answer
+          type: boolean
+        - name: with_parameters
+          in: query
+          description: Include parameters in answer
+          type: boolean
+        - name: with_childs
+          in: query
+          description: Include childs in answer
+          type: boolean
       responses:
         "200":
           description: List of parts
@@ -151,13 +164,25 @@ paths:
       operationId: findPart
       parameters:
         - $ref: './types/part_id.yaml#/part_id'
+        - name: with_offers
+          in: query
+          description: Include offers in answer
+          type: boolean
+        - name: with_parameters
+          in: query
+          description: Include parameters in answer
+          type: boolean
+        - name: with_childs
+          in: query
+          description: Include childs in answer
+          type: boolean
       responses:
         "200":
           description: Categories
           schema:
             type: array
             items:
-              $ref: './part/PartTree.yaml'
+              $ref: './part/Part.yaml'
         default:
           description: unexpected error
           schema:
@@ -198,141 +223,6 @@ paths:
             $ref: './Error.yaml'
 
 
-  /parts/{part_id}/parameters:    
-    get:
-      description: Return all parameters for part
-      operationId: findPartParameters
-      parameters:
-        - $ref: './types/part_id.yaml#/part_id'
-      responses:
-        "200":
-          description: List of part parameters
-          schema:
-            type: array
-            items:
-              $ref: './part/parameter/PartParameter.yaml'
-        default:
-          description: unexpected error
-          schema:
-            $ref: './Error.yaml'
-
-    post:
-      description: Create some new part parameters
-      operationId: addPartParameters
-      parameters:
-        - $ref: './types/part_id.yaml#/part_id'
-        - name: parameters
-          in: body
-          description: Parameters to add
-          required: true
-          schema:
-            type: array
-            items:
-              $ref: './part/parameter/PartParameterNew.yaml'
-      responses:
-        "200":
-          description: Created parameters
-        default:
-          description: unexpected error
-          schema:
-            $ref: './Error.yaml'
-
-    delete:
-      description: Delete list of part parameters
-      operationId: deletePartParameters
-      parameters:
-        - $ref: './types/part_id.yaml#/part_id'
-        - name: parameters
-          in: body
-          description: Parameters to delete
-          required: true
-          schema:
-            type: array
-            items:
-              $ref: './part/parameter/PartParameterRef.yaml'
-      responses:
-        "200":
-          description: Deleted ok
-        default:
-          description: unexpected error
-          schema:
-            $ref: './Error.yaml'
-
-    put:
-      description: Update list of part parameters
-      operationId: updatePartParameters
-      parameters:
-        - $ref: './types/part_id.yaml#/part_id'
-        - name: parameters
-          in: body
-          description: Parameters to update
-          required: true
-          schema:
-            type: array
-            items:
-              $ref: './part/parameter/PartParameter.yaml'
-      responses:
-        "200":
-          description: Created parameters
-        default:
-          description: unexpected error
-          schema:
-            $ref: './Error.yaml'
-
-  /parts/{part_id}/parameters/{parameter_id}:
-    get:
-      description: Return a part parameter
-      operationId: findPartParameter
-      parameters:
-        - $ref: './types/part_id.yaml#/part_id'
-        - $ref: './types/parameter_id.yaml#/parameter_id'
-      responses:
-        "200":
-          description: Parameter
-          schema:
-            type: array
-            items:
-              $ref: './part/parameter/PartParameter.yaml'
-        default:
-          description: unexpected error
-          schema:
-            $ref: './Error.yaml'
-
-    put:
-      description: Update part parameter
-      operationId: updatePartParameter
-      parameters:
-        - $ref: './types/part_id.yaml#/part_id'
-        - $ref: './types/parameter_id.yaml#/parameter_id'
-        - name: category
-          in: body
-          description: Parameter to update
-          required: true
-          schema:
-            $ref: './part/parameter/PartParameterNew.yaml'
-      responses:
-        "200":
-          description: Updated pärt parameter
-          schema:
-            $ref: './part/parameter/PartParameter.yaml'
-        default:
-          description: unexpected error
-          schema:
-            $ref: './Error.yaml'
-
-    delete:
-      description: Delete part parameter
-      operationId: deletePartParameter
-      parameters:
-        - $ref: './types/part_id.yaml#/part_id'
-        - $ref: './types/parameter_id.yaml#/parameter_id'
-      responses:
-        "200":
-          description: Deleted ok
-        default:
-          description: unexpected error
-          schema:
-            $ref: './Error.yaml'
 
   /units:    
     get:
@@ -393,6 +283,277 @@ paths:
           description: Unit prefix
           schema:
             $ref: './unit/UnitPrefix.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+
+  /footprints/categories:
+    get:
+      description: Return all categories for footprints
+      operationId: findFootprintsCategories
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            type: array
+            items:
+              $ref: './footprint/category/FootprintCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+    
+    post:
+      description: Creates a new footprint category
+      operationId: addFootprintsCategory
+      parameters:
+        - name: category
+          in: body
+          description: Category to add
+          required: true
+          schema:
+            $ref: './footprint/category/FootprintCategoryNew.yaml'
+      responses:
+        "200":
+          description: Created category
+          schema:
+            $ref: './footprint/category/FootprintCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+    
+  /footprints/categories/{category_id}:
+    get:
+      description: Return a footprint category
+      operationId: findFootprintsCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Categories
+          schema:
+            type: array
+            items:
+              $ref: './footprint/category/FootprintCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update footprint category
+      operationId: updateFootprintsCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+        - name: category
+          in: body
+          description: Category to update
+          required: true
+          schema:
+            $ref: './footprint/category/FootprintCategoryNew.yaml'
+      responses:
+        "200":
+          description: Updated pärt category
+          schema:
+            $ref: './footprint/category/FootprintCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete footprint category
+      operationId: deleteFootprintsCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /footprints:
+    get:
+      description: Return all footprints
+      operationId: findFootprints
+      responses:
+        "200":
+          description: List of footprints
+          schema:
+            type: array
+            items:
+              $ref: './footprint/Footprint.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    post:
+      description: Creates a new footprint
+      operationId: addFootprint
+      parameters:
+        - name: footprint
+          in: body
+          description: Footprint to add
+          required: true
+          schema:
+            $ref: './footprint/FootprintNew.yaml'
+        - $ref: './types/footprint_file.yaml#/footprint_file'
+        - $ref: './types/image_file.yaml#/image_file'
+      responses:
+        "200":
+          description: Created footprint
+          schema:
+            $ref: './footprint/Footprint.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /footprints/{footprint_id}:
+    get:
+      description: Return a footprint
+      operationId: findFootprint
+      parameters:
+        - $ref: './types/footprint_id.yaml#/footprint_id'
+      responses:
+        "200":
+          description: Categories
+          schema:
+            type: array
+            items:
+              $ref: './footprint/Footprint.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update footprint
+      operationId: updateFootprint
+      parameters:
+        - $ref: './types/footprint_id.yaml#/footprint_id'
+        - name: footprint
+          in: body
+          description: Footprint to update
+          required: true
+          schema:
+            $ref: './footprint/FootprintNew.yaml'
+        - $ref: './types/footprint_file.yaml#/footprint_file'
+        - $ref: './types/image_file.yaml#/image_file'
+      responses:
+        "200":
+          description: Updated pärt
+          schema:
+            $ref: './footprint/Footprint.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete footprint
+      operationId: deleteFootprint
+      parameters:
+        - $ref: './types/footprint_id.yaml#/footprint_id'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+
+
+  /distributors:
+    get:
+      description: Return all distributors
+      operationId: findDistributors
+      responses:
+        "200":
+          description: List of distributors
+          schema:
+            type: array
+            items:
+              $ref: './distributor/Distributor.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    post:
+      description: Creates a new distributor
+      operationId: addDistributor
+      parameters:
+        - name: distributor
+          in: body
+          description: Distributor to add
+          required: true
+          schema:
+            $ref: './distributor/DistributorNew.yaml'
+      responses:
+        "200":
+          description: Created distributor
+          schema:
+            $ref: './distributor/Distributor.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+            
+  /distributors/{distributor_id}:
+    get:
+      description: Return a distributor
+      operationId: findDistributor
+      parameters:
+        - $ref: './types/distributor_id.yaml#/distributor_id'
+      responses:
+        "200":
+          description: Distributors
+          schema:
+            type: array
+            items:
+              $ref: './distributor/Distributor.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update a distributor
+      operationId: updateDistributor
+      parameters:
+        - $ref: './types/distributor_id.yaml#/distributor_id'
+        - name: category
+          in: body
+          description: Distributor to update
+          required: true
+          schema:
+            $ref: './distributor/DistributorNew.yaml'
+      responses:
+        "200":
+          description: Updated distributor
+          schema:
+            $ref: './distributor/Distributor.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete distributor
+      operationId: deleteDistributor
+      parameters:
+        - $ref: './types/distributor_id.yaml#/distributor_id'
+      responses:
+        "200":
+          description: Deleted ok
         default:
           description: unexpected error
           schema:

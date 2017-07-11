@@ -8,13 +8,6 @@ properties:
     type: string
   description:
     type: string
-  #footprint: TODO
-  #models: TODO
-  #files: TODO
-  parameters:
-    type: array
-    items:
-      $ref: './parameter/PartParameter.yaml'
   comment:
     type: string
   octopart:

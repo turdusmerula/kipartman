@@ -1,0 +1,18 @@
+type: object
+allOf:
+  - $ref: './footprint/FootprintData.yaml'
+  - required:
+      - id
+      - name
+      - description
+      - comment
+    properties:
+      id:
+        type: integer
+        format: int64
+      category:
+        $ref: "./footprint/category/FootprintCategoryRef.yaml"
+      image:
+        type: string
+      footprint:
+        type: string
