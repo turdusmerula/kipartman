@@ -1,8 +1,4 @@
 type: object
-required:
-  - name
-  - description
-  - numeric
 properties:
   name:
     type: string

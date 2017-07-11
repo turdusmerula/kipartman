@@ -79,8 +79,6 @@ class PartData(Model):
         :param name: The name of this PartData.
         :type name: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")
 
         self._name = name
 
@@ -102,8 +100,6 @@ class PartData(Model):
         :param description: The description of this PartData.
         :type description: str
         """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")
 
         self._description = description
 
@@ -125,8 +121,6 @@ class PartData(Model):
         :param comment: The comment of this PartData.
         :type comment: str
         """
-        if comment is None:
-            raise ValueError("Invalid value for `comment`, must not be `None`")
 
         self._comment = comment
 

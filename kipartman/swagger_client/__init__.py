@@ -25,6 +25,9 @@ from .models.footprint_category_new import FootprintCategoryNew
 from .models.footprint_category_ref import FootprintCategoryRef
 from .models.footprint_data import FootprintData
 from .models.footprint_new import FootprintNew
+from .models.manufacturer import Manufacturer
+from .models.manufacturer_data import ManufacturerData
+from .models.manufacturer_new import ManufacturerNew
 from .models.part import Part
 from .models.part_category import PartCategory
 from .models.part_category_data import PartCategoryData
@@ -32,6 +35,7 @@ from .models.part_category_new import PartCategoryNew
 from .models.part_category_ref import PartCategoryRef
 from .models.part_data import PartData
 from .models.part_distributor import PartDistributor
+from .models.part_manufacturer import PartManufacturer
 from .models.part_new import PartNew
 from .models.part_offer import PartOffer
 from .models.part_offer_data import PartOfferData

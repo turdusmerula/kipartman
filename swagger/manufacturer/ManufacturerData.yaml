@@ -2,12 +2,13 @@ type: object
 properties:
   name:
     type: string
-  description:
+  address:
+    type: string
+  website:
+    type: string
+  email:
+    type: string
+  phone:
     type: string
   comment:
     type: string
-  octopart:
-    type: string
-  updated:
-    type: string
-    format: date-time

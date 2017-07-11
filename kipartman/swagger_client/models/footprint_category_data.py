@@ -58,8 +58,6 @@ class FootprintCategoryData(object):
         :param name: The name of this FootprintCategoryData.
         :type: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")
 
         self._name = name
 

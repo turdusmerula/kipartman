@@ -41,7 +41,7 @@ class Part(object):
             'has_childs': 'int',
             'childs': 'list[Part]',
             'parameters': 'list[PartParameter]',
-            'distributors': 'list[PartDistributor]'
+            'distributors': 'list[PartManufacturer]'
         }
 
         self.attribute_map = {
@@ -88,8 +88,6 @@ class Part(object):
         :param name: The name of this Part.
         :type: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")
 
         self._name = name
 
@@ -111,8 +109,6 @@ class Part(object):
         :param description: The description of this Part.
         :type: str
         """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")
 
         self._description = description
 
@@ -134,8 +130,6 @@ class Part(object):
         :param comment: The comment of this Part.
         :type: str
         """
-        if comment is None:
-            raise ValueError("Invalid value for `comment`, must not be `None`")
 
         self._comment = comment
 
@@ -294,7 +288,7 @@ class Part(object):
         Gets the distributors of this Part.
 
         :return: The distributors of this Part.
-        :rtype: list[PartDistributor]
+        :rtype: list[PartManufacturer]
         """
         return self._distributors
 
@@ -304,7 +298,7 @@ class Part(object):
         Sets the distributors of this Part.
 
         :param distributors: The distributors of this Part.
-        :type: list[PartDistributor]
+        :type: list[PartManufacturer]
         """
 
         self._distributors = distributors

@@ -81,8 +81,6 @@ class FootprintNew(Model):
         :param name: The name of this FootprintNew.
         :type name: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")
 
         self._name = name
 
@@ -104,8 +102,6 @@ class FootprintNew(Model):
         :param description: The description of this FootprintNew.
         :type description: str
         """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")
 
         self._description = description
 
@@ -127,8 +123,6 @@ class FootprintNew(Model):
         :param comment: The comment of this FootprintNew.
         :type comment: str
         """
-        if comment is None:
-            raise ValueError("Invalid value for `comment`, must not be `None`")
 
         self._comment = comment
 

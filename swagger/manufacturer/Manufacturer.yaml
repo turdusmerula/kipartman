@@ -1,0 +1,15 @@
+type: object
+allOf:
+  - $ref: './manufacturer/ManufacturerData.yaml'
+  - required:
+      - id
+      - name
+      - address
+      - website
+      - email
+      - phone
+      - comment
+    properties:
+      id:
+        type: integer
+        format: int64

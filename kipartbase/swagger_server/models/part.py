@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 from swagger_server.models.part_category import PartCategory
 from swagger_server.models.part_data import PartData
-from swagger_server.models.part_distributor import PartDistributor
+from swagger_server.models.part_manufacturer import PartManufacturer
 from swagger_server.models.part_parameter import PartParameter
 from .base_model_ import Model
 from datetime import date, datetime
@@ -42,7 +42,7 @@ class Part(Model):
         :param parameters: The parameters of this Part.
         :type parameters: List[PartParameter]
         :param distributors: The distributors of this Part.
-        :type distributors: List[PartDistributor]
+        :type distributors: List[PartManufacturer]
         """
         self.swagger_types = {
             'name': str,
@@ -55,7 +55,7 @@ class Part(Model):
             'has_childs': int,
             'childs': List[Part],
             'parameters': List[PartParameter],
-            'distributors': List[PartDistributor]
+            'distributors': List[PartManufacturer]
         }
 
         self.attribute_map = {
@@ -114,8 +114,6 @@ class Part(Model):
         :param name: The name of this Part.
         :type name: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")
 
         self._name = name
 
@@ -137,8 +135,6 @@ class Part(Model):
         :param description: The description of this Part.
         :type description: str
         """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")
 
         self._description = description
 
@@ -160,8 +156,6 @@ class Part(Model):
         :param comment: The comment of this Part.
         :type comment: str
         """
-        if comment is None:
-            raise ValueError("Invalid value for `comment`, must not be `None`")
 
         self._comment = comment
 
@@ -320,7 +314,7 @@ class Part(Model):
         Gets the distributors of this Part.
 
         :return: The distributors of this Part.
-        :rtype: List[PartDistributor]
+        :rtype: List[PartManufacturer]
         """
         return self._distributors
 
@@ -330,7 +324,7 @@ class Part(Model):
         Sets the distributors of this Part.
 
         :param distributors: The distributors of this Part.
-        :type distributors: List[PartDistributor]
+        :type distributors: List[PartManufacturer]
         """
 
         self._distributors = distributors

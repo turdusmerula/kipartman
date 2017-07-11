@@ -16,6 +16,7 @@ from ..util import deserialize_date, deserialize_datetime
 from swagger_server.controllers.controller_part_category import find_parts_category
 from swagger_server.controllers.controller_part_parameter import find_part_parameters, deserialize_PartParameter
 from swagger_server.controllers.controller_part_distributor import find_part_distributors
+from swagger_server.controllers.controller_manufacturer import deserialize_ManufacturerData
 from swagger_server.controllers.controller_part_offer import deserialize_PartOffer
 
 import api.models
@@ -145,7 +146,21 @@ def add_part(part):
                 foffer.save()
                 foffers.append(foffer)
         fpart.offers.set(foffers)
-        
+    
+    fpart_manufacturers = []
+    if part.manufacturers:
+        for part_manufacturer in part.manufacturers:
+            try:
+                fmanufacturer = api.models.Manufacturer.objects.get(pk=part_manufacturer.id)
+            except:
+                return Error(code=1000, message='Manufacturer %d does not exists'%part_manufacturer.id)
+            fpart_manufacturer = api.models.PartManufacturer()
+            fpart_manufacturer.part = fpart
+            fpart_manufacturer.manufacturer = fmanufacturer
+            fpart_manufacturer.save()
+            fpart_manufacturers.append(fpart_manufacturer)
+        fpart.manufacturers.set(fpart_manufacturers)
+
     return serialize_Part(fpart)
 
 
@@ -237,5 +252,41 @@ def update_part(part_id, part):
             fparameter.save()
             fparameters.append(fparameter)
         fpart.parameters.set(fparameters)
+
+    foffers = []
+    if part.distributors:
+        # remove all part distributors
+        api.models.PartOffer.objects.filter(part=part_id).delete()
+        # import new values
+        for part_distributor in part.distributors:
+            try:
+                fdistributor = api.models.Distributor.objects.get(pk=part_distributor.id)
+            except:
+                return Error(code=1000, message='Distributor %d does not exists'%part_distributor.id)
+                
+            for offer in part_distributor.offers:
+                foffer = deserialize_PartOffer(offer)
+                foffer.part = fpart
+                foffer.distributor = fdistributor
+                foffer.save()
+                foffers.append(foffer)
+        fpart.offers.set(foffers)
     
+    fpart_manufacturers = []
+    if part.manufacturers:
+        # remove all part distributors
+        api.models.PartManufacturer.objects.filter(part=part_id).delete()
+        # import new values
+        for part_manufacturer in part.manufacturers:
+            try:
+                fmanufacturer = api.models.Manufacturer.objects.get(pk=part_manufacturer.id)
+            except:
+                return Error(code=1000, message='Manufacturer %d does not exists'%part_manufacturer.id)
+            fpart_manufacturer = api.models.PartManufacturer()
+            fpart_manufacturer.part = fpart
+            fpart_manufacturer.manufacturer = fmanufacturer
+            fpart_manufacturer.save()
+            fpart_manufacturers.append(fpart_manufacturer)
+        fpart.manufacturers.set(fpart_manufacturers)
+
     return part

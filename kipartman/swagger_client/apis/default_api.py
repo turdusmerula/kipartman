@@ -363,6 +363,111 @@ class DefaultApi(object):
                                         _request_timeout=params.get('_request_timeout'),
                                         collection_formats=collection_formats)
 
+    def add_manufacturer(self, manufacturer, **kwargs):
+        """
+        Creates a new manufacturer
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_manufacturer(manufacturer, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param ManufacturerNew manufacturer: Manufacturer to add (required)
+        :return: Manufacturer
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.add_manufacturer_with_http_info(manufacturer, **kwargs)
+        else:
+            (data) = self.add_manufacturer_with_http_info(manufacturer, **kwargs)
+            return data
+
+    def add_manufacturer_with_http_info(self, manufacturer, **kwargs):
+        """
+        Creates a new manufacturer
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_manufacturer_with_http_info(manufacturer, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param ManufacturerNew manufacturer: Manufacturer to add (required)
+        :return: Manufacturer
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['manufacturer']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method add_manufacturer" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'manufacturer' is set
+        if ('manufacturer' not in params) or (params['manufacturer'] is None):
+            raise ValueError("Missing the required parameter `manufacturer` when calling `add_manufacturer`")
+
+
+        collection_formats = {}
+
+        resource_path = '/manufacturers'.replace('{format}', 'json')
+        path_params = {}
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'manufacturer' in params:
+            body_params = params['manufacturer']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'POST',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='Manufacturer',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
     def add_part(self, part, **kwargs):
         """
         Creates a new part
@@ -853,6 +958,111 @@ class DefaultApi(object):
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'DELETE',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type=None,
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def delete_manufacturer(self, manufacturer_id, **kwargs):
+        """
+        Delete manufacturer
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_manufacturer(manufacturer_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int manufacturer_id: Manufacturer id (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.delete_manufacturer_with_http_info(manufacturer_id, **kwargs)
+        else:
+            (data) = self.delete_manufacturer_with_http_info(manufacturer_id, **kwargs)
+            return data
+
+    def delete_manufacturer_with_http_info(self, manufacturer_id, **kwargs):
+        """
+        Delete manufacturer
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_manufacturer_with_http_info(manufacturer_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int manufacturer_id: Manufacturer id (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['manufacturer_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method delete_manufacturer" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'manufacturer_id' is set
+        if ('manufacturer_id' not in params) or (params['manufacturer_id'] is None):
+            raise ValueError("Missing the required parameter `manufacturer_id` when calling `delete_manufacturer`")
+
+
+        collection_formats = {}
+
+        resource_path = '/manufacturers/{manufacturer_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'manufacturer_id' in params:
+            path_params['manufacturer_id'] = params['manufacturer_id']
 
         query_params = {}
 
@@ -1697,6 +1907,208 @@ class DefaultApi(object):
                                         post_params=form_params,
                                         files=local_var_files,
                                         response_type='list[FootprintCategory]',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_manufacturer(self, manufacturer_id, **kwargs):
+        """
+        Return a manufacturer
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_manufacturer(manufacturer_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int manufacturer_id: Manufacturer id (required)
+        :return: list[Manufacturer]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_manufacturer_with_http_info(manufacturer_id, **kwargs)
+        else:
+            (data) = self.find_manufacturer_with_http_info(manufacturer_id, **kwargs)
+            return data
+
+    def find_manufacturer_with_http_info(self, manufacturer_id, **kwargs):
+        """
+        Return a manufacturer
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_manufacturer_with_http_info(manufacturer_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int manufacturer_id: Manufacturer id (required)
+        :return: list[Manufacturer]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['manufacturer_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_manufacturer" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'manufacturer_id' is set
+        if ('manufacturer_id' not in params) or (params['manufacturer_id'] is None):
+            raise ValueError("Missing the required parameter `manufacturer_id` when calling `find_manufacturer`")
+
+
+        collection_formats = {}
+
+        resource_path = '/manufacturers/{manufacturer_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'manufacturer_id' in params:
+            path_params['manufacturer_id'] = params['manufacturer_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='list[Manufacturer]',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_manufacturers(self, **kwargs):
+        """
+        Return all manufacturers
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_manufacturers(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :return: list[Manufacturer]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_manufacturers_with_http_info(**kwargs)
+        else:
+            (data) = self.find_manufacturers_with_http_info(**kwargs)
+            return data
+
+    def find_manufacturers_with_http_info(self, **kwargs):
+        """
+        Return all manufacturers
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_manufacturers_with_http_info(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :return: list[Manufacturer]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = []
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_manufacturers" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        resource_path = '/manufacturers'.replace('{format}', 'json')
+        path_params = {}
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='list[Manufacturer]',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -2874,6 +3286,118 @@ class DefaultApi(object):
                                         post_params=form_params,
                                         files=local_var_files,
                                         response_type='FootprintCategory',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def update_manufacturer(self, manufacturer_id, category, **kwargs):
+        """
+        Update a manufacturer
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_manufacturer(manufacturer_id, category, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int manufacturer_id: Manufacturer id (required)
+        :param ManufacturerNew category: Manufacturer to update (required)
+        :return: Manufacturer
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.update_manufacturer_with_http_info(manufacturer_id, category, **kwargs)
+        else:
+            (data) = self.update_manufacturer_with_http_info(manufacturer_id, category, **kwargs)
+            return data
+
+    def update_manufacturer_with_http_info(self, manufacturer_id, category, **kwargs):
+        """
+        Update a manufacturer
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_manufacturer_with_http_info(manufacturer_id, category, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int manufacturer_id: Manufacturer id (required)
+        :param ManufacturerNew category: Manufacturer to update (required)
+        :return: Manufacturer
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['manufacturer_id', 'category']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method update_manufacturer" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'manufacturer_id' is set
+        if ('manufacturer_id' not in params) or (params['manufacturer_id'] is None):
+            raise ValueError("Missing the required parameter `manufacturer_id` when calling `update_manufacturer`")
+        # verify the required parameter 'category' is set
+        if ('category' not in params) or (params['category'] is None):
+            raise ValueError("Missing the required parameter `category` when calling `update_manufacturer`")
+
+
+        collection_formats = {}
+
+        resource_path = '/manufacturers/{manufacturer_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'manufacturer_id' in params:
+            path_params['manufacturer_id'] = params['manufacturer_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'category' in params:
+            body_params = params['category']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'PUT',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='Manufacturer',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),

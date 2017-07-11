@@ -112,8 +112,6 @@ class PartParameter(Model):
         :param name: The name of this PartParameter.
         :type name: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")
 
         self._name = name
 
@@ -135,8 +133,6 @@ class PartParameter(Model):
         :param description: The description of this PartParameter.
         :type description: str
         """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")
 
         self._description = description
 
@@ -179,8 +175,6 @@ class PartParameter(Model):
         :param numeric: The numeric of this PartParameter.
         :type numeric: bool
         """
-        if numeric is None:
-            raise ValueError("Invalid value for `numeric`, must not be `None`")
 
         self._numeric = numeric
 

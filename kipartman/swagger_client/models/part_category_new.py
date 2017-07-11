@@ -61,8 +61,6 @@ class PartCategoryNew(object):
         :param name: The name of this PartCategoryNew.
         :type: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")
 
         self._name = name
 

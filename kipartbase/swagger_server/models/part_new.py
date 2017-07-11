@@ -104,8 +104,6 @@ class PartNew(Model):
         :param name: The name of this PartNew.
         :type name: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")
 
         self._name = name
 
@@ -127,8 +125,6 @@ class PartNew(Model):
         :param description: The description of this PartNew.
         :type description: str
         """
-        if description is None:
-            raise ValueError("Invalid value for `description`, must not be `None`")
 
         self._description = description
 
@@ -150,8 +146,6 @@ class PartNew(Model):
         :param comment: The comment of this PartNew.
         :type comment: str
         """
-        if comment is None:
-            raise ValueError("Invalid value for `comment`, must not be `None`")
 
         self._comment = comment
 

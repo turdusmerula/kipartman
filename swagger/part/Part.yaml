@@ -27,3 +27,7 @@ allOf:
         type: array
         items:
           $ref: './part/distributor/PartDistributor.yaml'
+      distributors:
+        type: array
+        items:
+          $ref: './part/manufacturer/PartManufacturer.yaml'

@@ -1,8 +1,4 @@
 type: object
-required:
-  - name
-  - description
-  - comment
 properties:
   name:
     type: string

@@ -558,3 +558,93 @@ paths:
           description: unexpected error
           schema:
             $ref: './Error.yaml'
+
+            
+
+  /manufacturers:
+    get:
+      description: Return all manufacturers
+      operationId: findManufacturers
+      responses:
+        "200":
+          description: List of manufacturers
+          schema:
+            type: array
+            items:
+              $ref: './manufacturer/Manufacturer.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    post:
+      description: Creates a new manufacturer
+      operationId: addManufacturer
+      parameters:
+        - name: manufacturer
+          in: body
+          description: Manufacturer to add
+          required: true
+          schema:
+            $ref: './manufacturer/ManufacturerNew.yaml'
+      responses:
+        "200":
+          description: Created manufacturer
+          schema:
+            $ref: './manufacturer/Manufacturer.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+            
+  /manufacturers/{manufacturer_id}:
+    get:
+      description: Return a manufacturer
+      operationId: findManufacturer
+      parameters:
+        - $ref: './types/manufacturer_id.yaml#/manufacturer_id'
+      responses:
+        "200":
+          description: Manufacturer
+          schema:
+            type: array
+            items:
+              $ref: './manufacturer/Manufacturer.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update a manufacturer
+      operationId: updateManufacturer
+      parameters:
+        - $ref: './types/manufacturer_id.yaml#/manufacturer_id'
+        - name: category
+          in: body
+          description: Manufacturer to update
+          required: true
+          schema:
+            $ref: './manufacturer/ManufacturerNew.yaml'
+      responses:
+        "200":
+          description: Updated manufacturer
+          schema:
+            $ref: './manufacturer/Manufacturer.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete manufacturer
+      operationId: deleteManufacturer
+      parameters:
+        - $ref: './types/manufacturer_id.yaml#/manufacturer_id'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'

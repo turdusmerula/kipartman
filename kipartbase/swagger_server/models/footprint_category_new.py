@@ -66,8 +66,6 @@ class FootprintCategoryNew(Model):
         :param name: The name of this FootprintCategoryNew.
         :type name: str
         """
-        if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")
 
         self._name = name
 
