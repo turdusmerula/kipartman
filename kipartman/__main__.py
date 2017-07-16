@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-import rest_client2.test
-
 
 import os
 os.sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -20,15 +18,15 @@ import wx
 from frames.main_frame import MainFrame
 import sys
 
+
 def main(args=None):
-    return
     """The main routine."""
     if args is None:
         args = sys.argv[1:]
 
     # Do argument parsing here (eg. with argparse) and anything else
     # you want your project to do.
-
+    
     print "Running kipartman"
     app = wx.App()
     

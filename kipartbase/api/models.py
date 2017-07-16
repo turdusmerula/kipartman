@@ -99,6 +99,7 @@ class Distributor(models.Model):
 class FootprintCategory(MPTTModel):
     parent = TreeForeignKey('FootprintCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     name = models.TextField()
+    description = models.TextField(blank=True, default='')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -137,3 +138,26 @@ class UnitPrefix(models.Model):
     power = models.TextField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
+
+class StorageCategory(MPTTModel):
+    parent = TreeForeignKey('StorageCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+    name = models.TextField()
+    description = models.TextField(blank=True, default='')
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
+
+class StorageLocation(models.Model):
+    category = models.ForeignKey('StorageCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+    name = models.TextField()
+    description = models.TextField(blank=True, default='')
+
+class PartStock(models.Model):
+    part = models.ForeignKey('Part', related_name='stocks', null=False, blank=False, default=None)
+    location = models.ForeignKey('StorageLocation', null=False, blank=False, default=None)
+    quantity = models.IntegerField()
+
+class PartStockHistory(models.Model):
+    part = models.ForeignKey('Part', null=False, blank=False, default=None)
+    location = models.ForeignKey('StorageLocation', null=False, blank=False, default=None)
+    reason = models.TextField(blank=False)
+    amount = models.IntegerField()

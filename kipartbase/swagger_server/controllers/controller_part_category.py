@@ -31,9 +31,9 @@ def serialize_PartCategory(fcategory, category=None):
     path = "/"+fcategory.name
     fparent = fcategory.parent
     while fparent:
-        fparent = fparent.parent
         if fparent:
             path = "/"+fparent.name+path
+        fparent = fparent.parent
     category.path = path
     
     serialize_PartCategoryData(fcategory, category)

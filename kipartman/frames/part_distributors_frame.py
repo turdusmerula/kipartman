@@ -1,8 +1,6 @@
 from dialogs.panel_part_distributors import PanelPartDistributors
 from frames.edit_part_distributor_frame import EditPartDistributorFrame
-from frames.dropdown_dialog import DropdownDialog
 import wx.dataview
-import api.queries
  
 class PartDistributorsDataModel(wx.dataview.PyDataViewModel):
     def __init__(self, part):

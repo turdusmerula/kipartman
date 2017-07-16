@@ -7,8 +7,6 @@ from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
 import wx.lib.newevent
-from api import models
-from api.queries import UnitsQuery, UnitPrefixesQuery, DistributorsQuery, ManufacturersQuery
 import datetime
 import re
 

@@ -1,5 +1,4 @@
 from dialogs.dialog_edit_category import DialogEditCategory
-from api.models import PartCategory
 
 import wx
 

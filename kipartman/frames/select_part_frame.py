@@ -1,5 +1,4 @@
 from dialogs.panel_select_part import PanelSelectPart
-from api.queries import PartsQuery, PartCategoriesQuery
 import wx
 import wx.lib.newevent
 import wx.dataview

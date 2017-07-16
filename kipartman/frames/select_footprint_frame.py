@@ -1,5 +1,4 @@
 from dialogs.panel_select_footprint import PanelSelectFootprint
-from api.queries import FootprintsQuery, FootprintCategoriesQuery
 import wx
 import wx.dataview
 

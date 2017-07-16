@@ -2133,7 +2133,7 @@ class DefaultApi(object):
         :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
-        :return: list[Part]
+        :return: Part
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -2161,7 +2161,7 @@ class DefaultApi(object):
         :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
-        :return: list[Part]
+        :return: Part
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -2225,7 +2225,7 @@ class DefaultApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='list[Part]',
+                                        response_type='Part',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -2246,6 +2246,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param int category: Include offers in answer
         :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
@@ -2273,6 +2274,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param int category: Include offers in answer
         :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
@@ -2281,7 +2283,7 @@ class DefaultApi(object):
                  returns the request thread.
         """
 
-        all_params = ['with_offers', 'with_parameters', 'with_childs']
+        all_params = ['category', 'with_offers', 'with_parameters', 'with_childs']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -2304,6 +2306,8 @@ class DefaultApi(object):
         path_params = {}
 
         query_params = {}
+        if 'category' in params:
+            query_params['category'] = params['category']
         if 'with_offers' in params:
             query_params['with_offers'] = params['with_offers']
         if 'with_parameters' in params:

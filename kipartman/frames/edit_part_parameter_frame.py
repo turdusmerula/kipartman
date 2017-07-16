@@ -1,7 +1,4 @@
 from dialogs.dialog_edit_part_parameter import DialogEditPartParameter
-from api.models import PartParameter
-from api.queries import UnitsQuery, UnitPrefixesQuery
-from rest_client.exceptions import QueryError
 import wx
 
  

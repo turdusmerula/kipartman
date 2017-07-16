@@ -1,8 +1,6 @@
 from dialogs.panel_part_manufacturers import PanelPartManufacturers
 from frames.edit_part_manufacturer_frame import EditPartManufacturerFrame
-from frames.dropdown_dialog import DropdownDialog
 import wx.dataview
-import api.queries
  
 class PartManufacturersDataModel(wx.dataview.PyDataViewModel):
     def __init__(self, part):

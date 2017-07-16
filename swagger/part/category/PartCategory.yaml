@@ -4,6 +4,7 @@ allOf:
   - required:
       - id
       - name
+      - description
     properties:
       id:
         type: integer

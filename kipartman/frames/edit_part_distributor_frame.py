@@ -1,7 +1,4 @@
 from dialogs.dialog_edit_part_distributor import DialogEditPartDistributor
-from api.models import PartDistributor
-from api.queries import DistributorsQuery
-from rest_client.exceptions import QueryError
 import wx
  
 # TODO: switch to a list for currency

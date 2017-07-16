@@ -114,6 +114,11 @@ paths:
       description: Return all parts
       operationId: findParts
       parameters:
+        - name: category
+          in: query
+          description: Include offers in answer
+          type: integer
+          format: int64
         - name: with_offers
           in: query
           description: Include offers in answer
@@ -180,9 +185,7 @@ paths:
         "200":
           description: Categories
           schema:
-            type: array
-            items:
-              $ref: './part/Part.yaml'
+            $ref: './part/Part.yaml'
         default:
           description: unexpected error
           schema:

@@ -188,8 +188,14 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None)
     Return a part
     :param part_id: Part id
     :type part_id: int
+    :param with_offers: Include offers in answer
+    :type with_offers: bool
+    :param with_parameters: Include parameters in answer
+    :type with_parameters: bool
+    :param with_childs: Include childs in answer
+    :type with_childs: bool
 
-    :rtype: List[PartTree]
+    :rtype: Part
     """
     try:
         fpart = api.models.Part.objects.get(pk=part_id)
@@ -202,7 +208,7 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None)
         return e
     return part
 
-def find_parts(with_offers=None, with_parameters=None, with_childs=None):
+def find_parts(category=None, with_offers=None, with_parameters=None, with_childs=None):
     """
     find_parts
     Return all parts
@@ -211,8 +217,13 @@ def find_parts(with_offers=None, with_parameters=None, with_childs=None):
     """
     parts = []
     
+    fpart_request = api.models.Part.objects
+    
+    if category:
+        fpart_request = fpart_request.filter(category=category)
+        
     try:
-        for fpart in api.models.Part.objects.all():
+        for fpart in fpart_request.all():
             parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs))
     except Error as e:
         return e

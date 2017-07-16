@@ -130,6 +130,12 @@ paths:
       description: "Return all parts"
       operationId: "find_parts"
       parameters:
+      - name: "category"
+        in: "query"
+        description: "Include offers in answer"
+        required: false
+        type: "integer"
+        format: "int64"
       - name: "with_offers"
         in: "query"
         description: "Include offers in answer"
@@ -207,9 +213,7 @@ paths:
         200:
           description: "Categories"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Part"
+            $ref: "#/definitions/Part"
         default:
           description: "unexpected error"
           schema:
@@ -977,6 +981,8 @@ definitions:
     type: "object"
     properties:
       name:
+        type: "string"
+      description:
         type: "string"
   PartCategoryRef:
     type: "object"

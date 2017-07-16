@@ -48,10 +48,12 @@ setup(
         'docutils',
         
         # for kipart base
+        'connexion',
+        'python_dateutil',
+        'typing',
+        'setuptools',
         'django',
         'django-mptt',
-        'djangorestframework',
-        'django-filters',
         'Pillow'
     ],
 )

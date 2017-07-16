@@ -1,7 +1,4 @@
 from dialogs.dialog_edit_part_manufacturer import DialogEditPartManufacturer
-from api.models import PartManufacturer
-from api.queries import ManufacturersQuery
-from rest_client.exceptions import QueryError
 import wx
  
 
