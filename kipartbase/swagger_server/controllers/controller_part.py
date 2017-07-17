@@ -83,6 +83,8 @@ def deserialize_PartNew(part, fpart=None):
             fpart.category = api.models.PartCategory.objects.get(pk=part.category.id)
         except:
             return Error(code=1000, message='Category %d does not exists'%part.category.id)
+    else:
+        fpart.category = None
 
     if part.childs:
         fchilds = []
@@ -102,6 +104,9 @@ def deserialize_PartNew(part, fpart=None):
 
     return fpart
 
+def deserialize_Part(part, fpart=None):
+    fpart = deserialize_PartNew(part, fpart)
+    return fpart
 
 def add_part(part):
     """
@@ -246,11 +251,11 @@ def update_part(part_id, part):
     :rtype: Part
     """
     if connexion.request.is_json:
-        part = PartNew.from_dict(connexion.request.get_json())
+        part = Part.from_dict(connexion.request.get_json())
     else:
         return Error(code=1000, message='Missing payload')
     try:
-        fpart = deserialize_PartNew(part, api.models.Part.objects.get(pk=part_id))
+        fpart = deserialize_Part(part, api.models.Part.objects.get(pk=part_id))
     except:
         return Error(code=1000, message='Part %d does not exists'%part_id)
         
@@ -304,4 +309,4 @@ def update_part(part_id, part):
             fpart_manufacturers.append(fpart_manufacturer)
         fpart.manufacturers.set(fpart_manufacturers)
 
-    return part
+    return serialize_Part(fpart)

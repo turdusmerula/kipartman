@@ -199,7 +199,7 @@ paths:
           description: Part to update
           required: true
           schema:
-            $ref: './part/PartNew.yaml'
+            $ref: './part/Part.yaml'
       responses:
         "200":
           description: Updated pärt

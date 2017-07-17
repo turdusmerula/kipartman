@@ -232,7 +232,7 @@ paths:
         description: "Part to update"
         required: true
         schema:
-          $ref: "#/definitions/PartNew"
+          $ref: "#/definitions/Part"
       responses:
         200:
           description: "Updated pärt"
@@ -833,6 +833,10 @@ definitions:
         distributors:
           type: "array"
           items:
+            $ref: "#/definitions/PartDistributor"
+        manufacturers:
+          type: "array"
+          items:
             $ref: "#/definitions/PartManufacturer"
   PartNew:
     allOf:
@@ -1040,6 +1044,19 @@ definitions:
     allOf:
     - $ref: "#/definitions/PartParameterData"
     - {}
+  PartDistributor:
+    allOf:
+    - $ref: "#/definitions/DistributorData"
+    - required:
+      - "id"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        offers:
+          type: "array"
+          items:
+            $ref: "#/definitions/PartOffer"
   PartManufacturer:
     allOf:
     - $ref: "#/definitions/ManufacturerData"
@@ -1057,19 +1074,6 @@ definitions:
       id:
         type: "integer"
         format: "int64"
-  PartDistributor:
-    allOf:
-    - $ref: "#/definitions/DistributorData"
-    - required:
-      - "id"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        offers:
-          type: "array"
-          items:
-            $ref: "#/definitions/PartOffer"
   PartParameterData:
     type: "object"
     properties:

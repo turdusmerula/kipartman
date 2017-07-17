@@ -3423,7 +3423,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int part_id: Part id (required)
-        :param PartNew part: Part to update (required)
+        :param Part part: Part to update (required)
         :return: Part
                  If the method is called asynchronously,
                  returns the request thread.
@@ -3449,7 +3449,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int part_id: Part id (required)
-        :param PartNew part: Part to update (required)
+        :param Part part: Part to update (required)
         :return: Part
                  If the method is called asynchronously,
                  returns the request thread.

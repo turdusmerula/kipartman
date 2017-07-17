@@ -126,7 +126,7 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer12.Add( bSizer11, 0, wx.EXPAND, 5 )
 		
-		self.tree_parts = wx.dataview.DataViewCtrl( self.panel_parts, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_MULTIPLE )
+		self.tree_parts = wx.dataview.DataViewCtrl( self.panel_parts, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer12.Add( self.tree_parts, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		

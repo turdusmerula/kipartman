@@ -72,7 +72,6 @@ import wx
 #         self.frame._loadParts()
 #         return wx.DragMove
 
-
 class DataModelCategory(helper.tree.TreeContainerItem):
     def __init__(self, category):
         super(DataModelCategory, self).__init__()
@@ -89,7 +88,7 @@ class DataModelCategory(helper.tree.TreeContainerItem):
         attr.Bold = True
         return True
 
-    def DoDrag(self):
+    def GetDragData(self):
         return {'id': self.category.id}
     
 class DataModelCategoryPath(helper.tree.TreeContainerItem):
@@ -140,6 +139,58 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
         for child in part.childs:
             manager.AppendItem(self, DataModelPart(child))
 
+    def GetDragData(self):
+        if isinstance(self.parent, DataModelCategoryPath):
+            return {'id': self.part.id}
+        return None
+
+
+class TreeManagerParts(helper.tree.TreeManager):
+    def __init__(self, tree_view):
+        super(TreeManagerParts, self).__init__(tree_view)
+
+    def FindPart(self, part_id):
+        for data in self.data:
+            if isinstance(data, DataModelPart) and isinstance(data.parent, DataModelCategoryPath) and data.part.id==part_id:
+                return data
+        return None
+    
+    def FindCategoryPath(self, category):
+        if category:
+            for data in self.data:
+                if isinstance(data, DataModelCategoryPath) and data.category.id==category.id:
+                    return data
+        else:
+            for data in self.data:
+                if isinstance(data, DataModelCategoryPath) and data.category is None:
+                    return data
+        return None
+    
+    def DeletePart(self, part):
+        partobj = self.FindPart(part.id)
+        if partobj is None:
+            return
+        categoryobj = partobj.parent
+        self.DeleteItem(partobj.parent, partobj)
+        if categoryobj and len(categoryobj.childs)==0:
+            self.DeleteItem(categoryobj.parent, categoryobj)
+
+    def AppendCategoryPath(self, category):
+        categoryobj = self.FindCategoryPath(category)
+        if categoryobj:
+            return categoryobj
+        categoryobj = DataModelCategoryPath(category)
+        self.AppendItem(None, categoryobj)
+        return categoryobj
+    
+    def AppendPart(self, part):
+        categoryobj = self.AppendCategoryPath(part.category)
+        partobj = DataModelPart(part)
+        self.AppendItem(categoryobj, partobj)
+        self.Expand(categoryobj)
+        return partobj
+    
+        
 class PartsFrame(PanelParts): 
     def __init__(self, parent): 
         super(PartsFrame, self).__init__(parent)
@@ -149,12 +200,13 @@ class PartsFrame(PanelParts):
         self.tree_categories_manager.AddTextColumn("name")
         self.tree_categories_manager.AddTextColumn("description")
         self.tree_categories_manager.DropAccept(DataModelCategory, self.onTreeCategoriesDropCategory)
+        self.tree_categories_manager.DropAccept(DataModelPart, self.onTreeCategoriesDropPart)
         self.tree_categories_manager.OnSelectionChanged = self.onTreeCategoriesSelChanged
         # parts filters
         self.parts_filter = Filter(self.filters_panel, self.onButtonRemoveFilterClick)
         
         # create parts list
-        self.tree_parts_manager = helper.tree.TreeManager(self.tree_parts)
+        self.tree_parts_manager = TreeManagerParts(self.tree_parts)
         self.tree_parts_manager.AddIntegerColumn("id")
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
@@ -330,14 +382,12 @@ class PartsFrame(PanelParts):
         # apply new filter and reload
         self.loadParts()
 
-    def onTreeCategoriesDropCategory(self, x, y, data, source_categoryitem):
-        print "onTreeCategoriesDropCategory"
+    def onTreeCategoriesDropCategory(self, x, y, data):
         dest_categoryitem, _ = self.tree_categories.HitTest((x, y))
-        
         try:
             source_category_id = data['id']
             source_category = rest.api.find_parts_category(source_category_id)
-            
+            source_categoryitem = helper.tree.TreeManager.drag_item
             source_categoryobj = self.tree_categories_manager.ItemToObject(source_categoryitem)
     
             dest_category = None
@@ -351,21 +401,45 @@ class PartsFrame(PanelParts):
             else:
                 # set if as root category
                 source_category.parent = None
-
-            category = rest.api.update_parts_category(source_category.id, source_category)
             
+            # update on server
+            category = rest.api.update_parts_category(source_category.id, source_category)
+
             # update tree model
-            print "--"
-#            self.tree_categories_manager.MoveItem(source_categoryobj.parent, dest_categoryobj, source_categoryobj)
-#            self.tree_categories_manager.AppendItem(dest_categoryobj, DataModelCategory(category))
-            print "++"
             if source_categoryobj:
                 self.tree_categories_manager.MoveItem(source_categoryobj.parent, dest_categoryobj, source_categoryobj)
-            print "**"
         except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
         return wx.DragMove
+
+    def onTreeCategoriesDropPart(self, x, y, data):
+        dest_categoryitem, _ = self.tree_categories.HitTest((x, y))
+
+        try:
+            source_part_id = data['id']
+            source_part = rest.api.find_part(source_part_id)
+
+            dest_category = None
+            dest_categoryobj = None
+            if dest_categoryitem.IsOk():
+                dest_categoryobj = self.tree_categories_manager.ItemToObject(dest_categoryitem)
+                dest_category = dest_categoryobj.category
+                source_part.category = rest.model.PartCategoryRef(id=dest_category.id)
+            else:
+                # set if as root category
+                source_part.category = None
+            
+            # update on server
+            part = rest.api.update_part(source_part.id, source_part)
+            
+            # update tree model
+            self.tree_parts_manager.DeletePart(source_part)
+            self.tree_parts_manager.AppendPart(part)
+        except Exception as e:
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+        return wx.DragMove
+
 
     def onEditPartApply( self, event ):
         part = event.data
