@@ -73,9 +73,7 @@ paths:
         200:
           description: "Categories"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/PartCategory"
+            $ref: "#/definitions/PartCategory"
         default:
           description: "unexpected error"
           schema:
@@ -132,7 +130,7 @@ paths:
       parameters:
       - name: "category"
         in: "query"
-        description: "Include offers in answer"
+        description: "Filter by category"
         required: false
         type: "integer"
         format: "int64"

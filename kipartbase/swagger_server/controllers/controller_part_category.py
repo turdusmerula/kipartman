@@ -18,6 +18,7 @@ def serialize_PartCategoryData(fcategory, category=None):
     if category is None:
         category = PartCategoryData()
     category.name = fcategory.name
+    category.description = fcategory.description
     return category
 
 def serialize_PartCategory(fcategory, category=None):
@@ -44,6 +45,7 @@ def deserialize_PartCategoryData(category, fcategory=None):
     if fcategory is None:
         fcategory = api.models.PartCategory()
     fcategory.name = category.name
+    fcategory.description = category.description
     return fcategory
 
 def deserialize_PartCategory(category, fcategory=None):
@@ -154,7 +156,7 @@ def find_parts_category(category_id):
     :param category_id: Category id
     :type category_id: int
 
-    :rtype: List[PartCategoryTree]
+    :rtype: PartCategory
     """
     id_fcategory_map = {} # map of id to container
 
@@ -188,6 +190,7 @@ def update_parts_category(category_id, category):
     except:
         return Error(code=1000, message='Category %d does not exists'%category_id)
     
+    print "---", category
     if category.parent:
         # check that instance will not be child of itself
         # TODO: with mptt there is surely a non recursive way to do this
@@ -204,7 +207,9 @@ def update_parts_category(category_id, category):
                 fparent = api.models.PartCategory.objects.get(pk=fparent.parent.pk)
             else:
                 fparent = None
-                
+    else:
+        fcategory.parent = None
+    
     fcategory.save()
     
     return serialize_PartCategory(fcategory)

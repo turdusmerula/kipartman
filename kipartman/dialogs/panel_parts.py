@@ -156,11 +156,6 @@ class PanelParts ( wx.Panel ):
 		self.button_edit_category.Bind( wx.EVT_BUTTON, self.onButtonEditCategoryClick )
 		self.button_remove_category.Bind( wx.EVT_BUTTON, self.onButtonRemoveCategoryClick )
 		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onButtonRefreshCategoriesClick )
-		self.tree_categories.Bind( wx.dataview.EVT_DATAVIEW_ITEM_BEGIN_DRAG, self.onTreeCategoriesItemBeginDrag, id = wx.ID_ANY )
-		self.tree_categories.Bind( wx.dataview.EVT_DATAVIEW_ITEM_COLLAPSED, self.onTreeCategoriesItemCollapsed, id = wx.ID_ANY )
-		self.tree_categories.Bind( wx.dataview.EVT_DATAVIEW_ITEM_DROP, self.onTreeCategoriesItemDrop, id = wx.ID_ANY )
-		self.tree_categories.Bind( wx.dataview.EVT_DATAVIEW_ITEM_EXPANDED, self.onTreeCategoriesItemExpanded, id = wx.ID_ANY )
-		self.tree_categories.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeCategoriesSelectionChanged, id = wx.ID_ANY )
 		self.button_add_part.Bind( wx.EVT_BUTTON, self.onButtonAddPartClick )
 		self.button_edit_part.Bind( wx.EVT_BUTTON, self.onButtonEditPartClick )
 		self.button_remove_part.Bind( wx.EVT_BUTTON, self.onButtonRemovePartClick )
@@ -185,21 +180,6 @@ class PanelParts ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonRefreshCategoriesClick( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesItemBeginDrag( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesItemCollapsed( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesItemDrop( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesItemExpanded( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesSelectionChanged( self, event ):
 		event.Skip()
 	
 	def onButtonAddPartClick( self, event ):

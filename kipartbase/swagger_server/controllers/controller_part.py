@@ -220,7 +220,11 @@ def find_parts(category=None, with_offers=None, with_parameters=None, with_child
     fpart_request = api.models.Part.objects
     
     if category:
-        fpart_request = fpart_request.filter(category=category)
+        # extract category
+        categories = api.models.PartCategory.objects.get(pk=int(category)).get_descendants(include_self=True)
+        category_ids = [category.id for category in categories]
+        # add a category filter
+        fpart_request = fpart_request.filter(category__in=category_ids)
         
     try:
         for fpart in fpart_request.all():

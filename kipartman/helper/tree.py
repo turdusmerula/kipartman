@@ -1,5 +1,6 @@
 import wx.dataview
 #import wx.dataview.DataViewTreeCtrl
+import json
 
 class Tree:
     def __init__(self, tree):
@@ -43,7 +44,9 @@ class TreeItem(object):
     def HasContainerColumns(self):
         return True
 
-
+    def DoDrag(self):
+        return None
+    
 class TreeContainerItem(TreeItem):
     def __init__(self):
         super(TreeContainerItem, self).__init__()
@@ -93,19 +96,18 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return self.columns_type[col]
 
     def GetChildren(self, item, children):
-        #print "TreeModel.GetChildren"
         if not item:
             for node in self.root_nodes:
                 children.append(self.ObjectToItem(node))
             return len(self.root_nodes)
-        #print "------------"
         obj = self.ItemToObject(item)
+        if obj is None or obj.childs is None:
+            return 0
         for node in obj.childs:
             children.append(self.ObjectToItem(node))
         return len(obj.childs)
     
     def IsContainer(self, item):
-        #print "TreeModel.IsContainer"
         if not item:
             return True
         obj = self.ItemToObject(item)
@@ -118,18 +120,16 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return obj.HasContainerColumns()
 
     def GetParent(self, item):
-        #print "TreeModel.GetParent"
         if not item:
             return wx.dataview.NullDataViewItem
         obj = self.ItemToObject(item)
-        #print "--", obj
+        if obj is None:
+            return wx.dataview.NullDataViewItem
         if obj.GetParent():
             return self.ObjectToItem(obj.GetParent())
-        #print "--"
-        return  wx.dataview.NullDataViewItem
+        return wx.dataview.NullDataViewItem
     
     def GetValue(self, item, col):
-        #print "TreeModel.GetValue"
         obj = self.ItemToObject(item)
         value = obj.GetValue(col)
         if value is None:
@@ -144,12 +144,38 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return obj.GetAttr(col, attr)
 
 
+class TreeDropTarget(wx.TextDropTarget):
+    def __init__(self, manager):
+        super(TreeDropTarget, self).__init__()
+        self.manager = manager
+
+    #TODO: set drag cursor depending on accept/reject drop
+    def OnDropText(self, x, y, text):
+        print "OnDropText", text
+        payload = json.loads(text)
+        for target in self.manager.drop_targets:
+            if payload['type']==target['type']:
+                return target['trigger'](x, y, payload['data'], self.manager.drag_item)
+        return wx.DragError
+
+class TreeDataObject(wx.TextDataObject):
+    def __init__(self, data): 
+        super(TreeDataObject, self).__init__()
+        self.data = data
+        self.SetText(json.dumps({'type': data.__class__.__name__, 'data': data.DoDrag()}))
+
 class TreeManager(object):
     def __init__(self, tree_view):
         self.tree_view = tree_view
 
         self.model = TreeModel()
         self.tree_view.AssociateModel(self.model)
+
+        # create drag and drop targets
+        self.drop_targets = []
+        self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
+        self.tree_view.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
+        self.tree_view.SetDropTarget(TreeDropTarget(self))
 
         self.OnColumnHeaderClick = None
         self.OnColumnHeaderRightClick = None
@@ -188,80 +214,100 @@ class TreeManager(object):
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_START_EDITING, self._onItemStartEditing, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self._onItemValueChanged, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self._onSelectionChanged, id = wx.ID_ANY )
-    
+
     def _onColumnHeaderClick( self, event ):
+        event.manager = self
         if self.OnColumnHeaderClick:
             return self.OnColumnHeaderClick(event)
         event.Skip()
     
     def _onColumnHeaderRightClick( self, event ):
+        event.manager = self
         if self.OnColumnHeaderRightClick:
             return self.OnColumnHeaderRightClick(event)
         event.Skip()
     
     def _onColumnReordered( self, event ):
+        event.manager = self
         if self.OnColumnReordered:
             return self.OnColumnReordered(event)
         event.Skip()
     
     def _onColumnSorted( self, event ):
+        event.manager = self
         if self.OnColumnSorted:
             return self.OnColumnSorted(event)
         event.Skip()
     
     def _onItemActivated( self, event ):
+        event.manager = self
         if self.OnItemActivated:
             return self.OnItemActivated(event)
         event.Skip()
     
     def _onItemBeginDrag( self, event ):
+        event.manager = self
+        
+        self.drag_item = event.GetItem()
+        data = TreeDataObject(self.model.ItemToObject(event.GetItem()))
+        event.SetDataObject(data)
+        
         if self.OnItemBeginDrag:
             return self.OnItemBeginDrag(event)
-        event.Skip()
+        #event.Skip()
     
     def _onItemCollapsed( self, event ):
+        event.manager = self
         if self.OnItemCollapsed:
             return self.OnItemCollapsed(event)
         event.Skip()
     
     def _onItemCollapsing( self, event ):
+        event.manager = self
         if self.OnItemCollapsing:
             return self.OnItemCollapsing(event)
         event.Skip()
     
     def _onItemContextMenu( self, event ):
+        event.manager = self
         if self.OnItemContextMenu:
             return self.OnItemContextMenu(event)
         event.Skip()
     
     def _onItemDrop( self, event ):
+        print "_onItemDrop"
+        event.manager = self
         if self.OnItemDrop:
             return self.OnItemDrop(event)
         event.Skip()
     
     def _onItemDropPossible( self, event ):
+        print "_onItemDropPossible"
+        event.manager = self
         if self.OnItemDropPossible:
             return self.OnItemDropPossible(event)
         event.Skip()
     
     def _onItemEditingDone( self, event ):
+        event.manager = self
         if self.OnItemEditingDone:
             return self.OnItemEditingDone(event)
         event.Skip()
     
     def _onItemEditingStarted( self, event ):
+        event.manager = self
         if self.OnItemEditingStarted:
             return self.OnItemEditingStarted(event)
         event.Skip()
     
     def _onItemExpanded( self, event ):
-        print "_onItemExpanded"
+        event.manager = self
         if self.OnItemExpanded:
             return self.OnItemExpanded(event)
         event.Skip()
     
     def _onItemExpanding( self, event ):
-        print "_onItemExpanding", event
+        event.manager = self
         item = event.GetItem()
         obj = self.model.ItemToObject(item)
         if isinstance(obj, TreeContainerLazyItem):
@@ -272,16 +318,19 @@ class TreeManager(object):
         event.Skip()
     
     def _onItemStartEditing( self, event ):
+        event.manager = self
         if self.OnItemStartEditing:
             return self.OnItemStartEditing(event)
         event.Skip()
     
     def _onItemValueChanged( self, event ):
+        event.manager = self
         if self.OnItemValueChanged:
             return self.OnItemValueChanged(event)
         event.Skip()
     
     def _onSelectionChanged( self, event ):
+        event.manager = self
         if self.OnSelectionChanged:
             return self.OnSelectionChanged(event)
         event.Skip()
@@ -318,12 +367,48 @@ class TreeManager(object):
             object.parent = parent
 #            #print self.model.ObjectToItem(parent), self.model.ObjectToItem(item)
             #print "++ ItemAdded"
-            self.model.ItemChanged(self.model.ObjectToItem(parent))
             self.model.ItemAdded(self.model.ObjectToItem(parent), self.model.ObjectToItem(object))
             #print "-- ItemAdded"
         else:
             object.parent = None
             self.model.root_nodes.append(object)
             self.model.ItemAdded(wx.dataview.NullDataViewItem, self.model.ObjectToItem(object))
-#        return self.model.ObjectToItem(object)
+        return self.model.ObjectToItem(object)
 
+    def UpdateItem(self, object):
+        self.model.ItemChanged(self.model.ObjectToItem(object))
+        
+    def DeleteItem(self, parent, object):
+        object.parent = parent
+        if parent:
+            self.model.ItemDeleted(self.model.ObjectToItem(parent), self.model.ObjectToItem(object))
+        else:
+            self.model.ItemDeleted(wx.dataview.NullDataViewItem, self.model.ObjectToItem(object))
+            
+    def MoveItem(self, source_parent, dest_parent, object):
+        self.DeleteItem(source_parent, object)
+        self.AppendItem(dest_parent, object)
+        
+    def Expand(self, object):
+        item = self.model.ObjectToItem(object)
+        if item:
+            self.tree_view.Expand(item)
+    
+    def Select(self, object):
+        item = self.model.ObjectToItem(object)
+        if item:
+            self.tree_view.Select(item)
+            self.tree_view.SetCurrentItem(item)
+        
+    def SelectItem(self, item):
+        self.tree_view.Select(item)
+        self.tree_view.SetCurrentItem(item)
+
+    def Sort(self):
+        self.model.Resort()
+
+    def ItemToObject(self, item):
+        return self.model.ItemToObject(item)
+    
+    def DropAccept(self, type, trigger):
+        self.drop_targets.append({'type': type.__name__, 'trigger': trigger})
