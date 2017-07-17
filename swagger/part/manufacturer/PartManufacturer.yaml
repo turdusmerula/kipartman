@@ -7,3 +7,5 @@ allOf:
       id:
         type: integer
         format: int64
+      part_name:
+        type: string

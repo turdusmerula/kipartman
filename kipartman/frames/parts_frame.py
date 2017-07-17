@@ -211,6 +211,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
         self.tree_parts_manager.AddIntegerColumn("comment")
+        self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
         # 
         # create edit part panel
         self.panel_edit_part = EditPartFrame(self.part_splitter)
@@ -286,7 +287,12 @@ class PartsFrame(PanelParts):
         except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-    def show_part(self, part):
+    def show_part(self, partobj):
+        part = None
+        if partobj:
+            # read whole part from server
+            partobj.part = rest.api.find_part(partobj.part.id, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True)
+            part = partobj.part
         # disable editing
         self.panel_edit_part.enable(False)
         # enable evrything else
@@ -441,6 +447,14 @@ class PartsFrame(PanelParts):
         return wx.DragMove
 
 
+    def onTreePartsSelChanged( self, event ):
+        print "rrrr"
+        item = self.tree_parts.GetSelection()
+        part = None
+        if item.IsOk():
+            partobj = self.tree_parts_manager.ItemToObject(item)
+        self.show_part(partobj)
+
     def onEditPartApply( self, event ):
         part = event.data
         try:
@@ -478,54 +492,6 @@ class PartsFrame(PanelParts):
 
 
 
-#     
-#             
-# # 
-#             
-# 
-# #     def onTreeCategoriesOnChar( self, event ):
-# #         keycode = event.GetKeyCode()
-# #         if keycode == wx.WXK_SPACE:
-# #             sel = self.tree_categories.GetSelection()
-# #             # unselect current item
-# #             self.tree_categories.SelectItem(self.tree_categories.RootItem)
-# #             # update state
-# #             self.part_categories_state.update(sel)
-# #             self.part_categories_state.update(self.tree_categories.RootItem)            
-# #         event.Skip()
-# # 
-# #     def onTreeCategoriesSelChanging( self, event ):
-# #         item = self.tree_categories.GetSelection()
-# #         self.part_categories_state.update(item, selected=False)
-# #         
-# # 
-# # 
-# #     def onTreeCategoriesCollapsed( self, event ):
-# #         self.part_categories_state.update(event.GetItem(), expanded=False)
-# #         event.Skip()
-# #     
-# #     def onTreeCategoriesExpanded( self, event ):
-# #         self.part_categories_state.update(event.GetItem(), expanded=True)
-# #         event.Skip()
-# #         
-# #     def onTreeCategoriesBeginDrag( self, event ):
-# #         category = self.tree_categories.GetItemData(event.GetItem())
-# #         data = PartCategoryDataObject(category)
-# #         dropSource = wx.DropSource(self)
-# #         dropSource.SetData(data)
-# #         result = dropSource.DoDragDrop(flags=wx.Drag_DefaultMove)
-# #         print type(result)
-# #         if result==wx.DragCopy:
-# # #            CopyPartCategory()
-# #             pass
-# #         elif result==wx.DragMove:
-# # #            MoveMyData()
-# #             pass
-# # 
-# #     def onTreeCategoriesEndDrag( self, event ):
-# #         event.Allow()
-# 
-# 
 #     def onButtonAddPartClick( self, event ):
 #         self.edit_state = 'add'
 #         self.new_part()

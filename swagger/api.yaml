@@ -129,6 +129,14 @@ paths:
           in: query
           description: Include childs in answer
           type: boolean
+        - name: with_distributors
+          in: query
+          description: Include distributors in answer
+          type: boolean
+        - name: with_manufacturers
+          in: query
+          description: Include manufacturers in answer
+          type: boolean
       responses:
         "200":
           description: List of parts
@@ -178,6 +186,14 @@ paths:
         - name: with_childs
           in: query
           description: Include childs in answer
+          type: boolean
+        - name: with_distributors
+          in: query
+          description: Include distributors in answer
+          type: boolean
+        - name: with_manufacturers
+          in: query
+          description: Include manufacturers in answer
           type: boolean
       responses:
         "200":

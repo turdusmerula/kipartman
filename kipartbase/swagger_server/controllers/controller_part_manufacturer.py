@@ -15,7 +15,8 @@ import api.models
 def serialize_PartManufacturer(fmanufacturer, part_manufacturer=None):
     if part_manufacturer is None:
         part_manufacturer = PartManufacturer()
-    serialize_Manufacturer(fmanufacturer, part_manufacturer)
+    serialize_Manufacturer(fmanufacturer.manufacturer, part_manufacturer)
+    part_manufacturer.part_name = fmanufacturer.part_name
     return part_manufacturer
 
     
@@ -26,14 +27,14 @@ def find_part_manufacturers(part_id):
 
     :rtype: List[Manufacturer]
     """
-    manufacturers_id = []
-    
-    for fmanufacturer in api.models.PartOffer.objects.filter(part=part_id).values('manufacturer').distinct():
-        manufacturers_id.append(fmanufacturer['manufacturer'])
-    
     manufacturers = []
-    for fmanufacturer in api.models.Manufacturer.objects.filter(pk__in=manufacturers_id).all():
-        manufacturer = serialize_PartManufacturer(fmanufacturer)
-        manufacturers.append(manufacturer)
+
+    try:
+        fpart = api.models.Part.objects.get(pk=part_id)
+    except:
+        return Error(code=1000, message='Part %d does not exists'%part_id)
+    
+    for fmanufacturer in fpart.manufacturers.all():
+        manufacturers.append(serialize_PartManufacturer(fmanufacturer))
 
     return manufacturers

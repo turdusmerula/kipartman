@@ -13,6 +13,7 @@ from .footprint_category_new import FootprintCategoryNew
 from .footprint_category_ref import FootprintCategoryRef
 from .footprint_data import FootprintData
 from .footprint_new import FootprintNew
+from .footprint_ref import FootprintRef
 from .manufacturer import Manufacturer
 from .manufacturer_data import ManufacturerData
 from .manufacturer_new import ManufacturerNew

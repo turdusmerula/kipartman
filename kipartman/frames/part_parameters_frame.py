@@ -1,82 +1,59 @@
 from dialogs.panel_part_parameters import PanelPartParameters
 from frames.edit_part_parameter_frame import EditPartParameterFrame
-import wx.dataview
+import helper.tree
 
-class PartParametersDataModel(wx.dataview.PyDataViewModel):
-    def __init__(self, part):
-        super(PartParametersDataModel, self).__init__()
-        if part:
-            self.data = part.parameters
-        else:
-            self.data = []
-    def GetColumnCount(self):
-        return 6
+class DataModelPartParameter(helper.tree.TreeContainerItem):
+    def __init__(self, parameter):
+        super(DataModelPartParameter, self).__init__()
+        self.parameter = parameter
 
-    def GetColumnType(self, col):
-        mapper = { 
-            0 : 'string',
-            1 : 'string',
-            2 : 'string',
-            3 : 'string',
-            4 : 'string',
-            5 : 'string',
-         }
-        return mapper[col]
+    def value_string(self, value, prefix, unit):
+        res = ""
+        if value is None:
+            return res
+        res = res+"%g"%value+" "
+        if not prefix is None:
+            res = res+prefix.symbol
+        if not unit is None:
+            res = res+unit.symbol
+        return res
 
-    def GetChildren(self, parent, children):
-        # check root node
-        if not parent:
-            for octopart in self.data:
-                children.append(self.ObjectToItem(octopart))
-            return len(self.data)
-        return 0
-    
-    def IsContainer(self, item):
-        return False
+    def min_string(self):
+        return self.value_string(self.parameter.min_value, self.parameter.min_prefix, self.parameter.unit)
+    def nom_string(self):
+        return self.value_string(self.parameter.nom_value, self.parameter.nom_prefix, self.parameter.unit)
+    def max_string(self):
+        return self.value_string(self.parameter.max_value, self.parameter.max_prefix, self.parameter.unit)
 
-    def HasContainerColumns(self, item):
-        return True
-
-    def GetParent(self, item):
-        return wx.dataview.NullDataViewItem
-    
-    def GetValue(self, item, col):
-        obj = self.ItemToObject(item)
-        if obj.numeric==True:
-            vMap = { 
-                0 : obj.name,
-                1 : obj.min_string(),
-                2 : obj.nom_string(),
-                3 : obj.max_string(),
-                4 : obj.unit_string(),
-                5 : obj.description,
-            }
-        else:
-            vMap = { 
-                0 : obj.name,
-                1 : "",
-                2 : obj.text_value,
-                3 : "",
-                4 : obj.unit_string(),
-                5 : obj.description,
-            }
-            
-        if vMap[col] is None:
+    def unit_string(self):
+        if self.parameter.unit is None:
             return ""
+        return self.parameter.unit.name
+
+    def GetValue(self, col):
+        if self.parameter.numeric==True:
+            vMap = { 
+                0 : self.parameter.name,
+                1 : self.min_string(),
+                2 : self.nom_string(),
+                3 : self.max_string(),
+                4 : self.unit_string(),
+                5 : self.parameter.description,
+            }
+        else:
+            vMap = { 
+                0 : self.parameter.name,
+                1 : "",
+                2 : self.parameter.text_value,
+                3 : "",
+                4 : self.unit_string(),
+                5 : self.parameter.description,
+            }
         return vMap[col]
 
-    def SetValue(self, value, item, col):
-        pass
-    
-    def GetAttr(self, item, col, attr):
+    def IsContainer(self):
         return False
 
-#     def HasDefaultCompare(self):
-#         return False
-#     
-#     def Compare(self, item1, item2, column, ascending):
-        #TODO allow sort integer columns properly
-            
 class PartParametersFrame(PanelPartParameters):
     def __init__(self, parent): 
         """
@@ -86,18 +63,14 @@ class PartParametersFrame(PanelPartParameters):
         """
         super(PartParametersFrame, self).__init__(parent)
 
-        # create octoparts list
-        self.parameters_model = PartParametersDataModel(None)
-        self.tree_parameters.AssociateModel(self.parameters_model)
-        # add default columns
-        self.tree_parameters.AppendTextColumn("Parameter", 0, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parameters.AppendTextColumn("Min Value", 1, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parameters.AppendTextColumn("Nominal Value", 2, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parameters.AppendTextColumn("Max Value", 3, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parameters.AppendTextColumn("Unit", 4, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parameters.AppendTextColumn("Description", 5, width=wx.COL_WIDTH_AUTOSIZE)
-        for c in self.tree_parameters.Columns:
-            c.Sortable = True
+        # create parameters list
+        self.tree_parameters_manager = helper.tree.TreeManager(self.tree_parameters)
+        self.tree_parameters_manager.AddTextColumn("Parameter")
+        self.tree_parameters_manager.AddTextColumn("Min Value")
+        self.tree_parameters_manager.AddTextColumn("Nominal Value")
+        self.tree_parameters_manager.AddTextColumn("Max Value")
+        self.tree_parameters_manager.AddTextColumn("Unit")
+        self.tree_parameters_manager.AddTextColumn("Description")
 
         # set result functions
         self.cancel = None
@@ -113,13 +86,8 @@ class PartParametersFrame(PanelPartParameters):
         self.cancel = cancel
     
     def SetPart(self, part):
-        # array of changes to apply
-        self.create_list = []
-        self.update_list = []
-        self.remove_list = []
-
         self.part = part
-        self._showParameters()
+        self.showParameters()
     
     def enable(self, enabled=True):
         self.button_add_parameter.Enabled = enabled
@@ -168,11 +136,12 @@ class PartParametersFrame(PanelPartParameters):
                     self.part.parameters.remove(param)
                     
 
-    def _showParameters(self):
-        # apply new filter and reload
-        self.parameters_model.Cleared()
-        self.parameters_model = PartParametersDataModel(self.part)
-        self.tree_parameters.AssociateModel(self.parameters_model)
+    def showParameters(self):
+        self.tree_parameters_manager.ClearItems()
+
+        if self.part and self.part.parameters:
+            for parameter in self.part.parameters:
+                self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(parameter))
     
     def ApplyChanges(self, part):
         for param in self.remove_list:

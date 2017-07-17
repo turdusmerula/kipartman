@@ -20,6 +20,8 @@ from swagger_server.controllers.controller_manufacturer import deserialize_Manuf
 from swagger_server.controllers.controller_part_offer import deserialize_PartOffer
 
 import api.models
+from swagger_server.controllers.controller_footprint import find_footprint
+from swagger_server.controllers.controller_part_manufacturer import find_part_manufacturers
 #import jsonpickle
 
 def serialize_PartData(fpart, part=None, with_parameters=True):
@@ -32,20 +34,19 @@ def serialize_PartData(fpart, part=None, with_parameters=True):
         part.octopart = fpart.octopart
     if fpart.updated:
         part.updated = fpart.updated
-    #part.footprint
     if fpart.id and with_parameters:
         part.parameters = find_part_parameters(fpart.id)
-    #parameters
-    #manufacturers
     return part
 
-def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, with_childs=True):
+def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True):
     if part is None:
         part = Part()
     part.id = fpart.id
     serialize_PartData(fpart, part, with_parameters)
     if fpart.category:
         part.category = find_parts_category(fpart.category.id)
+    if fpart.footprint:
+        part.footprint = find_footprint(fpart.footprint.id)
     # extract childs
     if with_childs:
         part.childs = []
@@ -53,9 +54,12 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
             part.childs.append(find_part(fchild.id))
     part.has_childs = (fpart.childs.count()>0)
     
-    if with_offers:
+    if with_distributors:
         part.distributors = find_part_distributors(fpart.id)
     
+    if with_manufacturers:
+        part.manufacturers = find_part_manufacturers(fpart.id)
+
     return part
 
 
@@ -70,9 +74,6 @@ def deserialize_PartData(part, fpart=None):
         fpart.octopart
     if part.updated:
         fpart.updated
-    #parameters
-    #distributors
-    #manufacturers
     return fpart
 
 
@@ -187,7 +188,7 @@ def delete_part(part_id):
     return None
 
 
-def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None):
+def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None):
     """
     find_part
     Return a part
@@ -199,6 +200,10 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None)
     :type with_parameters: bool
     :param with_childs: Include childs in answer
     :type with_childs: bool
+    :param with_distributors: Include distributors in answer
+    :type with_distributors: bool
+    :param with_manufacturers: Include manufacturers in answer
+    :type with_manufacturers: bool
 
     :rtype: Part
     """
@@ -208,15 +213,27 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None)
         return Error(code=1000, message='Part %d does not exists'%part_id)
     
     try:
-        part = serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs)
+        part = serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers)
     except Error as e:
         return e
     return part
 
-def find_parts(category=None, with_offers=None, with_parameters=None, with_childs=None):
+def find_parts(category=None, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None):
     """
     find_parts
     Return all parts
+    :param category: Filter by category
+    :type category: int
+    :param with_offers: Include offers in answer
+    :type with_offers: bool
+    :param with_parameters: Include parameters in answer
+    :type with_parameters: bool
+    :param with_childs: Include childs in answer
+    :type with_childs: bool
+    :param with_distributors: Include distributors in answer
+    :type with_distributors: bool
+    :param with_manufacturers: Include manufacturers in answer
+    :type with_manufacturers: bool
 
     :rtype: List[Part]
     """
@@ -233,7 +250,7 @@ def find_parts(category=None, with_offers=None, with_parameters=None, with_child
         
     try:
         for fpart in fpart_request.all():
-            parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs))
+            parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers))
     except Error as e:
         return e
 

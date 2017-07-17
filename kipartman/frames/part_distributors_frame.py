@@ -1,78 +1,41 @@
 from dialogs.panel_part_distributors import PanelPartDistributors
 from frames.edit_part_distributor_frame import EditPartDistributorFrame
-import wx.dataview
- 
-class PartDistributorsDataModel(wx.dataview.PyDataViewModel):
-    def __init__(self, part):
-        super(PartDistributorsDataModel, self).__init__()
-        if part:
-            self.data = part.distributors
-        else:
-            self.data = []
-            
-    def GetColumnCount(self):
-        return 6
+import helper.tree
 
-    def GetColumnType(self, col):
-        mapper = { 
-            0 : 'string',
-            1 : 'long',
-            2 : 'long',
-            3 : 'float',
-            4 : 'float',
-            5 : 'string',
-            6 : 'string',
-         }
-        return mapper[col]
+class DataModelDistributor(helper.tree.TreeContainerItem):
+    def __init__(self, distributor):
+        super(DataModelDistributor, self).__init__()
+        self.distributor = distributor
 
-    def GetChildren(self, parent, children):
-        # check root node
-        if not parent:
-            for distributor in self.data:
-                children.append(self.ObjectToItem(distributor))
-            return len(self.data)
-        return 0
-    
-    def IsContainer(self, item):
-        return False
+    def GetValue(self, col):
+        if col==0:
+            return self.distributor.name
+        return ''
 
-    def HasContainerColumns(self, item):
+    def GetAttr(self, col, attr):
+        attr.Bold = True
         return True
 
-    def GetParent(self, item):
-        return wx.dataview.NullDataViewItem
+class DataModelOffer(helper.tree.TreeItem):
+    def __init__(self, offer):
+        super(DataModelOffer, self).__init__()
+        self.offer = offer
+
+    def item_price(self):
+        return self.offer.unit_price*self.offer.packaging_unit
     
-    def GetValue(self, item, col):
-        obj = self.ItemToObject(item)
-        if obj.distributor:
-            distributor = obj.distributor.name
-        else:
-            distributor = ''
+    def GetValue(self, col):
         vMap = { 
-            0 : distributor,
-            1 : str(obj.packaging_unit),
-            2 : str(obj.quantity),
-            3 : str(obj.item_price()),
-            4 : str(obj.unit_price),
-            5 : obj.currency,
-            6 : obj.sku,
+            0 : '',
+            1 : str(self.offer.packaging_unit),
+            2 : str(self.offer.quantity),
+            3 : str(self.item_price()),
+            4 : str(self.offer.unit_price),
+            5 : self.offer.currency,
+            6 : self.offer.sku,
         }
-            
-        if vMap[col] is None:
-            return ""
         return vMap[col]
 
-    def SetValue(self, value, item, col):
-        pass
-    
-    def GetAttr(self, item, col, attr):
-        return False
-
-#     def HasDefaultCompare(self):
-#         return False
-#     
-#     def Compare(self, item1, item2, column, ascending):
-        #TODO allow sort integer columns properly
             
 class PartDistributorsFrame(PanelPartDistributors):
     def __init__(self, parent): 
@@ -83,30 +46,21 @@ class PartDistributorsFrame(PanelPartDistributors):
         """
         super(PartDistributorsFrame, self).__init__(parent)
 
-        # create octoparts list
-        self.distributors_model = PartDistributorsDataModel(None)
-        self.tree_distributors.AssociateModel(self.distributors_model)
-        # add default columns
-        self.tree_distributors.AppendTextColumn("Distributor", 0, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Packaging Unit", 1, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Quantity", 2, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Price", 3, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Price per Item", 4, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Currency", 5, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("SKU", 6, width=wx.COL_WIDTH_AUTOSIZE)
-        for c in self.tree_distributors.Columns:
-            c.Sortable = True
+        # create distributors list
+        self.tree_distributors_manager = helper.tree.TreeManager(self.tree_distributors)
+        self.tree_distributors_manager.AddTextColumn("Distributor")
+        self.tree_distributors_manager.AddIntegerColumn("Packaging Unit")
+        self.tree_distributors_manager.AddIntegerColumn("Quantity")
+        self.tree_distributors_manager.AddFloatColumn("Price")
+        self.tree_distributors_manager.AddFloatColumn("Price per Item")
+        self.tree_distributors_manager.AddTextColumn("Currency")
+        self.tree_distributors_manager.AddTextColumn("SKU")
 
         self.enable(False)
         
     def SetPart(self, part):
-        # array of changes to apply
-        self.create_list = []
-        self.update_list = []
-        self.remove_list = []
-
         self.part = part
-        self._showDistributors()
+        self.showDistributors()
 
     def enable(self, enabled=True):
         self.button_add_distributor.Enabled = enabled
@@ -147,12 +101,17 @@ class PartDistributorsFrame(PanelPartDistributors):
 
         self._showDistributors()
         
-    def _showDistributors(self):
-        # apply new filter and reload
-        self.distributors_model.Cleared()
-        self.distributors_model = PartDistributorsDataModel(self.part)
-        self.tree_distributors.AssociateModel(self.distributors_model)
-    
+    def showDistributors(self):
+        self.tree_distributors_manager.ClearItems()
+
+        if self.part and self.part.distributors:
+            for distributor in self.part.distributors:
+                distributorobj = DataModelDistributor(distributor)
+                self.tree_distributors_manager.AppendItem(None, distributorobj)
+                for offer in distributor.offers:
+                    offerobj = DataModelOffer(offer)
+                    self.tree_distributors_manager.AppendItem(distributorobj, offerobj)
+                    
     def ApplyChanges(self, part):
         for distributor in self.remove_list:
             distributor.part = part

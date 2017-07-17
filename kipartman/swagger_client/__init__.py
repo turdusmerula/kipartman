@@ -25,6 +25,7 @@ from .models.footprint_category_new import FootprintCategoryNew
 from .models.footprint_category_ref import FootprintCategoryRef
 from .models.footprint_data import FootprintData
 from .models.footprint_new import FootprintNew
+from .models.footprint_ref import FootprintRef
 from .models.manufacturer import Manufacturer
 from .models.manufacturer_data import ManufacturerData
 from .models.manufacturer_new import ManufacturerNew

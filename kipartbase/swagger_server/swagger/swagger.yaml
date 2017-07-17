@@ -149,6 +149,16 @@ paths:
         description: "Include childs in answer"
         required: false
         type: "boolean"
+      - name: "with_distributors"
+        in: "query"
+        description: "Include distributors in answer"
+        required: false
+        type: "boolean"
+      - name: "with_manufacturers"
+        in: "query"
+        description: "Include manufacturers in answer"
+        required: false
+        type: "boolean"
       responses:
         200:
           description: "List of parts"
@@ -205,6 +215,16 @@ paths:
       - name: "with_childs"
         in: "query"
         description: "Include childs in answer"
+        required: false
+        type: "boolean"
+      - name: "with_distributors"
+        in: "query"
+        description: "Include distributors in answer"
+        required: false
+        type: "boolean"
+      - name: "with_manufacturers"
+        in: "query"
+        description: "Include manufacturers in answer"
         required: false
         type: "boolean"
       responses:
@@ -826,6 +846,8 @@ definitions:
           type: "array"
           items:
             $ref: "#/definitions/Part"
+        footprint:
+          $ref: "#/definitions/Footprint"
         parameters:
           type: "array"
           items:
@@ -848,6 +870,8 @@ definitions:
           type: "array"
           items:
             $ref: "#/definitions/PartRef"
+        footprint:
+          $ref: "#/definitions/FootprintRef"
         parameters:
           type: "array"
           items:
@@ -1066,7 +1090,17 @@ definitions:
         id:
           type: "integer"
           format: "int64"
+        part_name:
+          type: "string"
   PartRef:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+  FootprintRef:
     type: "object"
     required:
     - "id"

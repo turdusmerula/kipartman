@@ -12,6 +12,8 @@ allOf:
         type: "array"
         items: 
           $ref: "./part/PartRef.yaml"
+      footprint:
+        $ref: "./footprint/FootprintRef.yaml"
       parameters:
         type: "array"
         items: 
