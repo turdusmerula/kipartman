@@ -1,6 +1,6 @@
 from dialogs.dialog_edit_part_parameter import DialogEditPartParameter
 import wx
-
+import rest
  
 class EditPartParameterFrame(DialogEditPartParameter):
     def __init__(self, parent): 
@@ -9,14 +9,14 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.loadPrefixes()
 
     def loadUnits(self):
-        units = UnitsQuery().get()
+        units = rest.api.find_units()
         choices = ["<none>"]
         for unit in units:
             choices.append(unit.symbol+"  "+unit.name)
         self.choice_part_parameter_unit.SetItems(choices)
         
     def loadPrefixes(self):
-        prefixes = UnitPrefixesQuery().get()
+        prefixes = rest.api.find_unit_prefixes()
         choices = ["<none>"]
         for prefix in prefixes:
             choices.append(prefix.symbol+"  "+prefix.name+" ("+prefix.power+")")
@@ -29,7 +29,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.part = part
         self.previous_name = "" 
         self.onRadioNumeric(None)
-        self.parameter = PartParameter()
+        self.parameter = rest.model.PartParameter()
 
         self.choice_part_parameter_unit.SetSelection(0)
         self.choice_part_parameter_min_prefix.SetSelection(0)
@@ -96,16 +96,19 @@ class EditPartParameterFrame(DialogEditPartParameter):
             if self.edit_part_parameter_name.Value=='':
                 raise ValueError('Name should not be empty')
             # check parameter not exists
+            if self.part.parameters is None:
+                self.part.parameters = []
+                
             for param in self.part.parameters:
                 if self.edit_part_parameter_name.Value!=self.previous_name and param.name==self.edit_part_parameter_name.Value:
                     raise ValueError('%s: parameter already exists' % (self.edit_part_parameter_name.Value))
-
+    
             self.parameter.name = self.edit_part_parameter_name.Value
             self.parameter.description = self.edit_part_parameter_description.Value
             if self.choice_part_parameter_unit.GetSelection()==0:
                 self.parameter.unit = None
             else:
-                self.parameter.unit = UnitsQuery().get()[self.choice_part_parameter_unit.GetSelection()-1]
+                self.parameter.unit = rest.api.find_unit(self.choice_part_parameter_unit.GetSelection())
             if self.radio_choice_parameter_numeric.GetValue()==True:
                 self.parameter.numeric = True
             else:
@@ -123,7 +126,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
             if self.choice_part_parameter_min_prefix.GetSelection()==0:
                 self.parameter.min_prefix = None
             else:
-                self.parameter.min_prefix = UnitPrefixesQuery().get()[self.choice_part_parameter_min_prefix.GetSelection()-1]
+                self.parameter.min_prefix = rest.api.find_unit_prefix(self.choice_part_parameter_min_prefix.GetSelection())
     
             if self.edit_part_parameter_nom_value.Value!='':
                 self.parameter.nom_value = float(self.edit_part_parameter_nom_value.Value)
@@ -132,7 +135,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
             if self.choice_part_parameter_nom_prefix.GetSelection()==0:
                 self.parameter.nom_prefix = None
             else:
-                self.parameter.nom_prefix = UnitPrefixesQuery().get()[self.choice_part_parameter_nom_prefix.GetSelection()-1]
+                self.parameter.nom_prefix = rest.api.find_unit_prefix(self.choice_part_parameter_nom_prefix.GetSelection())
     
             if self.edit_part_parameter_max_value.Value!='':
                 self.parameter.max_value = float(self.edit_part_parameter_max_value.Value)
@@ -141,11 +144,11 @@ class EditPartParameterFrame(DialogEditPartParameter):
             if self.choice_part_parameter_max_prefix.GetSelection()==0:
                 self.parameter.max_prefix = None
             else:
-                self.parameter.max_prefix = UnitPrefixesQuery().get()[self.choice_part_parameter_max_prefix.GetSelection()-1]
+                self.parameter.max_prefix = rest.api.find_unit_prefix(self.choice_part_parameter_max_prefix.GetSelection())
         except ValueError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return
-        except QueryError as e:
+        except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return 
 

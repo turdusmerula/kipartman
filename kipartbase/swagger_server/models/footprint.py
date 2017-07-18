@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from __future__ import absolute_import
-from swagger_server.models.footprint_category_ref import FootprintCategoryRef
+from swagger_server.models.footprint_category import FootprintCategory
 from swagger_server.models.footprint_data import FootprintData
 from .base_model_ import Model
 from datetime import date, datetime
@@ -29,7 +29,7 @@ class Footprint(Model):
         :param id: The id of this Footprint.
         :type id: int
         :param category: The category of this Footprint.
-        :type category: FootprintCategoryRef
+        :type category: FootprintCategory
         :param image: The image of this Footprint.
         :type image: str
         :param footprint: The footprint of this Footprint.
@@ -41,7 +41,7 @@ class Footprint(Model):
             'comment': str,
             'snapeda': str,
             'id': int,
-            'category': FootprintCategoryRef,
+            'category': FootprintCategory,
             'image': str,
             'footprint': str
         }
@@ -191,7 +191,7 @@ class Footprint(Model):
         Gets the category of this Footprint.
 
         :return: The category of this Footprint.
-        :rtype: FootprintCategoryRef
+        :rtype: FootprintCategory
         """
         return self._category
 
@@ -201,7 +201,7 @@ class Footprint(Model):
         Sets the category of this Footprint.
 
         :param category: The category of this Footprint.
-        :type category: FootprintCategoryRef
+        :type category: FootprintCategory
         """
 
         self._category = category

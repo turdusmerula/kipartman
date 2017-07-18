@@ -245,6 +245,11 @@ paths:
     get:
       description: Return list of units
       operationId: findUnits
+      parameters:
+        - name: symbol
+          in: query
+          description: Search symbol
+          type: string
       responses:
         "200":
           description: Units
@@ -277,6 +282,11 @@ paths:
     get:
       description: Return list of unit prefixes
       operationId: findUnitPrefixes
+      parameters:
+        - name: symbol
+          in: query
+          description: Search prefix symbol
+          type: string
       responses:
         "200":
           description: Unit prefixes
@@ -352,9 +362,7 @@ paths:
         "200":
           description: Categories
           schema:
-            type: array
-            items:
-              $ref: './footprint/category/FootprintCategory.yaml'
+            $ref: './footprint/category/FootprintCategory.yaml'
         default:
           description: unexpected error
           schema:
@@ -398,6 +406,11 @@ paths:
     get:
       description: Return all footprints
       operationId: findFootprints
+      parameters:
+        - name: search
+          in: query
+          description: Search for footprint matching pattern
+          type: string
       responses:
         "200":
           description: List of footprints
@@ -492,6 +505,11 @@ paths:
     get:
       description: Return all distributors
       operationId: findDistributors
+      parameters:
+        - name: name
+          in: query
+          description: Search distributors matching name
+          type: string      
       responses:
         "200":
           description: List of distributors
@@ -534,9 +552,7 @@ paths:
         "200":
           description: Distributors
           schema:
-            type: array
-            items:
-              $ref: './distributor/Distributor.yaml'
+            $ref: './distributor/Distributor.yaml'
         default:
           description: unexpected error
           schema:
@@ -582,6 +598,11 @@ paths:
     get:
       description: Return all manufacturers
       operationId: findManufacturers
+      parameters:
+        - name: name
+          in: query
+          description: Search manufacturers matching name
+          type: string      
       responses:
         "200":
           description: List of manufacturers
@@ -624,9 +645,7 @@ paths:
         "200":
           description: Manufacturer
           schema:
-            type: array
-            items:
-              $ref: './manufacturer/Manufacturer.yaml'
+            $ref: './manufacturer/Manufacturer.yaml'
         default:
           description: unexpected error
           schema:

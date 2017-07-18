@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Jul 12 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -72,8 +72,8 @@ class DialogEditPartManufacturer ( wx.Dialog ):
 		
 		# Connect Events
 		self.button_add_manufacturer.Bind( wx.EVT_BUTTON, self.onButtonAddDistributorClick )
-		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartDistributorEditApply )
-		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartDistributorEditCancel )
+		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartManufacturerEditApply )
+		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartManufacturerEditCancel )
 	
 	def __del__( self ):
 		pass
@@ -83,10 +83,10 @@ class DialogEditPartManufacturer ( wx.Dialog ):
 	def onButtonAddDistributorClick( self, event ):
 		event.Skip()
 	
-	def onButtonPartDistributorEditApply( self, event ):
+	def onButtonPartManufacturerEditApply( self, event ):
 		event.Skip()
 	
-	def onButtonPartDistributorEditCancel( self, event ):
+	def onButtonPartManufacturerEditCancel( self, event ):
 		event.Skip()
 	
 

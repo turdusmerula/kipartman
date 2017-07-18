@@ -77,61 +77,29 @@ class PartManufacturersFrame(PanelPartManufacturers):
         if self.part and self.part.manufacturers:
             for manufacturer in self.part.manufacturers:
                 self.tree_manufacturers_manager.AppendItem(None, DataModelPartManufacturer(manufacturer))
-    
-    def ApplyChanges(self, part):
-        for manufacturer in self.remove_list:
-            manufacturer.part = part
-            api.queries.PartManufacturersQuery().delete(manufacturer)
-        self.remove_list = []
-
-        # apply changes to current part
-        for manufacturer in self.create_list:
-            manufacturer.part = part
-            api.queries.PartManufacturersQuery().create(manufacturer)
-        self.create_list = []
-        
-        for manufacturer in self.update_list:
-            manufacturer.part = part
-            api.queries.PartManufacturersQuery().update(manufacturer)
-        self.update_list = []
-        
+            
     def onButtonAddManufacturerClick( self, event ):
         manufacturer = EditPartManufacturerFrame(self).AddManufacturer(self.part)
-        if not manufacturer is None:
+        if manufacturer:
+            if self.part.manufacturers is None:
+                self.part.manufacturers = []
             self.part.manufacturers.append(manufacturer)
-            self.create_list.append(manufacturer)
-        self._showManufacturers()
+            self.tree_manufacturers_manager.AppendItem(None, DataModelPartManufacturer(manufacturer))
              
     def onButtonEditManufacturerClick( self, event ):
         item = self.tree_manufacturers.GetSelection()
-        if item is None:
+        if not item.IsOk():
             return 
-        manufacturer = self.manufacturers_model.ItemToObject(item)
-        if not manufacturer:
-            return 
-        if EditPartManufacturerFrame(self).EditManufacturer(self.part, manufacturer) and manufacturer.id!=-1:
-            # set manufacturer to be updated
-            try:
-                # remove it from update list to avoid multiple update
-                self.update_list.remove(manufacturer)
-            except:
-                pass
-            self.update_list.append(manufacturer)
-        self._showManufacturers()
+        manufacturerobj = self.tree_manufacturers_manager.ItemToObject(item)
+        EditPartManufacturerFrame(self).EditManufacturer(self.part, manufacturerobj.manufacturer)
+        self.tree_manufacturers_manager.UpdateItem(manufacturerobj)
     
     def onButtonRemoveManufacturerClick( self, event ):
         item = self.tree_manufacturers.GetSelection()
         if not item:
             return
-        manufacturer = self.manufacturers_model.ItemToObject(item)
-        self.part.manufacturers.remove(manufacturer)
-        # set manufacturer to be removed
-        if manufacturer.id!=-1:
-            self.remove_list.append(manufacturer)
-            try:
-                # remove it from update list if present
-                self.update_list.remove(manufacturer)
-            except:
-                pass
+        manufacturerobj = self.tree_manufacturers_manager.ItemToObject(item)
+        self.part.manufacturers.remove(manufacturerobj.manufacturer)
+        self.tree_manufacturers_manager.DeleteItem(None, manufacturerobj)
 
-        self._showManufacturers()
+        

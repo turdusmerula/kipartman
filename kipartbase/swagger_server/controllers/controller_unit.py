@@ -63,31 +63,43 @@ def find_unit_prefix(unit_prefix_id):
 
     return unit_prefix
 
-def find_unit_prefixes():
+def find_unit_prefixes(symbol=None):
     """
     find_unit_prefixes
     Return list of unit prefixes
+    :param symbol: Search prefix symbol
+    :type symbol: str
 
     :rtype: List[UnitPrefix]
     """
     unit_prefixes = []
 
-    for funit_prefix in api.models.UnitPrefix.objects.all():
+    funit_prefix_request = api.models.UnitPrefix.objects
+    if symbol:
+        funit_prefix_request = funit_prefix_request.filter(symbol=symbol)
+
+    for funit_prefix in funit_prefix_request.all():
         unit_prefixes.append(serialize_UnitPrefix(funit_prefix))
     
     return unit_prefixes
 
 
-def find_units():
+def find_units(symbol=None):
     """
     find_units
     Return list of units
+    :param symbol: Search symbol
+    :type symbol: str
 
     :rtype: List[Unit]
     """
     units = []
 
-    for funit in api.models.Unit.objects.all():
+    funit_request = api.models.Unit.objects
+    if symbol:
+        funit_request = funit_request.filter(symbol=symbol)
+        
+    for funit in funit_request.all():
         units.append(serialize_Unit(funit))
     
     return units

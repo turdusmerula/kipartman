@@ -104,37 +104,39 @@ class PartParametersFrame(PanelPartParameters):
             self.RemoveParameter(parameter.name)
         
         # add parameter
+        if self.part.parameters is None:
+            self.part.parameters = []
         self.part.parameters.append(parameter)
-        self.create_list.append(parameter)
-        self._showParameters()
+        self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(parameter))
 
     def ExistParameter(self, name):
         """
         Test if a parameter exists by its name
         """
+        if not self.part.parameters:
+            return False
         for param in self.part.parameters:
             if param.name==name:
                 return True
         return False
 
+    def FindParameter(self, name):
+        for data in self.tree_parameters_manager.data:
+            if data.parameter.name==name:
+                return data
+        return None
+        
+
     def RemoveParameter(self, name):
         """
         Remove a parameter using its name
         """
-        for param in self.part.parameters:
-            if param.name==name:
-                if param.id!=-1:
-                    self.remove_list.append(param)
-                    self.part.parameters.remove(param)
-                    # remove it from update list if present
-                    try:
-                        # remove it if already exists
-                        self.update_list.remove(param)
-                    except:
-                        pass
-                else:
-                    self.part.parameters.remove(param)
-                    
+        if not self.part.parameters:
+            return False
+        
+        parameterobj = self.FindParameter(name)
+        self.part.parameters.remove(parameterobj.parameter)
+        self.tree_parameters_manager.DeleteItem(None, parameterobj)
 
     def showParameters(self):
         self.tree_parameters_manager.ClearItems()
@@ -142,58 +144,26 @@ class PartParametersFrame(PanelPartParameters):
         if self.part and self.part.parameters:
             for parameter in self.part.parameters:
                 self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(parameter))
-    
-    def ApplyChanges(self, part):
-        for param in self.remove_list:
-            param.part = part
-            api.queries.PartParametersQuery().delete(param)
-        self.remove_list = []
-
-        # apply changes to current part
-        for param in self.create_list:
-            param.part = part
-            api.queries.PartParametersQuery().create(param)
-        self.create_list = []
-        
-        for param in self.update_list:
-            param.part = part
-            api.queries.PartParametersQuery().update(param)
-        self.update_list = []
-        
+            
     def onButtonAddParameterClick( self, event ):
         parameter = EditPartParameterFrame(self).AddParameter(self.part)
         if not parameter is None:
             self.part.parameters.append(parameter)
-            self.create_list.append(parameter)
-        self._showParameters()
-            
-    def onButtonEditParameterClick( self, event ):
-        parameter = self.parameters_model.ItemToObject(self.tree_parameters.GetSelection())
-        if not parameter:
-            return 
-        if EditPartParameterFrame(self).EditParameter(self.part, parameter) and parameter.id!=-1:
-            # set parameter to be updated
-            try:
-                # remove it from update list to avoid multiple update
-                self.update_list.remove(parameter)
-            except:
-                pass
-            self.update_list.append(parameter)
-        self._showParameters()
+            self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(parameter))
     
+    def onButtonEditParameterClick( self, event ):
+        item = self.tree_parameters.GetSelection()
+        if not item:
+            return
+        parameterobj = self.tree_parameters_manager.ItemToObject(item)
+
+        parameter = EditPartParameterFrame(self).EditParameter(self.part, parameterobj.parameter)
+        self.tree_parameters_manager.UpdateItem(parameterobj)
+        
     def onButtonRemoveParameterClick( self, event ):
         item = self.tree_parameters.GetSelection()
         if not item:
             return
-        parameter = self.parameters_model.ItemToObject(item)
-        self.part.parameters.remove(parameter)
-        # set parameter to be removed
-        if parameter.id!=-1:
-            self.remove_list.append(parameter)
-            try:
-                # remove it from update list if present
-                self.update_list.remove(parameter)
-            except:
-                pass
-
-        self._showParameters()
+        parameterobj = self.tree_parameters_manager.ItemToObject(item)
+        self.part.parameters.remove(parameterobj.parameter)
+        self.tree_parameters_manager.DeleteItem(None, parameterobj)

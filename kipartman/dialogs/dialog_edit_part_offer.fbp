@@ -11,11 +11,11 @@
         <property name="embedded_files_path">res</property>
         <property name="encoding">UTF-8</property>
         <property name="event_generation">connect</property>
-        <property name="file">dialog_edit_part_distributor</property>
+        <property name="file">dialog_edit_part_offer</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
         <property name="internationalize">0</property>
-        <property name="name">dialog_edit_part_distributor</property>
+        <property name="name">dialog_edit_part_offer</property>
         <property name="namespace"></property>
         <property name="path">.</property>
         <property name="precompiled_header"></property>
@@ -42,7 +42,7 @@
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
             <property name="minimum_size"></property>
-            <property name="name">DialogEditPartDistributor</property>
+            <property name="name">DialogEditPartOffer</property>
             <property name="pos"></property>
             <property name="size">426,284</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
@@ -507,7 +507,7 @@
                                 <property name="minimize_button">0</property>
                                 <property name="minimum_size"></property>
                                 <property name="moveable">1</property>
-                                <property name="name">edit_part_distributor_packaging_unit</property>
+                                <property name="name">edit_part_offer_packaging_unit</property>
                                 <property name="pane_border">1</property>
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
@@ -681,7 +681,7 @@
                                 <property name="minimize_button">0</property>
                                 <property name="minimum_size"></property>
                                 <property name="moveable">1</property>
-                                <property name="name">edit_part_distributor_quantity</property>
+                                <property name="name">edit_part_offer_quantity</property>
                                 <property name="pane_border">1</property>
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
@@ -855,7 +855,7 @@
                                 <property name="minimize_button">0</property>
                                 <property name="minimum_size"></property>
                                 <property name="moveable">1</property>
-                                <property name="name">edit_part_distributor_unit_price</property>
+                                <property name="name">edit_part_offer_unit_price</property>
                                 <property name="pane_border">1</property>
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
@@ -1029,7 +1029,7 @@
                                 <property name="minimize_button">0</property>
                                 <property name="minimum_size"></property>
                                 <property name="moveable">1</property>
-                                <property name="name">edit_part_distributor_currency</property>
+                                <property name="name">edit_part_offer_currency</property>
                                 <property name="pane_border">1</property>
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
@@ -1203,7 +1203,7 @@
                                 <property name="minimize_button">0</property>
                                 <property name="minimum_size"></property>
                                 <property name="moveable">1</property>
-                                <property name="name">edit_part_distributor_sku</property>
+                                <property name="name">edit_part_offer_sku</property>
                                 <property name="pane_border">1</property>
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
@@ -1270,10 +1270,10 @@
                         <property name="Save">0</property>
                         <property name="Yes">0</property>
                         <property name="minimum_size"></property>
-                        <property name="name">button_part_edit</property>
+                        <property name="name">button_part_offer_edit</property>
                         <property name="permission">protected</property>
-                        <event name="OnApplyButtonClick">onButtonPartDistributorEditApply</event>
-                        <event name="OnCancelButtonClick">onButtonPartDistributorEditCancel</event>
+                        <event name="OnApplyButtonClick">onButtonPartOfferEditApply</event>
+                        <event name="OnCancelButtonClick">onButtonPartOfferEditCancel</event>
                         <event name="OnContextHelpButtonClick"></event>
                         <event name="OnHelpButtonClick"></event>
                         <event name="OnNoButtonClick"></event>

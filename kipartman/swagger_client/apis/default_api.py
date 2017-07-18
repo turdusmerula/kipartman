@@ -1322,7 +1322,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int distributor_id: Distributor id (required)
-        :return: list[Distributor]
+        :return: Distributor
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1347,7 +1347,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int distributor_id: Distributor id (required)
-        :return: list[Distributor]
+        :return: Distributor
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1405,7 +1405,7 @@ class DefaultApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='list[Distributor]',
+                                        response_type='Distributor',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -1426,6 +1426,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str name: Search distributors matching name
         :return: list[Distributor]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -1450,12 +1451,13 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str name: Search distributors matching name
         :return: list[Distributor]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []
+        all_params = ['name']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -1471,12 +1473,15 @@ class DefaultApi(object):
             params[key] = val
         del params['kwargs']
 
+
         collection_formats = {}
 
         resource_path = '/distributors'.replace('{format}', 'json')
         path_params = {}
 
         query_params = {}
+        if 'name' in params:
+            query_params['name'] = params['name']
 
         header_params = {}
 
@@ -1628,6 +1633,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str search: Search for footprint matching pattern
         :return: list[Footprint]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -1652,12 +1658,13 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str search: Search for footprint matching pattern
         :return: list[Footprint]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []
+        all_params = ['search']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -1673,12 +1680,15 @@ class DefaultApi(object):
             params[key] = val
         del params['kwargs']
 
+
         collection_formats = {}
 
         resource_path = '/footprints'.replace('{format}', 'json')
         path_params = {}
 
         query_params = {}
+        if 'search' in params:
+            query_params['search'] = params['search']
 
         header_params = {}
 
@@ -1823,7 +1833,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int category_id: Category id (required)
-        :return: list[FootprintCategory]
+        :return: FootprintCategory
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1848,7 +1858,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int category_id: Category id (required)
-        :return: list[FootprintCategory]
+        :return: FootprintCategory
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1906,7 +1916,7 @@ class DefaultApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='list[FootprintCategory]',
+                                        response_type='FootprintCategory',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -1928,7 +1938,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int manufacturer_id: Manufacturer id (required)
-        :return: list[Manufacturer]
+        :return: Manufacturer
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1953,7 +1963,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int manufacturer_id: Manufacturer id (required)
-        :return: list[Manufacturer]
+        :return: Manufacturer
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -2011,7 +2021,7 @@ class DefaultApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='list[Manufacturer]',
+                                        response_type='Manufacturer',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -2032,6 +2042,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str name: Search manufacturers matching name
         :return: list[Manufacturer]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -2056,12 +2067,13 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str name: Search manufacturers matching name
         :return: list[Manufacturer]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []
+        all_params = ['name']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -2077,12 +2089,15 @@ class DefaultApi(object):
             params[key] = val
         del params['kwargs']
 
+
         collection_formats = {}
 
         resource_path = '/manufacturers'.replace('{format}', 'json')
         path_params = {}
 
         query_params = {}
+        if 'name' in params:
+            query_params['name'] = params['name']
 
         header_params = {}
 
@@ -2788,6 +2803,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str symbol: Search prefix symbol
         :return: list[UnitPrefix]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -2812,12 +2828,13 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str symbol: Search prefix symbol
         :return: list[UnitPrefix]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []
+        all_params = ['symbol']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -2833,12 +2850,15 @@ class DefaultApi(object):
             params[key] = val
         del params['kwargs']
 
+
         collection_formats = {}
 
         resource_path = '/unitprefixes'.replace('{format}', 'json')
         path_params = {}
 
         query_params = {}
+        if 'symbol' in params:
+            query_params['symbol'] = params['symbol']
 
         header_params = {}
 
@@ -2885,6 +2905,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str symbol: Search symbol
         :return: list[Unit]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -2909,12 +2930,13 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param str symbol: Search symbol
         :return: list[Unit]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []
+        all_params = ['symbol']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -2930,12 +2952,15 @@ class DefaultApi(object):
             params[key] = val
         del params['kwargs']
 
+
         collection_formats = {}
 
         resource_path = '/units'.replace('{format}', 'json')
         path_params = {}
 
         query_params = {}
+        if 'symbol' in params:
+            query_params['symbol'] = params['symbol']
 
         header_params = {}
 

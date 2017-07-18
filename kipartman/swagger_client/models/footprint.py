@@ -36,7 +36,7 @@ class Footprint(object):
             'comment': 'str',
             'snapeda': 'str',
             'id': 'int',
-            'category': 'FootprintCategoryRef',
+            'category': 'FootprintCategory',
             'image': 'str',
             'footprint': 'str'
         }
@@ -174,7 +174,7 @@ class Footprint(object):
         Gets the category of this Footprint.
 
         :return: The category of this Footprint.
-        :rtype: FootprintCategoryRef
+        :rtype: FootprintCategory
         """
         return self._category
 
@@ -184,7 +184,7 @@ class Footprint(object):
         Sets the category of this Footprint.
 
         :param category: The category of this Footprint.
-        :type: FootprintCategoryRef
+        :type: FootprintCategory
         """
 
         self._category = category

@@ -67,7 +67,7 @@ def deserialize_PartData(part, fpart=None):
     if fpart is None:
         fpart = api.models.Part()
     fpart.name = part.name
-    fpart.descrition = part.description
+    fpart.description = part.description
     fpart.comment = part.comment
     #fpart.footprint
     if part.octopart:

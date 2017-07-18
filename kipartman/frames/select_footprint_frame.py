@@ -1,92 +1,55 @@
 from dialogs.panel_select_footprint import PanelSelectFootprint
+import helper.tree
+import rest
 import wx
-import wx.dataview
 
-class FootPrintCategoryList(object):
-    def __init__(self):
-        self.data = FootprintCategoriesQuery().get()
-        
-        # build a path to category dictionnary
-        self.dict = {}
-        for category in self.data:
-            self.dict[category.path] = category
-
-    def get_path(self, category):
-        if not category:
-            return "/"
-        path = "/"+category.name
-        print category.parent._url
-        return ""
-        parent = self.dict[category.parent._url]
-        while parent:
-            path = "/"+parent.name+path
-            parent = self.dict[parent.parent._url]
-        return path
-
-class FootprintDataModel(wx.dataview.PyDataViewModel):
-    def __init__(self):
-        super(FootprintDataModel, self).__init__()
-        self.data = FootprintsQuery().get()
-
-    def Filter(self, footprint_filter=None):
-        if footprint_filter:
-            self.data = FootprintsQuery(**footprint_filter).get()
-        
-    def GetColumnCount(self):
-        return 1
-
-    def GetColumnType(self, col):
-        mapper = { 
-            0 : 'string',
-        }
-        return mapper[col]
-
-    def GetChildren(self, parent, children):
-        # check root node
-        if not parent:
-            children.append(self.ObjectToItem(None))
-            for footprint in self.data:
-                children.append(self.ObjectToItem(footprint))
-            return len(self.data)+1
-        return 0
+class DataModelCategoryPath(helper.tree.TreeContainerItem):
+    def __init__(self, category):
+        super(DataModelCategoryPath, self).__init__()
+        self.category = category
     
-    def IsContainer(self, item):
-        return False
+    def GetValue(self, col):
+        if self.category:
+            path = self.category.path
+        else:
+            path = "/"
+        if col==0   :
+            return path
+        return ''
 
-    def HasContainerColumns(self, item):
+    def HasContainerColumns(self):
         return True
 
-    def GetParent(self, item):
-        return wx.dataview.NullDataViewItem
+    def GetAttr(self, col, attr):
+        if col==1:
+            attr.Bold = True
+            return True
+        return False
     
-    def GetValue(self, item, col):
-        obj = self.ItemToObject(item)
-        if obj:
-            vMap = { 
-                0 : obj.name,
-            }
-        else:
-            vMap = { 
-                0 : "<none>",
-            }
+class DataModelFootprint(helper.tree.TreeItem):
+    def __init__(self, footprint):
+        super(DataModelFootprint, self).__init__()
+        self.footprint = footprint
             
-        if vMap[col] is None:
-            return ""
+    def GetValue(self, col):
+        vMap = { 
+            0 : self.footprint.name,
+            1 : self.footprint.description,
+        }
         return vMap[col]
 
-    def SetValue(self, value, item, col):
-        pass
-    
-    def GetAttr(self, item, col, attr):
-        return False
 
-    def FootprintToItem(self, footprint):
-        if not footprint:
-            return self.ObjectToItem(footprint)
-        for f in self.data:
-            if f and f.id==footprint.id:
-                return self.ObjectToItem(f)
-            
+class TreeManagerFootprints(helper.tree.TreeManager):
+    def __init__(self, tree_view):
+        super(TreeManagerFootprints, self).__init__(tree_view)
+
+    def FindFootprint(self, footprint_id):
+        for data in self.data:
+            if isinstance(data, DataModelFootprint) and data.footprint.id==footprint_id:
+                return data
+        return None
+
+
 class SelectFootprintFrame(PanelSelectFootprint):
     def __init__(self, parent, initial=None): 
         """
@@ -95,19 +58,55 @@ class SelectFootprintFrame(PanelSelectFootprint):
         :param initial: item to select by default
         """
         super(SelectFootprintFrame, self).__init__(parent)
-    
-        # create footprints list
-        self.footprints_model = FootprintDataModel()
-        self.tree_footprints.AssociateModel(self.footprints_model)
-        # add default columns
-        self.tree_footprints.AppendTextColumn("name", 0, width=wx.COL_WIDTH_AUTOSIZE)
         
-        self.tree_footprints.Select(self.footprints_model.FootprintToItem(initial))
+        # create footprints list
+        self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints)
+        self.tree_footprints_manager.AddTextColumn("Name")
+        self.tree_footprints_manager.AddTextColumn("Description")
+        
+        self.search_filter = None
+        self.search_footprint.Value = ''
+        self.load()
+        
+        if initial:
+            self.tree_footprints.Select(self.tree_footprints_manager.FindFootprint(initial.id))
         
         # set result functions
         self.cancel = None
         self.result = None
-    
+
+    def load(self):
+        try:
+            self.loadFootprints()
+        except Exception as e:
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+
+    def loadFootprints(self):
+        # clear all
+        self.tree_footprints_manager.ClearItems()
+        
+        # load parts
+        if self.search_filter:
+            footprints = rest.api.find_footprints(search=self.search_filter)
+        else:
+            footprints = rest.api.find_footprints()
+            
+        # load categories
+        categories = {}
+        for footprint in footprints:
+            if footprint.category:
+                category_name = footprint.category.path
+            else:
+                category_name = "/"
+
+            if categories.has_key(category_name)==False:
+                categories[category_name] = DataModelCategoryPath(footprint.category)
+                self.tree_footprints_manager.AppendItem(None, categories[category_name])
+            self.tree_footprints_manager.AppendItem(categories[category_name], DataModelFootprint(footprint))
+        
+        for category in categories:
+            self.tree_footprints_manager.Expand(categories[category])
+
     def SetResult(self, result, cancel=None):
         self.result = result
         self.cancel = cancel
@@ -121,6 +120,18 @@ class SelectFootprintFrame(PanelSelectFootprint):
             self.cancel()
     
     def onButtonOkClick( self, event ):
-        footprint = self.footprints_model.ItemToObject(self.tree_footprints.GetSelection())
-        if self.result:
-            self.result(footprint)
+        footprint = self.tree_footprints_manager.ItemToObject(self.tree_footprints.GetSelection())
+        if isinstance(footprint, DataModelFootprint) and self.result:
+            self.result(footprint.footprint)
+
+    def onSearchFootprintCancel( self, event ):
+        self.search_filter = None
+        self.load()
+    
+    def onSearchFootprintButton( self, event ):
+        self.search_filter = self.search_footprint.Value
+        self.load()
+    
+    def onSearchFootprintEnter( self, event ):
+        self.search_filter = self.search_footprint.Value
+        self.load()

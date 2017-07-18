@@ -93,7 +93,7 @@ def find_distributor(distributor_id):
     :param distributor_id: Distributor id
     :type distributor_id: int
 
-    :rtype: List[Distributor]
+    :rtype: Distributor
     """
     try:
         fdistributor = api.models.Distributor.objects.get(pk=distributor_id)
@@ -103,16 +103,22 @@ def find_distributor(distributor_id):
     distributor = serialize_Distributor(fdistributor)
     return distributor
 
-def find_distributors():
+def find_distributors(name=None):
     """
     find_distributors
     Return all distributors
+    :param name: Search distributors matching name
+    :type name: str
 
     :rtype: List[Distributor]
     """
     distributors = []
-    
-    for fdistributor in api.models.Distributor.objects.all():
+
+    fdistributors_query = api.models.Distributor.objects
+    if name:
+        fdistributors_query = fdistributors_query.filter(name=name)
+        
+    for fdistributor in fdistributors_query.all():
         distributors.append(serialize_Distributor(fdistributor))
 
     return distributors

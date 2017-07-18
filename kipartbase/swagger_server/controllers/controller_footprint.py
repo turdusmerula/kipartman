@@ -15,6 +15,7 @@ from ..util import deserialize_date, deserialize_datetime
 from swagger_server.controllers.controller_footprint_category import find_footprints_category
 
 import api.models
+from django.db.models import Q
 #import jsonpickle
 
 def serialize_FootprintData(ffootprint, footprint=None):
@@ -124,16 +125,27 @@ def find_footprint(footprint_id):
 
     return footprint
 
-def find_footprints():
+def find_footprints(search=None):
     """
     find_footprints
     Return all footprints
+    :param search: Search for footprint matching pattern
+    :type search: str
 
     :rtype: List[Footprint]
     """
     footprints = []
     
-    for ffootprint in api.models.Footprint.objects.all():
+    ffootprint_query = api.models.Footprint.objects
+    
+    if search:
+        ffootprint_query = ffootprint_query.filter(
+                    Q(name__contains=search) |
+                    Q(description__contains=search) |
+                    Q(comment__contains=search)
+                )
+    
+    for ffootprint in ffootprint_query.all():
         footprints.append(serialize_Footprint(ffootprint))
 
     return footprints

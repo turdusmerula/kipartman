@@ -26,7 +26,7 @@
         <property name="ui_table">UI</property>
         <property name="use_enum">0</property>
         <property name="use_microsoft_bom">0</property>
-        <object class="Dialog" expanded="0">
+        <object class="Dialog" expanded="1">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -88,7 +88,7 @@
             <event name="OnSetFocus"></event>
             <event name="OnSize"></event>
             <event name="OnUpdateUI"></event>
-            <object class="wxBoxSizer" expanded="0">
+            <object class="wxBoxSizer" expanded="1">
                 <property name="minimum_size"></property>
                 <property name="name">bSizer1</property>
                 <property name="orient">wxVERTICAL</property>
@@ -576,8 +576,8 @@
                         <property name="minimum_size"></property>
                         <property name="name">button_part_edit</property>
                         <property name="permission">protected</property>
-                        <event name="OnApplyButtonClick">onButtonPartDistributorEditApply</event>
-                        <event name="OnCancelButtonClick">onButtonPartDistributorEditCancel</event>
+                        <event name="OnApplyButtonClick">onButtonPartManufacturerEditApply</event>
+                        <event name="OnCancelButtonClick">onButtonPartManufacturerEditCancel</event>
                         <event name="OnContextHelpButtonClick"></event>
                         <event name="OnHelpButtonClick"></event>
                         <event name="OnNoButtonClick"></event>

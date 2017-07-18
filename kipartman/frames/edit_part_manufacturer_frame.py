@@ -1,6 +1,6 @@
 from dialogs.dialog_edit_part_manufacturer import DialogEditPartManufacturer
 import wx
- 
+import rest
 
 class EditPartManufacturerFrame(DialogEditPartManufacturer):
     def __init__(self, parent): 
@@ -8,7 +8,7 @@ class EditPartManufacturerFrame(DialogEditPartManufacturer):
         self.loadManufacturers()
 
     def loadManufacturers(self):
-        manufacturers = ManufacturersQuery().get()
+        manufacturers = rest.api.find_manufacturers()
         choices = ["<none>"]
         for manufacturer in manufacturers:
             choices.append(manufacturer.name)
@@ -17,7 +17,7 @@ class EditPartManufacturerFrame(DialogEditPartManufacturer):
     def AddManufacturer(self, part):
         self.Title = "Add manufacturer"
         self.part = part
-        self.manufacturer = PartManufacturer()
+        self.manufacturer = rest.model.PartManufacturer()
  
         self.choice_manufacturer.SetSelection(0)
         self.edit_part_manufacturer_name.Value = ''
@@ -32,8 +32,9 @@ class EditPartManufacturerFrame(DialogEditPartManufacturer):
         self.part = part
         self.manufacturer = manufacturer
 
-        if manufacturer.manufacturer:
-            self.choice_manufacturer.SetSelection(self.manufacturer.manufacturer.id)
+        if manufacturer:
+            manufacturer_id = rest.api.find_manufacturers(name=self.manufacturer.name)[0].id
+            self.choice_manufacturer.SetSelection(manufacturer_id)
         else:
             self.choice_manufacturer.SetSelection(0)
         self.edit_part_manufacturer_name.Value = str(manufacturer.part_name)
@@ -46,15 +47,16 @@ class EditPartManufacturerFrame(DialogEditPartManufacturer):
     def onButtonPartManufacturerEditApply( self, event ):
         try:
             if self.choice_manufacturer.GetSelection()==0:
-                self.manufacturer.manufacturer = None
+                raise Exception("Missing manufacturer")
             else:
-                self.manufacturer.manufacturer = ManufacturersQuery().get()[self.choice_manufacturer.GetSelection()-1]
-            self.manufacturer.part_name = int(self.edit_part_manufacturer_name.Value)
+                manufacturer = rest.api.find_manufacturer(self.choice_manufacturer.GetSelection())
+            self.manufacturer.name = manufacturer.name
+            self.manufacturer.part_name = self.edit_part_manufacturer_name.Value
 
         except ValueError as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return
-        except QueryError as e:
+        except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return 
 

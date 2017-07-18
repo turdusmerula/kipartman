@@ -18,6 +18,7 @@ def serialize_FootprintCategoryData(fcategory, category=None):
     if category is None:
         category = FootprintCategoryData()
     category.name = fcategory.name
+    category.description = fcategory.description
     return category
 
 def serialize_FootprintCategory(fcategory, category=None):
@@ -26,6 +27,16 @@ def serialize_FootprintCategory(fcategory, category=None):
     category.id = fcategory.id
     if fcategory.parent:
         category.parent = FootprintCategoryRef(fcategory.parent.id)
+
+    # TODO: optimiser cette partie
+    path = "/"+fcategory.name
+    fparent = fcategory.parent
+    while fparent:
+        if fparent:
+            path = "/"+fparent.name+path
+        fparent = fparent.parent
+    category.path = path
+
     serialize_FootprintCategoryData(fcategory, category)
     return category
 
@@ -34,6 +45,7 @@ def deserialize_FootprintCategoryData(category, fcategory=None):
     if fcategory is None:
         fcategory = api.models.FootprintCategory()
     fcategory.name = category.name
+    fcategory.description = category.description
     return fcategory
 
 def deserialize_FootprintCategory(category, fcategory=None):
@@ -139,12 +151,12 @@ def find_footprints_categories():
 
 def find_footprints_category(category_id):
     """
-    find_footprints_category
-    Return a footprint category
+    find_parts_category
+    Return a part category
     :param category_id: Category id
     :type category_id: int
 
-    :rtype: List[FootprintCategoryTree]
+    :rtype: PartCategory
     """
     id_fcategory_map = {} # map of id to container
 
@@ -156,13 +168,6 @@ def find_footprints_category(category_id):
     except:
         return Error(code=1000, message='Category %d does not exists'%category_id)
     
-    fparent = id_fcategory_map[category_id].parent
-    parent = category.parent
-    while fparent:
-        serialize_FootprintCategory(fparent, parent)
-        fparent = fparent.parent
-        parent = parent.parent
-
     return category
 
 def update_footprints_category(category_id, category):
@@ -201,7 +206,9 @@ def update_footprints_category(category_id, category):
                 fparent = api.models.FootprintCategory.objects.get(pk=fparent.parent.pk)
             else:
                 fparent = None
-                
+    else:
+        fcategory.parent = None
+    
     fcategory.save()
     
     return serialize_FootprintCategory(fcategory)

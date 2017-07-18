@@ -91,7 +91,7 @@ def find_manufacturer(manufacturer_id):
     :param manufacturer_id: Manufacturer id
     :type manufacturer_id: int
 
-    :rtype: List[Manufacturer]
+    :rtype: Manufacturer
     """
     try:
         fmanufacturer = api.models.Manufacturer.objects.get(pk=manufacturer_id)
@@ -101,16 +101,22 @@ def find_manufacturer(manufacturer_id):
     manufacturer = serialize_Manufacturer(fmanufacturer)
     return manufacturer
 
-def find_manufacturers():
+def find_manufacturers(name=None):
     """
     find_manufacturers
     Return all manufacturers
+    :param name: Search manufacturers matching name
+    :type name: str
 
     :rtype: List[Manufacturer]
     """
     manufacturers = []
     
-    for fmanufacturer in api.models.Manufacturer.objects.all():
+    fmanufacturer_request = api.models.Manufacturer.objects
+    if name:
+        fmanufacturer_request = fmanufacturer_request.filter(name=name)
+        
+    for fmanufacturer in fmanufacturer_request.all():
         manufacturers.append(serialize_Manufacturer(fmanufacturer))
 
     return manufacturers

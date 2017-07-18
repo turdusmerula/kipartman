@@ -11,7 +11,7 @@ allOf:
         type: integer
         format: int64
       category:
-        $ref: "./footprint/category/FootprintCategoryRef.yaml"
+        $ref: "./footprint/category/FootprintCategory.yaml"
       image:
         type: string
       footprint:

@@ -76,23 +76,23 @@ class PartOffer(models.Model):
 
 class Manufacturer(models.Model):
     name = models.TextField(blank=False)
-    address = models.TextField(blank=True, default='')
-    website = models.TextField(blank=True, default='')
-    email = models.TextField(blank=True, default='')
-    phone = models.TextField(blank=True, default='')
-    comment = models.TextField(blank=True, default='')
+    address = models.TextField(null=True, blank=True, default='')
+    website = models.TextField(null=True, blank=True, default='')
+    email = models.TextField(null=True, blank=True, default='')
+    phone = models.TextField(null=True, blank=True, default='')
+    comment = models.TextField(null=True, blank=True, default='')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
 
 class Distributor(models.Model):
     name = models.TextField(blank=False)
-    address = models.TextField(blank=True, default='')
-    website = models.TextField(blank=True, default='')
-    sku_url = models.TextField(blank=True, default='')
-    email = models.TextField(blank=True, default='')
-    phone = models.TextField(blank=True, default='')
-    comment = models.TextField(blank=True, default='')
+    address = models.TextField(null=True, blank=True, default='')
+    website = models.TextField(null=True, blank=True, default='')
+    sku_url = models.TextField(null=True, blank=True, default='')
+    email = models.TextField(null=True, blank=True, default='')
+    phone = models.TextField(null=True, blank=True, default='')
+    comment = models.TextField(null=True, blank=True, default='')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 

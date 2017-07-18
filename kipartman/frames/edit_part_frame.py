@@ -9,9 +9,15 @@ from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPAR
 import wx.lib.newevent
 import datetime
 import re
+import rest
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
+
+def NoneValue(value, default):
+    if value:
+        return value
+    return default
 
 class EditPartFrame(PanelEditPart): 
     def __init__(self, parent):
@@ -35,43 +41,29 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_parameters.SetPart(part)
         self.edit_part_distributors.SetPart(part)
         self.edit_part_manufacturers.SetPart(part)
-    
+        #self.edit_part_attachements.SetPart(part)
+        
     def ShowPart(self, part):
         if part:
-            self.edit_part_name.Value = part.name
-            self.edit_part_description.Value = part.description
-            self.edit_part_comment.Value = part.comment
+            self.edit_part_name.Value = NoneValue(part.name, "")
+            self.edit_part_description.Value = NoneValue(part.description, "")
+            self.edit_part_comment.Value = NoneValue(part.comment, '')
             if part.footprint:
-                self.button_part_footprint.Label = part.footprint.name
+                self.button_part_footprint.Label = NoneValue(part.footprint.name, "")
             else:
                 self.button_part_footprint.Label = "<none>"
-            self.button_part_footprint.Value = part.footprint
         else:
             self.edit_part_name.Value = ''
             self.edit_part_description.Value = ''
             self.edit_part_comment.Value = ''
             self.button_part_footprint.Label = "<none>"
 
-    def ApplyChanges(self, part):
-        try:
-            self.edit_part_parameters.ApplyChanges(part)
-        except:
-            pass
-        try:
-            self.edit_part_distributors.ApplyChanges(part)
-        except:
-            pass
-        try:
-            self.edit_part_manufacturers.ApplyChanges(part)
-        except:
-            pass
-#        self.edit_part_attachements.ApplyChanges(part)
-
     def enable(self, enabled=True):
         self.edit_part_name.Enabled = enabled
         self.button_octopart.Enabled = enabled
         self.edit_part_description.Enabled = enabled
         self.button_part_footprint.Enabled = enabled
+        self.button_part_model.Enabled = enabled
         self.edit_part_comment.Enabled = enabled
         self.button_part_editApply.Enabled = enabled
         self.button_part_editCancel.Enabled = enabled
@@ -80,7 +72,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_manufacturers.enable(enabled)
         
     def onButtonPartFootprintClick( self, event ):
-        footprint = self.button_part_footprint.Value
+        footprint = self.part.footprint
         frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame, footprint)
         frame.Dropdown(self.onSetFootprintCallback)
     
@@ -89,20 +81,19 @@ class EditPartFrame(PanelEditPart):
             self.button_part_footprint.Label = footprint.name
         else:
             self.button_part_footprint.Label = "<none>"
-        self.button_part_footprint.Value = footprint
+        self.part.footprint = footprint
         
     def onButtonPartEditApply( self, event ):
         part = self.part
         if not part:
-            part = models.Part()
+            part = rest.model.PartNew()
         if part.name!=part.octopart:
             part.octopart = None
             
         # set part content
-        part.name = self.edit_part_name.Value
-        part.description = self.edit_part_description.Value
-        part.comment = self.edit_part_comment.Value
-        part.footprint = self.button_part_footprint.Value
+        part.name = str(self.edit_part_name.Value)
+        part.description = str(self.edit_part_description.Value)
+        part.comment = str(self.edit_part_comment.Value)
         # send result event
         event = EditPartApplyEvent(data=part)
         wx.PostEvent(self, event)
@@ -120,25 +111,33 @@ class EditPartFrame(PanelEditPart):
         dropdown.Dropdown()
 
     def GetUnit(self, spec):
+        symbol = self.GetUnitSymbol(spec)
         if spec.metadata().unit():
             try:
-                return UnitsQuery(symbol=self.GetUnitSymbol(spec))[0]
-            except:
-                pass #TODO create unit if not found
+                return rest.api.find_units(symbol=symbol)[0]
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+#            except Exception as e:
+                #TODO create unit if not found
+#                wx.MessageBox('%s: unit unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+
         return None
     
     def GetUnitPrefix(self, spec):
         symbol = self.GetUnitPrefixSymbol(spec)
         if spec.metadata().unit():
             try:
-                return UnitPrefixesQuery(symbol=symbol)[0]
-            except:
-                wx.MessageBox('%s: unit prefix unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+#                print "---", symbol, rest.api.find_unit_prefixes(symbol=symbol)[0]
+                return rest.api.find_unit_prefixes(symbol=symbol)[0]
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+#            except:
+#                wx.MessageBox('%s: unit prefix unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
         return None
         
     def GetUnitSymbol(self, spec):
         if spec.metadata().unit():
-            return spec.metadata().unit().symbol()
+            return spec.metadata().unit().symbol().encode('utf8')
         return ""
 
     def GetUnitPrefixSymbol(self, spec):
@@ -152,7 +151,7 @@ class EditPartFrame(PanelEditPart):
         # filter non alpha chars
         display_unit = re.sub('[ ,.;]', '', display_unit)
         prefix = display_unit[:-len(unit)]
-        return prefix
+        return prefix.encode('utf8')
     
     def GetPrefixedValue(self, value, prefix):
         if prefix is None:
@@ -177,9 +176,9 @@ class EditPartFrame(PanelEditPart):
         
         # import parameters
         for spec_name in octopart.item().specs():
-            parameter = models.PartParameter()
+            parameter = rest.model.PartParameter()
             spec = octopart.item().specs()[spec_name]
-            
+            print "spec: ", spec.json
             parameter.name = spec_name
             parameter.description = spec.metadata().name()
             parameter.unit = self.GetUnit(spec)
@@ -229,35 +228,37 @@ class EditPartFrame(PanelEditPart):
             distributor_name = offer.seller().name()
             distributor = None
             try:
-                distributors = DistributorsQuery(name=distributor_name).get()
+                distributors = rest.api.find_distributors(name=distributor_name)
                 if len(distributors)>0:
                     distributor = distributors[0]
                 else:
                     # distributor does not exists, create it
-                    distributor = models.Distributor()
+                    distributor = rest.model.DistributorNew()
                     distributor.name = offer.seller().name()
                     distributor.website = offer.seller().homepage_url()
-                    distributor = DistributorsQuery().create(distributor)
-            except:
-                wx.MessageBox('%s: unknown error retrieving distributor' % (distributor_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+                    distributor = rest.api.add_distributor(distributor)
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+#            except Exception as e:
+#                wx.MessageBox('%s: unknown error retrieving distributor' % (distributor_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
             
-            # remove distributor prior to add new offers
+            # remove all offers from distributor prior to add new offers
             self.edit_part_distributors.RemoveDistributor(distributor_name)
             
             for price_name in offer.prices():
                 for quantity in offer.prices()[price_name]:
-                    part_distributor = models.PartDistributor()
-                    part_distributor.name = distributor_name
-                    part_distributor.distributor = distributor
-                    part_distributor.currency = price_name
+                    part_offer = rest.model.PartDistributor()
+                    part_offer.name = distributor_name
+                    part_offer.distributor = distributor
+                    part_offer.currency = price_name
                     if offer.moq():
-                        part_distributor.packaging_unit = offer.moq()
+                        part_offer.packaging_unit = offer.moq()
                     else:
-                        part_distributor.packaging_unit = 1
-                    part_distributor.quantity = quantity[0]
-                    part_distributor.unit_price = float(quantity[1])
-                    part_distributor.sku = offer.sku()
-                    self.edit_part_distributors.AddDistributor(part_distributor)
+                        part_offer.packaging_unit = 1
+                    part_offer.quantity = quantity[0]
+                    part_offer.unit_price = float(quantity[1])
+                    part_offer.sku = offer.sku()
+                    self.edit_part_distributors.AddOffer(part_offer)
         
         # import manufacturer
         manufacturer_name = octopart.item().manufacturer().name()

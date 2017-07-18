@@ -285,7 +285,12 @@ paths:
     get:
       description: "Return list of units"
       operationId: "find_units"
-      parameters: []
+      parameters:
+      - name: "symbol"
+        in: "query"
+        description: "Search symbol"
+        required: false
+        type: "string"
       responses:
         200:
           description: "Units"
@@ -323,7 +328,12 @@ paths:
     get:
       description: "Return list of unit prefixes"
       operationId: "find_unit_prefixes"
-      parameters: []
+      parameters:
+      - name: "symbol"
+        in: "query"
+        description: "Search prefix symbol"
+        required: false
+        type: "string"
       responses:
         200:
           description: "Unit prefixes"
@@ -409,9 +419,7 @@ paths:
         200:
           description: "Categories"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/FootprintCategory"
+            $ref: "#/definitions/FootprintCategory"
         default:
           description: "unexpected error"
           schema:
@@ -465,7 +473,12 @@ paths:
     get:
       description: "Return all footprints"
       operationId: "find_footprints"
-      parameters: []
+      parameters:
+      - name: "search"
+        in: "query"
+        description: "Search for footprint matching pattern"
+        required: false
+        type: "string"
       responses:
         200:
           description: "List of footprints"
@@ -589,7 +602,12 @@ paths:
     get:
       description: "Return all distributors"
       operationId: "find_distributors"
-      parameters: []
+      parameters:
+      - name: "name"
+        in: "query"
+        description: "Search distributors matching name"
+        required: false
+        type: "string"
       responses:
         200:
           description: "List of distributors"
@@ -637,9 +655,7 @@ paths:
         200:
           description: "Distributors"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Distributor"
+            $ref: "#/definitions/Distributor"
         default:
           description: "unexpected error"
           schema:
@@ -693,7 +709,12 @@ paths:
     get:
       description: "Return all manufacturers"
       operationId: "find_manufacturers"
-      parameters: []
+      parameters:
+      - name: "name"
+        in: "query"
+        description: "Search manufacturers matching name"
+        required: false
+        type: "string"
       responses:
         200:
           description: "List of manufacturers"
@@ -741,9 +762,7 @@ paths:
         200:
           description: "Manufacturer"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Manufacturer"
+            $ref: "#/definitions/Manufacturer"
         default:
           description: "unexpected error"
           schema:
@@ -880,6 +899,10 @@ definitions:
           type: "array"
           items:
             $ref: "#/definitions/PartDistributor"
+        manufacturers:
+          type: "array"
+          items:
+            $ref: "#/definitions/PartManufacturer"
   Unit:
     type: "object"
     required:
@@ -926,6 +949,8 @@ definitions:
           type: "array"
           items:
             $ref: "#/definitions/FootprintCategory"
+        path:
+          type: "string"
   FootprintCategoryNew:
     allOf:
     - $ref: "#/definitions/FootprintCategoryData"
@@ -942,7 +967,7 @@ definitions:
           type: "integer"
           format: "int64"
         category:
-          $ref: "#/definitions/FootprintCategoryRef"
+          $ref: "#/definitions/FootprintCategory"
         image:
           type: "string"
         footprint:
@@ -990,6 +1015,13 @@ definitions:
         type: "string"
       snapeda:
         type: "string"
+  FootprintCategoryData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
   FootprintCategoryRef:
     type: "object"
     required:
@@ -998,11 +1030,6 @@ definitions:
       id:
         type: "integer"
         format: "int64"
-  FootprintCategoryData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
   PartCategoryData:
     type: "object"
     properties:

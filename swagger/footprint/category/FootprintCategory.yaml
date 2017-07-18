@@ -4,6 +4,7 @@ allOf:
   - required:
       - id
       - name
+      - description
     properties:
       id:
         type: integer
@@ -14,3 +15,5 @@ allOf:
         type: "array"
         items: 
           $ref: "./footprint/category/FootprintCategory.yaml"
+      path:
+        type: string

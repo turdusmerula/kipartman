@@ -175,6 +175,12 @@ class TreeManagerParts(helper.tree.TreeManager):
         if categoryobj and len(categoryobj.childs)==0:
             self.DeleteItem(categoryobj.parent, categoryobj)
 
+    def UpdatePart(self, part):
+        partobj = self.FindPart(part.id)
+        if partobj is None:
+            return
+        self.UpdateItem(partobj)
+
     def AppendCategoryPath(self, category):
         categoryobj = self.FindCategoryPath(category)
         if categoryobj:
@@ -287,12 +293,12 @@ class PartsFrame(PanelParts):
         except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-    def show_part(self, partobj):
-        part = None
+    def load_full_part(self, partobj):
         if partobj:
             # read whole part from server
             partobj.part = rest.api.find_part(partobj.part.id, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True)
-            part = partobj.part
+        
+    def show_part(self, part):
         # disable editing
         self.panel_edit_part.enable(False)
         # enable evrything else
@@ -310,7 +316,28 @@ class PartsFrame(PanelParts):
         self.panel_parts.Enabled = False
         
     def new_part(self):
-        self.edit_part(models.Part())
+        part = rest.model.PartNew()
+        
+        # set category
+        item = self.tree_categories.GetSelection()
+        if item.IsOk():
+            category = self.tree_categories_manager.ItemToObject(item)
+            if category.category:
+                part.category = category.category
+        
+#         part.name = ''
+#         part.description = ''
+#         part.comment = ''
+#         part.octopart = None
+#         part.updated = None
+#         part.category = None
+#         part.childs = []
+#         part.footprint = None
+#         part.parameters = []
+#         part.distributors = []
+#         part.manufacturers = []
+
+        self.edit_part(part)
 
 
     def onButtonRefreshCategoriesClick( self, event ):
@@ -448,29 +475,31 @@ class PartsFrame(PanelParts):
 
 
     def onTreePartsSelChanged( self, event ):
-        print "rrrr"
         item = self.tree_parts.GetSelection()
         part = None
         if item.IsOk():
-            partobj = self.tree_parts_manager.ItemToObject(item)
-        self.show_part(partobj)
+            obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, DataModelPart):
+            part = obj.part
+            self.load_full_part(obj)
+        self.show_part(part)
 
+            
     def onEditPartApply( self, event ):
         part = event.data
+        print type(part), part.to_str()
         try:
             if self.edit_state=='edit':
                 # update part on server
-                PartsQuery().update(part)
+                part = rest.api.update_part(part.id, part)
+                self.tree_parts_manager.Update(part)
             elif self.edit_state=='add':
-                part = PartsQuery().create(part)
-             
-            # apply changes on readonly parameters, this is not made through the previous request 
-            self.panel_edit_part.ApplyChanges(part)
-             
-            self._loadParts()
-        except QueryError as e:
+                part = rest.api.add_part(part)
+                self.tree_parts_manager.AppendPart(part)
+        except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         self.edit_state = None
+        self.show_part(part)
      
     def onEditPartCancel( self, event ):
         part = None
@@ -479,6 +508,10 @@ class PartsFrame(PanelParts):
         self.edit_state = None
         self.show_part(part)
 
+
+    def onButtonAddPartClick( self, event ):
+        self.edit_state = 'add'
+        self.new_part()
 
 
 

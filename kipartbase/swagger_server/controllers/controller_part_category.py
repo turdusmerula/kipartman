@@ -36,7 +36,7 @@ def serialize_PartCategory(fcategory, category=None):
             path = "/"+fparent.name+path
         fparent = fparent.parent
     category.path = path
-    
+
     serialize_PartCategoryData(fcategory, category)
     return category
 
@@ -190,7 +190,6 @@ def update_parts_category(category_id, category):
     except:
         return Error(code=1000, message='Category %d does not exists'%category_id)
     
-    print "---", category
     if category.parent:
         # check that instance will not be child of itself
         # TODO: with mptt there is surely a non recursive way to do this

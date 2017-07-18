@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Jul 12 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -26,12 +26,12 @@ class PanelSelectFootprint ( wx.Panel ):
 		
 		bSizer4 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_searchCtrl1 = wx.SearchCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_NOHIDESEL|wx.TE_PROCESS_ENTER )
-		self.m_searchCtrl1.ShowSearchButton( True )
-		self.m_searchCtrl1.ShowCancelButton( True )
-		self.m_searchCtrl1.SetMinSize( wx.Size( 150,-1 ) )
+		self.search_footprint = wx.SearchCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		self.search_footprint.ShowSearchButton( True )
+		self.search_footprint.ShowCancelButton( True )
+		self.search_footprint.SetMinSize( wx.Size( 180,-1 ) )
 		
-		bSizer4.Add( self.m_searchCtrl1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
+		bSizer4.Add( self.search_footprint, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
 		
 		self.tree_footprints = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer4.Add( self.tree_footprints, 1, wx.ALL|wx.EXPAND, 5 )
@@ -59,6 +59,9 @@ class PanelSelectFootprint ( wx.Panel ):
 		self.Layout()
 		
 		# Connect Events
+		self.search_footprint.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchFootprintCancel )
+		self.search_footprint.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintButton )
+		self.search_footprint.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintEnter )
 		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeFootprintsSelectionChanged, id = wx.ID_ANY )
 		self.m_sdbSizer2Cancel.Bind( wx.EVT_BUTTON, self.onButtonCancelClick )
 		self.m_sdbSizer2OK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
@@ -68,6 +71,15 @@ class PanelSelectFootprint ( wx.Panel ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def onSearchFootprintCancel( self, event ):
+		event.Skip()
+	
+	def onSearchFootprintButton( self, event ):
+		event.Skip()
+	
+	def onSearchFootprintEnter( self, event ):
+		event.Skip()
+	
 	def onTreeFootprintsSelectionChanged( self, event ):
 		event.Skip()
 	

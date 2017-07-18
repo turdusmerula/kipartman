@@ -1,6 +1,7 @@
 from dialogs.panel_part_distributors import PanelPartDistributors
-from frames.edit_part_distributor_frame import EditPartDistributorFrame
+from frames.edit_part_offer_frame import EditPartOfferFrame
 import helper.tree
+import rest
 
 class DataModelDistributor(helper.tree.TreeContainerItem):
     def __init__(self, distributor):
@@ -67,40 +68,63 @@ class PartDistributorsFrame(PanelPartDistributors):
         self.button_edit_distributor.Enabled = enabled
         self.button_remove_distributor.Enabled = enabled
 
-    def AddDistributor(self, distributor):
+    def FindDistributor(self, name):
+        for data in self.tree_distributors_manager.data:
+            if isinstance(data, DataModelDistributor) and data.distributor.name==name:
+                return data
+        return None
+        
+    def AddPartDistributor(self, distributor):
         """
         Add a distributor to the part
         """
-        # add distributor
-        self.part.distributors.append(distributor)
-        self.create_list.append(distributor)
-        self._showDistributors()
+        distributorobj = self.FindDistributor(distributor.name)
+        if distributorobj:
+            return distributorobj
+        # add part distributor
+        part_distributor = rest.model.PartDistributor()
+        part_distributor.name = distributor.name
+        part_distributorobj = DataModelDistributor(part_distributor)
 
+        if self.part.distributors is None:
+            self.part.distributors = []
+        self.part.distributors.append(part_distributor)
+        self.tree_distributors_manager.AppendItem(None, part_distributorobj)
+        return part_distributorobj
+
+    def AddOffer(self, offer):
+        """
+        Add an offer from a distributor
+        """
+        # add distributor
+        distributorobj = self.AddPartDistributor(offer.distributor)
+        # add offer
+        distributor = distributorobj.distributor
+        if distributor.offers is None:
+            distributor.offers = []
+        offerobj = DataModelOffer(offer)
+        distributor.offers.append(offer)
+        self.tree_distributors_manager.AppendItem(distributorobj, offerobj)
+        return offerobj
+    
     def RemoveDistributor(self, name):
         """
         Remove a distributor using its name
         """
+        if self.part.distributors is None:
+            return 
+        
         to_remove = []
         for distributor in self.part.distributors:
-            if distributor.distributor and distributor.distributor.name==name:
-                if distributor.id!=-1:
-                    self.remove_list.append(distributor)
-                    to_remove.append(distributor)
-                    # remove it from update list if present
-                    try:
-                        # remove it if already exists
-                        self.update_list.remove(distributor)
-                    except:
-                        pass
-                else:
-                    to_remove.append(distributor)
+            if distributor.name==name:
+                to_remove.append(distributor)
         
         # don't remove in previous loop to avoid missing elements
         for distributor in to_remove:
             self.part.distributors.remove(distributor)
-
-        self._showDistributors()
-        
+            distributorobj = self.FindDistributor(distributor.name)
+            self.tree_distributors_manager.DeleteItem(None, distributorobj)
+            
     def showDistributors(self):
         self.tree_distributors_manager.ClearItems()
 
@@ -112,60 +136,35 @@ class PartDistributorsFrame(PanelPartDistributors):
                     offerobj = DataModelOffer(offer)
                     self.tree_distributors_manager.AppendItem(distributorobj, offerobj)
                     
-    def ApplyChanges(self, part):
-        for distributor in self.remove_list:
-            distributor.part = part
-            api.queries.PartDistributorsQuery().delete(distributor)
-        self.remove_list = []
-
-        # apply changes to current part
-        for distributor in self.create_list:
-            distributor.part = part
-            api.queries.PartDistributorsQuery().create(distributor)
-        self.create_list = []
-        
-        for distributor in self.update_list:
-            distributor.part = part
-            api.queries.PartDistributorsQuery().update(distributor)
-        self.update_list = []
         
     def onButtonAddDistributorClick( self, event ):
-        distributor = EditPartDistributorFrame(self).AddDistributor(self.part)
-        if not distributor is None:
-            self.part.distributors.append(distributor)
-            self.create_list.append(distributor)
-        self._showDistributors()
+        offer = EditPartOfferFrame(self).AddOffer(self.part)
+        if offer:
+            self.AddOffer(offer)
+
              
     def onButtonEditDistributorClick( self, event ):
         item = self.tree_distributors.GetSelection()
         if item is None:
             return 
-        distributor = self.distributors_model.ItemToObject(item)
-        if not distributor:
+        object = self.tree_distributors_manager.ItemToObject(item)
+        if not object or isinstance(object, DataModelDistributor):
             return 
-        if EditPartDistributorFrame(self).EditDistributor(self.part, distributor) and distributor.id!=-1:
-            # set distributor to be updated
-            try:
-                # remove it from update list to avoid multiple update
-                self.update_list.remove(distributor)
-            except:
-                pass
-            self.update_list.append(distributor)
-        self._showDistributors()
+
+        offer = EditPartOfferFrame(self).EditOffer(self.part, object.offer)
+        self.tree_distributors_manager.UpdateItem(object)
     
     def onButtonRemoveDistributorClick( self, event ):
         item = self.tree_distributors.GetSelection()
         if not item:
             return
-        distributor = self.distributors_model.ItemToObject(item)
-        self.part.distributors.remove(distributor)
-        # set distributor to be removed
-        if distributor.id!=-1:
-            self.remove_list.append(distributor)
-            try:
-                # remove it from update list if present
-                self.update_list.remove(distributor)
-            except:
-                pass
+        object = self.tree_distributors_manager.ItemToObject(item)
+        if isinstance(object, DataModelDistributor):
+            self.RemoveDistributor(object.distributor.name)
+        if isinstance(object, DataModelOffer):
+            distributorobj = self.FindDistributor(object.offer.distributor.name)
+            distributorobj.distributor.offers.remove(object.offer)
+            self.tree_distributors_manager.DeleteItem(object.parent, object)
+            if len(distributorobj.childs)==0:
+                self.tree_distributors_manager.DeleteItem(None, distributorobj)
 
-        self._showDistributors()
