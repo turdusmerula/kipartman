@@ -477,34 +477,39 @@ class PartsFrame(PanelParts):
     def onTreePartsSelChanged( self, event ):
         item = self.tree_parts.GetSelection()
         part = None
-        if item.IsOk():
-            obj = self.tree_parts_manager.ItemToObject(item)
+        if not item.IsOk():
+            return
+        
+        obj = self.tree_parts_manager.ItemToObject(item)
         if isinstance(obj, DataModelPart):
-            part = obj.part
             self.load_full_part(obj)
+            part = obj.part
         self.show_part(part)
 
             
     def onEditPartApply( self, event ):
         part = event.data
-        print type(part), part.to_str()
         try:
             if self.edit_state=='edit':
                 # update part on server
                 part = rest.api.update_part(part.id, part)
-                self.tree_parts_manager.Update(part)
+                self.tree_parts_manager.UpdatePart(part)
             elif self.edit_state=='add':
                 part = rest.api.add_part(part)
                 self.tree_parts_manager.AppendPart(part)
         except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+            return
         self.edit_state = None
         self.show_part(part)
      
     def onEditPartCancel( self, event ):
         part = None
-        if self.tree_parts.GetSelection():
-            part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
+        item = self.tree_parts.GetSelection()
+        if item.IsOk():
+            partobj = self.tree_parts_manager.ItemToObject(item)
+            self.load_full_part(partobj)
+            part = partobj.part
         self.edit_state = None
         self.show_part(part)
 
@@ -513,97 +518,57 @@ class PartsFrame(PanelParts):
         self.edit_state = 'add'
         self.new_part()
 
+    def onButtonEditPartClick( self, event ):
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, DataModelCategoryPath):
+            return
+        self.load_full_part(obj)
+        self.edit_state = 'edit'
+        self.edit_part(obj.part)
 
-
-
-
-
-
-
-
-
-
-
-
-#     def onButtonAddPartClick( self, event ):
-#         self.edit_state = 'add'
-#         self.new_part()
-# 
-#     def onButtonEditPartClick( self, event ):
-#         if not self.tree_parts.GetSelection():
-#             return
-#         part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
-#         self.edit_state = 'edit'
-#         self.edit_part(part)
-# 
-#     def onButtonRemovePartClick( self, event ):
-#         item = self.tree_parts.GetSelection()
-#         if not item:
-#             return 
-#         part = self.parts_model.ItemToObject(item)
-#         if part.parent:
-#             res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+part.parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-#             if res==wx.ID_OK:
-#                 # remove selected part from subparts
-#                 part.parent.parts.remove(part.id)
-#                 PartsQuery().update(part.parent)
-#             else:
-#                 return 
-#         else:
-#             res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-#             if res==wx.ID_OK:
-#                 # remove part
-#                 PartsQuery().delete(part)
-#             else:
-#                 return
-#         self._loadParts()
-#         event.Skip()
-# 
-#     def onSearchPartsTextEnter( self, event ):
-#         # set search filter
-#         self.parts_filter.remove('search')
-#         if self.search_parts.Value!='':
-#             self.parts_filter.add('search', self.search_parts.Value)
-#         # apply new filter and reload
-#         self._loadParts()
-# 
-#     def onButtonRefreshPartsClick( self, event ):
-#         self.loadParts()
-# 
-#     def onTreePartsItemBeginDrag( self, event ):
-#         part = self.parts_model.ItemToObject(event.GetItem())
-#         data =  PartDataObject(part)
-#         event.SetDataObject(data)
-# 
+    def onButtonRemovePartClick( self, event ):
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, DataModelCategoryPath):
+            return
+        part = obj.part
+        if isinstance(obj.parent, DataModelPart):
+            parent = obj.parent.part
+            res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+            if res==wx.ID_OK:
+                # remove selected part from subparts
+                parent = rest.api.find_part(parent.id, with_childs=True)
+                for child in parent.childs:
+                    if child.id==part.id:
+                        parent.childs.remove(child)
+                #parent.childs.remove(part)
+                rest.api.update_part(parent.id, parent)
+                self.tree_parts_manager.DeleteItem(obj.parent, obj)
+            else:
+                return 
+        else:
+            res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+            if res==wx.ID_OK:
+                # remove part
+                rest.api.delete_part(part.id)
+                self.tree_parts_manager.DeletePart(part)
+            else:
+                return
+        self.show_part(None)
+ 
+    def onSearchPartsTextEnter( self, event ):
+        # set search filter
+        self.parts_filter.remove('search')
+        if self.search_parts.Value!='':
+            self.parts_filter.add('search', self.search_parts.Value)
+        # apply new filter and reload
+        self.loadParts()
+ 
+    def onButtonRefreshPartsClick( self, event ):
+        self.loadParts()
 #         
-#     def onTreePartsItemDrop( self, event ):
-#         event.Allow()
-# 
-#     def onTreePartsItemCollapsed( self, event ):
-#         event.Skip()
-#     
-#     def onTreePartsItemExpanded( self, event ):
-#         event.Skip()
-# 
-#     def onTreePartsItemExpanding( self, event ):
-#         item = event.GetItem()
-#         print type(item)
-#         if item:
-#             obj = self.parts_model.ItemToObject(item)
-#         if isinstance(obj, DataModelPart) and obj.part.has_childs and obj.childs_loaded==False:
-#             print "Loading childs", obj.part.id
-#             part = rest.api.find_part(obj.part.id, with_childs=True)
-#             obj.part.childs = part.childs
-#             
-#             for child in obj.part.childs:
-#                 for part in obj.part.childs:
-#                     item. children.append(self.ObjectToItem(DataModelPart(part, obj)))
-#             self.parts_model.ItemsChanged(item)
-#             
-#     
-#     def onTreePartsSelectionChanged( self, event ):
-#         part = None
-#         if event.GetItem():
-#             part = self.parts_model.ItemToObject(event.GetItem())
-#         self.show_part(part)
-# 

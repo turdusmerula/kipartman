@@ -19,6 +19,7 @@ from swagger_server.controllers.controller_part_distributor import find_part_dis
 from swagger_server.controllers.controller_manufacturer import deserialize_ManufacturerData
 from swagger_server.controllers.controller_part_offer import deserialize_PartOffer
 
+from django.db.models import Q
 import api.models
 from swagger_server.controllers.controller_footprint import find_footprint
 from swagger_server.controllers.controller_part_manufacturer import find_part_manufacturers
@@ -69,7 +70,6 @@ def deserialize_PartData(part, fpart=None):
     fpart.name = part.name
     fpart.description = part.description
     fpart.comment = part.comment
-    #fpart.footprint
     if part.octopart:
         fpart.octopart
     if part.updated:
@@ -84,6 +84,14 @@ def deserialize_PartNew(part, fpart=None):
             fpart.category = api.models.PartCategory.objects.get(pk=part.category.id)
         except:
             return Error(code=1000, message='Category %d does not exists'%part.category.id)
+    else:
+        fpart.category = None
+
+    if part.footprint:
+        try:
+            fpart.footprint = api.models.Footprint.objects.get(pk=part.footprint.id)
+        except:
+            return Error(code=1000, message='Footprint %d does not exists'%part.footprint.id)
     else:
         fpart.category = None
 
@@ -141,9 +149,9 @@ def add_part(part):
     if part.distributors:
         for part_distributor in part.distributors:
             try:
-                fdistributor = api.models.Distributor.objects.get(pk=part_distributor.id)
+                fdistributor = api.models.Distributor.objects.get(name=part_distributor.name)
             except:
-                return Error(code=1000, message='Distributor %d does not exists'%part_distributor.id)
+                return Error(code=1000, message='Distributor %s does not exists'%part_distributor.name)
                 
             for offer in part_distributor.offers:
                 foffer = deserialize_PartOffer(offer)
@@ -157,12 +165,13 @@ def add_part(part):
     if part.manufacturers:
         for part_manufacturer in part.manufacturers:
             try:
-                fmanufacturer = api.models.Manufacturer.objects.get(pk=part_manufacturer.id)
+                fmanufacturer = api.models.Manufacturer.objects.get(name=part_manufacturer.name)
             except:
-                return Error(code=1000, message='Manufacturer %d does not exists'%part_manufacturer.id)
+                return Error(code=1000, message='Manufacturer %s does not exists'%part_manufacturer.name)
             fpart_manufacturer = api.models.PartManufacturer()
             fpart_manufacturer.part = fpart
             fpart_manufacturer.manufacturer = fmanufacturer
+            fpart_manufacturer.part_name = part_manufacturer.part_name
             fpart_manufacturer.save()
             fpart_manufacturers.append(fpart_manufacturer)
         fpart.manufacturers.set(fpart_manufacturers)
@@ -218,7 +227,7 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None,
         return e
     return part
 
-def find_parts(category=None, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None):
+def find_parts(category=None, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None, search=None):
     """
     find_parts
     Return all parts
@@ -234,12 +243,21 @@ def find_parts(category=None, with_offers=None, with_parameters=None, with_child
     :type with_distributors: bool
     :param with_manufacturers: Include manufacturers in answer
     :type with_manufacturers: bool
+    :param search: Search for parts matching pattern
+    :type search: str
 
     :rtype: List[Part]
     """
     parts = []
     
     fpart_request = api.models.Part.objects
+
+    if search:
+        fpart_request = fpart_request.filter(
+                    Q(name__contains=search) |
+                    Q(description__contains=search) |
+                    Q(comment__contains=search)
+                )
     
     if category:
         # extract category
@@ -297,9 +315,9 @@ def update_part(part_id, part):
         # import new values
         for part_distributor in part.distributors:
             try:
-                fdistributor = api.models.Distributor.objects.get(pk=part_distributor.id)
+                fdistributor = api.models.Distributor.objects.get(name=part_distributor.name)
             except:
-                return Error(code=1000, message='Distributor %d does not exists'%part_distributor.id)
+                return Error(code=1000, message='Distributor %s does not exists'%part_distributor.name)
                 
             for offer in part_distributor.offers:
                 foffer = deserialize_PartOffer(offer)
@@ -316,12 +334,13 @@ def update_part(part_id, part):
         # import new values
         for part_manufacturer in part.manufacturers:
             try:
-                fmanufacturer = api.models.Manufacturer.objects.get(pk=part_manufacturer.id)
+                fmanufacturer = api.models.Manufacturer.objects.get(name=part_manufacturer.name)
             except:
-                return Error(code=1000, message='Manufacturer %d does not exists'%part_manufacturer.id)
+                return Error(code=1000, message='Manufacturer %s does not exists'%part_manufacturer.name)
             fpart_manufacturer = api.models.PartManufacturer()
             fpart_manufacturer.part = fpart
             fpart_manufacturer.manufacturer = fmanufacturer
+            fpart_manufacturer.part_name = part_manufacturer.part_name
             fpart_manufacturer.save()
             fpart_manufacturers.append(fpart_manufacturer)
         fpart.manufacturers.set(fpart_manufacturers)

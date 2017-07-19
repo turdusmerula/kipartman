@@ -229,8 +229,6 @@ class PartDistributor(object):
         :param id: The id of this PartDistributor.
         :type: int
         """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")
 
         self._id = id
 

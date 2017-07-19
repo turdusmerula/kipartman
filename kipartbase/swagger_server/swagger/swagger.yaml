@@ -159,6 +159,11 @@ paths:
         description: "Include manufacturers in answer"
         required: false
         type: "boolean"
+      - name: "search"
+        in: "query"
+        description: "Search for parts matching pattern"
+        required: false
+        type: "string"
       responses:
         200:
           description: "List of parts"
@@ -1098,9 +1103,7 @@ definitions:
   PartDistributor:
     allOf:
     - $ref: "#/definitions/DistributorData"
-    - required:
-      - "id"
-      properties:
+    - properties:
         id:
           type: "integer"
           format: "int64"
@@ -1111,9 +1114,7 @@ definitions:
   PartManufacturer:
     allOf:
     - $ref: "#/definitions/ManufacturerData"
-    - required:
-      - "id"
-      properties:
+    - properties:
         id:
           type: "integer"
           format: "int64"

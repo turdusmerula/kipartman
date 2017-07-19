@@ -2275,6 +2275,7 @@ class DefaultApi(object):
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
+        :param str search: Search for parts matching pattern
         :return: list[Part]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -2305,12 +2306,13 @@ class DefaultApi(object):
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
+        :param str search: Search for parts matching pattern
         :return: list[Part]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['category', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers']
+        all_params = ['category', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'search']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -2345,6 +2347,8 @@ class DefaultApi(object):
             query_params['with_distributors'] = params['with_distributors']
         if 'with_manufacturers' in params:
             query_params['with_manufacturers'] = params['with_manufacturers']
+        if 'search' in params:
+            query_params['search'] = params['search']
 
         header_params = {}
 

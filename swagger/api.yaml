@@ -137,6 +137,10 @@ paths:
           in: query
           description: Include manufacturers in answer
           type: boolean
+        - name: search
+          in: query
+          description: Search for parts matching pattern
+          type: string
       responses:
         "200":
           description: List of parts

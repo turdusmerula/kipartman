@@ -2,7 +2,6 @@ type: object
 allOf:
   - $ref: './distributor/DistributorData.yaml'
   - required:
-      - id
       - name
     properties:
       id:
