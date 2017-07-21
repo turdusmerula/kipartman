@@ -29,6 +29,13 @@ from .models.footprint_ref import FootprintRef
 from .models.manufacturer import Manufacturer
 from .models.manufacturer_data import ManufacturerData
 from .models.manufacturer_new import ManufacturerNew
+from .models.model import Model
+from .models.model_category import ModelCategory
+from .models.model_category_data import ModelCategoryData
+from .models.model_category_new import ModelCategoryNew
+from .models.model_category_ref import ModelCategoryRef
+from .models.model_data import ModelData
+from .models.model_new import ModelNew
 from .models.part import Part
 from .models.part_category import PartCategory
 from .models.part_category_data import PartCategoryData

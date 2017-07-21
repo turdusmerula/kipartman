@@ -481,7 +481,7 @@ paths:
             $ref: './footprint/FootprintNew.yaml'
       responses:
         "200":
-          description: Updated pärt
+          description: Updated footprint
           schema:
             $ref: './footprint/Footprint.yaml'
         default:
@@ -494,6 +494,190 @@ paths:
       operationId: deleteFootprint
       parameters:
         - $ref: './types/footprint_id.yaml#/footprint_id'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+
+
+  /models/categories:
+    get:
+      description: Return all categories for models
+      operationId: findModelsCategories
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            type: array
+            items:
+              $ref: './model/category/ModelCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+    
+    post:
+      description: Creates a new model category
+      operationId: addModelsCategory
+      parameters:
+        - name: category
+          in: body
+          description: Category to add
+          required: true
+          schema:
+            $ref: './model/category/ModelCategoryNew.yaml'
+      responses:
+        "200":
+          description: Created category
+          schema:
+            $ref: './model/category/ModelCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+    
+  /models/categories/{category_id}:
+    get:
+      description: Return a model category
+      operationId: findModelsCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Categories
+          schema:
+            $ref: './model/category/ModelCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update model category
+      operationId: updateModelsCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+        - name: category
+          in: body
+          description: Category to update
+          required: true
+          schema:
+            $ref: './model/category/ModelCategoryNew.yaml'
+      responses:
+        "200":
+          description: Updated pärt category
+          schema:
+            $ref: './model/category/ModelCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete model category
+      operationId: deleteModelsCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /models:
+    get:
+      description: Return all models
+      operationId: findModels
+      parameters:
+        - name: category
+          in: query
+          description: Filter by category
+          type: integer
+          format: int64
+        - name: search
+          in: query
+          description: Search for model matching pattern
+          type: string
+      responses:
+        "200":
+          description: List of models
+          schema:
+            type: array
+            items:
+              $ref: './model/Model.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    post:
+      description: Creates a new model
+      operationId: addModel
+      parameters:
+        - name: model
+          in: body
+          description: Model to add
+          required: true
+          schema:
+            $ref: './model/ModelNew.yaml'
+      responses:
+        "200":
+          description: Created model
+          schema:
+            $ref: './model/Model.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /models/{model_id}:
+    get:
+      description: Return a model
+      operationId: findModel
+      parameters:
+        - $ref: './types/model_id.yaml#/model_id'
+      responses:
+        "200":
+          description: Categories
+          schema:
+            $ref: './model/Model.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update model
+      operationId: updateModel
+      parameters:
+        - $ref: './types/model_id.yaml#/model_id'
+        - name: model
+          in: body
+          description: Model to update
+          required: true
+          schema:
+            $ref: './model/ModelNew.yaml'
+      responses:
+        "200":
+          description: Updated model
+          schema:
+            $ref: './model/Model.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete model
+      operationId: deleteModel
+      parameters:
+        - $ref: './types/model_id.yaml#/model_id'
       responses:
         "200":
           description: Deleted ok

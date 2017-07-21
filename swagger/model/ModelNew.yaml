@@ -1,0 +1,14 @@
+type: object
+allOf:
+  - $ref: './model/ModelData.yaml'
+  - required:
+      - name
+      - description
+      - comment
+    properties:
+      category:
+        $ref: "./model/category/ModelCategoryRef.yaml"
+      image:
+        $ref: "./upload/UploadFileRef.yaml"
+      Model:
+        $ref: "./upload/UploadFileRef.yaml"

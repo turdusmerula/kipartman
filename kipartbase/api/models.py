@@ -115,6 +115,26 @@ class Footprint(models.Model):
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
+class ModelCategory(MPTTModel):
+    parent = TreeForeignKey('ModelCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+    name = models.TextField()
+    description = models.TextField(blank=True, default='')
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
+
+
+class Model(models.Model):
+    category = models.ForeignKey('ModelCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+    name = models.TextField()
+    description = models.TextField(blank=True, default='')
+    comment = models.TextField(blank=True, default='')
+    image = models.ForeignKey('File', related_name='model_image', on_delete=models.DO_NOTHING, null=True, default=None)
+    model = models.ForeignKey('File', related_name='model_file', on_delete=models.DO_NOTHING, null=True, default=None)
+    snapeda = models.TextField(null=True, blank=True)
+    childs = models.ManyToManyField('Model', related_name='model_childs', blank=True)
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
+
 class File(models.Model):
     source_name = models.TextField()
     storage_path = models.TextField()
