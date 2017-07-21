@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Jul 12 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -9,6 +9,7 @@
 
 import wx
 import wx.xrc
+import wx.dataview
 
 ###########################################################################
 ## Class PanelManufacturers
@@ -55,7 +56,7 @@ class PanelManufacturers ( wx.Panel ):
 		
 		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
 		
-		self.tree_manufacturers = wx.TreeCtrl( self.panel_manufacturers, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT|wx.TR_ROW_LINES )
+		self.tree_manufacturers = wx.dataview.DataViewCtrl( self.panel_manufacturers, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer2.Add( self.tree_manufacturers, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
@@ -141,7 +142,6 @@ class PanelManufacturers ( wx.Panel ):
 		self.button_edit_manufacturer.Bind( wx.EVT_BUTTON, self.onButtonEditManufacturerClick )
 		self.button_remove_manufacturer.Bind( wx.EVT_BUTTON, self.onButtonRemoveManufacturerClick )
 		self.button_refresh_manufacturers.Bind( wx.EVT_BUTTON, self.onButtonRefreshManufacturersClick )
-		self.tree_manufacturers.Bind( wx.EVT_TREE_SEL_CHANGED, self.onTreeManufacturersSelChanged )
 		self.m_sdbSizer1Apply.Bind( wx.EVT_BUTTON, self.onApplyButtonClick )
 		self.m_sdbSizer1Cancel.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
 	
@@ -163,9 +163,6 @@ class PanelManufacturers ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonRefreshManufacturersClick( self, event ):
-		event.Skip()
-	
-	def onTreeManufacturersSelChanged( self, event ):
 		event.Skip()
 	
 	def onApplyButtonClick( self, event ):

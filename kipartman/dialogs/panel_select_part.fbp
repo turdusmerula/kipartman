@@ -298,7 +298,7 @@
                                                     <property name="maximum_size"></property>
                                                     <property name="min_size"></property>
                                                     <property name="minimize_button">0</property>
-                                                    <property name="minimum_size">150,-1</property>
+                                                    <property name="minimum_size">200,-1</property>
                                                     <property name="moveable">1</property>
                                                     <property name="name">search_part</property>
                                                     <property name="pane_border">1</property>
@@ -323,7 +323,7 @@
                                                     <property name="window_extra_style"></property>
                                                     <property name="window_name"></property>
                                                     <property name="window_style"></property>
-                                                    <event name="OnCancelButton"></event>
+                                                    <event name="OnCancelButton">onSearchPartCancelButton</event>
                                                     <event name="OnChar"></event>
                                                     <event name="OnEnterWindow"></event>
                                                     <event name="OnEraseBackground"></event>
@@ -344,11 +344,11 @@
                                                     <event name="OnRightDClick"></event>
                                                     <event name="OnRightDown"></event>
                                                     <event name="OnRightUp"></event>
-                                                    <event name="OnSearchButton"></event>
+                                                    <event name="OnSearchButton">onSearchPartSearchButton</event>
                                                     <event name="OnSetFocus"></event>
                                                     <event name="OnSize"></event>
                                                     <event name="OnText"></event>
-                                                    <event name="OnTextEnter"></event>
+                                                    <event name="OnTextEnter">onSearchPartTextEnter</event>
                                                     <event name="OnUpdateUI"></event>
                                                 </object>
                                             </object>
@@ -395,7 +395,7 @@
                                                     <event name="OnDataViewCtrlItemExpanding"></event>
                                                     <event name="OnDataViewCtrlItemStartEditing"></event>
                                                     <event name="OnDataViewCtrlItemValueChanged"></event>
-                                                    <event name="OnDataViewCtrlSelectionChanged">onTreeFootprintsSelectionChanged</event>
+                                                    <event name="OnDataViewCtrlSelectionChanged"></event>
                                                     <event name="OnEnterWindow"></event>
                                                     <event name="OnEraseBackground"></event>
                                                     <event name="OnKeyDown"></event>

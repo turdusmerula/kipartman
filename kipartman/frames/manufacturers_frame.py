@@ -1,50 +1,82 @@
 from dialogs.panel_manufacturers import PanelManufacturers
-from api.queries import ManufacturersQuery
-from rest_client.exceptions import QueryError
 import wx
-import api.models
+import rest
+import helper.tree
+
+def NoneValue(value, default):
+    if value:
+        return value
+    return default
+
+class DataModelManufacturer(helper.tree.TreeItem):
+    def __init__(self, manufacturer):
+        super(DataModelManufacturer, self).__init__()
+        self.manufacturer = manufacturer
+            
+    def GetValue(self, col):
+        vMap = { 
+            0 : self.manufacturer.name,
+        }
+        return vMap[col]
+
+
+class TreeManagerManufacturers(helper.tree.TreeManager):
+    def __init__(self, tree_view):
+        super(TreeManagerManufacturers, self).__init__(tree_view)
+
+    def FindManufacturer(self, manufacturer_id):
+        for data in self.data:
+            if isinstance(data, DataModelManufacturer) and data.manufacturer.id==manufacturer_id:
+                return data
+        return None
+
+    def UpdateManufacturer(self, manufacturer):
+        manufacturerobj = self.FindManufacturer(manufacturer.id)
+        if manufacturerobj is None:
+            return
+        self.UpdateItem(manufacturerobj)
+
 
 class ManufacturersFrame(PanelManufacturers): 
     def __init__(self, parent):
         super(ManufacturersFrame, self).__init__(parent)
         
+        # create manufacturers list
+        self.tree_manufacturers_manager = TreeManagerManufacturers(self.tree_manufacturers)
+        self.tree_manufacturers_manager.AddTextColumn("name")
+        self.tree_manufacturers_manager.OnSelectionChanged = self.onTreeManufacturersSelChanged
+
         self.panel_edit_manufacturer.Enabled = False
         self.panel_manufacturers.Enabled = True
         
         self.load() 
         
-    def _loadManufacturers(self):
-        self.tree_manufacturers.DeleteAllItems()
+    def loadManufacturers(self):
+        self.tree_manufacturers_manager.ClearItems()
         
-        # root node
-        self.tree_manufacturers.AddRoot('root')
-
         # retrieve categories
-        manufacturers = ManufacturersQuery().get()
+        manufacturers = rest.api.find_manufacturers()
 
         for manufacturer in manufacturers:
-            newitem = self.tree_manufacturers.AppendItem(parent=self.tree_manufacturers.GetRootItem(), text=manufacturer.name)
-            self.tree_manufacturers.SetItemData(newitem, manufacturer)
-        
-        #self.footprint_categories_tree.sort()
+            self.tree_manufacturers_manager.AppendItem(None, DataModelManufacturer(manufacturer))
     
     # Virtual event handlers, overide them in your derived class
     def load(self):
         try:
-            self._loadManufacturers()
-        except QueryError as e:
+            self.loadManufacturers()
+        except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def ShowManufacturer(self, manufacturer):
         self.manufacturer = manufacturer
         
         if manufacturer:
-            self.edit_manufacturer_name.Value = manufacturer.name
-            self.edit_manufacturer_address.Value = manufacturer.address
-            self.edit_manufacturer_website.Value = manufacturer.website
-            self.edit_manufacturer_email.Value = manufacturer.email
-            self.edit_manufacturer_phone.Value = manufacturer.phone
-            self.edit_manufacturer_comment.Value = manufacturer.comment
+            self.edit_manufacturer_name.Value = NoneValue(manufacturer.name, '')
+            self.edit_manufacturer_address.Value = NoneValue(manufacturer.address, '')
+            self.edit_manufacturer_website.Value = NoneValue(manufacturer.website, '')
+            self.edit_manufacturer_email.Value = NoneValue(manufacturer.email, '')
+            self.edit_manufacturer_phone.Value = NoneValue(manufacturer.phone, '')
+            self.edit_manufacturer_comment.Value = NoneValue(manufacturer.comment, '')
         else:
             self.edit_manufacturer_name.Value = ''
             self.edit_manufacturer_address.Value = ''
@@ -60,30 +92,36 @@ class ManufacturersFrame(PanelManufacturers):
 
     def onButtonEditManufacturerClick( self, event ):
         item = self.tree_manufacturers.GetSelection()
-        manufacturers = self.tree_manufacturers.GetItemData(item)
-        self.ShowManufacturer(manufacturers)
+        if item.IsOk()==False:
+            return 
+        manufacturer = self.tree_manufacturers_manager.ItemToObject(item)
+        self.ShowManufacturer(manufacturer.manufacturer)
         
         self.panel_edit_manufacturer.Enabled = True
         self.panel_manufacturers.Enabled = False
 
     def onButtonRemoveManufacturerClick( self, event ):
         item = self.tree_manufacturers.GetSelection()
-        manufacturer = self.tree_manufacturers.GetItemData(item)
-        ManufacturersQuery().delete(manufacturer)
-        self.load()
+        if item.IsOk()==False:
+            return
+        manufacturer = self.tree_manufacturers_manager.ItemToObject(item)
+        rest.api.delete_manufacturer(manufacturer.manufacturer.id)
+        self.tree_manufacturers_manager.DeleteItem(None, manufacturer)
         
     def onButtonRefreshManufacturersClick( self, event ):
         self.load()
     
     def onTreeManufacturersSelChanged( self, event ):
         item = self.tree_manufacturers.GetSelection()
-        manufacturer = self.tree_manufacturers.GetItemData(item)
-        self.ShowManufacturer(manufacturer)
+        if item.IsOk()==False:
+            return
+        manufacturer = self.tree_manufacturers_manager.ItemToObject(item)
+        self.ShowManufacturer(manufacturer.manufacturer)
     
     def onApplyButtonClick( self, event ):
         
         if self.manufacturer is None:
-            manufacturer = api.models.Manufacturer()
+            manufacturer = rest.model.Manufacturer()
         else:
             manufacturer = self.manufacturer
         
@@ -96,15 +134,16 @@ class ManufacturersFrame(PanelManufacturers):
 
         try:
             if self.manufacturer is None:
-                manufacturer = ManufacturersQuery().create(manufacturer)
+                manufacturer = rest.api.add_manufacturer(manufacturer)
+                self.tree_manufacturers_manager.AppendItem(None, DataModelManufacturer(manufacturer))
             else:
-                manufacturer = ManufacturersQuery().update(manufacturer)
-            
-            self. load()
+                manufacturer = rest.api.update_manufacturer(manufacturer.id, manufacturer)
+                self.tree_manufacturers_manager.UpdateManufacturer(manufacturer)
+
             self.panel_edit_manufacturer.Enabled = False
             self.panel_manufacturers.Enabled = True
             
-        except QueryError as e:
+        except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
         

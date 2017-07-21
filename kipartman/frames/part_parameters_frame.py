@@ -153,7 +153,7 @@ class PartParametersFrame(PanelPartParameters):
     
     def onButtonEditParameterClick( self, event ):
         item = self.tree_parameters.GetSelection()
-        if not item:
+        if item.IsOk()==False:
             return
         parameterobj = self.tree_parameters_manager.ItemToObject(item)
 
@@ -162,7 +162,7 @@ class PartParametersFrame(PanelPartParameters):
         
     def onButtonRemoveParameterClick( self, event ):
         item = self.tree_parameters.GetSelection()
-        if not item:
+        if item.IsOk()==False:
             return
         parameterobj = self.tree_parameters_manager.ItemToObject(item)
         self.part.parameters.remove(parameterobj.parameter)

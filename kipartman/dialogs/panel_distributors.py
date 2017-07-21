@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Jul 12 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -9,6 +9,7 @@
 
 import wx
 import wx.xrc
+import wx.dataview
 
 ###########################################################################
 ## Class PanelDistributors
@@ -55,7 +56,7 @@ class PanelDistributors ( wx.Panel ):
 		
 		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
 		
-		self.tree_distributors = wx.TreeCtrl( self.panel_distributors, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT|wx.TR_ROW_LINES )
+		self.tree_distributors = wx.dataview.DataViewCtrl( self.panel_distributors, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer2.Add( self.tree_distributors, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
@@ -148,7 +149,6 @@ class PanelDistributors ( wx.Panel ):
 		self.button_edit_distributor.Bind( wx.EVT_BUTTON, self.onButtonEditDistributorClick )
 		self.button_remove_distributor.Bind( wx.EVT_BUTTON, self.onButtonRemoveDistributorClick )
 		self.button_refresh_distributors.Bind( wx.EVT_BUTTON, self.onButtonRefreshDistributorsClick )
-		self.tree_distributors.Bind( wx.EVT_TREE_SEL_CHANGED, self.onTreeDistributorsSelChanged )
 		self.m_sdbSizer1Apply.Bind( wx.EVT_BUTTON, self.onApplyButtonClick )
 		self.m_sdbSizer1Cancel.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
 	
@@ -170,9 +170,6 @@ class PanelDistributors ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonRefreshDistributorsClick( self, event ):
-		event.Skip()
-	
-	def onTreeDistributorsSelChanged( self, event ):
 		event.Skip()
 	
 	def onApplyButtonClick( self, event ):

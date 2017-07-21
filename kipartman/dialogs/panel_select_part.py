@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Jul 12 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -33,7 +33,7 @@ class PanelSelectPart ( wx.Panel ):
 		self.search_part = wx.SearchCtrl( self.m_panel1, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_NOHIDESEL|wx.TE_PROCESS_ENTER )
 		self.search_part.ShowSearchButton( True )
 		self.search_part.ShowCancelButton( True )
-		self.search_part.SetMinSize( wx.Size( 150,-1 ) )
+		self.search_part.SetMinSize( wx.Size( 200,-1 ) )
 		
 		bSizer4.Add( self.search_part, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT, 5 )
 		
@@ -74,7 +74,9 @@ class PanelSelectPart ( wx.Panel ):
 		self.Layout()
 		
 		# Connect Events
-		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeFootprintsSelectionChanged, id = wx.ID_ANY )
+		self.search_part.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchPartCancelButton )
+		self.search_part.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchPartSearchButton )
+		self.search_part.Bind( wx.EVT_TEXT_ENTER, self.onSearchPartTextEnter )
 		self.m_sdbSizer2Cancel.Bind( wx.EVT_BUTTON, self.onButtonCancelClick )
 		self.m_sdbSizer2OK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
 	
@@ -83,7 +85,13 @@ class PanelSelectPart ( wx.Panel ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def onTreeFootprintsSelectionChanged( self, event ):
+	def onSearchPartCancelButton( self, event ):
+		event.Skip()
+	
+	def onSearchPartSearchButton( self, event ):
+		event.Skip()
+	
+	def onSearchPartTextEnter( self, event ):
 		event.Skip()
 	
 	def onButtonCancelClick( self, event ):

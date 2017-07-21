@@ -2,110 +2,14 @@ from dialogs.panel_select_part import PanelSelectPart
 import wx
 import wx.lib.newevent
 import wx.dataview
+import rest
+from frames.parts_frame import DataModelCategory, DataModelCategoryPath, DataModelPart, TreeManagerParts
+from part_parameters_frame import DataModelPartParameter
+import helper.tree
 
 SelectPartOkEvent, EVT_SELECT_PART_OK_EVENT = wx.lib.newevent.NewEvent()
 SelectPartCancelEvent, EVT_SELECT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 
-class PartCategoryList(object):
-    def __init__(self):
-        self.data = PartCategoriesQuery().get()
-        
-        # build a path to category dictionnary
-        self.dict = {}
-        for category in self.data:
-            self.dict[category.path] = category
-
-    def get_path(self, category):
-        if not category:
-            return "/"
-        path = "/"+category.name
-        print category.parent._url
-        return ""
-        parent = self.dict[category.parent._url]
-        while parent:
-            path = "/"+parent.name+path
-            parent = self.dict[parent.parent._url]
-        return path
-
-class PartDataModel(wx.dataview.PyDataViewModel):
-    def __init__(self):
-        super(PartDataModel, self).__init__()
-        self.data = PartsQuery().get()
-        #self.UseWeakRefs(True)
-    
-    def Filter(self, part_filter=None):
-        if part_filter:
-            self.data = PartsQuery(**part_filter).get()
-        
-    def GetColumnCount(self):
-        return 4
-
-    def GetColumnType(self, col):
-        mapper = { 
-            0 : 'long',
-            1 : 'string',
-            2 : 'string',
-            3 : 'string'
-        }
-        return mapper[col]
-
-    def GetChildren(self, parent, children):
-        # check root node
-        if not parent:
-            for part in self.data:
-                # mark root parts to avoid recursion
-                part.parent = None
-                children.append(self.ObjectToItem(part))
-            return len(self.data)
-        
-        # load childrens
-        parent_part = self.ItemToObject(parent)
-        for id in parent_part.parts:
-            subpart = PartsQuery().get(id)[0]
-            subpart.parent = parent_part
-            print "subpart", subpart.id
-            children.append(self.ObjectToItem(subpart))
-        return len(parent_part.parts)
-    
-    def IsContainer(self, item):
-        if not item:
-            return True
-        part = self.ItemToObject(item)
-        return len(part.parts)>0
-
-    def HasContainerColumns(self, item):
-        return True
-
-    def GetParent(self, item):
-        if not item:
-            return wx.dataview.NullDataViewItem
-
-        part = self.ItemToObject(item)
-        if not part.parent:
-            return wx.dataview.NullDataViewItem
-        else:
-            return self.ObjectToItem(part.parent)
-    
-    def GetValue(self, item, col):
-        obj = self.ItemToObject(item)
-        vMap = { 
-            0 : str(obj.id),
-            1 : obj.name,
-            2 : obj.description,
-            3 : obj.comment
-        }
-        if vMap[col] is None:
-            return ""
-        return vMap[col]
-
-    def SetValue(self, value, item, col):
-        pass
-    
-    def GetAttr(self, item, col, attr):
-        if col == 0:
-            attr.Bold = True
-            return True
-        return False
             
 class SelectPartFrame(PanelSelectPart):
     def __init__(self, parent, initial=None): 
@@ -117,28 +21,79 @@ class SelectPartFrame(PanelSelectPart):
         super(SelectPartFrame, self).__init__(parent)
     
         # create parts list
-        self.parts_model = PartDataModel()
-        self.tree_parts.AssociateModel(self.parts_model)
-        # add default columns
-        self.tree_parts.AppendTextColumn("id", 0, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parts.AppendTextColumn("name", 1, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parts.AppendTextColumn("description", 2, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_parts.AppendTextColumn("comment", 3, width=wx.COL_WIDTH_AUTOSIZE)
-        
-#        self.tree_parts.Select(self.parts_model.PartToItem(initial))
-        
+        self.tree_parts_manager = TreeManagerParts(self.tree_parts)
+        self.tree_parts_manager.AddIntegerColumn("id")
+        self.tree_parts_manager.AddTextColumn("name")
+        self.tree_parts_manager.AddTextColumn("description")
+        self.tree_parts_manager.AddIntegerColumn("comment")
+        self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelectionChanged
+
+        # create parameters list
+        self.tree_parameters_manager = helper.tree.TreeManager(self.tree_parameters)
+        self.tree_parameters_manager.AddTextColumn("Parameter")
+        self.tree_parameters_manager.AddTextColumn("Min Value")
+        self.tree_parameters_manager.AddTextColumn("Nominal Value")
+        self.tree_parameters_manager.AddTextColumn("Max Value")
+        self.tree_parameters_manager.AddTextColumn("Unit")
+        self.tree_parameters_manager.AddTextColumn("Description")
+
+        # init filter
+        self.search_filter = None
+        self.search_part.Value = ''
+        self.load()
+
         # set result functions
         self.cancel = None
         self.result = None
-    
+        
+    def load(self):
+        # clear all
+        self.tree_parts_manager.ClearItems()
+        
+        # load parts
+        if self.search_filter:
+            parts = rest.api.find_parts(search=self.search_filter)
+        else:
+            parts = rest.api.find_parts()
+
+        # load categories
+        categories = {}
+        for part in parts:
+            if part.category:
+                category_name = part.category.path
+            else:
+                category_name = "/"
+
+            if categories.has_key(category_name)==False:
+                categories[category_name] = DataModelCategoryPath(part.category)
+                self.tree_parts_manager.AppendItem(None, categories[category_name])
+            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part))
+        
+        for category in categories:
+            self.tree_parts_manager.Expand(categories[category])
+
+    def showParameters(self, part):
+        self.tree_parameters_manager.ClearItems()
+        
+        if part and part.parameters:
+            for parameter in part.parameters:
+                self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(parameter))
+
     def SetResult(self, result, cancel=None):
         self.result = result
         self.cancel = cancel
         
     # Virtual event handlers, overide them in your derived class
     def onTreePartsSelectionChanged( self, event ):
-        event.Skip()
-    
+        item = self.tree_parts.GetSelection()
+        if item.IsOk()==False:
+            return
+        partobj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(partobj, DataModelPart)==False:
+            return
+        partobj.part = rest.api.find_part(partobj.part.id, with_parameters=True)
+        self.showParameters(partobj.part)
+        
     def onButtonCancelClick( self, event ):
         event = SelectPartCancelEvent()
         wx.PostEvent(self, event)
@@ -146,14 +101,27 @@ class SelectPartFrame(PanelSelectPart):
             self.cancel()
     
     def onButtonOkClick( self, event ):
-        sel = self.tree_parts.GetSelection()
-        if not sel:
+        item = self.tree_parts.GetSelection()
+        if item.IsOk()==False:
             return
-        part = self.parts_model.ItemToObject(self.tree_parts.GetSelection())
+        partobj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(partobj, DataModelPart)==False:
+            return
         
         # trigger result event
-        event = SelectPartOkEvent(data=part)
+        event = SelectPartOkEvent(data=partobj.part)
         wx.PostEvent(self, event)
         if self.result:
-            self.result(part)
-            
+            self.result(partobj.part)
+
+    def onSearchPartCancelButton( self, event ):
+        self.search_filter = None
+        self.load()
+    
+    def onSearchPartSearchButton( self, event ):
+        self.search_filter = self.search_part.Value
+        self.load()
+    
+    def onSearchPartTextEnter( self, event ):
+        self.search_filter = self.search_part.Value
+        self.load()

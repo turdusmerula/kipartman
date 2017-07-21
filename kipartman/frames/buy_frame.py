@@ -1,9 +1,9 @@
 from dialogs.panel_buy import PanelBuy
 import wx.dataview
 from bom_frame import pcb, bom
-from api.queries import PartsQuery
 from currency.currency import Currency
 from configuration import Configuration
+import rest
 
 configuration = Configuration()
 currency = Currency(configuration.base_currency)

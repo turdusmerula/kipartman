@@ -426,5 +426,8 @@ class TreeManager(object):
     def ItemToObject(self, item):
         return self.model.ItemToObject(item)
     
+    def ObjectToItem(self, obj):
+        return self.model.ObjectToItem(obj)
+
     def DropAccept(self, type, trigger):
         self.drop_targets.append({'type': type.__name__, 'trigger': trigger})

@@ -1,11 +1,11 @@
 from dialogs.dialog_main import DialogMain
-# from frames.buy_frame import BuyFrame
+from frames.buy_frame import BuyFrame
 from frames.parts_frame import PartsFrame
 from frames.models_frame import ModelsFrame
 from frames.footprints_frame import FootprintsFrame
-# from frames.distributors_frame import DistributorsFrame
-# from frames.manufacturers_frame import ManufacturersFrame
-# from frames.bom_frame import BomFrame
+from frames.distributors_frame import DistributorsFrame
+from frames.manufacturers_frame import ManufacturersFrame
+from frames.bom_frame import BomFrame
 from frames.configuration_frame import ConfigurationFrame
 
 import wx
@@ -17,33 +17,36 @@ class MainFrame(DialogMain):
         self.menus = self.menu_bar.GetMenus()
 
         self.pages = []
-#         self.buyframe = BuyFrame(self.notebook)
-#         self.bomframe = BomFrame(self.notebook, self.buyframe)
+        self.buyframe = BuyFrame(self.notebook)
+        self.bomframe = BomFrame(self.notebook, self.buyframe)
         self.partsframe = PartsFrame(self.notebook)
         self.modelsframe = ModelsFrame(self.notebook)
         self.footprintsframe = FootprintsFrame(self.notebook)
-#         self.distributorsframe = DistributorsFrame(self.notebook)
-#         self.manufacturersframe = ManufacturersFrame(self.notebook)
+        self.distributorsframe = DistributorsFrame(self.notebook)
+        self.manufacturersframe = ManufacturersFrame(self.notebook)
 
-#         self.pages.append(self.bomframe)
-#         self.notebook.AddPage(self.bomframe, "BOM", False)
-#         self.pages.append(self.buyframe)
-#         self.notebook.AddPage(self.buyframe, "Buy", False)
+        self.pages.append(self.bomframe)
+        self.notebook.AddPage(self.bomframe, "BOM", False)
+        self.pages.append(self.buyframe)
+        self.notebook.AddPage(self.buyframe, "Buy", False)
         self.pages.append(self.partsframe)
         self.notebook.AddPage(self.partsframe, "Parts", False)
         self.pages.append(self.modelsframe)
         self.notebook.AddPage(self.modelsframe, "Models", False)
         self.pages.append(self.footprintsframe)
         self.notebook.AddPage(self.footprintsframe, "Footprints", False)
-#         self.pages.append(self.distributorsframe)
-#         self.notebook.AddPage(self.distributorsframe, "Distributors", False)
-#         self.pages.append(self.manufacturersframe)
-#         self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
+        self.pages.append(self.distributorsframe)
+        self.notebook.AddPage(self.distributorsframe, "Distributors", False)
+        self.pages.append(self.manufacturersframe)
+        self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
 
     def onMenuViewConfigurationSelection( self, event ):
         ConfigurationFrame(self).ShowModal()
 
     def onNotebookPageChanged( self, event ):
+        if self.menus is None:
+            return
+
         self.menu_bar.SetMenus(self.menus)
 
         try:

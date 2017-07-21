@@ -2,8 +2,12 @@ import json
 import os
 import wx
 from kicad.pcb import Module
-from api.queries import PartsQuery
+import rest
 
+class BomException(BaseException):
+    def __init__(self, error):
+        self.error = error
+        
 class Bom(object):
     def __init__(self, pcb):
         self.filename = None
@@ -32,34 +36,43 @@ class Bom(object):
         for part in content['parts']:
             # load part from server
             try:
-                self.parts.append(PartsQuery().get(part['id'])[0])
+                self.parts.append(rest.api.find_part(part['id']))
                 self.part_modules[part['id']] = []
             except:
+                print "Warning: part %d not found on server"%part['id']
                 part_not_found.append(part)
 
         module_not_found= []
         part_id_not_found = []
+        # load modules from BOM
         for part_id in content['modules']:
+            part = None
             # get part from list
-            for part in self.parts:
-                if part.id==part_id:
+            for p in self.parts:
+                if p.id==int(part_id):
+                    part = p
                     break
-
-            # get modules from pcb
-            for module in content['modules'][part_id]:
-                if self.part_modules.has_key(int(part_id)):
-                    if self.pcb.ExistModule(module['timestamp']):
-                        self.part_modules[int(part_id)].append(self.pcb.GetModule(module['timestamp']))
-                        self.module_part[module['timestamp']] = part
+            if part:
+                # get modules from pcb
+                for module in content['modules'][part_id]:
+                    if self.part_modules.has_key(int(part_id)):
+                        if self.pcb.ExistModule(module['timestamp']):
+                            self.part_modules[int(part_id)].append(self.pcb.GetModule(module['timestamp']))
+                            self.module_part[module['timestamp']] = part
+                        else:
+                            print "Warning: module %s does not exist in pcb"%module['timestamp']
+                            module_not_found.append(module)
                     else:
-                        module_not_found.append(module)
-                else:
-                    part_id_not_found.append(int(part_id))
-        
+                        print "Warning: part %d not found on bom"%part_id
+                        part_id_not_found.append(int(part_id))
+            else:
+                print "Warning: part %d from BOM does not exist on server"%int(part_id)
+                part_id_not_found.append(int(part_id))
+            
         # TODO: show error messages from part_not_found, module_not_found and part_id_not_found
         self.filename = filename
         self.saved = True
-     
+
     def pcbChanged(self):
         for part_id in self.part_modules:
             for module in self.part_modules[int(part_id)]:
@@ -96,13 +109,19 @@ class Bom(object):
             if p.id==part.id:
                 return True
         return False
-
+    
+#     def FindPartModule(self, module, part_id):
+#         try:
+#             part = self.module_part[module.timestamp]
+#         except:
+#             raise BomException("Module %s does not exist in BOM"%module.timestamp)
+#         for part in 
     def AddPart(self, part):
         self.parts.append(part)
         self.part_modules[part.id] = []
         self.saved = False
 
-    def AddModule(self, part, module):
+    def AddPartModule(self, part, module):
         self.part_modules[part.id].append(module)
         self.module_part[module.timestamp] = part
         self.saved = False
@@ -114,9 +133,13 @@ class Bom(object):
         self.part_modules.pop(part.id)
         self.saved = False
         
-    def RemoveModule(self, module):
+    def RemovePartModule(self, module):
         part = self.module_part[module.timestamp]
         self.module_part.pop(module.timestamp)
-        self.part_modules[part.id].remove(module)
+        
+        for part_module in self.part_modules[part.id]:
+            if part_module.timestamp==module.timestamp:
+                self.part_modules[part.id].remove(part_module)
+
         self.saved = False
         
