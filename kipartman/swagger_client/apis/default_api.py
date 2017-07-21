@@ -159,8 +159,6 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param FootprintNew footprint: Footprint to add (required)
-        :param file footprint_file: Footprint to upload
-        :param file image_file: Image to upload
         :return: Footprint
                  If the method is called asynchronously,
                  returns the request thread.
@@ -186,14 +184,12 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param FootprintNew footprint: Footprint to add (required)
-        :param file footprint_file: Footprint to upload
-        :param file image_file: Image to upload
         :return: Footprint
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['footprint', 'footprint_file', 'image_file']
+        all_params = ['footprint']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -224,10 +220,6 @@ class DefaultApi(object):
 
         form_params = []
         local_var_files = {}
-        if 'footprint_file' in params:
-            local_var_files['footprint_file'] = params['footprint_file']
-        if 'image_file' in params:
-            local_var_files['image_file'] = params['image_file']
 
         body_params = None
         if 'footprint' in params:
@@ -671,6 +663,108 @@ class DefaultApi(object):
                                         post_params=form_params,
                                         files=local_var_files,
                                         response_type='PartCategory',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def add_upload_file(self, **kwargs):
+        """
+        Upload a file.
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_upload_file(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param file upfile: The file to upload.
+        :return: UploadFile
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.add_upload_file_with_http_info(**kwargs)
+        else:
+            (data) = self.add_upload_file_with_http_info(**kwargs)
+            return data
+
+    def add_upload_file_with_http_info(self, **kwargs):
+        """
+        Upload a file.
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_upload_file_with_http_info(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param file upfile: The file to upload.
+        :return: UploadFile
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['upfile']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method add_upload_file" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+
+        collection_formats = {}
+
+        resource_path = '/upload'.replace('{format}', 'json')
+        path_params = {}
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+        if 'upfile' in params:
+            local_var_files['upfile'] = params['upfile']
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['multipart/form-data'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'POST',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='UploadFile',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -1529,7 +1623,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int footprint_id: Footprint id (required)
-        :return: list[Footprint]
+        :return: Footprint
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1554,7 +1648,7 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int footprint_id: Footprint id (required)
-        :return: list[Footprint]
+        :return: Footprint
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1612,7 +1706,7 @@ class DefaultApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='list[Footprint]',
+                                        response_type='Footprint',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -1633,6 +1727,7 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param int category: Filter by category
         :param str search: Search for footprint matching pattern
         :return: list[Footprint]
                  If the method is called asynchronously,
@@ -1658,13 +1753,14 @@ class DefaultApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param int category: Filter by category
         :param str search: Search for footprint matching pattern
         :return: list[Footprint]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['search']
+        all_params = ['category', 'search']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -1687,6 +1783,8 @@ class DefaultApi(object):
         path_params = {}
 
         query_params = {}
+        if 'category' in params:
+            query_params['category'] = params['category']
         if 'search' in params:
             query_params['search'] = params['search']
 
@@ -3125,8 +3223,6 @@ class DefaultApi(object):
             for asynchronous request. (optional)
         :param int footprint_id: Footprint id (required)
         :param FootprintNew footprint: Footprint to update (required)
-        :param file footprint_file: Footprint to upload
-        :param file image_file: Image to upload
         :return: Footprint
                  If the method is called asynchronously,
                  returns the request thread.
@@ -3153,14 +3249,12 @@ class DefaultApi(object):
             for asynchronous request. (optional)
         :param int footprint_id: Footprint id (required)
         :param FootprintNew footprint: Footprint to update (required)
-        :param file footprint_file: Footprint to upload
-        :param file image_file: Image to upload
         :return: Footprint
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['footprint_id', 'footprint', 'footprint_file', 'image_file']
+        all_params = ['footprint_id', 'footprint']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -3196,10 +3290,6 @@ class DefaultApi(object):
 
         form_params = []
         local_var_files = {}
-        if 'footprint_file' in params:
-            local_var_files['footprint_file'] = params['footprint_file']
-        if 'image_file' in params:
-            local_var_files['image_file'] = params['image_file']
 
         body_params = None
         if 'footprint' in params:

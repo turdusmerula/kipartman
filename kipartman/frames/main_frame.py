@@ -1,8 +1,7 @@
-import data
 from dialogs.dialog_main import DialogMain
 # from frames.buy_frame import BuyFrame
 from frames.parts_frame import PartsFrame
-# from frames.footprints_frame import FootprintsFrame
+from frames.footprints_frame import FootprintsFrame
 # from frames.distributors_frame import DistributorsFrame
 # from frames.manufacturers_frame import ManufacturersFrame
 # from frames.bom_frame import BomFrame
@@ -21,7 +20,7 @@ class MainFrame(DialogMain):
 #         self.bomframe = BomFrame(self.notebook, self.buyframe)
         self.partsframe = PartsFrame(self.notebook)
 #         self.modelsframe = wx.Panel(self.notebook)
-#         self.footprintsframe = FootprintsFrame(self.notebook)
+        self.footprintsframe = FootprintsFrame(self.notebook)
 #         self.distributorsframe = DistributorsFrame(self.notebook)
 #         self.manufacturersframe = ManufacturersFrame(self.notebook)
 
@@ -33,8 +32,8 @@ class MainFrame(DialogMain):
         self.notebook.AddPage(self.partsframe, "Parts", False)
 #         self.pages.append(self.modelsframe)
 #         self.notebook.AddPage(self.modelsframe, "Models", False)
-#         self.pages.append(self.footprintsframe)
-#         self.notebook.AddPage(self.footprintsframe, "Footprints", False)
+        self.pages.append(self.footprintsframe)
+        self.notebook.AddPage(self.footprintsframe, "Footprints", False)
 #         self.pages.append(self.distributorsframe)
 #         self.notebook.AddPage(self.distributorsframe, "Distributors", False)
 #         self.pages.append(self.manufacturersframe)

@@ -30,8 +30,9 @@ java -jar /tmp/swagger-codegen-cli.jar generate \
   -D supportPython2=true
 
 # patch main to change flask parameters
-sed -i -e "s/8080/8200, debug=True/g" server/swagger_server/__main__.py
-sed -i -e "s/\.encoder/encoder/g" server/swagger_server/__main__.py
+#sed -i -e "s/8080/8200, debug=True/g" server/swagger_server/__main__.py
+#sed -i -e "s/\.encoder/encoder/g" server/swagger_server/__main__.py
+#cat static_files.py.tpl >> server/swagger_server/__main__.py
 
 # patch py files to remove wrong recursive imports
 sed -i -e "s/from swagger_server.models.part_category import PartCategory//g" server/swagger_server/models/part_category.py
@@ -57,3 +58,8 @@ cp -f swagger_server/*.py $swagger_server
 rsync --delete -rv swagger_server/models/ ${swagger_server}/models
 rsync --delete -rv swagger_server/swagger/ ${swagger_server}/swagger
 cd -
+
+echo "-------- ${swagger_server}"
+cat __main__.py.tpl
+cat __main__.py.tpl > ${swagger_server}/__main__.py
+

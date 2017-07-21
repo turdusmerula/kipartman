@@ -12,12 +12,14 @@ from typing import List, Dict
 from six import iteritems
 from ..util import deserialize_date, deserialize_datetime
 
-from swagger_server.controllers.controller_footprint_category import find_footprints_category
+from swagger_server.controllers.controller_footprint_category import find_footprints_category,\
+    find_footprints_categories
+from swagger_server.controllers.controller_upload_file import find_upload_file
+from swagger_server.controllers.helpers import raise_on_error, ControllerError
 
 import api.models
 from django.db.models import Q
 #import jsonpickle
-
 def serialize_FootprintData(ffootprint, footprint=None):
     if footprint is None:
         footprint = FootprintData()
@@ -34,7 +36,11 @@ def serialize_Footprint(ffootprint, footprint=None):
     footprint.id = ffootprint.id
     serialize_FootprintData(ffootprint, footprint)
     if ffootprint.category:
-        footprint.category = find_footprints_category(ffootprint.category.id)
+        footprint.category = raise_on_error(find_footprints_category(ffootprint.category.id))
+    if ffootprint.image:
+        footprint.image = raise_on_error(find_upload_file(ffootprint.image.id))
+    if ffootprint.footprint:
+        footprint.footprint = raise_on_error(find_upload_file(ffootprint.footprint.id))
     return footprint
 
 
@@ -44,32 +50,36 @@ def deserialize_FootprintData(footprint, ffootprint=None):
     ffootprint.name = footprint.name
     ffootprint.description = footprint.description
     ffootprint.comment = footprint.comment
-    #ffootprint.footprint
-    if footprint.snapeda:
-        ffootprint.snapeda = footprint.snapeda
+    ffootprint.snapeda = footprint.snapeda
     return ffootprint
 
 
 def deserialize_FootprintNew(footprint, ffootprint=None):
     ffootprint = deserialize_FootprintData(footprint, ffootprint)
     if footprint.category:
-        try:
-            ffootprint.category = api.models.FootprintCategory.objects.get(pk=footprint.category.id)
-        except:
-            return Error(code=1000, message='Category %d does not exists'%footprint.category.id)
+        ffootprint.category = api.models.FootprintCategory.objects.get(id=footprint.category.id)
+    else:
+        ffootprint.category = None
+        
+    if footprint.image:
+        ffootprint.image = api.models.File.objects.get(id=footprint.image.id)
+    else:
+        ffootprint.image = None
+        
+    if footprint.footprint:
+        ffootprint.footprint = api.models.File.objects.get(id=footprint.footprint.id)
+    else:
+        ffootprint.footprint = None
+
     return ffootprint
 
 
-def add_footprint(footprint, footprint_file=None, image_file=None):
+def add_footprint(footprint):
     """
     add_footprint
     Creates a new footprint
     :param footprint: Footprint to add
     :type footprint: dict | bytes
-    :param footprint_file: Footprint to upload
-    :type footprint_file: werkzeug.datastructures.FileStorage
-    :param image_file: Image to upload
-    :type image_file: werkzeug.datastructures.FileStorage
 
     :rtype: Footprint
     """
@@ -78,12 +88,10 @@ def add_footprint(footprint, footprint_file=None, image_file=None):
 
     try:
         ffootprint = deserialize_FootprintNew(footprint)
-    except Error as e:
-        return e
-    
-    # TODO footprint_file
-    # TODO image_file
-    
+    except ControllerError as e:
+        return e.error
+
+        
     ffootprint.save()
     
     return serialize_Footprint(ffootprint)
@@ -114,21 +122,26 @@ def find_footprint(footprint_id):
     :param footprint_id: Footprint id
     :type footprint_id: int
 
-    :rtype: List[FootprintTree]
+    :rtype: Footprint
     """
     try:
         ffootprint = api.models.Footprint.objects.get(pk=footprint_id)
     except:
         return Error(code=1000, message='Footprint %d does not exists'%footprint_id)
     
-    footprint = serialize_Footprint(ffootprint)
-
+    try:
+        footprint = serialize_Footprint(ffootprint)
+    except ControllerError as e:
+        return e.error
+    
     return footprint
 
-def find_footprints(search=None):
+def find_footprints(category=None, search=None):
     """
     find_footprints
     Return all footprints
+    :param category: Filter by category
+    :type category: int
     :param search: Search for footprint matching pattern
     :type search: str
 
@@ -144,13 +157,20 @@ def find_footprints(search=None):
                     Q(description__contains=search) |
                     Q(comment__contains=search)
                 )
-    
+
+    if category:
+        # extract category
+        categories = api.models.FootprintCategory.objects.get(pk=int(category)).get_descendants(include_self=True)
+        category_ids = [category.id for category in categories]
+        # add a category filter
+        ffootprint_query = ffootprint_query.filter(category__in=category_ids)
+
     for ffootprint in ffootprint_query.all():
         footprints.append(serialize_Footprint(ffootprint))
 
     return footprints
 
-def update_footprint(footprint_id, footprint, footprint_file=None, image_file=None):
+def update_footprint(footprint_id, footprint):
     """
     update_footprint
     Update footprint
@@ -158,10 +178,6 @@ def update_footprint(footprint_id, footprint, footprint_file=None, image_file=No
     :type footprint_id: int
     :param footprint: Footprint to update
     :type footprint: dict | bytes
-    :param footprint_file: Footprint to upload
-    :type footprint_file: werkzeug.datastructures.FileStorage
-    :param image_file: Image to upload
-    :type image_file: werkzeug.datastructures.FileStorage
 
     :rtype: Footprint
     """
@@ -169,11 +185,12 @@ def update_footprint(footprint_id, footprint, footprint_file=None, image_file=No
         footprint = FootprintNew.from_dict(connexion.request.get_json())
     else:
         return Error(code=1000, message='Missing payload')
+
     try:
         ffootprint = deserialize_FootprintNew(footprint, api.models.Footprint.objects.get(pk=footprint_id))
     except:
         return Error(code=1000, message='Footprint %d does not exists'%footprint_id)        
-        
+
     ffootprint.save()
     
-    return footprint
+    return serialize_Footprint(ffootprint)

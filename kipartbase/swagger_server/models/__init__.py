@@ -33,3 +33,6 @@ from .part_parameter_data import PartParameterData
 from .part_ref import PartRef
 from .unit import Unit
 from .unit_prefix import UnitPrefix
+from .upload_file import UploadFile
+from .upload_file_data import UploadFileData
+from .upload_file_ref import UploadFileRef

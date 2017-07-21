@@ -43,33 +43,31 @@ class PartManufacturersFrame(PanelPartManufacturers):
         self.button_edit_manufacturer.Enabled = enabled
         self.button_remove_manufacturer.Enabled = enabled
 
+    def FindManufacturer(self, name):
+        for data in self.tree_manufacturers_manager.data:
+            if data.manufacturer.name==name:
+                return data
+        return None
+
     def AddManufacturer(self, manufacturer):
         """
         Add a manufacturer to the part
         """
+        if self.part.manufacturers is None:
+            self.part.manufacturers = []
         # add manufacturer
         self.part.manufacturers.append(manufacturer)
-        self.create_list.append(manufacturer)
-        self._showManufacturers()
+        self.tree_manufacturers_manager.AppendItem(None, DataModelPartManufacturer(manufacturer))
 
     def RemoveManufacturer(self, name):
         """
         Remove a manufacturer using its name
         """
-        for manufacturer in self.part.manufacturers:
-            if manufacturer.manufacturer and manufacturer.manufacturer.name==name:
-                if manufacturer.id!=-1:
-                    self.remove_list.append(manufacturer)
-                    self.part.manufacturers.remove(manufacturer)
-                    # remove it from update list if present
-                    try:
-                        # remove it if already exists
-                        self.update_list.remove(manufacturer)
-                    except:
-                        pass
-                else:
-                    self.part.manufacturers.remove(manufacturer)
-                    
+        if self.part.manufacturers is None:
+            return
+        manufacturerobj = self.FindManufacturer(name)
+        self.part.manufacturers.remove(manufacturerobj)
+        self.tree_manufacturers_manager.DeleteItem(None, manufacturerobj)
 
     def showManufacturers(self):
         self.tree_manufacturers_manager.ClearItems()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Jul 12 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -56,7 +56,7 @@ class PanelFootprints ( wx.Panel ):
 		
 		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
 		
-		self.tree_categories = wx.TreeCtrl( self.panel_category, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TR_DEFAULT_STYLE|wx.TR_FULL_ROW_HIGHLIGHT|wx.TR_HIDE_ROOT|wx.TR_ROW_LINES )
+		self.tree_categories = wx.dataview.DataViewCtrl( self.panel_category, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_SINGLE )
 		bSizer2.Add( self.tree_categories, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
@@ -121,7 +121,7 @@ class PanelFootprints ( wx.Panel ):
 		
 		bSizer7.Add( bSizer11, 0, wx.EXPAND, 5 )
 		
-		self.tree_footprints = wx.dataview.DataViewCtrl( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.tree_footprints = wx.dataview.DataViewCtrl( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_SINGLE )
 		bSizer7.Add( self.tree_footprints, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
@@ -151,23 +151,12 @@ class PanelFootprints ( wx.Panel ):
 		self.button_edit_category.Bind( wx.EVT_BUTTON, self.onButtonEditCategoryClick )
 		self.button_remove_category.Bind( wx.EVT_BUTTON, self.onButtonRemoveCategoryClick )
 		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onButtonRefreshCategoriesClick )
-		self.tree_categories.Bind( wx.EVT_CHAR, self.onTreeCategoriesOnChar )
-		self.tree_categories.Bind( wx.EVT_TREE_BEGIN_DRAG, self.onTreeCategoriesBeginDrag )
-		self.tree_categories.Bind( wx.EVT_TREE_END_DRAG, self.onTreeCategoriesEndDrag )
-		self.tree_categories.Bind( wx.EVT_TREE_ITEM_COLLAPSED, self.onTreeCategoriesCollapsed )
-		self.tree_categories.Bind( wx.EVT_TREE_ITEM_EXPANDED, self.onTreeCategoriesExpanded )
-		self.tree_categories.Bind( wx.EVT_TREE_SEL_CHANGED, self.onTreeCategoriesSelChanged )
-		self.tree_categories.Bind( wx.EVT_TREE_SEL_CHANGING, self.onTreeCategoriesSelChanging )
 		self.button_add_footprint.Bind( wx.EVT_BUTTON, self.onButtonAddFootprintClick )
 		self.button_edit_footprint.Bind( wx.EVT_BUTTON, self.onButtonEditFootprintClick )
 		self.button_remove_footprint.Bind( wx.EVT_BUTTON, self.onButtonRemoveFootprintClick )
+		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintsButton )
 		self.search_footprints.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintsTextEnter )
 		self.button_refresh_footprints.Bind( wx.EVT_BUTTON, self.onButtonRefreshFootprintsClick )
-		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_BEGIN_DRAG, self.onTreeFootprintsItemBeginDrag, id = wx.ID_ANY )
-		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_COLLAPSED, self.onTreeFootprintsItemCollapsed, id = wx.ID_ANY )
-		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_DROP, self.onTreeFootprintsItemDrop, id = wx.ID_ANY )
-		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_ITEM_EXPANDED, self.onTreeFootprintsItemExpanded, id = wx.ID_ANY )
-		self.tree_footprints.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeFootprintsSelectionChanged, id = wx.ID_ANY )
 	
 	def __del__( self ):
 		pass
@@ -189,27 +178,6 @@ class PanelFootprints ( wx.Panel ):
 	def onButtonRefreshCategoriesClick( self, event ):
 		event.Skip()
 	
-	def onTreeCategoriesOnChar( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesBeginDrag( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesEndDrag( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesCollapsed( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesExpanded( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesSelChanged( self, event ):
-		event.Skip()
-	
-	def onTreeCategoriesSelChanging( self, event ):
-		event.Skip()
-	
 	def onButtonAddFootprintClick( self, event ):
 		event.Skip()
 	
@@ -219,25 +187,13 @@ class PanelFootprints ( wx.Panel ):
 	def onButtonRemoveFootprintClick( self, event ):
 		event.Skip()
 	
+	def onSearchFootprintsButton( self, event ):
+		event.Skip()
+	
 	def onSearchFootprintsTextEnter( self, event ):
 		event.Skip()
 	
 	def onButtonRefreshFootprintsClick( self, event ):
-		event.Skip()
-	
-	def onTreeFootprintsItemBeginDrag( self, event ):
-		event.Skip()
-	
-	def onTreeFootprintsItemCollapsed( self, event ):
-		event.Skip()
-	
-	def onTreeFootprintsItemDrop( self, event ):
-		event.Skip()
-	
-	def onTreeFootprintsItemExpanded( self, event ):
-		event.Skip()
-	
-	def onTreeFootprintsSelectionChanged( self, event ):
 		event.Skip()
 	
 	def m_splitter2OnIdle( self, event ):

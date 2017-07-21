@@ -1,4 +1,3 @@
-from rest_client import queries
 from snapeda import models
 import json
 import urllib

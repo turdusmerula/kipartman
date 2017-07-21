@@ -411,6 +411,11 @@ paths:
       description: Return all footprints
       operationId: findFootprints
       parameters:
+        - name: category
+          in: query
+          description: Filter by category
+          type: integer
+          format: int64
         - name: search
           in: query
           description: Search for footprint matching pattern
@@ -437,8 +442,6 @@ paths:
           required: true
           schema:
             $ref: './footprint/FootprintNew.yaml'
-        - $ref: './types/footprint_file.yaml#/footprint_file'
-        - $ref: './types/image_file.yaml#/image_file'
       responses:
         "200":
           description: Created footprint
@@ -459,9 +462,7 @@ paths:
         "200":
           description: Categories
           schema:
-            type: array
-            items:
-              $ref: './footprint/Footprint.yaml'
+            $ref: './footprint/Footprint.yaml'
         default:
           description: unexpected error
           schema:
@@ -478,8 +479,6 @@ paths:
           required: true
           schema:
             $ref: './footprint/FootprintNew.yaml'
-        - $ref: './types/footprint_file.yaml#/footprint_file'
-        - $ref: './types/image_file.yaml#/image_file'
       responses:
         "200":
           description: Updated pärt
@@ -684,6 +683,27 @@ paths:
       responses:
         "200":
           description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /upload:
+    post:
+      description: Upload a file.
+      operationId: addUploadFile
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          description: The file to upload.
+      responses:
+        "200":
+          description: Path of updated file
+          schema:
+            $ref: './upload/UploadFile.yaml'
         default:
           description: unexpected error
           schema:

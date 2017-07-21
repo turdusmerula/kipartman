@@ -35,8 +35,10 @@ class SearchResult(Model):
         return self.json["availability_count"]
 
     def pin_count(self):
-        return self.json["pin_count"]
-
+        if self.json.has_key("pin_count"):
+            return self.json["pin_count"]
+        return None
+    
     def availability(self):
         return self.json["availability"]
 

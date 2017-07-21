@@ -13,6 +13,6 @@ allOf:
       category:
         $ref: "./footprint/category/FootprintCategory.yaml"
       image:
-        type: string
+        $ref: "./upload/UploadFile.yaml"
       footprint:
-        type: string
+        $ref: "./upload/UploadFile.yaml"

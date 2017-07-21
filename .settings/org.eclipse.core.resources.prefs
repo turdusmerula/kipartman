@@ -7,6 +7,7 @@ encoding//kipartbase/api/migrations/0023_auto_20170710_0935.py=utf-8
 encoding//kipartbase/api/models.py=utf-8
 encoding//kipartbase/api/tests.py=utf-8
 encoding//kipartbase/kipartbase/urls.py=utf-8
+encoding//kipartbase/swagger_server/models/error.py=utf-8
 encoding//kipartbase/swagger_server/models/part.py=utf-8
 encoding//kipartbase/swagger_server/models/part_new.py=utf-8
 encoding//kipartbase/swagger_server/models/unit.py=utf-8

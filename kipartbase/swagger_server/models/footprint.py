@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 from swagger_server.models.footprint_category import FootprintCategory
 from swagger_server.models.footprint_data import FootprintData
+from swagger_server.models.upload_file import UploadFile
 from .base_model_ import Model
 from datetime import date, datetime
 from typing import List, Dict
@@ -31,9 +32,9 @@ class Footprint(Model):
         :param category: The category of this Footprint.
         :type category: FootprintCategory
         :param image: The image of this Footprint.
-        :type image: str
+        :type image: UploadFile
         :param footprint: The footprint of this Footprint.
-        :type footprint: str
+        :type footprint: UploadFile
         """
         self.swagger_types = {
             'name': str,
@@ -42,8 +43,8 @@ class Footprint(Model):
             'snapeda': str,
             'id': int,
             'category': FootprintCategory,
-            'image': str,
-            'footprint': str
+            'image': UploadFile,
+            'footprint': UploadFile
         }
 
         self.attribute_map = {
@@ -212,7 +213,7 @@ class Footprint(Model):
         Gets the image of this Footprint.
 
         :return: The image of this Footprint.
-        :rtype: str
+        :rtype: UploadFile
         """
         return self._image
 
@@ -222,7 +223,7 @@ class Footprint(Model):
         Sets the image of this Footprint.
 
         :param image: The image of this Footprint.
-        :type image: str
+        :type image: UploadFile
         """
 
         self._image = image
@@ -233,7 +234,7 @@ class Footprint(Model):
         Gets the footprint of this Footprint.
 
         :return: The footprint of this Footprint.
-        :rtype: str
+        :rtype: UploadFile
         """
         return self._footprint
 
@@ -243,7 +244,7 @@ class Footprint(Model):
         Sets the footprint of this Footprint.
 
         :param footprint: The footprint of this Footprint.
-        :type footprint: str
+        :type footprint: UploadFile
         """
 
         self._footprint = footprint

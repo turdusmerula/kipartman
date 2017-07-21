@@ -1164,11 +1164,11 @@
                                                                         </object>
                                                                     </object>
                                                                 </object>
-                                                                <object class="sizeritem" expanded="0">
+                                                                <object class="sizeritem" expanded="1">
                                                                     <property name="border">5</property>
                                                                     <property name="flag">wxEXPAND</property>
                                                                     <property name="proportion">0</property>
-                                                                    <object class="wxBoxSizer" expanded="0">
+                                                                    <object class="wxBoxSizer" expanded="1">
                                                                         <property name="minimum_size"></property>
                                                                         <property name="name">bSizer11</property>
                                                                         <property name="orient">wxHORIZONTAL</property>
@@ -1463,11 +1463,11 @@
                                                                                 </object>
                                                                             </object>
                                                                         </object>
-                                                                        <object class="sizeritem" expanded="0">
+                                                                        <object class="sizeritem" expanded="1">
                                                                             <property name="border">5</property>
                                                                             <property name="flag"></property>
                                                                             <property name="proportion">0</property>
-                                                                            <object class="wxBoxSizer" expanded="0">
+                                                                            <object class="wxBoxSizer" expanded="1">
                                                                                 <property name="minimum_size"></property>
                                                                                 <property name="name">bSizer61</property>
                                                                                 <property name="orient">wxHORIZONTAL</property>
@@ -1556,7 +1556,7 @@
                                                                                         <event name="OnRightDClick"></event>
                                                                                         <event name="OnRightDown"></event>
                                                                                         <event name="OnRightUp"></event>
-                                                                                        <event name="OnSearchButton"></event>
+                                                                                        <event name="OnSearchButton">onSearchPartsButton</event>
                                                                                         <event name="OnSetFocus"></event>
                                                                                         <event name="OnSize"></event>
                                                                                         <event name="OnText"></event>

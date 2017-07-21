@@ -1,15 +1,14 @@
 from dialogs.panel_edit_footprint import PanelEditFootprint
 from frames.select_snapeda_frame import SelectSnapedaFrame, EVT_SELECT_SNAPEDA_OK_EVENT
 from frames.dropdown_dialog import DropdownDialog
-from rest_client.exceptions import QueryError
-from api import models
 import wx.lib.newevent
-from api.queries import FootprintsQuery
 import urllib2
 import tempfile
 import os.path
 import webbrowser
 import cfscrape
+import rest
+from configuration import Configuration
 
 EditFootprintApplyEvent, EVT_EDIT_FOOTPRINT_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditFootprintCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -17,6 +16,11 @@ EditFootprintCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewE
 scraper = cfscrape.create_scraper()
 
 none_image = os.path.abspath('resources/none-128x128.png')
+
+def NoneValue(value, default):
+    if value:
+        return value
+    return default
 
 class EditFootprintFrame(PanelEditFootprint): 
     def __init__(self, parent):
@@ -27,34 +31,37 @@ class EditFootprintFrame(PanelEditFootprint):
         self.ShowFootprint(footprint)
 
     def ShowFootprint(self, footprint):
+        configuration = Configuration()
+        
         # set local files to be added
         self.local_file_image = None
         self.local_file_footprint = None
         
         # enable evrything else
         if footprint:
-            self.edit_footprint_name.Value = footprint.name
-            self.edit_footprint_description.Value = footprint.description
-            self.edit_footprint_comment.Value = footprint.comment
-            if footprint.image:
-                self.button_open_file_image.Label = footprint.image
-                self.SetImage(footprint.image)
-            else:
+            self.edit_footprint_name.Value = NoneValue(footprint.name, '')
+            self.edit_footprint_description.Value = NoneValue(footprint.description, '')
+            self.edit_footprint_comment.Value = NoneValue(footprint.comment, '')
+
+            try:
+                self.button_open_file_image.Label = footprint.image.source_name
+                try:
+                    self.SetImage(configuration.kipartbase+'/file'+footprint.image.storage_path)
+                except Exception as e:
+                    wx.MessageBox(format(e), "Error, failed to load '%s'" % (configuration.kipartbase+footprint.image.storage_path), wx.OK | wx.ICON_ERROR)
+            except:
                 self.button_open_file_image.Label = "<None>"
                 self.SetImage()
-
-            if footprint.footprint:
-                self.button_open_file_footprint.Label = footprint.footprint
-            else:
+            
+            try:
+                self.button_open_file_footprint.Label = footprint.footprint.source_name
+            except:
                 self.button_open_file_footprint.Label = "<None>"
 
             if footprint.snapeda:
-                self.button_open_url_snapeda.Label = footprint.snapeda
+                self.button_open_url_snapeda.Label = NoneValue(footprint.snapeda, '')
             else:
                 self.button_open_url_snapeda.Label = "<None>"
-
-            print "image:", footprint.image
-            print "footprint:", footprint.footprint
         else:
             self.edit_footprint_name.Value = ''
             self.edit_footprint_description.Value = ''
@@ -137,8 +144,10 @@ class EditFootprintFrame(PanelEditFootprint):
         self.SetImage(self.button_open_file_image.Label)
 
     def onButtonOpenFileImageClick( self, event ):
+        configuration = Configuration()
         if self.button_open_file_image.Label!="<None>":
-            webbrowser.open(self.button_open_file_image.Label)
+            url = configuration.kipartbase+'/file'+self.footprint.image.storage_path
+            webbrowser.open(url)
 
     def onButtonAddFileImageClick( self, event ):
         dlg = wx.FileDialog(
@@ -167,8 +176,10 @@ class EditFootprintFrame(PanelEditFootprint):
 
 
     def onButtonOpenFileFootprintClick( self, event ):
+        configuration = Configuration()
         if self.button_open_file_footprint.Label!="<None>":
-            webbrowser.open(self.button_open_file_footprint.Label)
+            url = configuration.kipartbase+'/file'+self.footprint.footprint.storage_path
+            webbrowser.open(url)
     
     def onButtonAddFileFootprintClick( self, event ):
         dlg = wx.FileDialog(
@@ -194,14 +205,30 @@ class EditFootprintFrame(PanelEditFootprint):
 
     def onButtonFootprintEditApply( self, event ):
         footprint = self.footprint
-        if not footprint:
-            footprint = models.Footprint()
+        
 
         footprint.name = self.edit_footprint_name.Value
         footprint.description = self.edit_footprint_description.Value
-        footprint.comment = self.edit_footprint_comment.Value            
-        footprint.image = self.local_file_image
-        footprint.footprint = self.local_file_footprint
+        footprint.comment = self.edit_footprint_comment.Value
+        
+        try:
+            if self.local_file_image=='':
+                footprint.image = None
+            elif self.local_file_image:
+                footprint.image = rest.api.add_upload_file(upfile=self.local_file_image)
+        except Exception as e:
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+            return
+        
+        try:
+            if self.local_file_footprint=='':
+                footprint.footprint = None
+            elif self.local_file_footprint:
+                footprint.footprint = rest.api.add_upload_file(upfile=self.local_file_footprint)
+        except Exception as e:
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+            return
+        
         footprint.snapeda = self.button_open_url_snapeda.Label
         # send result event
         event = EditFootprintApplyEvent(data=footprint)

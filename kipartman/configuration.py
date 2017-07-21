@@ -11,7 +11,9 @@ class Configuration(object):
         
         self.base_currency = 'EUR'
         self.octopart_api_key = ''
-        self.kipartbase = 'http://localhost:8100'
+        self.kipartbase = 'http://localhost:8200'
+        
+        self.Load()
         
     def Load(self):
         if(os.path.isfile(self.filename)==False):

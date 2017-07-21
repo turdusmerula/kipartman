@@ -109,18 +109,17 @@ class Footprint(models.Model):
     name = models.TextField()
     description = models.TextField(blank=True, default='')
     comment = models.TextField(blank=True, default='')
-    image = models.ImageField(null=True, upload_to='images/%y/%m/%d/%H%M/')
-    footprint = models.FileField(null=True, upload_to='footprints/%y/%m/%d/%H%M/')
+    image = models.ForeignKey('File', related_name='image', on_delete=models.DO_NOTHING, null=True, default=None)
+    footprint = models.ForeignKey('File', related_name='footprint', on_delete=models.DO_NOTHING, null=True, default=None)
     snapeda = models.TextField(null=True, blank=True)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
-    
 class File(models.Model):
-    filename = models.TextField()
-    uuid = models.TextField()
+    source_name = models.TextField()
+    storage_path = models.TextField()
     def __unicode__(self):
-        return '%d: %s' % (self.uuid, self.filename)
+        return '%d: %s, %s' % (self.id, self.source_name, self.storage_path)
 
 
 class Unit(models.Model):

@@ -9,69 +9,6 @@ import wx
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
 
-# class PartCategoryDataObject(wx.TextDataObject):
-#     def __init__(self, category): 
-#         super(PartCategoryDataObject, self).__init__()
-#         self.category = category
-#         self.SetText(json.dumps({'model': 'PartCategory', 'url': category.path, 'id': category.id}))
-#         
-# class PartCategoryDropTarget(wx.TextDropTarget):
-#     def __init__(self, frame):
-#         self.frame = frame
-#         super(PartCategoryDropTarget, self).__init__()
-#     
-#     #TODO: set drag cursor depending on accept/reject drop
-#     def OnDropText(self, x, y, text):
-#         data = json.loads(text)
-#         print "PartCategoryDropTarget.OnDropText", data, x, y
-#         item, _ = self.frame.tree_categories.HitTest((x, y))
-#         if item.IsOk():
-#             target_category = self.frame.tree_categories.GetItemData(item)
-#         else:
-#             target_category = None
-#         if data['model']=='PartCategory':
-#             source_category = PartCategoriesQuery().get(data['id'])[0]
-#             if source_category:
-#                 source_category.parent = target_category
-#             PartCategoriesQuery().update(source_category)
-#         elif data['model']=='Part':
-#             source_part = PartsQuery().get(data['id'])[0]
-#             if source_part:
-#                 source_part.category = target_category
-#                 PartsQuery().update(source_part)
-#         self.frame.load()
-#         return wx.DragMove
-# 
-# 
-# class PartDataObject(wx.TextDataObject):
-#     def __init__(self, category): 
-#         super(PartDataObject, self).__init__()
-#         self.category = category
-#         self.SetText(json.dumps({'model': 'Part', 'url': category.path, 'id': category.id}))
-# 
-# class PartDropTarget(wx.TextDropTarget):
-#     def __init__(self, frame):
-#         self.frame = frame
-#         super(PartDropTarget, self).__init__()
-#     
-#     #TODO: set drag cursor depending on accept/reject drop
-#     def OnDropText(self, x, y, text):
-#         data = json.loads(text)
-#         print "PartDropTarget.OnDropText", data, x, y
-#         item, _ = self.frame.tree_parts.HitTest((x, y))
-#         if item.IsOk():
-#             # do a copy to avoid nasty things
-#             target_part = copy.deepcopy(self.frame.parts_model.ItemToObject(item))
-#         else:
-#             target_part = None
-#         if data['model']=='Part':
-#             source_part = PartsQuery().get(data['id'])[0]
-#             if source_part and target_part:
-#                 target_part.parts.append(source_part.id)
-#                 PartsQuery().update(target_part)
-#         self.frame._loadParts()
-#         return wx.DragMove
-
 class DataModelCategory(helper.tree.TreeContainerItem):
     def __init__(self, category):
         super(DataModelCategory, self).__init__()
@@ -155,6 +92,12 @@ class TreeManagerParts(helper.tree.TreeManager):
                 return data
         return None
     
+    def FindChildPart(self, parent_part_id, part_id):
+        for data in self.data:
+            if isinstance(data, DataModelPart) and isinstance(data.parent, DataModelPart) and data.part.id==part_id and data.parent.part.id==parent_part_id:
+                return data
+        return None
+
     def FindCategoryPath(self, category):
         if category:
             for data in self.data:
@@ -174,6 +117,14 @@ class TreeManagerParts(helper.tree.TreeManager):
         self.DeleteItem(partobj.parent, partobj)
         if categoryobj and len(categoryobj.childs)==0:
             self.DeleteItem(categoryobj.parent, categoryobj)
+
+    def DeleteChildPart(self, parent_part, part):
+        parentobj = self.FindPart(parent_part.id)
+        if parentobj is None:
+            return
+        partobj = self.FindChildPart(parent_part.id, part.id)
+        self.DeleteItem(partobj.parent, partobj)
+        self.UpdateItem(parentobj)
 
     def UpdatePart(self, part):
         partobj = self.FindPart(part.id)
@@ -196,6 +147,13 @@ class TreeManagerParts(helper.tree.TreeManager):
         self.Expand(categoryobj)
         return partobj
     
+    def AppendChildPart(self, parent_part, part):
+        parentobj = self.FindPart(parent_part.id)
+        partobj = DataModelPart(part)
+        self.AppendItem(parentobj, partobj)
+        self.Expand(parentobj)
+        return partobj
+
         
 class PartsFrame(PanelParts): 
     def __init__(self, parent): 
@@ -218,6 +176,8 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddTextColumn("description")
         self.tree_parts_manager.AddIntegerColumn("comment")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
+        self.tree_parts_manager.DropAccept(DataModelPart, self.onTreePartsDropPart)
+        
         # 
         # create edit part panel
         self.panel_edit_part = EditPartFrame(self.part_splitter)
@@ -324,18 +284,6 @@ class PartsFrame(PanelParts):
             category = self.tree_categories_manager.ItemToObject(item)
             if category.category:
                 part.category = category.category
-        
-#         part.name = ''
-#         part.description = ''
-#         part.comment = ''
-#         part.octopart = None
-#         part.updated = None
-#         part.category = None
-#         part.childs = []
-#         part.footprint = None
-#         part.parameters = []
-#         part.distributors = []
-#         part.manufacturers = []
 
         self.edit_part(part)
 
@@ -486,6 +434,26 @@ class PartsFrame(PanelParts):
             part = obj.part
         self.show_part(part)
 
+    def onTreePartsDropPart(self, x, y, data):
+        dest_item, _ = self.tree_parts.HitTest((x, y))
+        if not dest_item.IsOk():
+            return 
+        dest_obj = self.tree_parts_manager.ItemToObject(dest_item)
+        if isinstance(dest_obj, DataModelPart) and isinstance(dest_obj.parent, DataModelCategoryPath):
+            try:
+                source_part_id = data['id']
+                source_partobj = self.tree_parts_manager.FindPart(source_part_id)
+    
+                dest_part = rest.api.find_part(dest_obj.part.id, with_childs=True)
+                dest_part.childs.append(source_partobj.part)
+                
+                rest.api.update_part(dest_part.id, dest_part)
+                # update tree model
+                self.tree_parts_manager.AppendChildPart(dest_part, source_partobj.part)
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+            return wx.DragMove
+
             
     def onEditPartApply( self, event ):
         part = event.data
@@ -546,9 +514,10 @@ class PartsFrame(PanelParts):
                 for child in parent.childs:
                     if child.id==part.id:
                         parent.childs.remove(child)
+
                 #parent.childs.remove(part)
                 rest.api.update_part(parent.id, parent)
-                self.tree_parts_manager.DeleteItem(obj.parent, obj)
+                self.tree_parts_manager.DeleteChildPart(parent, part)
             else:
                 return 
         else:
@@ -569,6 +538,9 @@ class PartsFrame(PanelParts):
         # apply new filter and reload
         self.loadParts()
  
+    def onSearchPartsButton(self, event):
+        return self.onSearchPartsTextEnter(event)
+
     def onButtonRefreshPartsClick( self, event ):
         self.loadParts()
 #         

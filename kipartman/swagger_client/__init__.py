@@ -45,6 +45,9 @@ from .models.part_parameter_data import PartParameterData
 from .models.part_ref import PartRef
 from .models.unit import Unit
 from .models.unit_prefix import UnitPrefix
+from .models.upload_file import UploadFile
+from .models.upload_file_data import UploadFileData
+from .models.upload_file_ref import UploadFileRef
 
 # import apis into sdk package
 from .apis.default_api import DefaultApi

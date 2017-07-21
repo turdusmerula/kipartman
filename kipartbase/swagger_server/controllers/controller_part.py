@@ -23,7 +23,7 @@ from django.db.models import Q
 import api.models
 from swagger_server.controllers.controller_footprint import find_footprint
 from swagger_server.controllers.controller_part_manufacturer import find_part_manufacturers
-#import jsonpickle
+from swagger_server.controllers.helpers import raise_on_error, ControllerError
 
 def serialize_PartData(fpart, part=None, with_parameters=True):
     if part is None:
@@ -36,7 +36,7 @@ def serialize_PartData(fpart, part=None, with_parameters=True):
     if fpart.updated:
         part.updated = fpart.updated
     if fpart.id and with_parameters:
-        part.parameters = find_part_parameters(fpart.id)
+        part.parameters = raise_on_error(find_part_parameters(fpart.id))
     return part
 
 def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True):
@@ -45,9 +45,9 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
     part.id = fpart.id
     serialize_PartData(fpart, part, with_parameters)
     if fpart.category:
-        part.category = find_parts_category(fpart.category.id)
+        part.category = raise_on_error(find_parts_category(fpart.category.id))
     if fpart.footprint:
-        part.footprint = find_footprint(fpart.footprint.id)
+        part.footprint = raise_on_error(find_footprint(fpart.footprint.id))
     # extract childs
     if with_childs:
         part.childs = []
@@ -56,10 +56,10 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
     part.has_childs = (fpart.childs.count()>0)
     
     if with_distributors:
-        part.distributors = find_part_distributors(fpart.id)
+        part.distributors = raise_on_error(find_part_distributors(fpart.id))
     
     if with_manufacturers:
-        part.manufacturers = find_part_manufacturers(fpart.id)
+        part.manufacturers = raise_on_error(find_part_manufacturers(fpart.id))
 
     return part
 
@@ -95,7 +95,7 @@ def deserialize_PartNew(part, fpart=None):
     else:
         fpart.category = None
 
-    if part.childs:
+    if not part.childs is None:
         fchilds = []
         for child in part.childs:
             try:
@@ -103,6 +103,7 @@ def deserialize_PartNew(part, fpart=None):
             except:
                 return Error(code=1000, message='Part %d does not exists'%part.id)
         fpart.childs.set(fchilds)
+
         # recursive check
         while len(fchilds)>0:
             fchild = fchilds.pop()
@@ -131,8 +132,8 @@ def add_part(part):
 
     try:
         fpart = deserialize_PartNew(part)
-    except Error as e:
-        return e
+    except ControllerError as e:
+        return e.error
     
     fpart.save()
     
@@ -145,6 +146,7 @@ def add_part(part):
             fparameters.append(fparameter)
         fpart.parameters.set(fparameters)
 
+# TODO: enable bulk insert
     foffers = []
     if part.distributors:
         for part_distributor in part.distributors:
@@ -152,7 +154,6 @@ def add_part(part):
                 fdistributor = api.models.Distributor.objects.get(name=part_distributor.name)
             except:
                 return Error(code=1000, message='Distributor %s does not exists'%part_distributor.name)
-                
             for offer in part_distributor.offers:
                 foffer = deserialize_PartOffer(offer)
                 foffer.part = fpart
@@ -270,7 +271,7 @@ def find_parts(category=None, with_offers=None, with_parameters=None, with_child
         for fpart in fpart_request.all():
             parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers))
     except Error as e:
-        return e
+        return e.error
 
     return parts
 
@@ -297,7 +298,7 @@ def update_part(part_id, part):
     fpart.save()
     
     fparameters = []
-    if part.parameters:
+    if not part.parameters is None:
         # remove all parameters
         api.models.PartParameter.objects.filter(part=part_id).delete()
         # replace by interface ones
@@ -309,7 +310,7 @@ def update_part(part_id, part):
         fpart.parameters.set(fparameters)
 
     foffers = []
-    if part.distributors:
+    if not part.distributors is None:
         # remove all part distributors
         api.models.PartOffer.objects.filter(part=part_id).delete()
         # import new values
@@ -328,7 +329,7 @@ def update_part(part_id, part):
         fpart.offers.set(foffers)
     
     fpart_manufacturers = []
-    if part.manufacturers:
+    if not part.manufacturers is None:
         # remove all part distributors
         api.models.PartManufacturer.objects.filter(part=part_id).delete()
         # import new values

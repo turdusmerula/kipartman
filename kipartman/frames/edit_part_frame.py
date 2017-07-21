@@ -172,7 +172,7 @@ class EditPartFrame(PanelEditPart):
         
         # set field octopart to indicatethat part was imported from octopart
         self.part.octopart = octopart.item().mpn()
-        self.part.updated = datetime.datetime.now()
+        self.part.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         
         # import parameters
         for spec_name in octopart.item().specs():
@@ -247,7 +247,7 @@ class EditPartFrame(PanelEditPart):
             
             for price_name in offer.prices():
                 for quantity in offer.prices()[price_name]:
-                    part_offer = rest.model.PartDistributor()
+                    part_offer = rest.model.PartOffer()
                     part_offer.name = distributor_name
                     part_offer.distributor = distributor
                     part_offer.currency = price_name
@@ -258,28 +258,29 @@ class EditPartFrame(PanelEditPart):
                     part_offer.quantity = quantity[0]
                     part_offer.unit_price = float(quantity[1])
                     part_offer.sku = offer.sku()
+                    print "---", part_offer
                     self.edit_part_distributors.AddOffer(part_offer)
         
         # import manufacturer
         manufacturer_name = octopart.item().manufacturer().name()
         manufacturer = None
         try:
-            manufacturers = ManufacturersQuery(name=manufacturer_name).get()
+            manufacturers = rest.api.find_manufacturers(name=manufacturer_name)
             if len(manufacturers)>0:
                 manufacturer = manufacturers[0]
             else:
                 # distributor does not exists, create it
-                manufacturer = models.Manufacturer()
+                manufacturer = rest.model.Manufacturer()
                 manufacturer.name = manufacturer_name
                 manufacturer.website = octopart.item().manufacturer().homepage_url()
-                manufacturer = ManufacturersQuery().create(manufacturer)
+                manufacturer = rest.api.add_manufacturer(manufacturer)
         except:
             wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
         # remove manufacturer prior to add new manufacturer
         self.edit_part_manufacturers.RemoveManufacturer(manufacturer_name)
         # add new manufacturer
-        part_manufacturer = models.PartManufacturer()
-        part_manufacturer.manufacturer = manufacturer
+        part_manufacturer = rest.model.PartManufacturer()
+        part_manufacturer.name = manufacturer.name
         part_manufacturer.part_name = self.part.name
         self.edit_part_manufacturers.AddManufacturer(part_manufacturer)
 

@@ -3,13 +3,21 @@ import shutil
 import os
 import ntpath
 import models
+import tempfile
+import hashlib
 
 from django.core.files.storage import Storage, FileSystemStorage
 from django.conf import settings
 
+from os.path import expanduser
+home = expanduser("~")
+
+options = {'STORAGE_PATH': home+'/.kipartman/storage', 'SUB_LEVELS': 3, 'SUB_LEVEL_SIZE': 2}
+
+
 class FileStorage(Storage):
 
-    def __init__(self, option=None):
+    def __init__(self, option=options):
         if not option:
             option = settings.FILE_STORAGE_OPTIONS
         
@@ -31,26 +39,39 @@ class FileStorage(Storage):
             levels.append(id[start:stop])
         return levels
 
-    def add_file(self, file_path):
+    def add_file(self, upfile):
         id = str(uuid.uuid1())
         
-        # get folders sublevels
-        levels = self.get_sublevels(id)
+        # get content
+        file = tempfile.NamedTemporaryFile()
+        upfile.save(file)
+        file.flush()
+        
+        # get md5
+        md5 = hashlib.md5(file.name).hexdigest()
+        levels = self.get_sublevels(md5)
+        print md5, levels    
+        
+        # get current sublevel
+        storage_path = ''
+        
         # create sublevels
         dir = self.storage_path
         for level in levels:
-            dir = dir+"/"+level
+            dir = os.path.join(dir, level)
+            storage_path = storage_path+'/'+level
             if not os.path.exists(dir):
                 os.makedirs(dir)
+        storage_path = storage_path+'/'+md5
         # copy file
-        shutil.copyfile(file_path, dir+"/"+id)
+        shutil.copyfile(file.name, os.path.join(dir, md5))
 
         # add file to db
-        filename = ntpath.basename(file_path)
-        file = models.File(id=id, filename=filename)
-        models.File.objects.create(file)
+        file = models.File(source_name=upfile.filename, storage_path=storage_path)
+        file.save()
         
-        return id
+        print "Add file", upfile.filename, "as", storage_path
+        return file
     
     def get_file(self, id):
         levels = self.get_sublevels(id)

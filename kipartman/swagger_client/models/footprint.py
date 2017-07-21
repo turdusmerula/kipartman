@@ -37,8 +37,8 @@ class Footprint(object):
             'snapeda': 'str',
             'id': 'int',
             'category': 'FootprintCategory',
-            'image': 'str',
-            'footprint': 'str'
+            'image': 'UploadFile',
+            'footprint': 'UploadFile'
         }
 
         self.attribute_map = {
@@ -195,7 +195,7 @@ class Footprint(object):
         Gets the image of this Footprint.
 
         :return: The image of this Footprint.
-        :rtype: str
+        :rtype: UploadFile
         """
         return self._image
 
@@ -205,7 +205,7 @@ class Footprint(object):
         Sets the image of this Footprint.
 
         :param image: The image of this Footprint.
-        :type: str
+        :type: UploadFile
         """
 
         self._image = image
@@ -216,7 +216,7 @@ class Footprint(object):
         Gets the footprint of this Footprint.
 
         :return: The footprint of this Footprint.
-        :rtype: str
+        :rtype: UploadFile
         """
         return self._footprint
 
@@ -226,7 +226,7 @@ class Footprint(object):
         Sets the footprint of this Footprint.
 
         :param footprint: The footprint of this Footprint.
-        :type: str
+        :type: UploadFile
         """
 
         self._footprint = footprint

@@ -479,6 +479,12 @@ paths:
       description: "Return all footprints"
       operationId: "find_footprints"
       parameters:
+      - name: "category"
+        in: "query"
+        description: "Filter by category"
+        required: false
+        type: "integer"
+        format: "int64"
       - name: "search"
         in: "query"
         description: "Search for footprint matching pattern"
@@ -506,16 +512,6 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/FootprintNew"
-      - name: "footprint_file"
-        in: "formData"
-        description: "Footprint to upload"
-        required: false
-        type: "file"
-      - name: "image_file"
-        in: "formData"
-        description: "Image to upload"
-        required: false
-        type: "file"
       responses:
         200:
           description: "Created footprint"
@@ -541,9 +537,7 @@ paths:
         200:
           description: "Categories"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Footprint"
+            $ref: "#/definitions/Footprint"
         default:
           description: "unexpected error"
           schema:
@@ -565,16 +559,6 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/FootprintNew"
-      - name: "footprint_file"
-        in: "formData"
-        description: "Footprint to upload"
-        required: false
-        type: "file"
-      - name: "image_file"
-        in: "formData"
-        description: "Image to upload"
-        required: false
-        type: "file"
       responses:
         200:
           description: "Updated pärt"
@@ -817,6 +801,28 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /upload:
+    post:
+      description: "Upload a file."
+      operationId: "add_upload_file"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "upfile"
+        in: "formData"
+        description: "The file to upload."
+        required: false
+        type: "file"
+      responses:
+        200:
+          description: "Path of updated file"
+          schema:
+            $ref: "#/definitions/UploadFile"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
 definitions:
   PartCategory:
     allOf:
@@ -974,15 +980,19 @@ definitions:
         category:
           $ref: "#/definitions/FootprintCategory"
         image:
-          type: "string"
+          $ref: "#/definitions/UploadFile"
         footprint:
-          type: "string"
+          $ref: "#/definitions/UploadFile"
   FootprintNew:
     allOf:
     - $ref: "#/definitions/FootprintData"
     - properties:
         category:
           $ref: "#/definitions/FootprintCategoryRef"
+        image:
+          $ref: "#/definitions/UploadFileRef"
+        footprint:
+          $ref: "#/definitions/UploadFileRef"
   Distributor:
     allOf:
     - $ref: "#/definitions/DistributorData"
@@ -1009,6 +1019,15 @@ definitions:
     allOf:
     - $ref: "#/definitions/ManufacturerData"
     - {}
+  UploadFile:
+    allOf:
+    - $ref: "#/definitions/UploadFileData"
+    - required:
+      - "id"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
   FootprintData:
     type: "object"
     properties:
@@ -1050,6 +1069,14 @@ definitions:
       id:
         type: "integer"
         format: "int64"
+  UploadFileRef:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
   DistributorData:
     type: "object"
     properties:
@@ -1081,6 +1108,13 @@ definitions:
       phone:
         type: "string"
       comment:
+        type: "string"
+  UploadFileData:
+    type: "object"
+    properties:
+      source_name:
+        type: "string"
+      storage_path:
         type: "string"
   PartData:
     type: "object"

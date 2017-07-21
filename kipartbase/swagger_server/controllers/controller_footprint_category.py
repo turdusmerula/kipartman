@@ -151,12 +151,12 @@ def find_footprints_categories():
 
 def find_footprints_category(category_id):
     """
-    find_parts_category
-    Return a part category
+    find_footprints_category
+    Return a footprint category
     :param category_id: Category id
     :type category_id: int
 
-    :rtype: PartCategory
+    :rtype: FootprintCategory
     """
     id_fcategory_map = {} # map of id to container
 

@@ -11,6 +11,7 @@ from six import iteritems
 from ..util import deserialize_date, deserialize_datetime
 
 from swagger_server.controllers.controller_unit import find_unit, find_unit_prefix
+from swagger_server.controllers.helpers import raise_on_error
 
 import api.models
 #import jsonpickle
@@ -21,22 +22,22 @@ def serialize_PartParameterData(fpart_parameter, part_parameter=None):
     part_parameter.name = fpart_parameter.name
     part_parameter.description = fpart_parameter.description
     if fpart_parameter.unit:
-        part_parameter.unit = find_unit(fpart_parameter.unit.id)
+        part_parameter.unit = raise_on_error(find_unit(fpart_parameter.unit.id))
     part_parameter.numeric = fpart_parameter.numeric
     if fpart_parameter.text_value:
         part_parameter.text_value = fpart_parameter.text_value
     if fpart_parameter.min_value:
         part_parameter.min_value = fpart_parameter.min_value
     if fpart_parameter.min_prefix:
-        part_parameter.min_prefix = find_unit_prefix(fpart_parameter.min_prefix.id)
+        part_parameter.min_prefix = raise_on_error(find_unit_prefix(fpart_parameter.min_prefix.id))
     if fpart_parameter.nom_value:
         part_parameter.nom_value = fpart_parameter.nom_value
     if fpart_parameter.nom_prefix:
-        part_parameter.nom_prefix = find_unit_prefix(fpart_parameter.nom_prefix.id)
+        part_parameter.nom_prefix = raise_on_error(find_unit_prefix(fpart_parameter.nom_prefix.id))
     if fpart_parameter.max_value:
         part_parameter.max_value = fpart_parameter.max_value
     if fpart_parameter.max_prefix:
-        part_parameter.max_prefix = find_unit_prefix(fpart_parameter.max_prefix.id) 
+        part_parameter.max_prefix = raise_on_error(find_unit_prefix(fpart_parameter.max_prefix.id)) 
     return part_parameter
 
 def serialize_PartParameter(fpart_parameter, part_parameter=None):
@@ -111,7 +112,7 @@ def add_part_parameters(part_id, parameters):
         try:
             fparameters.append(deserialize_PartParameter(parameter))
         except Error as e:
-            return e
+            return e.error
         fpart.parameters.set(fparameters)
     
     return None
