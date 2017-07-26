@@ -4,479 +4,404 @@ from bom_frame import pcb, bom
 from currency.currency import Currency
 from configuration import Configuration
 import rest
+import helper.tree
+from twisted.cred.checkers import OnDiskUsernamePasswordDatabase
 
 configuration = Configuration()
 currency = Currency(configuration.base_currency)
 
-class BomPartsModel(wx.dataview.PyDataViewModel):
-    def __init__(self):
-        super(BomPartsModel, self).__init__()
-    
-        self.parts = bom.Parts()
+board_number = 1
+view_all = True
+wish_parts = []
+
+class DataModelBomPart(helper.tree.TreeItem):
+    def __init__(self, bom_part):
+        super(DataModelBomPart, self).__init__()
+        self.bom_part = bom_part
         
-    def GetColumnCount(self):
-        return 7
-
-    def GetColumnType(self, col):
-        mapper = { 
-            0 : 'long',
-            1 : 'string',
-            2 : 'string',
-            3 : 'string',
-            4 : 'long',
-            5 : 'long',
-            6 : 'long'
-        }
-        return mapper[col]
-
-    def GetChildren(self, parent, children):
-        # check root node
-        if not parent:
-            for part in self.parts:
-                children.append(self.ObjectToItem(part))
-            return len(self.parts)
+    def is_equivalent(self, part):
+        to_explore = []
+        if self.bom_part.childs is None:
+            return False
+        for child in self.bom_part.childs:
+            to_explore.append(child)
+        while len(to_explore)>0:
+            child = to_explore[0]
+            if child.id==part.id:
+                return True
+            to_explore.remove(child)
+            
+            if child.childs:
+                for c in child.childs:
+                    to_explore.append(c)
     
-    def IsContainer(self, item):
         return False
-
-    def HasContainerColumns(self, item):
-        return True
-
-    def GetParent(self, item):
-        return wx.dataview.NullDataViewItem
     
-    def GetValue(self, item, col):
-        obj = self.ItemToObject(item)
+    def provisioning(self):
+        global wish_parts
+        provisioning = 0
+        for partobj in wish_parts:
+            if self.is_equivalent(partobj.part):
+                provisioning = provisioning+partobj.buy_items(partobj.matching_offer())
+        return provisioning
+    
+    def num_modules(self):
         num_modules = 0
-        if bom.part_modules.has_key(obj.id):
-            num_modules = len(bom.part_modules[obj.id])
+        if bom.part_modules.has_key(self.bom_part.id):
+            num_modules = len(bom.part_modules[self.bom_part.id])
+        return num_modules
+    
+    def needed(self):
+        return board_number*self.num_modules()
+    
+    def GetValue(self, col):
         vMap = { 
-            0 : str(obj.id),
-            1 : obj.name,
-            2 : obj.description,
-            3 : obj.comment,
-            4 : str(num_modules),
-            5 : str(0),
-            6 : str(0)
+            0 : str(self.bom_part.id),
+            1 : self.bom_part.name,
+            2 : str(self.num_modules()),
+            3 : str(self.needed()),
+            4 : str(int(self.provisioning())),
+            5 : self.bom_part.description,
+            6 : self.bom_part.comment,
         }
-        if vMap[col] is None:
-            return ""
         return vMap[col]
 
-    def SetValue(self, value, item, col):
-        pass
-    
-    def GetAttr(self, item, col, attr):
-        return False
-
-
-class BomEquivalentsModel(wx.dataview.PyDataViewModel):
-    def __init__(self, part):
-        super(BomEquivalentsModel, self).__init__()
-        
-        self.part = part
-        self.parts = {}
-        
-        if part is None:
-            return
-
-        # load parts
-        to_add = []
-        for id in part.parts:
-            to_add.append(id)
-            
-        # recursive load subparts
-        for id in to_add:
-            if self.parts.has_key(id)==False:
-                subpart = PartsQuery().get(id)[0]
-                self.parts[id] = subpart
-                for subid in subpart.parts:
-                    to_add.append(subid)
-        
-    def GetColumnCount(self):
-        return 3
-
-    def GetColumnType(self, col):
-        mapper = { 
-            0 : 'long',
-            1 : 'string',
-            2 : 'string',
-            3 : 'string',
-        }
-        return mapper[col]
-
-    def GetChildren(self, parent, children):
-        # check root node
-        if not parent:
-            for id in self.parts:
-                children.append(self.ObjectToItem(self.parts[id]))
-            return len(self.parts)
-    
-    def IsContainer(self, item):
-        return False
-
-    def HasContainerColumns(self, item):
-        return True
-
-    def GetParent(self, item):
-        return wx.dataview.NullDataViewItem
-    
-    def GetValue(self, item, col):
-        obj = self.ItemToObject(item)
-        vMap = { 
-            0 : str(obj.id),
-            1 : obj.name,
-            2 : obj.description,
-            3 : obj.comment,
-        }
-        if vMap[col] is None:
-            return ""
-        return vMap[col]
-
-    def SetValue(self, value, item, col):
-        pass
-    
-    def GetAttr(self, item, col, attr):
-        return False
-
-
-class PartDistributorsDataModel(wx.dataview.PyDataViewModel):
-    def __init__(self, parts, num_modules, board_number, view_all):
-        super(PartDistributorsDataModel, self).__init__()
-        
-        self.parts = parts
-        self.data = []
-        self.board_number = board_number
-        self.view_all = view_all
-        self.num_modules = num_modules
-
-        # get requested parts number
-        parts_num = self.board_number*self.num_modules
-        
-        # calculate pricing elements
-        for part in parts:
-            if view_all==False:
-                distributors = self.BestPrice(part.distributors)
+    def GetAttr(self, col, attr):
+        if col==4:
+            if self.provisioning()<self.needed():
+                attr.SetColour('red') # red
+                attr.Bold = True
             else:
-                distributors = part.distributors
-                
-            for distributor in distributors:
-                distributor.part = part
-                # convert currencies
-                try:
-                    distributor.unit_price = currency.convert(distributor.unit_price, distributor.currency, configuration.base_currency)
-                    distributor.currency = configuration.base_currency
-                except:
-                    # no convertion in case of an error
-                    pass
-
-                # number of packages to buy
-                distributor.buy_packages = int(parts_num/distributor.packaging_unit)
-                if divmod(parts_num, distributor.packaging_unit)[1]>0:
-                    distributor.buy_packages = distributor.buy_packages+1
-                if distributor.buy_packages<distributor.quantity:
-                    distributor.buy_packages = distributor.quantity/distributor.packaging_unit
-                # price to pay
-                distributor.buy_price = distributor.buy_packages*distributor.item_price()
-                
-                self.data.append(distributor)
-    
-    def MatchPrices(self, distributors):
-        # find prices that matches requested part number, remove the rest
-        res_distributors = []
-        # TODO
-        source_distributors = {}
-        for distributor in distributors:
-            if source_distributors.has_key(distributor.distributor.name)==False:
-                source_distributors[distributor.distributor.name] = []
-            source_distributors[distributor.distributor.name].append(distributor)
-
-        return res_distributors
-    
-    def BestPrice(self, distributors):
-        # find the best price for the part
-        res_distributors = []
-        
-        # get requested parts number
-        parts_num = self.board_number*self.num_modules
-        
-        source_distributors = {}
-        for distributor in distributors:
-            if source_distributors.has_key(distributor.distributor.name)==False:
-                source_distributors[distributor.distributor.name] = []
-            source_distributors[distributor.distributor.name].append(distributor)
-
-        for distributor_name in source_distributors:
-            prices = source_distributors[distributor_name]
-            best_price = None
-            for price in prices:
-                # check if price is better than current best price
-                # Note: sometimes buying a pack can be cheaper than buying items at unit price
-                
-                # compute number of packages to buy
-                buy_packages = int(parts_num/price.packaging_unit)
-                if divmod(parts_num, price.packaging_unit)[1]>0:
-                    buy_packages = buy_packages+1
-                if buy_packages<price.quantity:
-                    buy_packages = price.quantity
-                
-                buy_price = buy_packages*price.item_price()
-
-                if best_price is None:
-                    best_price = [price, buy_price]
-                
-                if buy_price<best_price[1] and buy_packages>=price.quantity:
-                    best_price = [price, buy_price]
-            # add best found price for distributor
-            res_distributors.append(best_price[0])
-
-        return res_distributors
-    
-    def GetColumnCount(self):
-        return 9
-
-    def GetColumnType(self, col):
-        mapper = { 
-            0 : 'string',
-            1 : 'string',
-            2 : 'long',
-            3 : 'double',
-            4 : 'long',
-            5 : 'long',
-            6 : 'double',
-            7 : 'double',
-            8 : 'string',
-            9 : 'string',
-         }
-        return mapper[col]
-
-    def GetChildren(self, parent, children):
-        # check root node
-        if not parent:
-            for data in self.data:
-                children.append(self.ObjectToItem(data))
-            return len(self.data)
-        return 0
-    
-    def IsContainer(self, item):
+                attr.SetColour('green') # green
+            return True
         return False
 
-    def HasContainerColumns(self, item):
-        return True
-
-    def GetParent(self, item):
-        return wx.dataview.NullDataViewItem
-    
-    def GetValue(self, item, col):
-        obj = self.ItemToObject(item)
-        if obj.distributor:
-            distributor = obj.distributor.name
-        else:
-            distributor = ''
-
+class DataModelEquivalentPart(helper.tree.TreeItem):
+    def __init__(self, equivalent_part):
+        super(DataModelEquivalentPart, self).__init__()
+        self.equivalent_part = equivalent_part
+        
+    def GetValue(self, col):
         vMap = { 
-            0 : obj.part.name,
-            1 : distributor,
-            2 : str(obj.buy_packages*obj.packaging_unit),
-            3 : str(obj.buy_price),
-            4 : str(obj.packaging_unit),
-            5 : str(obj.quantity),
-            6 : str(obj.item_price()),
-            7 : str(obj.unit_price),
-            8 : obj.currency,
-            9 : obj.sku,
+            0 : str(self.equivalent_part.id),
+            1 : self.equivalent_part.name,
+            2 : self.equivalent_part.description,
+            3 : self.equivalent_part.comment,
         }
-            
-        if vMap[col] is None:
-            return ""
         return vMap[col]
 
-    def SetValue(self, value, item, col):
-        pass
+class DataModelEquivalentPartContainer(helper.tree.TreeContainerItem):
+    def __init__(self, part):
+        super(DataModelEquivalentPartContainer, self).__init__()
+        self.part = part
     
-    def GetAttr(self, item, col, attr):
-        return False
+    def GetValue(self, col):
+        if col==0:
+            return self.part.name
+        return ''
 
-
-class WishPartsModel(wx.dataview.PyDataViewModel):
-    def __init__(self, wish_parts):
-        super(WishPartsModel, self).__init__()
-        
-        self.wish_parts = wish_parts
-        
-    def GetColumnCount(self):
-        return 7
-
-    def GetColumnType(self, col):
-        mapper = { 
-            0 : 'string',
-            1 : 'string',
-            2 : 'string',
-            3 : 'long',
-            4 : 'float',
-            5 : 'float',
-            6 : 'string',
-        }
-        return mapper[col]
-
-    def GetChildren(self, parent, children):
-        # check root node
-        if not parent:
-            for wish in self.wish_parts:
-                children.append(self.ObjectToItem(wish))
-            return len(self.wish_parts)
-    
-    def IsContainer(self, item):
-        return False
-
-    def HasContainerColumns(self, item):
+    def HasContainerColumns(self):
         return True
 
-    def GetParent(self, item):
-        return wx.dataview.NullDataViewItem
+    def GetAttr(self, col, attr):
+        if col==0:
+            attr.Bold = True
+            return True
+        return False
+
+class DataModelDistributorContainer(helper.tree.TreeContainerItem):
+    def __init__(self, distributor):
+        super(DataModelDistributorContainer, self).__init__()
+        self.distributor = distributor
     
-    def GetValue(self, item, col):
-        obj = self.ItemToObject(item)
-        
-        quantity = obj[0]
-        part = obj[1]
-        price = obj[2]
+    def GetValue(self, col):
+        if col==0:
+            return self.distributor.name
+        return ''
+
+    def HasContainerColumns(self):
+        return True
+
+    def GetAttr(self, col, attr):
+        if col==0:
+            attr.Bold = True
+            return True
+        return False
+
+class DataModelOffer(helper.tree.TreeItem):
+    def __init__(self, offer, bom_part):
+        super(DataModelOffer, self).__init__()
+        self.offer = offer
+        self.bom_part = bom_part
+    
+    def item_price(self):
+        return self.converted_unit_price()[0]*self.offer.quantity
+
+    def converted_unit_price(self):
+        res = [self.offer.unit_price, self.offer.currency]
+        try:
+            return [currency.convert(self.offer.unit_price, self.offer.currency, configuration.base_currency), configuration.base_currency]
+        except:
+            # error during conversion, no conversion
+            return res
+    
+    def parts_num(self):
+        global board_number
+        num_modules = 0
+        if bom.part_modules.has_key(self.bom_part.id):
+            num_modules = len(bom.part_modules[self.bom_part.id])
+        return num_modules*board_number
+    
+    def buy_packages(self):
+        # number of packages to buy
+        buy_packages = int(self.parts_num()/self.offer.packaging_unit)
+        if divmod(self.parts_num(), self.offer.packaging_unit)[1]>0:
+            buy_packages = buy_packages+1
+        if buy_packages*self.offer.packaging_unit<self.offer.quantity:
+            buy_packages = self.offer.quantity/self.offer.packaging_unit
+        return buy_packages
+    
+    def buy_items(self):
+        return self.buy_packages()*self.offer.packaging_unit
+    
+    def buy_price(self):
+        # price to pay
+        return self.buy_items()*self.converted_unit_price()[0]
+    
+    def GetValue(self, col):
+        converted_unit_price = self.converted_unit_price()
         
         vMap = { 
-            0 : part.name,
-            1 : price.distributor.name,
-            2 : price.sku,
-            3 : str(price.packaging_unit),
-            4 : str(quantity),
-            5 : str(quantity*price.unit_price),
-            6 : price.currency,
+            0 : str(int(self.buy_items())),
+            1 : str(self.buy_price()),
+            2 : str(int(self.offer.packaging_unit)),
+            3 : str(int(self.offer.quantity)),
+            4 : str(self.item_price()),
+            5 : str(converted_unit_price[0]),
+            6 : converted_unit_price[1],
+            7 : self.offer.sku,
         }
-        if vMap[col] is None:
-            return ""
         return vMap[col]
 
-    def SetValue(self, value, item, col):
-        pass
-    
-    def GetAttr(self, item, col, attr):
-        return False
+class DataModelWishPart(helper.tree.TreeItem):
+    def __init__(self, part, distributor, sku, quantity):
+        super(DataModelWishPart, self).__init__()
+        # part is the real part likely to be bought
+        self.part = part
+        self.distributor = distributor
+        self.quantity = quantity
+        self.sku = sku
+        
+    def converted_unit_price(self, offer):
+        res = [offer.unit_price, offer.currency]
+        try:
+            return [currency.convert(offer.unit_price, offer.currency, configuration.base_currency), configuration.base_currency]
+        except:
+            # error during conversion, no conversion
+            return res
+
+    def buy_packages(self, offer):
+        # number of packages to buy
+        quantity = self.quantity
+        if quantity<offer.packaging_unit:
+            quantity = offer.packaging_unit
+        if quantity<offer.quantity:
+            quantity = offer.quantity
+        buy_packages = int(quantity/offer.packaging_unit)
+        if divmod(quantity, offer.packaging_unit)[1]>0:
+            buy_packages = buy_packages+1
+        return buy_packages
+
+    def buy_items(self, offer):
+        return self.buy_packages(offer)*offer.packaging_unit
+
+    def buy_price(self, offer):
+        # price to pay
+        return self.buy_items(offer)*self.converted_unit_price(offer)[0]
+
+    def matching_offer(self):
+        matching_offer = None
+        for offer in self.distributor.offers:
+            if offer.sku==self.sku:
+                if matching_offer is None:
+                    matching_offer = offer
+                if self.buy_price(offer)<self.buy_price(matching_offer) and self.buy_items(offer)>=self.quantity:
+                    matching_offer = offer
+        return matching_offer
+
+    def GetValue(self, col):
+        matching_offer = self.matching_offer()
+        
+        vMap = { 
+            0 : self.part.name,
+            1 : self.distributor.name,
+            2 : self.sku,
+            3 : str(matching_offer.packaging_unit),
+            4 : str(int(self.buy_items(matching_offer))),
+            5 : str(self.buy_price(matching_offer)),
+            6 : str(self.converted_unit_price(matching_offer)[1]),
+        }
+        return vMap[col]
+
 
 class BuyFrame(PanelBuy): 
     def __init__(self, parent):
         super(BuyFrame, self).__init__(parent)
 
-        # create bom parts list
-        self.bom_parts_model = BomPartsModel()
-        self.tree_bom_parts.AssociateModel(self.bom_parts_model)
-        # add default columns
-        self.tree_bom_parts.AppendTextColumn("Id", 0, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_bom_parts.AppendTextColumn("Name", 1, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_bom_parts.AppendTextColumn("Description", 2, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_bom_parts.AppendTextColumn("Comment", 3, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_bom_parts.AppendTextColumn("Modules", 4, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_bom_parts.AppendTextColumn("Needed", 5, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_bom_parts.AppendTextColumn("Approvisioned", 6, width=wx.COL_WIDTH_AUTOSIZE)
-        for c in self.tree_bom_parts.Columns:
-            c.Sortable = True
+        # create module bom parts list
+        self.tree_bom_parts_manager = helper.tree.TreeManager(self.tree_bom_parts)
+        self.tree_bom_parts_manager.AddIntegerColumn("Id")
+        self.tree_bom_parts_manager.AddTextColumn("Name")
+        self.tree_bom_parts_manager.AddIntegerColumn("Modules")
+        self.tree_bom_parts_manager.AddIntegerColumn("Needed")
+        self.tree_bom_parts_manager.AddIntegerColumn("Provisioning")
+        self.tree_bom_parts_manager.AddTextColumn("Description")
+        self.tree_bom_parts_manager.AddTextColumn("Comment")
 
-        # create bom parts list
-        self.part_equivalents_model = BomEquivalentsModel(None)
-        self.tree_part_equivalents.AssociateModel(self.part_equivalents_model)
-        # add default columns
-        self.tree_part_equivalents.AppendTextColumn("Id", 0, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_part_equivalents.AppendTextColumn("Name", 1, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_part_equivalents.AppendTextColumn("Description", 2, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_part_equivalents.AppendTextColumn("Comment", 3, width=wx.COL_WIDTH_AUTOSIZE)
-        for c in self.tree_part_equivalents.Columns:
-            c.Sortable = True
+        # create equivalent parts list
+        self.tree_equivalent_parts_manager = helper.tree.TreeManager(self.tree_part_equivalents)
+        self.tree_equivalent_parts_manager.AddIntegerColumn("Id")
+        self.tree_equivalent_parts_manager.AddTextColumn("Name")
+        self.tree_equivalent_parts_manager.AddTextColumn("Description")
+        self.tree_equivalent_parts_manager.AddTextColumn("Comment")
 
         # create octoparts list
-        self.distributors_model = PartDistributorsDataModel([], 0, 0, False)
-        self.tree_distributors.AssociateModel(self.distributors_model)
-        # add default columns
-        self.tree_distributors.AppendTextColumn("Part", 0, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Distributor", 1, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Amount To Buy", 2, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Buy Price", 3, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Packaging Unit", 4, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Quantity", 5, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Price", 6, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Price per Item", 7, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("Currency", 8, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_distributors.AppendTextColumn("SKU", 9, width=wx.COL_WIDTH_AUTOSIZE)
-        for c in self.tree_distributors.Columns:
-            c.Sortable = True
+        self.tree_distributors_manager = helper.tree.TreeManager(self.tree_distributors)
+        self.tree_distributors_manager.AddIntegerColumn("Amount To Buy")
+        self.tree_distributors_manager.AddFloatColumn("Buy Price")
+        self.tree_distributors_manager.AddIntegerColumn("Packaging Unit")
+        self.tree_distributors_manager.AddIntegerColumn("Quantity")
+        self.tree_distributors_manager.AddFloatColumn("Price")
+        self.tree_distributors_manager.AddFloatColumn("Price per Item")
+        self.tree_distributors_manager.AddTextColumn("Currency")
+        self.tree_distributors_manager.AddTextColumn("SKU")
 
         # create wish parts list
-        self.wish_parts = []
-        self.wish_parts_model = WishPartsModel(self.wish_parts)
-        self.tree_wish_parts.AssociateModel(self.wish_parts_model)
-        # add default columns
-        self.tree_wish_parts.AppendTextColumn("Part", 0, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_wish_parts.AppendTextColumn("Distributor", 1, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_wish_parts.AppendTextColumn("SKU", 2, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_wish_parts.AppendTextColumn("Packaging Unit", 3, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_wish_parts.AppendTextColumn("Amount", 4, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_wish_parts.AppendTextColumn("Buy Price", 5, width=wx.COL_WIDTH_AUTOSIZE)
-        self.tree_wish_parts.AppendTextColumn("Currency", 6, width=wx.COL_WIDTH_AUTOSIZE)
-        for c in self.tree_part_equivalents.Columns:
-            c.Sortable = True
+        self.tree_wish_parts_manager = helper.tree.TreeManager(self.tree_wish_parts)
+        self.tree_wish_parts_manager.AddTextColumn("Part")
+        self.tree_wish_parts_manager.AddTextColumn("Distributor")
+        self.tree_wish_parts_manager.AddTextColumn("SKU")
+        self.tree_wish_parts_manager.AddIntegerColumn("Packaging Unit")
+        self.tree_wish_parts_manager.AddFloatColumn("Amount")
+        self.tree_wish_parts_manager.AddFloatColumn("Buy Price")
+        self.tree_wish_parts_manager.AddTextColumn("Currency")
 
     def load(self):
         self.loadBomParts()
         self.loadPartEquivalents()
         self.loadDistributors()
+    
+    def refresh(self):
+        self.refreshBomParts()
+    
+    def refreshBomParts(self):
+        for data in self.tree_bom_parts_manager.data:
+            self.tree_bom_parts_manager.UpdateItem(data)
         
     def loadBomParts(self):
-        self.bom_parts_model.Cleared()
-        self.bom_parts_model = BomPartsModel()
-        self.tree_bom_parts.AssociateModel(self.bom_parts_model)
+        self.tree_bom_parts_manager.ClearItems()
+
+        for bom_part in bom.Parts():
+            full_part = rest.api.find_part(bom_part.id, with_childs=True)
+            self.tree_bom_parts_manager.AppendItem(None, DataModelBomPart(full_part))
 
     def loadPartEquivalents(self):
+        self.tree_equivalent_parts_manager.ClearItems()
+        
         item = self.tree_bom_parts.GetSelection()
         part = None
-        if item:
-            part = self.bom_parts_model.ItemToObject(item)
+        if item.IsOk()==False:
+            return 
+        
+        part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
+        part = rest.api.find_part(part.id, with_childs=True)
 
-        self.part_equivalents_model.Cleared()
-        self.part_equivalents_model = BomEquivalentsModel(part)
-        self.tree_part_equivalents.AssociateModel(self.part_equivalents_model)
+        if part.childs is None:
+            return
+        # load parts
+        to_add = []
+        added = {}
+        for child in part.childs:
+            to_add.append(child)
+        
+        # recursive load subparts
+        for child in to_add:
+            if added.has_key(child.id)==False:
+                self.tree_equivalent_parts_manager.AppendItem(None, DataModelEquivalentPart(child))
+                added[child.id] = child
+                
+                if child.childs:
+                    for c in child.childs:
+                        to_add.append(c)
+
         self.tree_part_equivalents.SelectAll()
     
     def loadWhishParts(self):
-        self.wish_parts_model.Cleared()
-        self.wish_parts_model = WishPartsModel(self.wish_parts)
-        self.tree_wish_parts.AssociateModel(self.wish_parts_model)
+        pass
     
     def loadTotalPrice(self):
         total = 0
-        
-        for wish in self.wish_parts:
-            total = total+wish[2].buy_price
+
+        for data in self.tree_wish_parts_manager.data:
+            total = total+data.buy_price(data.matching_offer())
         self.text_total_price.SetValue(str(total))
         self.static_total_price.SetLabel(configuration.base_currency)
-        
+
     def loadDistributors(self):
         parts = []
-        
-        item = self.tree_bom_parts.GetSelection()
-        num_modules = 0
-        if item:
-            part = self.bom_parts_model.ItemToObject(item)
-            num_modules = len(bom.part_modules[part.id])
-            parts.append(part)
-        
-        try:
-            for item in self.tree_part_equivalents.GetSelections():
-                if item:
-                    parts.append(self.part_equivalents_model.ItemToObject(item))
-        except:
-            pass
-        
-        self.distributors_model.Cleared()
-        self.distributors_model = PartDistributorsDataModel(parts, num_modules, self.spin_board_number.GetValue(), self.menu_item_prices_view_all.IsChecked())
-        self.tree_distributors.AssociateModel(self.distributors_model)
+        global view_all
     
+        self.tree_distributors_manager.ClearItems()
+
+        item = self.tree_bom_parts.GetSelection()
+        if item.IsOk()==False:
+            return 
+        bom_part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
+        # load full part
+        bom_part = rest.api.find_part(bom_part.id, with_distributors=True)
+        parts.append(bom_part)
+        
+        for item in self.tree_part_equivalents.GetSelections():
+            if item.IsOk():
+                equivalent_part = self.tree_equivalent_parts_manager.ItemToObject(item).equivalent_part
+                equivalent_part = rest.api.find_part(equivalent_part.id, with_distributors=True)
+                parts.append(equivalent_part)
+        
+        self.tree_distributors_manager.ClearItems()
+
+        # calculate pricing elements
+        for part in parts:
+            partobj = DataModelEquivalentPartContainer(part)
+            self.tree_distributors_manager.AppendItem(None, partobj)
+            
+            for distributor in part.distributors:
+                distributorobj = DataModelDistributorContainer(distributor)
+                self.tree_distributors_manager.AppendItem(partobj, distributorobj)
+                
+                if view_all:
+                    self.loadAllOffers(bom_part, distributorobj)
+                else:
+                    self.loadBestOffers(bom_part, distributorobj)
+    
+    def loadAllOffers(self, bom_part, distributorobj):
+        for offer in distributorobj.distributor.offers:
+            offerobj = DataModelOffer(offer, bom_part)
+            self.tree_distributors_manager.AppendItem(distributorobj, offerobj)
+    
+    def loadBestOffers(self, bom_part, distributorobj):
+        # Only keep best offer for each sku of each distributor
+        
+        # best offer by sku
+        sku_best_offerobj = {}
+        for offer in distributorobj.distributor.offers:
+            offerobj = DataModelOffer(offer, bom_part)
+            if sku_best_offerobj.has_key(offer.sku)==False:
+                sku_best_offerobj[offer.sku] = offerobj
+            elif offerobj.buy_price()<sku_best_offerobj[offer.sku].buy_price():
+                best_offerobj = offerobj
+        for sku in sku_best_offerobj:
+            self.tree_distributors_manager.AppendItem(distributorobj, sku_best_offerobj[sku])
+        
     def GetMenus(self):
         return [{'title': 'Prices', 'menu': self.menu_prices}]
     
@@ -487,45 +412,87 @@ class BuyFrame(PanelBuy):
     def OnTreePartEquivalentsSelectionChanged( self, event ):
         self.loadDistributors()
 
-    def OnTreeDistributorsSelectionChanged( self, event ):
+    def onTreeDistributorsSelectionChanged( self, event ):
+        self.spin_add_wish_parts.SetValue(0)
         item = self.tree_distributors.GetSelection()
-        distributor = None
-        if item:
-            distributor = self.distributors_model.ItemToObject(item)
+        if item.IsOk()==False:
+            return
+        obj = self.tree_distributors_manager.ItemToObject(item)
+        if isinstance(obj, DataModelOffer)==False:
+            return
 
-        if distributor:
-            self.spin_add_wish_parts.SetValue(distributor.buy_packages*distributor.packaging_unit)
-        else:
-            self.spin_add_wish_parts.SetValue(0)
+        self.spin_add_wish_parts.SetValue(obj.buy_items())
             
     def OnMenuItem( self, event ):
         # events are not distributed by the frame so we distribute them manually
         if event.GetId()==self.menu_item_prices_view_all.GetId():
-            self.OnMenuItemPricesViewAllSelection(event)
+            self.onMenuItemPricesViewAllSelection(event)
         elif event.GetId()==self.menu_item_prices_select_bestprice.GetId():
-            self.OnMenuItemPricesSelectBestpriceSelection(event)
+            self.onMenuItemPricesSelectBestpriceSelection(event)
     
-    def OnMenuItemPricesViewAllSelection( self, event ):
+    def onMenuItemPricesViewAllSelection( self, event ):
+        global view_all
+        view_all = self.menu_item_prices_view_all.IsChecked()
         self.loadDistributors()
     
-    def OnMenuItemPricesSelectBestpriceSelection( self, event ):
+    def onMenuItemPricesSelectBestpriceSelection( self, event ):
         print "OnMenuItemPricesSelectBestpriceSelection"
 
-    def OnSpinBoardNumberCtrl( self, event ):
+    def onSpinBoardNumberCtrl( self, event ):
+        global board_number
+        board_number = self.spin_board_number.Value
+        self.loadBomParts()
         self.loadDistributors()
 
-    def OnButtonAddWishPartsClick( self, event ):
+    def onButtonAddWishPartsClick( self, event ):
+        global wish_parts
+        wish_parts = self.tree_wish_parts_manager.data
+        
         item = self.tree_distributors.GetSelection()
-        distributor = None
-        if item:
-            distributor = self.distributors_model.ItemToObject(item)
-        else:
+        if item.IsOk()==False:
             return
+        obj = self.tree_distributors_manager.ItemToObject(item)
+        if isinstance(obj, DataModelOffer)==False:
+            return
+        part = obj.parent.parent.part
+        distributor = obj.parent.distributor
+        offer = obj.offer
+        
+        item = self.tree_bom_parts.GetSelection()
+        if item.IsOk()==False:
+            return        
+        obj = self.tree_bom_parts_manager.ItemToObject(item)
+        bom_part = obj.bom_part
         
         # search if part already added for this distributor
-        #TODO
-        # calculate price for total items for the distributor
-        #TODO
-        self.wish_parts.append([self.spin_add_wish_parts.GetValue(), distributor.part, distributor])
-        self.loadWhishParts()
+        wishobj = None
+        for data in self.tree_wish_parts_manager.data:
+            if data.part.name==part.name and data.sku==offer.sku:
+                wishobj = data
+        
+        if wishobj:
+            # append requested items to alredy existing wish
+            wishobj.quantity = wishobj.quantity+self.spin_add_wish_parts.GetValue()
+            self.tree_wish_parts_manager.UpdateItem(wishobj)
+        else:
+            wishobj = DataModelWishPart(part, distributor, offer.sku, self.spin_add_wish_parts.GetValue())
+            self.tree_wish_parts_manager.AppendItem(None, wishobj)
+
+        self.refresh()
         self.loadTotalPrice()
+
+    def onButtonRefreshClick(self, event):
+        self.load()
+
+    def onButtonEditWishClick( self, event ):
+        event.Skip()
+    
+    def onButtonDeleteWishClick( self, event ):
+        item = self.tree_wish_parts.GetSelection()
+        if item.IsOk()==False:
+            return
+        wishobj = self.tree_wish_parts_manager.ItemToObject(item)
+        self.tree_wish_parts_manager.DeleteItem(None, wishobj)
+        
+        self.refresh()
+        

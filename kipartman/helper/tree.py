@@ -367,6 +367,12 @@ class TreeManager(object):
         column.Sortable = True
         column.Reorderable = True
 
+    def AddToggleColumn(self, title):
+        column = self.tree_view.AppendToggleColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
+        self.model.columns_type.append('integer')
+        column.Sortable = True
+        column.Reorderable = True
+        
     def ClearItems(self):
         self.data = []
         self.model.ClearItems()
