@@ -757,7 +757,7 @@
                                                                         <event name="OnDataViewCtrlItemExpanding"></event>
                                                                         <event name="OnDataViewCtrlItemStartEditing"></event>
                                                                         <event name="OnDataViewCtrlItemValueChanged"></event>
-                                                                        <event name="OnDataViewCtrlSelectionChanged">OnTreeBomPartsSelectionChanged</event>
+                                                                        <event name="OnDataViewCtrlSelectionChanged">onTreeBomPartsSelectionChanged</event>
                                                                         <event name="OnEnterWindow"></event>
                                                                         <event name="OnEraseBackground"></event>
                                                                         <event name="OnKeyDown"></event>
@@ -991,7 +991,7 @@
                                                                         <event name="OnDataViewCtrlItemExpanding"></event>
                                                                         <event name="OnDataViewCtrlItemStartEditing"></event>
                                                                         <event name="OnDataViewCtrlItemValueChanged"></event>
-                                                                        <event name="OnDataViewCtrlSelectionChanged">OnTreePartEquivalentsSelectionChanged</event>
+                                                                        <event name="OnDataViewCtrlSelectionChanged">onTreePartEquivalentsSelectionChanged</event>
                                                                         <event name="OnEnterWindow"></event>
                                                                         <event name="OnEraseBackground"></event>
                                                                         <event name="OnKeyDown"></event>

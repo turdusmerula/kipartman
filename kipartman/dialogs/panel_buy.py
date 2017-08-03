@@ -183,8 +183,8 @@ class PanelBuy ( wx.Panel ):
 		# Connect Events
 		self.spin_board_number.Bind( wx.EVT_SPINCTRL, self.onSpinBoardNumberCtrl )
 		self.button_refresh.Bind( wx.EVT_BUTTON, self.onButtonRefreshClick )
-		self.tree_bom_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.OnTreeBomPartsSelectionChanged, id = wx.ID_ANY )
-		self.tree_part_equivalents.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.OnTreePartEquivalentsSelectionChanged, id = wx.ID_ANY )
+		self.tree_bom_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomPartsSelectionChanged, id = wx.ID_ANY )
+		self.tree_part_equivalents.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartEquivalentsSelectionChanged, id = wx.ID_ANY )
 		self.button_add_wish_parts.Bind( wx.EVT_BUTTON, self.onButtonAddWishPartsClick )
 		self.tree_distributors.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeDistributorsSelectionChanged, id = wx.ID_ANY )
 		self.button_edit_wish.Bind( wx.EVT_BUTTON, self.onButtonEditWishClick )
@@ -204,10 +204,10 @@ class PanelBuy ( wx.Panel ):
 	def onButtonRefreshClick( self, event ):
 		event.Skip()
 	
-	def OnTreeBomPartsSelectionChanged( self, event ):
+	def onTreeBomPartsSelectionChanged( self, event ):
 		event.Skip()
 	
-	def OnTreePartEquivalentsSelectionChanged( self, event ):
+	def onTreePartEquivalentsSelectionChanged( self, event ):
 		event.Skip()
 	
 	def onButtonAddWishPartsClick( self, event ):

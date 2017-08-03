@@ -1,6 +1,7 @@
 import wx.dataview
 #import wx.dataview.DataViewTreeCtrl
 import json
+from array import array
 
 class Tree:
     def __init__(self, tree):
@@ -46,6 +47,9 @@ class TreeItem(object):
 
     def GetDragData(self):
         return None
+    
+    def SetValue(self, value, col):
+        return False
     
 class TreeContainerItem(TreeItem):
     def __init__(self):
@@ -136,14 +140,16 @@ class TreeModel(wx.dataview.PyDataViewModel):
             return ""
         return value
 
-    def SetValue(self, value, item, col):
-        pass
-
     def GetAttr(self, item, col, attr):
         obj = self.ItemToObject(item)
         return obj.GetAttr(col, attr)
 
-
+    def SetValue(self, value, item, col):
+        obj = self.ItemToObject(item)
+        res = obj.SetValue(value, col)
+        self.ItemChanged(item)
+        return res
+        
 class TreeDropTarget(wx.TextDropTarget):
     def __init__(self, manager):
         super(TreeDropTarget, self).__init__()
@@ -368,7 +374,7 @@ class TreeManager(object):
         column.Reorderable = True
 
     def AddToggleColumn(self, title):
-        column = self.tree_view.AppendToggleColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
+        column = self.tree_view.AppendToggleColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE, mode=wx.dataview.DATAVIEW_CELL_ACTIVATABLE)
         self.model.columns_type.append('integer')
         column.Sortable = True
         column.Reorderable = True
@@ -418,10 +424,21 @@ class TreeManager(object):
     
     def Select(self, obj):
         item = self.model.ObjectToItem(obj)
-        if item:
+        if item.IsOk():
+            print "select", item
             self.tree_view.Select(item)
-            self.tree_view.SetCurrentItem(item)
-        
+#             self.tree_view.SetCurrentItem(item)
+#             items = wx.dataview.DataViewItemArray()
+#             items.append(item)
+#            self.tree_view.UnselectAll()
+#            self.tree_view.SelectAll()
+        if obj is None:
+            return
+        parent = obj.parent
+        while parent:
+            self.tree_view.Expand(self.ObjectToItem(parent))
+            parent = parent.parent
+            
     def SelectItem(self, item):
         self.tree_view.Select(item)
         self.tree_view.SetCurrentItem(item)

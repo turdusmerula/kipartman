@@ -22,6 +22,7 @@ def serialize_DistributorData(fdistributor, distributor=None):
     distributor.email = fdistributor.email
     distributor.phone = fdistributor.phone
     distributor.comment = fdistributor.comment
+    distributor.allowed = fdistributor.allowed
     return distributor
 
 def serialize_Distributor(fdistributor, distributor=None):
@@ -42,6 +43,7 @@ def deserialize_DistributorData(distributor, fdistributor=None):
     fdistributor.email = distributor.email
     fdistributor.phone = distributor.phone
     fdistributor.comment = distributor.comment
+    fdistributor.allowed = distributor.allowed
     return fdistributor
 
 

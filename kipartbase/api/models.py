@@ -93,6 +93,7 @@ class Distributor(models.Model):
     email = models.TextField(null=True, blank=True, default='')
     phone = models.TextField(null=True, blank=True, default='')
     comment = models.TextField(null=True, blank=True, default='')
+    allowed = models.BooleanField(null=False, default=True)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 

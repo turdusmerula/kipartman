@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Jul 12 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -25,6 +25,9 @@ class DialogOrderOptions ( wx.Dialog ):
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.checkbox_clean = wx.CheckBox( self, wx.ID_ANY, u"Clean current order list", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkbox_clean.SetValue(True) 
+		self.checkbox_clean.Hide()
+		
 		bSizer10.Add( self.checkbox_clean, 0, wx.ALL, 5 )
 		
 		radiobox_distributorsChoices = [ u"Select best distributor", u"Select best prices" ]
@@ -38,17 +41,17 @@ class DialogOrderOptions ( wx.Dialog ):
 		
 		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_select_all = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_select_all = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer11.Add( self.button_select_all, 0, wx.ALL, 5 )
 		
-		self.button_select_none = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_select_none = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer11.Add( self.button_select_none, 0, wx.ALL, 5 )
 		
 		
 		bSizer10.Add( bSizer11, 0, wx.EXPAND, 5 )
 		
-		self.m_dataViewCtrl5 = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer10.Add( self.m_dataViewCtrl5, 1, wx.ALL|wx.EXPAND, 5 )
+		self.tree_distributors = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer10.Add( self.tree_distributors, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		m_sdbSizer1 = wx.StdDialogButtonSizer()
 		self.m_sdbSizer1OK = wx.Button( self, wx.ID_OK )

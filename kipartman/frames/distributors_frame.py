@@ -15,10 +15,17 @@ class DataModelDistributor(helper.tree.TreeItem):
             
     def GetValue(self, col):
         vMap = { 
-            0 : self.distributor.name,
+            0 : self.distributor.allowed,
+            1 : self.distributor.name,
         }
         return vMap[col]
 
+    def SetValue(self, value, col):
+        if col==0:
+            self.distributor.allowed = value
+            self.distributor = rest.api.update_distributor(self.distributor.id, self.distributor)
+            return True
+        return False
 
 class TreeManagerDistributors(helper.tree.TreeManager):
     def __init__(self, tree_view):
@@ -42,7 +49,8 @@ class DistributorsFrame(PanelDistributors):
         
         # create distributors list
         self.tree_distributors_manager = TreeManagerDistributors(self.tree_distributors)
-        self.tree_distributors_manager.AddTextColumn("name")
+        self.tree_distributors_manager.AddToggleColumn("Allowed")
+        self.tree_distributors_manager.AddTextColumn("Name")
         self.tree_distributors_manager.OnSelectionChanged = self.onTreeDistributorsSelChanged
 
         self.panel_edit_distributor.Enabled = False

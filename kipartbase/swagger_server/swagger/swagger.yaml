@@ -1383,6 +1383,8 @@ definitions:
         type: "string"
       comment:
         type: "string"
+      allowed:
+        type: "boolean"
   ManufacturerData:
     type: "object"
     properties:
