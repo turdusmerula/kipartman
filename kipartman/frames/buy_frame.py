@@ -232,7 +232,7 @@ class DataModelWishPart(helper.tree.TreeItem):
 
     def GetValue(self, col):
         matching_offer = self.matching_offer()
-        print "++++", matching_offer, self.sku
+
         vMap = { 
             0 : self.part.name,
             1 : self.distributor.name,
@@ -458,6 +458,9 @@ class BuyFrame(PanelBuy):
 #         if options['clean']:
         self.tree_wish_parts_manager.ClearItems()
 
+        global wish_parts
+        wish_parts = self.tree_wish_parts_manager.data
+
         if options['best_distributor']:
             self.add_wishes_best_distributor(options['allowed_distributors'])
         else:
@@ -473,59 +476,88 @@ class BuyFrame(PanelBuy):
 
     def needed_bom_parts(self):
         parts = []
+        print "---- Needed bom parts: "
         for bom_part in self.tree_bom_parts_manager.data:
             if bom_part.provisioning()<bom_part.needed():
+                print bom_part.bom_part.id, "provisionning:", bom_part.provisioning(), "needed:", bom_part.needed()
                 parts.append(rest.api.find_part(bom_part.bom_part.id, with_distributors=True, with_offers=True, with_childs=True))
         return parts
     
-    def get_distributor_best_offers(self, bom_part, distributorobj):
+    def get_distributor_matching_offers(self, bom_part, equivalent_parts, distributor, quantity):
         # returns a list of best offer per part sku
-        sku_best_offerobj = {}
-        for offer in distributorobj.distributor.offers:
-            offerobj = DataModelOffer(offer, bom_part)
-            if sku_best_offerobj.has_key(offer.sku)==False:
-                sku_best_offerobj[offer.sku] = offerobj
-            elif offerobj.buy_price()<sku_best_offerobj[offer.sku].buy_price():
-                best_offerobj = offerobj
-        return sku_best_offerobj
+
+        sku_best_offer = {}
+                    
+        for part_id in equivalent_parts:
+            part = equivalent_parts[part_id]
+            if part.distributors:
+                for d in part.distributors:
+                    # only add best offers for asked distributor
+                    if d.name==distributor.name:
+                        for offer in d.offers:
+                            offerobj = DataModelOffer(offer, bom_part)
+                            if sku_best_offer.has_key(offer.sku)==False:
+                                sku_best_offer[offer.sku] = [part, offer]
+                            if offer.quantity<=quantity and offerobj.buy_price()<DataModelOffer(sku_best_offer[offer.sku][1], bom_part).buy_price():
+                                sku_best_offer[offer.sku] = [part, offer]
+
+        return sku_best_offer
     
-    def get_distributor_best_offer(self, bom_part, distributorobj):
-        sku_best_offerobj = self.get_distributor_best_offers(bom_part, distributorobj)
-        best_offerobj = None
-        for sku in sku_best_offerobj:
-            if best_offerobj is None:
-                best_offerobj = sku_best_offerobj[sku]
-            if sku_best_offerobj[sku].item_price()<best_offerobj.item_price():
-                best_offerobj = sku_best_offerobj[sku]
-        return best_offerobj 
+    def get_distributor_best_offer(self, bom_part, equivalent_parts, distributor, quantity):
+        sku_best_offer = self.get_distributor_matching_offers(bom_part, equivalent_parts, distributor, quantity)
+        best_offer_part = None
+        best_offer_offer = None
+        for sku in sku_best_offer:
+            if best_offer_offer is None:
+                [best_offer_part, best_offer_offer] = sku_best_offer[sku]
+            
+            [sku_best_offer_part, sku_best_offer_offer] = sku_best_offer[sku]
+            if DataModelOffer(sku_best_offer_offer, bom_part).item_price()<DataModelOffer(best_offer_offer, bom_part).item_price():
+                [best_offer_part, best_offer_offer] = sku_best_offer[sku]
+        return [best_offer_part, best_offer_offer] 
+
+    def get_equivalent_parts(self, part):
+        parts = {}
+        
+        # recursive search childs
+        to_add = [part]
+        while len(to_add)>0:
+            part = rest.api.find_part(to_add.pop().id, with_distributors=True, with_childs=True)
+            if parts.has_key(part.id)==False:
+                parts[part.id] = part
+            if part.childs:
+                for child in part.childs:
+                    to_add.append(child)
+
+        return parts
 
     def add_wishes_best_distributor(self, distributors):
         # compute distributor best prices
-        
-        # list of distributors
-        distributor_parts = {}
-        
+                
         # parts to search best distributor
         bom_parts = self.needed_bom_parts()
         while len(bom_parts)>0:
+            # list of distributors
+            distributor_parts = {}
         
-            for distributor in distributors:
-                if distributor.allowed:
-                    # keep only allowed distributors
-                    distributor_parts[distributor.name] = {'total_price': 0, 'parts': [], 'distributor': None}
-
             # search best offer for each distributor of each part
             for bom_part in bom_parts:
-                if bom_part.distributors:
-                    for distributor in bom_part.distributors:
-                        if distributor_parts.has_key(distributor.name):
-                            best_offerobj = self.get_distributor_best_offer(bom_part, DataModelDistributorContainer(distributor))
-                            if best_offerobj is None:
-                                raise "No best offer for distributor %s"%distributor.name
+                equivalent_parts = self.get_equivalent_parts(bom_part)
+                quantity = DataModelBomPart(bom_part).needed()
+                
+                for distributor in distributors:
+                    if distributor.allowed:
+                        [part, best_offer] = self.get_distributor_best_offer(bom_part, equivalent_parts, distributor, quantity)
+                        if best_offer:
+                            if distributor_parts.has_key(distributor.name)==False:
+                                distributor_parts[distributor.name] = {'total_price': 0, 'parts': [], 'distributor': None}
+                            best_offerobj = DataModelOffer(best_offer, bom_part)
                             distributor_parts[distributor.name]['parts'].append(
                                 {   
-                                    'part': bom_part, 
-                                    'offer': best_offerobj
+                                    'bom_part': bom_part,
+                                    'part': part, 
+                                    'offer': best_offer,
+                                    'quantity': int(best_offerobj.buy_items())
                                 }
                             )
                             distributor_parts[distributor.name]['total_price'] = distributor_parts[distributor.name]['total_price']+best_offerobj.buy_price()
@@ -533,10 +565,10 @@ class BuyFrame(PanelBuy):
                         
             for distributor_name in distributor_parts:
                 distributor = distributor_parts[distributor_name]
-                print "----", distributor_name
-                print distributor['total_price'], len(distributor['parts'])
-                for part in distributor_parts[distributor['distributor']]['parts']:
-                    print part['part'].id, part['offer'].offer.sku
+                print "----", distributor['distributor'], 'total price:', distributor['total_price'], 'parts:', len(distributor['parts'])
+                if distributor_parts.has_key(distributor['distributor']):
+                    for part in distributor_parts[distributor['distributor']]['parts']:
+                        print 'part:',part['part'].id, 'sku:', part['offer'].sku, 'quantity:', part['quantity']
                 
             # search best distributor
             best_distributor = None
@@ -544,10 +576,14 @@ class BuyFrame(PanelBuy):
                 distributor = distributor_parts[distributor_name]
                 if best_distributor is None:
                     best_distributor = distributor
-                if distributor['total_price']<best_distributor['total_price'] and len(distributor['parts'])>=len(best_distributor['parts']):
+                if len(distributor['parts'])>len(best_distributor['parts']):
+                        best_distributor = distributor
+                elif len(distributor['parts'])==len(best_distributor['parts']) and distributor['total_price']<best_distributor['total_price']:
                     best_distributor = distributor
             
+            item_added = False
             if best_distributor:
+                print "Best distributor: ", best_distributor['distributor']
                 # add wishes to list
                 for part in best_distributor['parts']:
                     offer = part['offer']
@@ -556,19 +592,62 @@ class BuyFrame(PanelBuy):
                     for d in part['part'].distributors:
                         if d.name==best_distributor['distributor']:
                             distributor = d
-                            
-#                    print type(part['part']), type(best_distributor['distributor']), offer.offer.sku, offer.buy_items()
-                    self.tree_wish_parts_manager.AppendItem(None, 
-                        DataModelWishPart(part['part'], distributor, offer.offer.sku, offer.buy_items()))
+                    if distributor:
+                        item_added = True
+                        self.tree_wish_parts_manager.AppendItem(None, 
+                            DataModelWishPart(part['part'], distributor, offer.sku, DataModelOffer(offer, part['bom_part']).buy_items()))
+                    else:
+                        print "Error with distributor %s for part %d"%(best_distributor['distributor'], part['part'].id)
+            
+            if item_added:
+                # will search best distributor for left parts
+                bom_parts = self.needed_bom_parts()
+            else:
+                # if no item added in previous loop it means that all is complete
+                bom_parts = []
 
-            bom_parts = []
-            #bom_parts = self.needed_bom_parts()
         self.refresh()
         self.loadTotalPrice()
         
-    def add_wishes_best_offers(self):
-        pass
-    
+    def add_wishes_best_offers(self, distributors):
+        # parts to search best distributor
+        bom_parts = self.needed_bom_parts()
+        
+        for bom_part in bom_parts:
+            equivalent_parts = self.get_equivalent_parts(bom_part)
+            quantity = DataModelBomPart(bom_part).needed()
+            
+            best_offer = None
+            best_part = None
+            best_distributor = None
+            for distributor in distributors:
+                if distributor.allowed:
+                    [part, distributor_best_offer] = self.get_distributor_best_offer(bom_part, equivalent_parts, distributor, quantity)
+                    if best_offer is None:
+                        best_offer = distributor_best_offer
+                        best_part = part
+                        best_distributor = distributor
+                    if distributor_best_offer:
+                        best_offerobj = DataModelOffer(best_offer, bom_part)
+                        distributor_best_offerobj = DataModelOffer(distributor_best_offer, bom_part)
+                        
+                        if distributor_best_offerobj.buy_price()<best_offerobj.buy_price():
+                            best_offer = distributor_best_offer
+                            best_part = part
+                            best_distributor = distributor
+
+            if best_offer:
+                distributor = None
+                for d in best_part.distributors:
+                    if d.name==best_distributor.name:
+                        distributor = d
+                if distributor:
+                    self.tree_wish_parts_manager.AppendItem(None, 
+                        DataModelWishPart(best_part, distributor, best_offer.sku, DataModelOffer(best_offer, bom_part).buy_items()))
+
+        self.refresh()
+        self.loadTotalPrice()
+
     def onSpinBoardNumberCtrl( self, event ):
         global board_number
         board_number = self.spin_board_number.Value
