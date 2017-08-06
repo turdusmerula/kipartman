@@ -241,6 +241,7 @@ class DataModelWishPart(helper.tree.TreeItem):
             4 : str(int(self.buy_items(matching_offer))),
             5 : str(self.buy_price(matching_offer)),
             6 : str(self.converted_unit_price(matching_offer)[1]),
+            7 : self.part.description
         }
         return vMap[col]
 
@@ -291,6 +292,7 @@ class BuyFrame(PanelBuy):
         self.tree_wish_parts_manager.AddFloatColumn("Amount")
         self.tree_wish_parts_manager.AddFloatColumn("Buy Price")
         self.tree_wish_parts_manager.AddTextColumn("Currency")
+        self.tree_wish_parts_manager.AddTextColumn("Description")
 
     def load(self):
         self.loadBomParts()
@@ -398,9 +400,20 @@ class BuyFrame(PanelBuy):
     def loadBestOffers(self, bom_part, distributorobj):
         # Only keep best offer for each sku of each distributor
         # best offer by sku
-        sku_best_offerobj = self.get_distributor_best_offers(bom_part, distributorobj)
-        for sku in sku_best_offerobj:
-            self.tree_distributors_manager.AppendItem(distributorobj, sku_best_offerobj[sku])
+        quantity = DataModelBomPart(bom_part).needed()
+
+        best_offers = {}
+        for offer in distributorobj.distributor.offers:
+            if best_offers.has_key(offer.sku)==False:
+                best_offers[offer.sku] = offer
+            
+            offerobj = DataModelOffer(offer, bom_part)
+            best_offerobj = DataModelOffer(best_offers[offer.sku], bom_part)
+            if offer.quantity<=quantity and offerobj.buy_price()<best_offerobj.buy_price():
+                best_offers[offer.sku] = offer
+
+        for sku in best_offers:
+            self.tree_distributors_manager.AppendItem(distributorobj, DataModelOffer(best_offers[sku], bom_part))
         
     def GetMenus(self):
         return [{'title': 'Prices', 'menu': self.menu_prices}]

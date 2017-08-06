@@ -39,17 +39,6 @@ class DialogOrderOptions ( wx.Dialog ):
 		self.m_staticText5.Wrap( -1 )
 		bSizer10.Add( self.m_staticText5, 0, wx.ALL, 5 )
 		
-		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.button_select_all = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer11.Add( self.button_select_all, 0, wx.ALL, 5 )
-		
-		self.button_select_none = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer11.Add( self.button_select_none, 0, wx.ALL, 5 )
-		
-		
-		bSizer10.Add( bSizer11, 0, wx.EXPAND, 5 )
-		
 		self.tree_distributors = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer10.Add( self.tree_distributors, 1, wx.ALL|wx.EXPAND, 5 )
 		
@@ -69,8 +58,6 @@ class DialogOrderOptions ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
-		self.button_select_all.Bind( wx.EVT_BUTTON, self.OnButtonSelectAllClick )
-		self.button_select_none.Bind( wx.EVT_BUTTON, self.OnButtonSelectNoneClick )
 		self.m_sdbSizer1Cancel.Bind( wx.EVT_BUTTON, self.OnCancelButtonClick )
 		self.m_sdbSizer1OK.Bind( wx.EVT_BUTTON, self.OnOKButtonClick )
 	
@@ -79,12 +66,6 @@ class DialogOrderOptions ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def OnButtonSelectAllClick( self, event ):
-		event.Skip()
-	
-	def OnButtonSelectNoneClick( self, event ):
-		event.Skip()
-	
 	def OnCancelButtonClick( self, event ):
 		event.Skip()
 	
