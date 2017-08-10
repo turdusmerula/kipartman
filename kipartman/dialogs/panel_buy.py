@@ -42,6 +42,15 @@ class PanelBuy ( wx.Panel ):
 		
 		bSizer111.Add( wSizer1, 1, wx.ALIGN_CENTER_VERTICAL, 0 )
 		
+		self.m_toolBar1 = wx.ToolBar( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.tool_open_basket = self.m_toolBar1.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/open-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Open a basket file", wx.EmptyString, None ) 
+		
+		self.tool_save_basket = self.m_toolBar1.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/save-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Save basket file", wx.EmptyString, None ) 
+		
+		self.m_toolBar1.Realize() 
+		
+		bSizer111.Add( self.m_toolBar1, 0, wx.EXPAND, 5 )
+		
 		self.button_refresh = wx.BitmapButton( self.m_panel1, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer111.Add( self.button_refresh, 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		
@@ -182,6 +191,8 @@ class PanelBuy ( wx.Panel ):
 		
 		# Connect Events
 		self.spin_board_number.Bind( wx.EVT_SPINCTRL, self.onSpinBoardNumberCtrl )
+		self.Bind( wx.EVT_TOOL, self.onToolOpenBasketClicked, id = self.tool_open_basket.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToolSaveBasketClicked, id = self.tool_save_basket.GetId() )
 		self.button_refresh.Bind( wx.EVT_BUTTON, self.onButtonRefreshClick )
 		self.tree_bom_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomPartsSelectionChanged, id = wx.ID_ANY )
 		self.tree_part_equivalents.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartEquivalentsSelectionChanged, id = wx.ID_ANY )
@@ -199,6 +210,12 @@ class PanelBuy ( wx.Panel ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def onSpinBoardNumberCtrl( self, event ):
+		event.Skip()
+	
+	def onToolOpenBasketClicked( self, event ):
+		event.Skip()
+	
+	def onToolSaveBasketClicked( self, event ):
 		event.Skip()
 	
 	def onButtonRefreshClick( self, event ):

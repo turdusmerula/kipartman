@@ -1093,6 +1093,8 @@ definitions:
             $ref: "#/definitions/Part"
         footprint:
           $ref: "#/definitions/Footprint"
+        model:
+          $ref: "#/definitions/Model"
         parameters:
           type: "array"
           items:
@@ -1117,6 +1119,8 @@ definitions:
             $ref: "#/definitions/PartRef"
         footprint:
           $ref: "#/definitions/FootprintRef"
+        model:
+          $ref: "#/definitions/ModelRef"
         parameters:
           type: "array"
           items:
@@ -1454,6 +1458,14 @@ definitions:
         type: "integer"
         format: "int64"
   FootprintRef:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+  ModelRef:
     type: "object"
     required:
     - "id"

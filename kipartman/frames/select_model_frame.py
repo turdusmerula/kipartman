@@ -69,7 +69,7 @@ class SelectModelFrame(PanelSelectModel):
         self.load()
         
         if initial:
-            self.tree_models.Select(self.tree_models_manager.FindModel(initial.id))
+            self.tree_models.Select(self.tree_footprints_manager.ObjectToItem(self.tree_models_manager.FindModel(initial.id)))
         
         # set result functions
         self.cancel = None

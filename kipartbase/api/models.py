@@ -21,6 +21,7 @@ class Part(models.Model):
     comment = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('Footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    model = models.ForeignKey('Model', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     childs = models.ManyToManyField('Part', blank=True)
     #parameters is defined inside PartParameter by ForeignKey part
     #offers is defined inside PartOffer by ForeignKey part

@@ -36,6 +36,7 @@ from .models.model_category_new import ModelCategoryNew
 from .models.model_category_ref import ModelCategoryRef
 from .models.model_data import ModelData
 from .models.model_new import ModelNew
+from .models.model_ref import ModelRef
 from .models.part import Part
 from .models.part_category import PartCategory
 from .models.part_category_data import PartCategoryData

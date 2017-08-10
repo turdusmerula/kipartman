@@ -1,5 +1,6 @@
 from dialogs.panel_edit_part import PanelEditPart
 from frames.select_footprint_frame import SelectFootprintFrame
+from frames.select_model_frame import SelectModelFrame
 from frames.part_parameters_frame import PartParametersFrame
 from frames.part_distributors_frame import PartDistributorsFrame
 from frames.part_manufacturers_frame import PartManufacturersFrame
@@ -83,6 +84,18 @@ class EditPartFrame(PanelEditPart):
             self.button_part_footprint.Label = "<none>"
         self.part.footprint = footprint
         
+    def onButtonPartModelClick( self, event ):
+        model = self.part.model
+        frame = DropdownFrame(self.button_part_footprint, SelectModelFrame, model)
+        frame.Dropdown(self.onSetModelCallback)
+    
+    def onSetModelCallback(self, model):
+        if model:
+            self.button_part_model.Label = model.name
+        else:
+            self.button_part_model.Label = "<none>"
+        self.part.model = model
+
     def onButtonPartEditApply( self, event ):
         part = self.part
         if not part:

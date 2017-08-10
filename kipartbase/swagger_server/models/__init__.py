@@ -24,6 +24,7 @@ from .model_category_new import ModelCategoryNew
 from .model_category_ref import ModelCategoryRef
 from .model_data import ModelData
 from .model_new import ModelNew
+from .model_ref import ModelRef
 from .part import Part
 from .part_category import PartCategory
 from .part_category_data import PartCategoryData

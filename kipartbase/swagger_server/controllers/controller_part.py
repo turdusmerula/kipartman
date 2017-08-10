@@ -22,6 +22,7 @@ from swagger_server.controllers.controller_part_offer import deserialize_PartOff
 from django.db.models import Q
 import api.models
 from swagger_server.controllers.controller_footprint import find_footprint
+from swagger_server.controllers.controller_model import find_model
 from swagger_server.controllers.controller_part_manufacturer import find_part_manufacturers
 from swagger_server.controllers.helpers import raise_on_error, ControllerError
 
@@ -48,6 +49,8 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
         part.category = raise_on_error(find_parts_category(fpart.category.id))
     if fpart.footprint:
         part.footprint = raise_on_error(find_footprint(fpart.footprint.id))
+    if fpart.model:
+        part.model = raise_on_error(find_model(fpart.model.id))
     # extract childs
     if with_childs:
         part.childs = []
@@ -93,7 +96,15 @@ def deserialize_PartNew(part, fpart=None):
         except:
             return Error(code=1000, message='Footprint %d does not exists'%part.footprint.id)
     else:
-        fpart.category = None
+        fpart.footprint = None
+
+    if part.model:
+        try:
+            fpart.model = api.models.Model.objects.get(pk=part.model.id)
+        except:
+            return Error(code=1000, message='Model %d does not exists'%part.model.id)
+    else:
+        fpart.model = None
 
     if not part.childs is None:
         fchilds = []
