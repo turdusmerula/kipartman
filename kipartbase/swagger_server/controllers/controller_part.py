@@ -90,7 +90,7 @@ def deserialize_PartNew(part, fpart=None):
         try:
             fpart.category = api.models.PartCategory.objects.get(pk=part.category.id)
         except:
-            return Error(code=1000, message='Category %d does not exists'%part.category.id)
+            raise_on_error(Error(code=1000, message='Category %d does not exists'%part.category.id))
     else:
         fpart.category = None
 
@@ -98,7 +98,7 @@ def deserialize_PartNew(part, fpart=None):
         try:
             fpart.footprint = api.models.Footprint.objects.get(pk=part.footprint.id)
         except:
-            return Error(code=1000, message='Footprint %d does not exists'%part.footprint.id)
+            raise_on_error(Error(code=1000, message='Footprint %d does not exists'%part.footprint.id))
     else:
         fpart.footprint = None
 
@@ -106,7 +106,7 @@ def deserialize_PartNew(part, fpart=None):
         try:
             fpart.model = api.models.Model.objects.get(pk=part.model.id)
         except:
-            return Error(code=1000, message='Model %d does not exists'%part.model.id)
+            raise_on_error(Error(code=1000, message='Model %d does not exists'%part.model.id))
     else:
         fpart.model = None
 
@@ -116,14 +116,14 @@ def deserialize_PartNew(part, fpart=None):
             try:
                 fchilds.append(api.models.Part.objects.get(pk=child.id))
             except:
-                return Error(code=1000, message='Part %d does not exists'%part.id)
+                raise_on_error(Error(code=1000, message='Part %d does not exists'%part.id))
         fpart.childs.set(fchilds)
 
         # recursive check
         while len(fchilds)>0:
             fchild = fchilds.pop()
             if fchild.pk==part.id:
-                return Error(code=1000, message='Part cannot be child of itself')
+                raise_on_error(Error(code=1000, message='Part cannot be child of itself'))
             for fchild in fchild.childs.all():
                 fchilds.append(fchild)
 
@@ -331,11 +331,17 @@ def update_part(part_id, part):
         part = Part.from_dict(connexion.request.get_json())
     else:
         return Error(code=1000, message='Missing payload')
+    
     try:
-        fpart = deserialize_Part(part, api.models.Part.objects.get(pk=part_id))
+        fpart = api.models.Part.objects.get(pk=part_id)
     except:
         return Error(code=1000, message='Part %d does not exists'%part_id)
-        
+    
+    try:
+        fpart = deserialize_Part(part, fpart)
+    except ControllerError as e:
+        return e.error
+    
     fpart.save()
     
     fparameters = []

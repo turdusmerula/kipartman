@@ -53,6 +53,10 @@ class EditPartFrame(PanelEditPart):
                 self.button_part_footprint.Label = NoneValue(part.footprint.name, "")
             else:
                 self.button_part_footprint.Label = "<none>"
+            if part.model:
+                self.button_part_model.Label = NoneValue(part.model.name, "")
+            else:
+                self.button_part_model.Label = "<none>"
         else:
             self.edit_part_name.Value = ''
             self.edit_part_description.Value = ''
@@ -104,9 +108,9 @@ class EditPartFrame(PanelEditPart):
             part.octopart = None
             
         # set part content
-        part.name = str(self.edit_part_name.Value)
-        part.description = str(self.edit_part_description.Value)
-        part.comment = str(self.edit_part_comment.Value)
+        part.name = self.edit_part_name.Value
+        part.description = self.edit_part_description.Value
+        part.comment = self.edit_part_comment.Value
         # send result event
         event = EditPartApplyEvent(data=part)
         wx.PostEvent(self, event)

@@ -57,17 +57,26 @@ def deserialize_FootprintData(footprint, ffootprint=None):
 def deserialize_FootprintNew(footprint, ffootprint=None):
     ffootprint = deserialize_FootprintData(footprint, ffootprint)
     if footprint.category:
-        ffootprint.category = api.models.FootprintCategory.objects.get(id=footprint.category.id)
+        try:
+            ffootprint.category = api.models.FootprintCategory.objects.get(id=footprint.category.id)
+        except:
+            raise_on_error(Error(code=1000, message='Category %d does not exists'%footprint.category.id))
     else:
         ffootprint.category = None
         
     if footprint.image:
-        ffootprint.image = api.models.File.objects.get(id=footprint.image.id)
+        try:
+            ffootprint.image = api.models.File.objects.get(id=footprint.image.id)
+        except:
+            raise_on_error(Error(code=1000, message='Image %d does not exists'%footprint.image.id))
     else:
         ffootprint.image = None
         
     if footprint.footprint:
-        ffootprint.footprint = api.models.File.objects.get(id=footprint.footprint.id)
+        try:
+            ffootprint.footprint = api.models.File.objects.get(id=footprint.footprint.id)
+        except:
+            raise_on_error(Error(code=1000, message='Footprint %d does not exists'%footprint.footprint.id))
     else:
         ffootprint.footprint = None
 
@@ -187,9 +196,14 @@ def update_footprint(footprint_id, footprint):
         return Error(code=1000, message='Missing payload')
 
     try:
-        ffootprint = deserialize_FootprintNew(footprint, api.models.Footprint.objects.get(pk=footprint_id))
+        ffootprint = api.models.Footprint.objects.get(pk=footprint_id)
     except:
         return Error(code=1000, message='Footprint %d does not exists'%footprint_id)        
+
+    try:
+        ffootprint = deserialize_FootprintNew(footprint, ffootprint)
+    except ControllerError as e:
+        return e.error
 
     ffootprint.save()
     

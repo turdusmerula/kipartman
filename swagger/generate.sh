@@ -36,15 +36,14 @@ java -jar /tmp/swagger-codegen-cli.jar generate \
 
 # patch py files to remove wrong recursive imports
 sed -i -e "s/from swagger_server.models.part_category import PartCategory//g" server/swagger_server/models/part_category.py
-sed -i -e "s/from swagger_server.models.part_category_tree import PartCategoryTree//g" server/swagger_server/models/part_category_tree.py
 sed -i -e "s/from swagger_server.models.part import Part//g" server/swagger_server/models/part.py
-sed -i -e "s/from swagger_server.models.part_tree import PartTree//g" server/swagger_server/models/part_tree.py
 sed -i -e "s/from swagger_server.models.footprint_category import FootprintCategory//g" server/swagger_server/models/footprint_category.py
-sed -i -e "s/from swagger_server.models.footprint_category_tree import FootprintCategoryTree//g" server/swagger_server/models/footprint_category_tree.py
 sed -i -e "s/from swagger_server.models.model_category import ModelCategory//g" server/swagger_server/models/model_category.py
-sed -i -e "s/from swagger_server.models.model_category_tree import ModelCategoryTree//g" server/swagger_server/models/model_category_tree.py
 sed -i -e "s/from swagger_server.models.storage_category import StorageCategory//g" server/swagger_server/models/storage_category.py
-sed -i -e "s/from swagger_server.models.storage_category_tree import StorageCategoryTree//g" server/swagger_server/models/storage_category_tree.py
+
+# patch py files to allow usage of name Model
+find server/swagger_server -name "*.py" -exec sed -i -e "s#from .base_model_ import Model#from .base_model_ import Model as BaseModel#g" {} \;
+find server/swagger_server -name "*.py" -exec sed -i -e "s#(Model)#(BaseModel)#g" {} \;
 
 # copy server inside kipartbase
 cd server
