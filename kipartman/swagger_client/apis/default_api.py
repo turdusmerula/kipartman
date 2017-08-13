@@ -880,6 +880,216 @@ class DefaultApi(object):
                                         _request_timeout=params.get('_request_timeout'),
                                         collection_formats=collection_formats)
 
+    def add_storage(self, storage, **kwargs):
+        """
+        Creates a new storage
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_storage(storage, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param StorageNew storage: Storage to add (required)
+        :return: Storage
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.add_storage_with_http_info(storage, **kwargs)
+        else:
+            (data) = self.add_storage_with_http_info(storage, **kwargs)
+            return data
+
+    def add_storage_with_http_info(self, storage, **kwargs):
+        """
+        Creates a new storage
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_storage_with_http_info(storage, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param StorageNew storage: Storage to add (required)
+        :return: Storage
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['storage']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method add_storage" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'storage' is set
+        if ('storage' not in params) or (params['storage'] is None):
+            raise ValueError("Missing the required parameter `storage` when calling `add_storage`")
+
+
+        collection_formats = {}
+
+        resource_path = '/storages'.replace('{format}', 'json')
+        path_params = {}
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'storage' in params:
+            body_params = params['storage']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'POST',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='Storage',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def add_storages_category(self, category, **kwargs):
+        """
+        Creates a new storage category
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_storages_category(category, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param StorageCategoryNew category: Category to add (required)
+        :return: StorageCategory
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.add_storages_category_with_http_info(category, **kwargs)
+        else:
+            (data) = self.add_storages_category_with_http_info(category, **kwargs)
+            return data
+
+    def add_storages_category_with_http_info(self, category, **kwargs):
+        """
+        Creates a new storage category
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.add_storages_category_with_http_info(category, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param StorageCategoryNew category: Category to add (required)
+        :return: StorageCategory
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['category']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method add_storages_category" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'category' is set
+        if ('category' not in params) or (params['category'] is None):
+            raise ValueError("Missing the required parameter `category` when calling `add_storages_category`")
+
+
+        collection_formats = {}
+
+        resource_path = '/storages/categories'.replace('{format}', 'json')
+        path_params = {}
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'category' in params:
+            body_params = params['category']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'POST',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='StorageCategory',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
     def add_upload_file(self, **kwargs):
         """
         Upload a file.
@@ -1784,6 +1994,216 @@ class DefaultApi(object):
         collection_formats = {}
 
         resource_path = '/parts/categories/{category_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'category_id' in params:
+            path_params['category_id'] = params['category_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'DELETE',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type=None,
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def delete_storage(self, storage_id, **kwargs):
+        """
+        Delete storage
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_storage(storage_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int storage_id: Storage id (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.delete_storage_with_http_info(storage_id, **kwargs)
+        else:
+            (data) = self.delete_storage_with_http_info(storage_id, **kwargs)
+            return data
+
+    def delete_storage_with_http_info(self, storage_id, **kwargs):
+        """
+        Delete storage
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_storage_with_http_info(storage_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int storage_id: Storage id (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['storage_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method delete_storage" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'storage_id' is set
+        if ('storage_id' not in params) or (params['storage_id'] is None):
+            raise ValueError("Missing the required parameter `storage_id` when calling `delete_storage`")
+
+
+        collection_formats = {}
+
+        resource_path = '/storages/{storage_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'storage_id' in params:
+            path_params['storage_id'] = params['storage_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'DELETE',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type=None,
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def delete_storages_category(self, category_id, **kwargs):
+        """
+        Delete storage category
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_storages_category(category_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int category_id: Category id (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.delete_storages_category_with_http_info(category_id, **kwargs)
+        else:
+            (data) = self.delete_storages_category_with_http_info(category_id, **kwargs)
+            return data
+
+    def delete_storages_category_with_http_info(self, category_id, **kwargs):
+        """
+        Delete storage category
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.delete_storages_category_with_http_info(category_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int category_id: Category id (required)
+        :return: None
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['category_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method delete_storages_category" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'category_id' is set
+        if ('category_id' not in params) or (params['category_id'] is None):
+            raise ValueError("Missing the required parameter `category_id` when calling `delete_storages_category`")
+
+
+        collection_formats = {}
+
+        resource_path = '/storages/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
@@ -3081,6 +3501,7 @@ class DefaultApi(object):
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
+        :param bool with_storages: Include storages in answer
         :return: Part
                  If the method is called asynchronously,
                  returns the request thread.
@@ -3111,12 +3532,13 @@ class DefaultApi(object):
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
+        :param bool with_storages: Include storages in answer
         :return: Part
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['part_id', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers']
+        all_params = ['part_id', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -3154,6 +3576,8 @@ class DefaultApi(object):
             query_params['with_distributors'] = params['with_distributors']
         if 'with_manufacturers' in params:
             query_params['with_manufacturers'] = params['with_manufacturers']
+        if 'with_storages' in params:
+            query_params['with_storages'] = params['with_storages']
 
         header_params = {}
 
@@ -3201,11 +3625,13 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int category: Filter by category
+        :param int storage: Filter by storage
         :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
+        :param bool with_storages: Include storages in answer
         :param str search: Search for parts matching pattern
         :return: list[Part]
                  If the method is called asynchronously,
@@ -3232,18 +3658,20 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int category: Filter by category
+        :param int storage: Filter by storage
         :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
+        :param bool with_storages: Include storages in answer
         :param str search: Search for parts matching pattern
         :return: list[Part]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['category', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'search']
+        all_params = ['category', 'storage', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages', 'search']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -3268,6 +3696,8 @@ class DefaultApi(object):
         query_params = {}
         if 'category' in params:
             query_params['category'] = params['category']
+        if 'storage' in params:
+            query_params['storage'] = params['storage']
         if 'with_offers' in params:
             query_params['with_offers'] = params['with_offers']
         if 'with_parameters' in params:
@@ -3278,6 +3708,8 @@ class DefaultApi(object):
             query_params['with_distributors'] = params['with_distributors']
         if 'with_manufacturers' in params:
             query_params['with_manufacturers'] = params['with_manufacturers']
+        if 'with_storages' in params:
+            query_params['with_storages'] = params['with_storages']
         if 'search' in params:
             query_params['search'] = params['search']
 
@@ -3508,6 +3940,419 @@ class DefaultApi(object):
                                         post_params=form_params,
                                         files=local_var_files,
                                         response_type='PartCategory',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_storage(self, storage_id, **kwargs):
+        """
+        Return a storage
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_storage(storage_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int storage_id: Storage id (required)
+        :return: Storage
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_storage_with_http_info(storage_id, **kwargs)
+        else:
+            (data) = self.find_storage_with_http_info(storage_id, **kwargs)
+            return data
+
+    def find_storage_with_http_info(self, storage_id, **kwargs):
+        """
+        Return a storage
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_storage_with_http_info(storage_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int storage_id: Storage id (required)
+        :return: Storage
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['storage_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_storage" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'storage_id' is set
+        if ('storage_id' not in params) or (params['storage_id'] is None):
+            raise ValueError("Missing the required parameter `storage_id` when calling `find_storage`")
+
+
+        collection_formats = {}
+
+        resource_path = '/storages/{storage_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'storage_id' in params:
+            path_params['storage_id'] = params['storage_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='Storage',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_storages(self, **kwargs):
+        """
+        Return all storages
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_storages(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int category: Filter by category
+        :param str search: Search for storage matching pattern
+        :return: list[Storage]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_storages_with_http_info(**kwargs)
+        else:
+            (data) = self.find_storages_with_http_info(**kwargs)
+            return data
+
+    def find_storages_with_http_info(self, **kwargs):
+        """
+        Return all storages
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_storages_with_http_info(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int category: Filter by category
+        :param str search: Search for storage matching pattern
+        :return: list[Storage]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['category', 'search']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_storages" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+
+        collection_formats = {}
+
+        resource_path = '/storages'.replace('{format}', 'json')
+        path_params = {}
+
+        query_params = {}
+        if 'category' in params:
+            query_params['category'] = params['category']
+        if 'search' in params:
+            query_params['search'] = params['search']
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='list[Storage]',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_storages_categories(self, **kwargs):
+        """
+        Return all categories for storages
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_storages_categories(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :return: list[StorageCategory]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_storages_categories_with_http_info(**kwargs)
+        else:
+            (data) = self.find_storages_categories_with_http_info(**kwargs)
+            return data
+
+    def find_storages_categories_with_http_info(self, **kwargs):
+        """
+        Return all categories for storages
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_storages_categories_with_http_info(callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :return: list[StorageCategory]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = []
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_storages_categories" % key
+                )
+            params[key] = val
+        del params['kwargs']
+
+        collection_formats = {}
+
+        resource_path = '/storages/categories'.replace('{format}', 'json')
+        path_params = {}
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='list[StorageCategory]',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def find_storages_category(self, category_id, **kwargs):
+        """
+        Return a storage category
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_storages_category(category_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int category_id: Category id (required)
+        :return: StorageCategory
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.find_storages_category_with_http_info(category_id, **kwargs)
+        else:
+            (data) = self.find_storages_category_with_http_info(category_id, **kwargs)
+            return data
+
+    def find_storages_category_with_http_info(self, category_id, **kwargs):
+        """
+        Return a storage category
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.find_storages_category_with_http_info(category_id, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int category_id: Category id (required)
+        :return: StorageCategory
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['category_id']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method find_storages_category" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'category_id' is set
+        if ('category_id' not in params) or (params['category_id'] is None):
+            raise ValueError("Missing the required parameter `category_id` when calling `find_storages_category`")
+
+
+        collection_formats = {}
+
+        resource_path = '/storages/categories/{category_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'category_id' in params:
+            path_params['category_id'] = params['category_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'GET',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='StorageCategory',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -4818,6 +5663,230 @@ class DefaultApi(object):
                                         post_params=form_params,
                                         files=local_var_files,
                                         response_type='PartCategory',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def update_storage(self, storage_id, storage, **kwargs):
+        """
+        Update storage
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_storage(storage_id, storage, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int storage_id: Storage id (required)
+        :param StorageNew storage: Storage to update (required)
+        :return: Storage
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.update_storage_with_http_info(storage_id, storage, **kwargs)
+        else:
+            (data) = self.update_storage_with_http_info(storage_id, storage, **kwargs)
+            return data
+
+    def update_storage_with_http_info(self, storage_id, storage, **kwargs):
+        """
+        Update storage
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_storage_with_http_info(storage_id, storage, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int storage_id: Storage id (required)
+        :param StorageNew storage: Storage to update (required)
+        :return: Storage
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['storage_id', 'storage']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method update_storage" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'storage_id' is set
+        if ('storage_id' not in params) or (params['storage_id'] is None):
+            raise ValueError("Missing the required parameter `storage_id` when calling `update_storage`")
+        # verify the required parameter 'storage' is set
+        if ('storage' not in params) or (params['storage'] is None):
+            raise ValueError("Missing the required parameter `storage` when calling `update_storage`")
+
+
+        collection_formats = {}
+
+        resource_path = '/storages/{storage_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'storage_id' in params:
+            path_params['storage_id'] = params['storage_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'storage' in params:
+            body_params = params['storage']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'PUT',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='Storage',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
+    def update_storages_category(self, category_id, category, **kwargs):
+        """
+        Update storage category
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_storages_category(category_id, category, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int category_id: Category id (required)
+        :param StorageCategoryNew category: Category to update (required)
+        :return: StorageCategory
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.update_storages_category_with_http_info(category_id, category, **kwargs)
+        else:
+            (data) = self.update_storages_category_with_http_info(category_id, category, **kwargs)
+            return data
+
+    def update_storages_category_with_http_info(self, category_id, category, **kwargs):
+        """
+        Update storage category
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.update_storages_category_with_http_info(category_id, category, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param int category_id: Category id (required)
+        :param StorageCategoryNew category: Category to update (required)
+        :return: StorageCategory
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['category_id', 'category']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method update_storages_category" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'category_id' is set
+        if ('category_id' not in params) or (params['category_id'] is None):
+            raise ValueError("Missing the required parameter `category_id` when calling `update_storages_category`")
+        # verify the required parameter 'category' is set
+        if ('category' not in params) or (params['category'] is None):
+            raise ValueError("Missing the required parameter `category` when calling `update_storages_category`")
+
+
+        collection_formats = {}
+
+        resource_path = '/storages/categories/{category_id}'.replace('{format}', 'json')
+        path_params = {}
+        if 'category_id' in params:
+            path_params['category_id'] = params['category_id']
+
+        query_params = {}
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'category' in params:
+            body_params = params['category']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api(resource_path, 'PUT',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='StorageCategory',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),

@@ -33,6 +33,7 @@ encoding//kipartman/dialogs/panel_select_footprint.py=utf-8
 encoding//kipartman/dialogs/panel_select_octopart.py=utf-8
 encoding//kipartman/dialogs/panel_select_part.py=utf-8
 encoding//kipartman/dialogs/panel_select_snapeda.py=utf-8
+encoding//kipartman/dialogs/panel_storages.py=utf-8
 encoding//kipartman/swagger_client/__init__.py=utf-8
 encoding//kipartman/swagger_client/api_client.py=utf-8
 encoding//kipartman/swagger_client/apis/default_api.py=utf-8

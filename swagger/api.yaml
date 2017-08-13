@@ -117,6 +117,11 @@ paths:
           description: Filter by category
           type: integer
           format: int64
+        - name: storage
+          in: query
+          description: Filter by storage
+          type: integer
+          format: int64
         - name: with_offers
           in: query
           description: Include offers in answer
@@ -136,6 +141,10 @@ paths:
         - name: with_manufacturers
           in: query
           description: Include manufacturers in answer
+          type: boolean
+        - name: with_storages
+          in: query
+          description: Include storages in answer
           type: boolean
         - name: search
           in: query
@@ -198,6 +207,10 @@ paths:
         - name: with_manufacturers
           in: query
           description: Include manufacturers in answer
+          type: boolean
+        - name: with_storages
+          in: query
+          description: Include storages in answer
           type: boolean
       responses:
         "200":
@@ -888,6 +901,190 @@ paths:
           description: Path of updated file
           schema:
             $ref: './upload/UploadFile.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+            
+
+  /storages/categories:
+    get:
+      description: Return all categories for storages
+      operationId: findStoragesCategories
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            type: array
+            items:
+              $ref: './storage/category/StorageCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+    
+    post:
+      description: Creates a new storage category
+      operationId: addStoragesCategory
+      parameters:
+        - name: category
+          in: body
+          description: Category to add
+          required: true
+          schema:
+            $ref: './storage/category/StorageCategoryNew.yaml'
+      responses:
+        "200":
+          description: Created category
+          schema:
+            $ref: './storage/category/StorageCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+    
+  /storages/categories/{category_id}:
+    get:
+      description: Return a storage category
+      operationId: findStoragesCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Categories
+          schema:
+            $ref: './storage/category/StorageCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update storage category
+      operationId: updateStoragesCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+        - name: category
+          in: body
+          description: Category to update
+          required: true
+          schema:
+            $ref: './storage/category/StorageCategoryNew.yaml'
+      responses:
+        "200":
+          description: Updated pärt category
+          schema:
+            $ref: './storage/category/StorageCategory.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete storage category
+      operationId: deleteStoragesCategory
+      parameters:
+        - $ref: './types/category_id.yaml#/category_id'
+      responses:
+        "200":
+          description: Deleted ok
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /storages:
+    get:
+      description: Return all storages
+      operationId: findStorages
+      parameters:
+        - name: category
+          in: query
+          description: Filter by category
+          type: integer
+          format: int64
+        - name: search
+          in: query
+          description: Search for storage matching pattern
+          type: string
+      responses:
+        "200":
+          description: List of storages
+          schema:
+            type: array
+            items:
+              $ref: './storage/Storage.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    post:
+      description: Creates a new storage
+      operationId: addStorage
+      parameters:
+        - name: storage
+          in: body
+          description: Storage to add
+          required: true
+          schema:
+            $ref: './storage/StorageNew.yaml'
+      responses:
+        "200":
+          description: Created storage
+          schema:
+            $ref: './storage/Storage.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+  /storages/{storage_id}:
+    get:
+      description: Return a storage
+      operationId: findStorage
+      parameters:
+        - $ref: './types/storage_id.yaml#/storage_id'
+      responses:
+        "200":
+          description: Categories
+          schema:
+            $ref: './storage/Storage.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    put:
+      description: Update storage
+      operationId: updateStorage
+      parameters:
+        - $ref: './types/storage_id.yaml#/storage_id'
+        - name: storage
+          in: body
+          description: Storage to update
+          required: true
+          schema:
+            $ref: './storage/StorageNew.yaml'
+      responses:
+        "200":
+          description: Updated storage
+          schema:
+            $ref: './storage/Storage.yaml'
+        default:
+          description: unexpected error
+          schema:
+            $ref: './Error.yaml'
+
+    delete:
+      description: Delete storage
+      operationId: deleteStorage
+      parameters:
+        - $ref: './types/storage_id.yaml#/storage_id'
+      responses:
+        "200":
+          description: Deleted ok
         default:
           description: unexpected error
           schema:

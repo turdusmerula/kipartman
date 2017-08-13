@@ -1,0 +1,7 @@
+storage_id:
+  name: storage_id
+  in: path
+  description: Storage id
+  required: true
+  type: integer
+  format: int64

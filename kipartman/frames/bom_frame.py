@@ -174,7 +174,7 @@ class BomFrame(PanelBom):
         # refresh
         self.loadBomParts()
         self.loadBomModules()
-        print "---", type(part_event), part_event.data
+
         for data in self.tree_bom_parts_manager.data:
             if data.bom_part.id==part_event.data.id:
                 self.tree_bom_parts.Select(self.tree_bom_parts_manager.ObjectToItem(data))

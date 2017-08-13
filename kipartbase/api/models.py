@@ -25,7 +25,8 @@ class Part(models.Model):
     childs = models.ManyToManyField('Part', blank=True)
     #parameters is defined inside PartParameter by ForeignKey part
     #offers is defined inside PartOffer by ForeignKey part
-    #manufacturers is defined inside PartManufacturers by ForeignKey part
+    #manufacturers is defined inside PartManufacturer by ForeignKey part
+    #storages is defined inside PartStorage by ForeignKey part
     #attachements: TODO
     # octopart fields
     octopart = models.TextField(null=True, blank=True, default=None)
@@ -74,6 +75,13 @@ class PartOffer(models.Model):
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
+
+class PartStorage(models.Model):
+    part = models.ForeignKey('Part', related_name='storages', null=False, blank=False, default=None)
+    storage = models.ForeignKey('Storage', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    quantity = models.IntegerField()
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
 
 class Manufacturer(models.Model):
     name = models.TextField(blank=False)
@@ -167,18 +175,14 @@ class StorageCategory(MPTTModel):
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
-class StorageLocation(models.Model):
+class Storage(models.Model):
     category = models.ForeignKey('StorageCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     name = models.TextField()
     description = models.TextField(blank=True, default='')
+    comment = models.TextField(blank=True, default='')
 
-class PartStock(models.Model):
-    part = models.ForeignKey('Part', related_name='stocks', null=False, blank=False, default=None)
-    location = models.ForeignKey('StorageLocation', null=False, blank=False, default=None)
-    quantity = models.IntegerField()
-
-class PartStockHistory(models.Model):
+class PartStorageHistory(models.Model):
     part = models.ForeignKey('Part', null=False, blank=False, default=None)
-    location = models.ForeignKey('StorageLocation', null=False, blank=False, default=None)
+    location = models.ForeignKey('Storage', null=False, blank=False, default=None)
     reason = models.TextField(blank=False)
     amount = models.IntegerField()

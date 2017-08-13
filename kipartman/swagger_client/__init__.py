@@ -51,6 +51,14 @@ from .models.part_offer_data import PartOfferData
 from .models.part_parameter import PartParameter
 from .models.part_parameter_data import PartParameterData
 from .models.part_ref import PartRef
+from .models.part_storage import PartStorage
+from .models.storage import Storage
+from .models.storage_category import StorageCategory
+from .models.storage_category_data import StorageCategoryData
+from .models.storage_category_new import StorageCategoryNew
+from .models.storage_category_ref import StorageCategoryRef
+from .models.storage_data import StorageData
+from .models.storage_new import StorageNew
 from .models.unit import Unit
 from .models.unit_prefix import UnitPrefix
 from .models.upload_file import UploadFile

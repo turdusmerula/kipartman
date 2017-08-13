@@ -11,3 +11,5 @@ from controller_model import *
 from controller_distributor import *
 from controller_manufacturer import *
 from controller_upload_file import *
+from controller_storage_category import *
+from controller_storage import *

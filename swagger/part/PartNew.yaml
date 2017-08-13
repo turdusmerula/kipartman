@@ -28,3 +28,7 @@ allOf:
         type: array
         items:
           $ref: './part/manufacturer/PartManufacturer.yaml'
+      storages:
+        type: array
+        items:
+          $ref: './part/storage/PartStorage.yaml'

@@ -7,6 +7,7 @@ from frames.distributors_frame import DistributorsFrame
 from frames.manufacturers_frame import ManufacturersFrame
 from frames.bom_frame import BomFrame
 from frames.configuration_frame import ConfigurationFrame
+from frames.storages_frame import StoragesFrame
 
 import wx
 
@@ -24,6 +25,7 @@ class MainFrame(DialogMain):
         self.footprintsframe = FootprintsFrame(self.notebook)
         self.distributorsframe = DistributorsFrame(self.notebook)
         self.manufacturersframe = ManufacturersFrame(self.notebook)
+        self.storageframe = StoragesFrame(self.notebook)
 
         self.pages.append(self.bomframe)
         self.notebook.AddPage(self.bomframe, "BOM", False)
@@ -39,6 +41,8 @@ class MainFrame(DialogMain):
         self.notebook.AddPage(self.distributorsframe, "Distributors", False)
         self.pages.append(self.manufacturersframe)
         self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
+        self.pages.append(self.storageframe)
+        self.notebook.AddPage(self.storageframe, "Storage locations", False)
 
     def onMenuViewConfigurationSelection( self, event ):
         ConfigurationFrame(self).ShowModal()

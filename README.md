@@ -80,15 +80,12 @@ You can launch kipartman by simply calling it from the console:
 
 ## TODO list
 
-  * Add part model view
   * Add filtering from parts parameters in part view
   * Improve sorting of non string columns in treeview and listviews
-  * Prepare an order from BOM on distributors
   * Add a daemon to refresh prices regularly
   * Refresh kipart libraries and footprint from database
   * Add backup and restore
   * Add tutorials
-  * Improve overall performances for part submission by providing bulk transactions
   * Add a stock manager
 
  

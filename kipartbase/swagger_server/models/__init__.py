@@ -39,6 +39,14 @@ from .part_offer_data import PartOfferData
 from .part_parameter import PartParameter
 from .part_parameter_data import PartParameterData
 from .part_ref import PartRef
+from .part_storage import PartStorage
+from .storage import Storage
+from .storage_category import StorageCategory
+from .storage_category_data import StorageCategoryData
+from .storage_category_new import StorageCategoryNew
+from .storage_category_ref import StorageCategoryRef
+from .storage_data import StorageData
+from .storage_new import StorageNew
 from .unit import Unit
 from .unit_prefix import UnitPrefix
 from .upload_file import UploadFile

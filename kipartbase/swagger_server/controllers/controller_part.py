@@ -24,6 +24,7 @@ import api.models
 from swagger_server.controllers.controller_footprint import find_footprint
 from swagger_server.controllers.controller_model import find_model
 from swagger_server.controllers.controller_part_manufacturer import find_part_manufacturers
+from swagger_server.controllers.controller_part_storage import find_part_storages
 from swagger_server.controllers.helpers import raise_on_error, ControllerError
 
 def serialize_PartData(fpart, part=None, with_parameters=True):
@@ -40,7 +41,7 @@ def serialize_PartData(fpart, part=None, with_parameters=True):
         part.parameters = raise_on_error(find_part_parameters(fpart.id))
     return part
 
-def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True):
+def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True):
     if part is None:
         part = Part()
     part.id = fpart.id
@@ -63,6 +64,9 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
     
     if with_manufacturers:
         part.manufacturers = raise_on_error(find_part_manufacturers(fpart.id))
+
+    if with_storages:
+        part.storages = raise_on_error(find_part_storages(fpart.id))
 
     return part
 
@@ -188,6 +192,21 @@ def add_part(part):
             fpart_manufacturers.append(fpart_manufacturer)
         fpart.manufacturers.set(fpart_manufacturers)
 
+    fpart_storages = []
+    if part.storages:
+        for part_storage in part.storages:
+            try:
+                fstorage = api.models.Storage.objects.get(id=part_storage.id)
+            except:
+                return Error(code=1000, message='Storage %s does not exists'%part_storage.name)
+            fpart_storage = api.models.PartStorage()
+            fpart_storage.part = fpart
+            fpart_storage.storage = fstorage
+            fpart_storage.quantity = part_storage.quantity
+            fpart_storage.save()
+            fpart_storage.append(fpart_storage)
+        fpart.storages.set(fpart_storages)
+
     return serialize_Part(fpart)
 
 
@@ -209,7 +228,7 @@ def delete_part(part_id):
     return None
 
 
-def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None):
+def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None, with_storages=None):
     """
     find_part
     Return a part
@@ -225,6 +244,8 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None,
     :type with_distributors: bool
     :param with_manufacturers: Include manufacturers in answer
     :type with_manufacturers: bool
+    :param with_storages: Include storages in answer
+    :type with_storages: bool
 
     :rtype: Part
     """
@@ -234,12 +255,12 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None,
         return Error(code=1000, message='Part %d does not exists'%part_id)
     
     try:
-        part = serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers)
+        part = serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers, with_storages=with_storages)
     except Error as e:
         return e
     return part
 
-def find_parts(category=None, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None, search=None):
+def find_parts(category=None, storage=None, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None, with_storages=None, search=None):
     """
     find_parts
     Return all parts
@@ -255,6 +276,8 @@ def find_parts(category=None, with_offers=None, with_parameters=None, with_child
     :type with_distributors: bool
     :param with_manufacturers: Include manufacturers in answer
     :type with_manufacturers: bool
+    :param with_storages: Include storages in answer
+    :type with_storages: bool
     :param search: Search for parts matching pattern
     :type search: str
 
@@ -277,10 +300,17 @@ def find_parts(category=None, with_offers=None, with_parameters=None, with_child
         category_ids = [category.id for category in categories]
         # add a category filter
         fpart_request = fpart_request.filter(category__in=category_ids)
-        
+
+    if storage:
+        fparts = api.models.PartStorage.objects.filter(storage=int(storage))
+        fpart_ids = [fpart.part.id for fpart in fparts]
+        print "----", fpart_ids
+        # add a category filter
+        fpart_request = fpart_request.filter(id__in=fpart_ids)
+
     try:
         for fpart in fpart_request.all():
-            parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers))
+            parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers, with_storages=with_storages))
     except Error as e:
         return e.error
 
@@ -356,5 +386,26 @@ def update_part(part_id, part):
             fpart_manufacturer.save()
             fpart_manufacturers.append(fpart_manufacturer)
         fpart.manufacturers.set(fpart_manufacturers)
+
+    fpart_storages = []
+    if not part.storages is None:
+        # remove all part distributors
+        api.models.PartStorage.objects.filter(part=part_id).delete()
+        # import new values
+        for part_storage in part.storages:
+            try:
+                fstorage = api.models.Storage.objects.get(id=part_storage.id)
+            except:
+                return Error(code=1000, message='Storage %s does not exists'%part_storage.id)
+            fpart_storage = api.models.PartStorage()
+            fpart_storage.part = fpart
+            fpart_storage.storage = fstorage
+            fpart_storage.quantity = part_storage.quantity
+            if fpart_storage.quantity<0:
+                fpart_storage.quantity = 0
+                
+            fpart_storage.save()
+            fpart_storages.append(fpart_storage)
+        fpart.storages.set(fpart_storages)
 
     return serialize_Part(fpart)

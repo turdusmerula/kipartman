@@ -1,0 +1,8 @@
+type: object
+allOf:
+  - $ref: './storage/category/StorageCategoryData.yaml'
+  - required:
+      - name
+    properties:
+      parent:
+        $ref: "./storage/category/StorageCategoryRef.yaml"
