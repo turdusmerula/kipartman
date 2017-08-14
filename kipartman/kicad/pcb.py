@@ -101,17 +101,27 @@ class Pcb(object):
         
         # read spaces
         c = self.observe(1)
-        while c!='' and not c.isalnum():
+        while c!='' and not c.isalnum() and c!='"':
             c = self.observe(1)
-            if not c.isalnum():
+            if not c.isalnum() and c!='"':
                 self.read(1)
 
-        c = self.observe(1)
-        while c!='' and c!=' ' and c!='(' and c!=')':
+        if c=='"':
+            self.read(1)
             c = self.observe(1)
-            if c!=' ' and c!='(' and c!=')':
-                field = field+c
-                c = self.read(1)
+            while c!='"':
+                c = self.observe(1)
+                if c!='"':
+                    field = field+c
+                    c = self.read(1)
+            self.read(1)
+        else:
+            c = self.observe(1)
+            while c!='' and c!=' ' and c!='(' and c!=')':
+                c = self.observe(1)
+                if c!=' ' and c!='(' and c!=')':
+                    field = field+c
+                    c = self.read(1)
 
         return field
     

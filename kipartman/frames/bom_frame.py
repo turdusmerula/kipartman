@@ -211,8 +211,8 @@ class BomFrame(PanelBom):
             # open BOM
             bom_filename = pcb_filename.replace('kicad_pcb', 'bom')
             if(os.path.isfile(bom_filename)==False):
-                bom_filename = None
-                self.enableBom(False)
+                bom.SaveFile(bom_filename)
+                self.enableBom(True)
             else:
                 bom.LoadFile(bom_filename)
                 self.enableBom(True)
