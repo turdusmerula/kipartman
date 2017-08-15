@@ -142,6 +142,8 @@ class EditPartFrame(PanelEditPart):
     
     def GetUnitPrefix(self, spec):
         symbol = self.GetUnitPrefixSymbol(spec)
+        if symbol=='' or symbol is None:
+            return None
         if spec.metadata().unit():
             try:
 #                print "---", symbol, rest.api.find_unit_prefixes(symbol=symbol)[0]
@@ -215,8 +217,10 @@ class EditPartFrame(PanelEditPart):
             if spec.min_value():
                 try:
                     if parameter.unit:
+                        print "---"
                         parameter.min_value = self.GetPrefixedValue(spec.min_value(), parameter.nom_prefix)
                     else:
+                        print "***"
                         parameter.min_value = float(spec.value()[0])
                     parameter.min_prefix = parameter.nom_prefix
                     parameter.numeric = True
@@ -253,6 +257,7 @@ class EditPartFrame(PanelEditPart):
                     distributor = rest.model.DistributorNew()
                     distributor.name = offer.seller().name()
                     distributor.website = offer.seller().homepage_url()
+                    distributor.allowed = True
                     distributor = rest.api.add_distributor(distributor)
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
