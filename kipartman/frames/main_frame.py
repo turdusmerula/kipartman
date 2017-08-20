@@ -18,19 +18,15 @@ class MainFrame(DialogMain):
         self.menus = self.menu_bar.GetMenus()
 
         self.pages = []
-        self.buyframe = BuyFrame(self.notebook)
-        self.bomframe = BomFrame(self.notebook, self.buyframe)
         self.partsframe = PartsFrame(self.notebook)
         self.modelsframe = ModelsFrame(self.notebook)
         self.footprintsframe = FootprintsFrame(self.notebook)
         self.distributorsframe = DistributorsFrame(self.notebook)
         self.manufacturersframe = ManufacturersFrame(self.notebook)
         self.storageframe = StoragesFrame(self.notebook)
+        self.buyframe = BuyFrame(self.notebook)
+        self.bomframe = BomFrame(self.notebook, self.buyframe)
 
-        self.pages.append(self.bomframe)
-        self.notebook.AddPage(self.bomframe, "BOM", False)
-        self.pages.append(self.buyframe)
-        self.notebook.AddPage(self.buyframe, "Buy", False)
         self.pages.append(self.partsframe)
         self.notebook.AddPage(self.partsframe, "Parts", False)
         self.pages.append(self.modelsframe)
@@ -43,6 +39,10 @@ class MainFrame(DialogMain):
         self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
         self.pages.append(self.storageframe)
         self.notebook.AddPage(self.storageframe, "Storage locations", False)
+        self.pages.append(self.bomframe)
+        self.notebook.AddPage(self.bomframe, "BOM", False)
+        self.pages.append(self.buyframe)
+        self.notebook.AddPage(self.buyframe, "Buy", False)
 
     def onMenuViewConfigurationSelection( self, event ):
         ConfigurationFrame(self).ShowModal()

@@ -32,3 +32,7 @@ allOf:
         type: array
         items:
           $ref: './part/storage/PartStorage.yaml'
+      attachements:
+        type: array
+        items:
+          $ref: "./part/attachement/PartAttachement.yaml"

@@ -28,31 +28,21 @@ def serialize_UploadFile(fupload_file, upload_file=None):
     serialize_UploadFileData(fupload_file, upload_file)
     return upload_file
 
-def deserialize_UploadFileData(upload_file, fupload_file=None):
-    if fupload_file is None:
-        fupload_file = api.models.File()
-    fupload_file.source_name = upload_file.source_name
-    fupload_file.storage_path = upload_file.storage_path
-    return fupload_file
 
-def deserialize_UploadFile(upload_file, fupload_file=None):
-    fupload_file = deserialize_UploadFileData(upload_file, fupload_file)
-    fupload_file.pk = upload_file.id
-    return fupload_file
-
-def add_upload_file(upfile=None):
+def add_upload_file(upfile=None, description=None):
     """
     add_upload_file
     Upload a file.
     :param upfile: The file to upload.
     :type upfile: werkzeug.datastructures.FileStorage
+    :param description: The file to upload.
+    :type description: str
 
     :rtype: UploadFile
     """
     storage = api.file_storage.FileStorage()
     
-    fupload_file = storage.add_file(upfile)
-    print type(upfile)
+    fupload_file = storage.add_file(upfile)    
     return serialize_UploadFile(fupload_file)
 
 def find_upload_file(upload_file_id):

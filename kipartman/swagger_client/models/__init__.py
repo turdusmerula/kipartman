@@ -38,6 +38,7 @@ from .model_data import ModelData
 from .model_new import ModelNew
 from .model_ref import ModelRef
 from .part import Part
+from .part_attachement import PartAttachement
 from .part_category import PartCategory
 from .part_category_data import PartCategoryData
 from .part_category_new import PartCategoryNew

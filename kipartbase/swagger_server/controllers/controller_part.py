@@ -6,6 +6,7 @@ from swagger_server.models.part_new import PartNew
 
 from swagger_server.models.part_category import PartCategory
 from swagger_server.models.part_category_ref import PartCategoryRef
+from swagger_server.models.part_attachement import PartAttachement
 
 from swagger_server.models.error import Error
 from datetime import date, datetime
@@ -25,6 +26,7 @@ from swagger_server.controllers.controller_footprint import find_footprint
 from swagger_server.controllers.controller_model import find_model
 from swagger_server.controllers.controller_part_manufacturer import find_part_manufacturers
 from swagger_server.controllers.controller_part_storage import find_part_storages
+from swagger_server.controllers.controller_upload_file import find_upload_file
 from swagger_server.controllers.helpers import raise_on_error, ControllerError
 
 def serialize_PartData(fpart, part=None, with_parameters=True):
@@ -41,7 +43,7 @@ def serialize_PartData(fpart, part=None, with_parameters=True):
         part.parameters = raise_on_error(find_part_parameters(fpart.id))
     return part
 
-def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True):
+def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True):
     if part is None:
         part = Part()
     part.id = fpart.id
@@ -56,7 +58,7 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
     if with_childs:
         part.childs = []
         for fchild in fpart.childs.all():
-            part.childs.append(find_part(fchild.id))
+            part.childs.append(raise_on_error(find_part(fchild.id)))
     part.has_childs = (fpart.childs.count()>0)
     
     if with_distributors:
@@ -67,6 +69,17 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
 
     if with_storages:
         part.storages = raise_on_error(find_part_storages(fpart.id))
+
+    if with_attachements:
+        part.attachements = []
+        for fattachement in fpart.attachements.all():
+            file = raise_on_error(find_upload_file(fattachement.file.id))
+            attachement = PartAttachement()
+            attachement.id = fattachement.file.id
+            attachement.description = fattachement.description
+            attachement.source_name = file.source_name
+            attachement.storage_path = file.storage_path
+            part.attachements.append(attachement)
 
     return part
 
@@ -207,6 +220,21 @@ def add_part(part):
             fpart_storage.append(fpart_storage)
         fpart.storages.set(fpart_storages)
 
+    fpart_attachements = []
+    if part.attachements:
+        for part_attachement in part.attachements:
+            try:
+                fattachement = api.models.File.objects.get(id=part_attachement.id)
+            except:
+                return Error(code=1000, message='File %s does not exists'%part_attachement.id)
+            fpart_attachement = api.models.PartAttachement()
+            fpart_attachement.part = fpart
+            fpart_attachement.file = fattachement
+            fpart_attachement.description = part_attachement.description
+            fpart_attachement.save()
+            fpart_attachements.append(fpart_attachement)
+        fpart.attachements.set(fpart_attachements)
+
     return serialize_Part(fpart)
 
 
@@ -228,7 +256,7 @@ def delete_part(part_id):
     return None
 
 
-def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None, with_storages=None):
+def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None, with_storages=None, with_attachements=None):
     """
     find_part
     Return a part
@@ -246,6 +274,8 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None,
     :type with_manufacturers: bool
     :param with_storages: Include storages in answer
     :type with_storages: bool
+    :param with_attachements: Include attachements in answer
+    :type with_attachements: bool
 
     :rtype: Part
     """
@@ -255,12 +285,12 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None,
         return Error(code=1000, message='Part %d does not exists'%part_id)
     
     try:
-        part = serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers, with_storages=with_storages)
+        part = serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers, with_storages=with_storages, with_attachements=with_attachements)
     except Error as e:
         return e
     return part
 
-def find_parts(category=None, storage=None, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None, with_storages=None, search=None):
+def find_parts(category=None, storage=None, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None, with_storages=None, search=None, with_attachements=None):
     """
     find_parts
     Return all parts
@@ -278,6 +308,8 @@ def find_parts(category=None, storage=None, with_offers=None, with_parameters=No
     :type with_manufacturers: bool
     :param with_storages: Include storages in answer
     :type with_storages: bool
+    :param with_attachements: Include attachements in answer
+    :type with_attachements: bool
     :param search: Search for parts matching pattern
     :type search: str
 
@@ -310,7 +342,7 @@ def find_parts(category=None, storage=None, with_offers=None, with_parameters=No
 
     try:
         for fpart in fpart_request.all():
-            parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers, with_storages=with_storages))
+            parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers, with_storages=with_storages, with_attachements=with_attachements))
     except Error as e:
         return e.error
 
@@ -413,5 +445,23 @@ def update_part(part_id, part):
             fpart_storage.save()
             fpart_storages.append(fpart_storage)
         fpart.storages.set(fpart_storages)
+
+    fpart_attachements = []
+    if not part.attachements is None:
+        # remove all part distributors
+        api.models.PartAttachement.objects.filter(part=part_id).delete()
+        # import new values
+        for part_attachement in part.attachements:
+            try:
+                fattachement = api.models.File.objects.get(id=part_attachement.id)
+            except:
+                return Error(code=1000, message='File %s does not exists'%part_attachement.id)
+            fpart_attachement = api.models.PartAttachement()
+            fpart_attachement.part = fpart
+            fpart_attachement.file = fattachement
+            fpart_attachement.description = part_attachement.description
+            fpart_attachement.save()
+            fpart_attachements.append(fpart_attachement)
+        fpart.attachements.set(fpart_attachements)
 
     return serialize_Part(fpart)

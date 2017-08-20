@@ -27,7 +27,7 @@ class Part(models.Model):
     #offers is defined inside PartOffer by ForeignKey part
     #manufacturers is defined inside PartManufacturer by ForeignKey part
     #storages is defined inside PartStorage by ForeignKey part
-    #attachements: TODO
+    #attachements: is defined inside PartAttachement by ForeignKey part
     # octopart fields
     octopart = models.TextField(null=True, blank=True, default=None)
     updated = models.DateTimeField(null=True, blank=True, default=None)
@@ -82,6 +82,13 @@ class PartStorage(models.Model):
     quantity = models.IntegerField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
+
+class PartAttachement(models.Model):
+    part = models.ForeignKey('Part', related_name='attachements', null=False, blank=False, default=None)
+    file = models.ForeignKey('File', on_delete=models.DO_NOTHING, null=False)
+    description = models.TextField(blank=True, default='')
+    def __unicode__(self):
+        return '%d: %d %s' % (self.part.pk, self.file.pk, self.description)
 
 class Manufacturer(models.Model):
     name = models.TextField(blank=False)

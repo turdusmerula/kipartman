@@ -199,7 +199,7 @@ class TreeManager(object):
         self.OnItemContextMenu = None
         self.OnItemDrop = None
         self.OnItemDropPossible = None
-        self.OnItemEditingD_one = None
+        self.OnItemEditingDone = None
         self.OnItemEditingStarted = None
         self.OnItemExpanded = None
         self.OnItemExpanding = None

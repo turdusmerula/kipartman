@@ -170,6 +170,11 @@ paths:
         description: "Include storages in answer"
         required: false
         type: "boolean"
+      - name: "with_attachements"
+        in: "query"
+        description: "Include attachements in answer"
+        required: false
+        type: "boolean"
       - name: "search"
         in: "query"
         description: "Search for parts matching pattern"
@@ -246,6 +251,11 @@ paths:
       - name: "with_storages"
         in: "query"
         description: "Include storages in answer"
+        required: false
+        type: "boolean"
+      - name: "with_attachements"
+        in: "query"
+        description: "Include attachements in answer"
         required: false
         type: "boolean"
       responses:
@@ -1342,6 +1352,10 @@ definitions:
           type: "array"
           items:
             $ref: "#/definitions/PartStorage"
+        attachements:
+          type: "array"
+          items:
+            $ref: "#/definitions/PartAttachement"
   PartNew:
     allOf:
     - $ref: "#/definitions/PartData"
@@ -1372,6 +1386,10 @@ definitions:
           type: "array"
           items:
             $ref: "#/definitions/PartStorage"
+        attachements:
+          type: "array"
+          items:
+            $ref: "#/definitions/PartAttachement"
   Unit:
     type: "object"
     required:
@@ -1705,6 +1723,8 @@ definitions:
         type: "string"
       storage_path:
         type: "string"
+      description:
+        type: "string"
   StorageData:
     type: "object"
     properties:
@@ -1765,6 +1785,17 @@ definitions:
         quantity:
           type: "integer"
           format: "int64"
+  PartAttachement:
+    allOf:
+    - $ref: "#/definitions/UploadFileData"
+    - required:
+      - "id"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        description:
+          type: "string"
   PartRef:
     type: "object"
     required:

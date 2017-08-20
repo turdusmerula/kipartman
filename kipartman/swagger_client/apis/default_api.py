@@ -3502,6 +3502,7 @@ class DefaultApi(object):
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
         :param bool with_storages: Include storages in answer
+        :param bool with_attachements: Include attachements in answer
         :return: Part
                  If the method is called asynchronously,
                  returns the request thread.
@@ -3533,12 +3534,13 @@ class DefaultApi(object):
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
         :param bool with_storages: Include storages in answer
+        :param bool with_attachements: Include attachements in answer
         :return: Part
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['part_id', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages']
+        all_params = ['part_id', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages', 'with_attachements']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -3578,6 +3580,8 @@ class DefaultApi(object):
             query_params['with_manufacturers'] = params['with_manufacturers']
         if 'with_storages' in params:
             query_params['with_storages'] = params['with_storages']
+        if 'with_attachements' in params:
+            query_params['with_attachements'] = params['with_attachements']
 
         header_params = {}
 
@@ -3632,6 +3636,7 @@ class DefaultApi(object):
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
         :param bool with_storages: Include storages in answer
+        :param bool with_attachements: Include attachements in answer
         :param str search: Search for parts matching pattern
         :return: list[Part]
                  If the method is called asynchronously,
@@ -3665,13 +3670,14 @@ class DefaultApi(object):
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
         :param bool with_storages: Include storages in answer
+        :param bool with_attachements: Include attachements in answer
         :param str search: Search for parts matching pattern
         :return: list[Part]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['category', 'storage', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages', 'search']
+        all_params = ['category', 'storage', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages', 'with_attachements', 'search']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -3710,6 +3716,8 @@ class DefaultApi(object):
             query_params['with_manufacturers'] = params['with_manufacturers']
         if 'with_storages' in params:
             query_params['with_storages'] = params['with_storages']
+        if 'with_attachements' in params:
+            query_params['with_attachements'] = params['with_attachements']
         if 'search' in params:
             query_params['search'] = params['search']
 

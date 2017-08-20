@@ -146,6 +146,10 @@ paths:
           in: query
           description: Include storages in answer
           type: boolean
+        - name: with_attachements
+          in: query
+          description: Include attachements in answer
+          type: boolean
         - name: search
           in: query
           description: Search for parts matching pattern
@@ -211,6 +215,10 @@ paths:
         - name: with_storages
           in: query
           description: Include storages in answer
+          type: boolean
+        - name: with_attachements
+          in: query
+          description: Include attachements in answer
           type: boolean
       responses:
         "200":
@@ -905,8 +913,6 @@ paths:
           description: unexpected error
           schema:
             $ref: './Error.yaml'
-
-            
 
   /storages/categories:
     get:

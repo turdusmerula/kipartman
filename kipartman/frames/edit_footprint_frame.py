@@ -206,7 +206,6 @@ class EditFootprintFrame(PanelEditFootprint):
     def onButtonFootprintEditApply( self, event ):
         footprint = self.footprint
         
-
         footprint.name = self.edit_footprint_name.Value
         footprint.description = self.edit_footprint_description.Value
         footprint.comment = self.edit_footprint_comment.Value

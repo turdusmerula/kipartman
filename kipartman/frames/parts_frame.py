@@ -256,7 +256,7 @@ class PartsFrame(PanelParts):
     def load_full_part(self, partobj):
         if partobj:
             # read whole part from server
-            partobj.part = rest.api.find_part(partobj.part.id, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True)
+            partobj.part = rest.api.find_part(partobj.part.id, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True)
         
     def show_part(self, part):
         # disable editing
