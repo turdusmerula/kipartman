@@ -315,6 +315,8 @@ class PartsFrame(PanelParts):
 
     def onButtonEditCategoryClick( self, event ):
         sel = self.tree_categories.GetSelection()
+        if sel.IsOk()==False:
+            return
         categoryobj = self.tree_categories_manager.ItemToObject(sel)
         if categoryobj is None:
             return

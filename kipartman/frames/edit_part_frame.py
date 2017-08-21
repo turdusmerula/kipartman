@@ -5,6 +5,7 @@ from frames.part_parameters_frame import PartParametersFrame
 from frames.part_distributors_frame import PartDistributorsFrame
 from frames.part_manufacturers_frame import PartManufacturersFrame
 from frames.part_attachements_frame import PartAttachementsFrame
+from frames.part_storages_frame import PartStoragesFrame
 from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
@@ -34,7 +35,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_manufacturers = PartManufacturersFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_manufacturers, "Manufacturers")
 
-        self.edit_part_storages = wx.Panel(self.notebook_part)
+        self.edit_part_storages = PartStoragesFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_storages, "Storages locations")
 
         self.edit_part_attachements = PartAttachementsFrame(self.notebook_part)
@@ -46,7 +47,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_parameters.SetPart(part)
         self.edit_part_distributors.SetPart(part)
         self.edit_part_manufacturers.SetPart(part)
-#        self.edit_part_storages.SetPart(part)
+        self.edit_part_storages.SetPart(part)
         self.edit_part_attachements.SetPart(part)
         
     def ShowPart(self, part):
@@ -80,7 +81,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_parameters.enable(enabled)
         self.edit_part_distributors.enable(enabled)
         self.edit_part_manufacturers.enable(enabled)
-#        self.edit_part_storages.enable(enabled)
+        self.edit_part_storages.enable(enabled)
         self.edit_part_attachements.enable(enabled)
         
     def onButtonPartFootprintClick( self, event ):
