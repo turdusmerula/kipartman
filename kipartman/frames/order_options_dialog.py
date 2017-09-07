@@ -39,15 +39,7 @@ class OrderOptionsDialog(DialogOrderOptions):
         for distributor in distributors:
             if distributor.allowed:
                 self.tree_distributors_manager.AppendItem(None, DataModelDistributor(distributor))
-
-    def OnButtonSelectAllClick( self, event ):
-        for data in self.tree_distributors_manager.data:
-            data.distributor.allowed = True
-    
-    def OnButtonSelectNoneClick( self, event ):
-        for data in self.tree_distributors_manager.data:
-            data.distributor.allowed = False
-
+        
     def OnCancelButtonClick( self, event ):
         self.EndModal(wx.ID_CANCEL)
     
@@ -69,3 +61,15 @@ class OrderOptionsDialog(DialogOrderOptions):
                 self.options['allowed_distributors'].append(data.distributor)
 
         self.EndModal(wx.ID_OK)
+
+    def onCheckSelectAll( self, event ):
+        for data in self.tree_distributors_manager.data:
+            data.distributor.allowed = True
+            self.tree_distributors_manager.UpdateItem(data)
+        self.check_select_all.Value = True
+
+    def onCheckSelectNone( self, event ):
+        for data in self.tree_distributors_manager.data:
+            data.distributor.allowed = False
+            self.tree_distributors_manager.UpdateItem(data)
+        self.check_select_none.Value = False

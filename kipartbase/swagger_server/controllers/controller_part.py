@@ -58,7 +58,7 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
     if with_childs:
         part.childs = []
         for fchild in fpart.childs.all():
-            part.childs.append(raise_on_error(find_part(fchild.id)))
+            part.childs.append(raise_on_error(find_part(fchild.id, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers, with_storages=with_storages, with_attachements=with_attachements)))
     part.has_childs = (fpart.childs.count()>0)
     
     if with_distributors:

@@ -6,7 +6,7 @@ from currency.currency import Currency
 from configuration import Configuration
 import rest
 import helper.tree
-from twisted.cred.checkers import OnDiskUsernamePasswordDatabase
+import math
 
 configuration = Configuration()
 currency = Currency(configuration.base_currency)
@@ -19,8 +19,30 @@ class DataModelBomPart(helper.tree.TreeItem):
     def __init__(self, bom_part):
         super(DataModelBomPart, self).__init__()
         self.bom_part = bom_part
+        self.build_equivalent_parts()
+    
+    def build_equivalent_parts(self):
+        self.equivalent_parts = []
+        if self.bom_part.childs is None:
+            return
+        # load parts
+        to_add = []
+        added = {}
+        for child in self.bom_part.childs:
+            to_add.append(child)
         
+        # recursive load subparts
+        for child in to_add:
+            if added.has_key(child.id)==False:
+                self.equivalent_parts.append(child)
+                added[child.id] = child
+                
+                if child.childs:
+                    for c in child.childs:
+                        to_add.append(c)
+    
     def is_equivalent(self, part):
+        # TODO: use equivalent_parts
         to_explore = []
         if self.bom_part.childs is None:
             return False
@@ -38,6 +60,16 @@ class DataModelBomPart(helper.tree.TreeItem):
     
         return False
     
+    def stock(self):
+        stock = 0
+
+        for storage in self.bom_part.storages:
+            stock = stock+storage.quantity
+        for equivalent_part in self.equivalent_parts:
+            for storage in equivalent_part.storages:
+                stock = stock+storage.quantity
+        return stock
+    
     def provisioning(self):
         global wish_parts
         provisioning = 0
@@ -53,7 +85,10 @@ class DataModelBomPart(helper.tree.TreeItem):
         return num_modules
     
     def needed(self):
-        return board_number*self.num_modules()
+        needed = board_number*self.num_modules()-self.stock()
+        if needed<0 :
+            needed = 0
+        return needed
     
     def GetValue(self, col):
         vMap = { 
@@ -61,14 +96,15 @@ class DataModelBomPart(helper.tree.TreeItem):
             1 : self.bom_part.name,
             2 : str(self.num_modules()),
             3 : str(self.needed()),
-            4 : str(int(self.provisioning())),
-            5 : self.bom_part.description,
-            6 : self.bom_part.comment,
+            4 : str(int(self.stock())),
+            5 : str(int(self.provisioning())),
+            6 : self.bom_part.description,
+            7 : self.bom_part.comment,
         }
         return vMap[col]
 
     def GetAttr(self, col, attr):
-        if col==4:
+        if col==5:
             if self.provisioning()<self.needed():
                 attr.SetColour('red') # red
                 attr.Bold = True
@@ -81,13 +117,21 @@ class DataModelEquivalentPart(helper.tree.TreeItem):
     def __init__(self, equivalent_part):
         super(DataModelEquivalentPart, self).__init__()
         self.equivalent_part = equivalent_part
-        
+
+    def stock(self):
+        stock = 0
+
+        for storage in self.equivalent_part.storages:
+            stock = stock+storage.quantity
+        return stock
+    
     def GetValue(self, col):
         vMap = { 
             0 : str(self.equivalent_part.id),
             1 : self.equivalent_part.name,
-            2 : self.equivalent_part.description,
-            3 : self.equivalent_part.comment,
+            2 : str(self.stock()),
+            3 : self.equivalent_part.description,
+            4 : self.equivalent_part.comment,
         }
         return vMap[col]
 
@@ -134,7 +178,38 @@ class DataModelOffer(helper.tree.TreeItem):
         super(DataModelOffer, self).__init__()
         self.offer = offer
         self.bom_part = bom_part
+        self.build_equivalent_parts()
     
+    def build_equivalent_parts(self):
+        self.equivalent_parts = []
+        if self.bom_part.childs is None:
+            return
+        # load parts
+        to_add = []
+        added = {}
+        for child in self.bom_part.childs:
+            to_add.append(child)
+        
+        # recursive load subparts
+        for child in to_add:
+            if added.has_key(child.id)==False:
+                self.equivalent_parts.append(child)
+                added[child.id] = child
+                
+                if child.childs:
+                    for c in child.childs:
+                        to_add.append(c)    
+
+    def stock(self):
+        stock = 0
+
+        for storage in self.bom_part.storages:
+            stock = stock+storage.quantity
+        for equivalent_part in self.equivalent_parts:
+            for storage in equivalent_part.storages:
+                stock = stock+storage.quantity
+        return stock
+
     def item_price(self):
         return self.converted_unit_price()[0]*self.offer.quantity
 
@@ -151,7 +226,10 @@ class DataModelOffer(helper.tree.TreeItem):
         num_modules = 0
         if bom.part_modules.has_key(self.bom_part.id):
             num_modules = len(bom.part_modules[self.bom_part.id])
-        return num_modules*board_number
+        parts_num = num_modules*board_number-self.stock()
+        if parts_num<0:
+            parts_num = 0
+        return parts_num
     
     def buy_packages(self):
         # number of packages to buy
@@ -261,6 +339,7 @@ class BuyFrame(PanelBuy):
         self.tree_bom_parts_manager.AddTextColumn("Name")
         self.tree_bom_parts_manager.AddIntegerColumn("Modules")
         self.tree_bom_parts_manager.AddIntegerColumn("Needed")
+        self.tree_bom_parts_manager.AddIntegerColumn("Stock")
         self.tree_bom_parts_manager.AddIntegerColumn("Provisioning")
         self.tree_bom_parts_manager.AddTextColumn("Description")
         self.tree_bom_parts_manager.AddTextColumn("Comment")
@@ -269,6 +348,7 @@ class BuyFrame(PanelBuy):
         self.tree_equivalent_parts_manager = helper.tree.TreeManager(self.tree_part_equivalents)
         self.tree_equivalent_parts_manager.AddIntegerColumn("Id")
         self.tree_equivalent_parts_manager.AddTextColumn("Name")
+        self.tree_equivalent_parts_manager.AddIntegerColumn("Stock")
         self.tree_equivalent_parts_manager.AddTextColumn("Description")
         self.tree_equivalent_parts_manager.AddTextColumn("Comment")
 
@@ -310,7 +390,7 @@ class BuyFrame(PanelBuy):
         self.tree_bom_parts_manager.ClearItems()
 
         for bom_part in bom.Parts():
-            full_part = rest.api.find_part(bom_part.id, with_childs=True)
+            full_part = rest.api.find_part(bom_part.id, with_childs=True, with_storages=True)
             self.tree_bom_parts_manager.AppendItem(None, DataModelBomPart(full_part))
 
     def loadPartEquivalents(self):
@@ -322,7 +402,7 @@ class BuyFrame(PanelBuy):
             return 
         
         part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
-        part = rest.api.find_part(part.id, with_childs=True)
+        part = rest.api.find_part(part.id, with_childs=True, with_storages=True)
 
         if part.childs is None:
             return
@@ -366,13 +446,13 @@ class BuyFrame(PanelBuy):
             return 
         bom_part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
         # load full part
-        bom_part = rest.api.find_part(bom_part.id, with_distributors=True)
+        bom_part = rest.api.find_part(bom_part.id, with_distributors=True, with_storages=True, )
         parts.append(bom_part)
         
         for item in self.tree_part_equivalents.GetSelections():
             if item.IsOk():
                 equivalent_part = self.tree_equivalent_parts_manager.ItemToObject(item).equivalent_part
-                equivalent_part = rest.api.find_part(equivalent_part.id, with_distributors=True)
+                equivalent_part = rest.api.find_part(equivalent_part.id, with_distributors=True, with_storages=True)
                 parts.append(equivalent_part)
         
         self.tree_distributors_manager.ClearItems()
@@ -493,7 +573,7 @@ class BuyFrame(PanelBuy):
         for bom_part in self.tree_bom_parts_manager.data:
             if bom_part.provisioning()<bom_part.needed():
                 print bom_part.bom_part.id, "provisionning:", bom_part.provisioning(), "needed:", bom_part.needed()
-                parts.append(rest.api.find_part(bom_part.bom_part.id, with_distributors=True, with_offers=True, with_childs=True))
+                parts.append(rest.api.find_part(bom_part.bom_part.id, with_distributors=True, with_offers=True, with_childs=True, with_storages=True))
         return parts
     
     def get_distributor_matching_offers(self, bom_part, equivalent_parts, distributor, quantity):
@@ -535,7 +615,7 @@ class BuyFrame(PanelBuy):
         # recursive search childs
         to_add = [part]
         while len(to_add)>0:
-            part = rest.api.find_part(to_add.pop().id, with_distributors=True, with_childs=True)
+            part = rest.api.find_part(to_add.pop().id, with_distributors=True, with_childs=True, with_storages=True)
             if parts.has_key(part.id)==False:
                 parts[part.id] = part
             if part.childs:
@@ -550,6 +630,11 @@ class BuyFrame(PanelBuy):
         # parts to search best distributor
         bom_parts = self.needed_bom_parts()
         while len(bom_parts)>0:
+            # loop until all parts are provisioned by one distributor
+            # at each loop try to find the best suitable distributor for parts left to provision
+            # the best distributor is the one who propose the best ratio parts available by total price
+            # TODO: this algorithm is too primitive, should be improved
+            print "--------------"
             # list of distributors
             distributor_parts = {}
         
@@ -561,6 +646,7 @@ class BuyFrame(PanelBuy):
                 for distributor in distributors:
                     if distributor.allowed:
                         [part, best_offer] = self.get_distributor_best_offer(bom_part, equivalent_parts, distributor, quantity)
+#                        print "***", bom_part.name, distributor.name, best_offer
                         if best_offer:
                             if distributor_parts.has_key(distributor.name)==False:
                                 distributor_parts[distributor.name] = {'total_price': 0, 'parts': [], 'distributor': None}
@@ -578,21 +664,26 @@ class BuyFrame(PanelBuy):
                         
             for distributor_name in distributor_parts:
                 distributor = distributor_parts[distributor_name]
-                print "----", distributor['distributor'], 'total price:', distributor['total_price'], 'parts:', len(distributor['parts'])
+                print distributor['distributor'], 'total price:', distributor['total_price'], 'parts:', len(distributor['parts'])
                 if distributor_parts.has_key(distributor['distributor']):
                     for part in distributor_parts[distributor['distributor']]['parts']:
-                        print 'part:',part['part'].id, 'sku:', part['offer'].sku, 'quantity:', part['quantity']
+                        print '- part:', part['part'].id, 'sku:', part['offer'].sku, 'quantity:', part['quantity']
                 
             # search best distributor
             best_distributor = None
+            best_ratio = None
             for distributor_name in distributor_parts:
                 distributor = distributor_parts[distributor_name]
+#                ratio = distributor['total_price']
+                ratio = math.sqrt(distributor['total_price']*distributor['total_price']+len(distributor['parts'])*len(distributor['parts']))
                 if best_distributor is None:
                     best_distributor = distributor
-                if len(distributor['parts'])>len(best_distributor['parts']):
+                    best_ratio = ratio
+                if ratio<best_ratio:
                         best_distributor = distributor
-                elif len(distributor['parts'])==len(best_distributor['parts']) and distributor['total_price']<best_distributor['total_price']:
-                    best_distributor = distributor
+                        best_ratio = ratio
+#                elif len(distributor['parts'])==len(best_distributor['parts']) and distributor['total_price']<best_distributor['total_price']:
+#                    best_distributor = distributor
             
             item_added = False
             if best_distributor:
@@ -629,6 +720,7 @@ class BuyFrame(PanelBuy):
         for bom_part in bom_parts:
             equivalent_parts = self.get_equivalent_parts(bom_part)
             quantity = DataModelBomPart(bom_part).needed()
+            print "- ", bom_part.name, quantity
             
             best_offer = None
             best_part = None

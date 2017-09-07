@@ -32,12 +32,26 @@ class DialogOrderOptions ( wx.Dialog ):
 		
 		radiobox_distributorsChoices = [ u"Select best distributor", u"Select best prices" ]
 		self.radiobox_distributors = wx.RadioBox( self, wx.ID_ANY, u"Distributors", wx.DefaultPosition, wx.DefaultSize, radiobox_distributorsChoices, 1, wx.RA_SPECIFY_COLS )
-		self.radiobox_distributors.SetSelection( 0 )
+		self.radiobox_distributors.SetSelection( 1 )
+		self.radiobox_distributors.Enable( False )
+		
 		bSizer10.Add( self.radiobox_distributors, 0, wx.ALL, 5 )
 		
 		self.m_staticText5 = wx.StaticText( self, wx.ID_ANY, u"Allowed distributors:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText5.Wrap( -1 )
 		bSizer10.Add( self.m_staticText5, 0, wx.ALL, 5 )
+		
+		wSizer1 = wx.WrapSizer( wx.HORIZONTAL )
+		
+		self.check_select_all = wx.CheckBox( self, wx.ID_ANY, u"Select all", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.check_select_all.SetValue(True) 
+		wSizer1.Add( self.check_select_all, 0, wx.ALL, 5 )
+		
+		self.check_select_none = wx.CheckBox( self, wx.ID_ANY, u"Select none", wx.DefaultPosition, wx.DefaultSize, 0 )
+		wSizer1.Add( self.check_select_none, 0, wx.ALL, 5 )
+		
+		
+		bSizer10.Add( wSizer1, 0, wx.EXPAND, 5 )
 		
 		self.tree_distributors = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer10.Add( self.tree_distributors, 1, wx.ALL|wx.EXPAND, 5 )
@@ -58,6 +72,8 @@ class DialogOrderOptions ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.check_select_all.Bind( wx.EVT_CHECKBOX, self.onCheckSelectAll )
+		self.check_select_none.Bind( wx.EVT_CHECKBOX, self.onCheckSelectNone )
 		self.m_sdbSizer1Cancel.Bind( wx.EVT_BUTTON, self.OnCancelButtonClick )
 		self.m_sdbSizer1OK.Bind( wx.EVT_BUTTON, self.OnOKButtonClick )
 	
@@ -66,6 +82,12 @@ class DialogOrderOptions ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def onCheckSelectAll( self, event ):
+		event.Skip()
+	
+	def onCheckSelectNone( self, event ):
+		event.Skip()
+	
 	def OnCancelButtonClick( self, event ):
 		event.Skip()
 	
