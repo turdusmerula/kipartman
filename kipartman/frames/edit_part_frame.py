@@ -249,6 +249,12 @@ class EditPartFrame(PanelEditPart):
             
             self.edit_part_parameters.AddParameter(parameter)
 
+
+        # remove all offers from distributor prior to add new offers
+        for offer in octopart.item().offers():
+            distributor_name = offer.seller().name()
+            self.edit_part_distributors.RemoveDistributor(distributor_name)
+
         # import distributors
         for offer in octopart.item().offers():
             
@@ -269,10 +275,7 @@ class EditPartFrame(PanelEditPart):
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 #            except Exception as e:
 #                wx.MessageBox('%s: unknown error retrieving distributor' % (distributor_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
-            
-            # remove all offers from distributor prior to add new offers
-            self.edit_part_distributors.RemoveDistributor(distributor_name)
-            
+                        
             for price_name in offer.prices():
                 for quantity in offer.prices()[price_name]:
                     part_offer = rest.model.PartOffer()
