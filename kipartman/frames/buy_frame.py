@@ -881,7 +881,26 @@ class BuyFrame(PanelBuy):
             self.enableBuy(True)
     
     def onToolSaveBasketClicked( self, event ):
-        event.Skip()
+        path = os.getcwd()
+        dlg = wx.FileDialog(
+            self, message="Save a basket file",
+            defaultDir=path,
+            defaultFile="new",
+            wildcard="Kipartman basket (*.basket)|*.basket",
+                style=wx.FD_SAVE | wx.FD_CHANGE_DIR
+        )
+        dlg.SetFilterIndex(0)
+        if dlg.ShowModal() == wx.ID_OK:
+            filename = dlg.GetPath()
+            try:
+                # add wishes
+                self.basket.ClearWishes()
+                for wishobj in self.tree_wish_parts_manager.data:
+                    #wishobj = self.tree_wish_parts_manager.ItemToObject(data)
+                    self.basket.AddWish(wishobj.distributor, wishobj.sku, wishobj.quantity, wishobj.converted_unit_price(wishobj.matching_offer()))
+                self.basket.SaveFile(filename)
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error saving %s'%filename, wx.OK | wx.ICON_ERROR)
 
 
     def onButtonAddBomClick( self, event ):
@@ -902,10 +921,18 @@ class BuyFrame(PanelBuy):
                 self.tree_boms_manager.AppendItem(None, DataModelBomProduct(bom_product))
             self.enableBom(True)
             self.load()
-
-    def onButtonEditBomClick( self, event ):
-        event.Skip()
     
     def onButtonRemoveBomClick( self, event ):
-        event.Skip()
-        
+        item = self.tree_boms.GetSelection()
+        if item.IsOk()==False:
+            return
+        bomobj = self.tree_boms_manager.ItemToObject(item)
+        if bomobj is None:
+            return
+        res = wx.MessageDialog(self, "Remove BOM '%s'?" % bomobj.bom_product.bom.filename, "Remove BOM", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+        if res==wx.ID_YES:
+            self.tree_boms_manager.DeleteItem(None, bomobj)
+            self.basket.RemoveBom(bomobj.bom_product.bom.filename)
+            if len(self.basket.boms)==0:
+                self.enableBom(False)
+            self.load()

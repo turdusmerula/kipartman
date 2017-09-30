@@ -13,6 +13,13 @@ class BomQuantity(object):
         self.bom = bom
         self.quantity = quantity
 
+class WishPart(object):
+    def __init__(self, distributor, sku, quantity, unit_price):
+        self.distributor = distributor
+        self.sku = sku
+        self.quantity = quantity
+        self.unit_price = unit_price
+        
 class Basket(object):
     def __init__(self):
         self.filename = None
@@ -27,6 +34,18 @@ class Basket(object):
     
     def SaveFile(self, filename):
         print "Save Basket", filename
+        with open(filename, 'w') as outfile:
+            outfile.write("-- Bom files --\n")
+            outfile.write("filename;quantity\n")
+            for bom in self.boms:
+                outfile.write(self.boms[bom].bom.filename+";"+str(self.boms[bom].quantity)+"\n")
+            
+            for distributor in self.distributors:
+                outfile.write("\n-- "+distributor+" --\n")
+                outfile.write("sku;quantity;unit-price\n")
+                for wish in self.distributors[distributor]:
+                    outfile.write(wish.sku+";"+str(wish.quantity)+";"+str(wish.unit_price[0])+"\n")
+        self.filename = filename
         self.saved = True
 
     def Save(self):
@@ -58,4 +77,20 @@ class Basket(object):
             self.boms[bom_file][0] = 1
         else:
             self.boms[bom_file][0] = quantity
-
+    
+    
+    def ClearWishes(self):
+        self.distributors.clear()
+        
+    def AddWish(self, distributor, sku, quantity, unit_price):
+        if self.distributors.has_key(distributor.name)==False:
+            self.distributors[distributor.name] = []
+        self.distributors[distributor.name].append(WishPart(distributor, sku, quantity, unit_price))
+    
+    def RemoveWish(self, distributor, sku):
+        if self.distributors.has_key(distributor.name)==False:
+            return 
+        for wish in self.distributors[distributor.name]:
+            if wish.sku==sku:
+                self.distributors[distributor.name].pop(wish)
+                return 

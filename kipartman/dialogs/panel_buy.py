@@ -58,9 +58,6 @@ class PanelBuy ( wx.Panel ):
 		self.button_add_bom = wx.BitmapButton( self.m_panel311, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer18.Add( self.button_add_bom, 0, wx.ALL, 5 )
 		
-		self.button_edit_bom = wx.BitmapButton( self.m_panel311, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer18.Add( self.button_edit_bom, 0, wx.ALL, 5 )
-		
 		self.button_remove_bom = wx.BitmapButton( self.m_panel311, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer18.Add( self.button_remove_bom, 0, wx.ALL, 5 )
 		
@@ -235,7 +232,6 @@ class PanelBuy ( wx.Panel ):
 		
 		# Connect Events
 		self.button_add_bom.Bind( wx.EVT_BUTTON, self.onButtonAddBomClick )
-		self.button_edit_bom.Bind( wx.EVT_BUTTON, self.onButtonEditBomClick )
 		self.button_remove_bom.Bind( wx.EVT_BUTTON, self.onButtonRemoveBomClick )
 		self.spin_bom_boards.Bind( wx.EVT_SPINCTRL, self.onSpinBomBoardsCtrl )
 		self.button_refresh.Bind( wx.EVT_BUTTON, self.onButtonRefreshClick )
@@ -257,9 +253,6 @@ class PanelBuy ( wx.Panel ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def onButtonAddBomClick( self, event ):
-		event.Skip()
-	
-	def onButtonEditBomClick( self, event ):
 		event.Skip()
 	
 	def onButtonRemoveBomClick( self, event ):
