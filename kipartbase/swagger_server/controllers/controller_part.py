@@ -37,6 +37,8 @@ def serialize_PartData(fpart, part=None, with_parameters=True):
     part.comment = fpart.comment
     if fpart.octopart:
         part.octopart = fpart.octopart
+    if fpart.octopart_uid:
+        part.octopart_uid = fpart.octopart_uid
     if fpart.updated:
         part.updated = fpart.updated
     if fpart.id and with_parameters:
@@ -91,9 +93,11 @@ def deserialize_PartData(part, fpart=None):
     fpart.description = part.description
     fpart.comment = part.comment
     if part.octopart:
-        fpart.octopart
+        fpart.octopart = part.octopart
+    if part.octopart_uid:
+        fpart.octopart_uid = part.octopart_uid
     if part.updated:
-        fpart.updated
+        fpart.updated = part.updated
     return fpart
 
 
@@ -375,7 +379,7 @@ def update_part(part_id, part):
         return e.error
     
     fpart.save()
-    
+
     fparameters = []
     if not part.parameters is None:
         # remove all parameters

@@ -1723,8 +1723,6 @@ definitions:
         type: "string"
       storage_path:
         type: "string"
-      description:
-        type: "string"
   StorageData:
     type: "object"
     properties:
@@ -1744,6 +1742,8 @@ definitions:
       comment:
         type: "string"
       octopart:
+        type: "string"
+      octopart_uid:
         type: "string"
       updated:
         type: "string"

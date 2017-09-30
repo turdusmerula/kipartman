@@ -25,7 +25,7 @@ class MainFrame(DialogMain):
         self.manufacturersframe = ManufacturersFrame(self.notebook)
         self.storageframe = StoragesFrame(self.notebook)
         self.buyframe = BuyFrame(self.notebook)
-        self.bomframe = BomFrame(self.notebook, self.buyframe)
+        self.bomframe = BomFrame(self.notebook)
 
         self.pages.append(self.partsframe)
         self.notebook.AddPage(self.partsframe, "Parts", False)

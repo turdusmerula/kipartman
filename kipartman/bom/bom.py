@@ -3,20 +3,20 @@ import os
 import wx
 from kicad.pcb import Module
 import rest
+from kicad.pcb import Pcb
 
 class BomException(BaseException):
     def __init__(self, error):
         self.error = error
         
 class Bom(object):
-    def __init__(self, pcb):
+    def __init__(self):
         self.filename = None
         self.parts = []
         self.part_modules = {}
         self.module_part = {}
-        self.pcb = pcb
+        self.pcb = None
         self.saved = True
-        pcb.onChanged = self.pcbChanged
 
     def LoadFile(self, filename):
         print "Load BOM", filename
@@ -32,6 +32,11 @@ class Bom(object):
         with open(filename, 'r') as infile:
             content = json.load(infile)
         
+        # load associated pcb
+        if self.pcb is None:
+            self.pcb = Pcb()
+            self.pcb.LoadFile(content['pcb'])
+            
         part_not_found = []
         for part in content['parts']:
             # load part from server
@@ -94,8 +99,9 @@ class Bom(object):
                 for module in self.part_modules[part_name]:
                     part_modules[part_name].append({'timestamp': module.timestamp, 'reference': module.reference, 'value': module.value}) 
             
-            json.dump({ 'parts': parts, 'modules': part_modules }, outfile, sort_keys=True,
+            json.dump({ 'pcb': self.pcb.filename, 'parts': parts, 'modules': part_modules }, outfile, sort_keys=True,
                   indent=4, separators=(',', ': '))
+        self.filename = filename
         self.saved = True
 
     def Save(self):
@@ -142,4 +148,10 @@ class Bom(object):
                 self.part_modules[part.id].remove(part_module)
 
         self.saved = False
-        
+    
+    def NumModules(self, bom_part):
+        num_modules = 0
+        if self.part_modules.has_key(bom_part.id):
+            num_modules = num_modules+len(self.part_modules[bom_part.id])
+        return num_modules
+    

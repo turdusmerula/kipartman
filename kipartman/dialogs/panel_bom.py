@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Jul 12 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -66,8 +66,6 @@ class PanelBom ( wx.Panel ):
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.toolbar_bom = wx.ToolBar( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
-		self.tool_open_bom = self.toolbar_bom.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/open-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Open kipartman BOM file", wx.EmptyString, None ) 
-		
 		self.tool_save_bom = self.toolbar_bom.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/save-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Save kipartman BOM file", wx.EmptyString, None ) 
 		
 		self.toolbar_bom.Realize() 
@@ -130,7 +128,6 @@ class PanelBom ( wx.Panel ):
 		self.Bind( wx.EVT_TOOL, self.onToolRefreshBrd, id = self.tool_refresh_brd.GetId() )
 		self.button_add_bom_module.Bind( wx.EVT_BUTTON, self.onButtonAddBomModuleClick )
 		self.button_remove_bom_module.Bind( wx.EVT_BUTTON, self.onButtonRemoveBomModuleClick )
-		self.Bind( wx.EVT_TOOL, self.onToolOpenBomClicked, id = self.tool_open_bom.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onToolSaveBomClicked, id = self.tool_save_bom.GetId() )
 		self.button_add_bom_part.Bind( wx.EVT_BUTTON, self.onButtonAddBomPartClick )
 		self.button_remove_bom_part.Bind( wx.EVT_BUTTON, self.onButtonRemoveBomPartClick )
@@ -151,9 +148,6 @@ class PanelBom ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonRemoveBomModuleClick( self, event ):
-		event.Skip()
-	
-	def onToolOpenBomClicked( self, event ):
 		event.Skip()
 	
 	def onToolSaveBomClicked( self, event ):

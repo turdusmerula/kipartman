@@ -8,8 +8,6 @@ import os
 from docutils.parsers.rst.directives import path
 import helper.tree
 
-pcb = Pcb()
-bom = Bom(pcb)
 
 class DataModelModule(helper.tree.TreeItem):
     def __init__(self, module):
@@ -25,14 +23,15 @@ class DataModelModule(helper.tree.TreeItem):
         return vMap[col]
 
 class DataModelBomPart(helper.tree.TreeItem):
-    def __init__(self, bom_part):
+    def __init__(self, bom, bom_part):
         super(DataModelBomPart, self).__init__()
+        self.bom = bom
         self.bom_part = bom_part
         
     def GetValue(self, col):
         num_modules = 0
-        if bom.part_modules.has_key(self.bom_part.id):
-            num_modules = len(bom.part_modules[self.bom_part.id])
+        if self.bom.part_modules.has_key(self.bom_part.id):
+            num_modules = len(self.bom.part_modules[self.bom_part.id])
         vMap = { 
             0 : str(self.bom_part.id),
             1 : self.bom_part.name,
@@ -56,10 +55,8 @@ class DataModelBomModule(helper.tree.TreeItem):
         return vMap[col]
 
 class BomFrame(PanelBom): 
-    def __init__(self, parent, buy_frame):
+    def __init__(self, parent):
         super(BomFrame, self).__init__(parent)
-
-        self.buy_frame = buy_frame
         
         # create module list
         self.tree_modules_manager = helper.tree.TreeManager(self.tree_modules)
@@ -81,6 +78,8 @@ class BomFrame(PanelBom):
         self.tree_bom_modules_manager.AddTextColumn("Value")
         self.tree_bom_modules_manager.AddTextColumn("Footprint")
 
+        self.bom = Bom()
+
         self.enableBom(False)
         self.enableBrd(False)
 
@@ -88,31 +87,33 @@ class BomFrame(PanelBom):
         self.loadModules()
         self.loadBomParts()
         self.loadBomModules()
-        self.buy_frame.load()
         
     def loadModules(self):
         self.tree_modules_manager.ClearItems()
 
-        for module in pcb.GetModules():
-            if bom.module_part.has_key(module.timestamp)==False:
-                self.tree_modules_manager.AppendItem(None, DataModelModule(module))
+        if self.bom:
+            for module in self.bom.pcb.GetModules():
+                if self.bom.module_part.has_key(module.timestamp)==False:
+                    self.tree_modules_manager.AppendItem(None, DataModelModule(module))
     
     def loadBomParts(self):
         self.tree_bom_parts_manager.ClearItems()
         
-        for bom_part in bom.Parts():
-            self.tree_bom_parts_manager.AppendItem(None, DataModelBomPart(bom_part))
+        if self.bom:
+            for bom_part in self.bom.Parts():
+                self.tree_bom_parts_manager.AppendItem(None, DataModelBomPart(self.bom, bom_part))
     
     def loadBomModules(self):
         self.tree_bom_modules_manager.ClearItems()
 
-        item = self.tree_bom_parts.GetSelection()
-        bom_part = None
-        if item.IsOk():
-            bom_part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
-
-            for module in bom.part_modules[bom_part.id]:
-                self.tree_bom_modules_manager.AppendItem(None, DataModelBomModule(module))
+        if self.bom:
+            item = self.tree_bom_parts.GetSelection()
+            bom_part = None
+            if item.IsOk():
+                bom_part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
+    
+                for module in self.bom.part_modules[bom_part.id]:
+                    self.tree_bom_modules_manager.AppendItem(None, DataModelBomModule(module))
     
     def enableBrd(self, enabled=True):
         self.tree_modules.Enabled = enabled
@@ -137,7 +138,7 @@ class BomFrame(PanelBom):
         item = self.tree_bom_parts.GetSelection()
         if item.IsOk():
             part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
-            bom.AddPartModule(part, module)
+            self.bom.AddPartModule(part, module)
 
             self.loadBomModules()
             self.loadModules()
@@ -147,7 +148,7 @@ class BomFrame(PanelBom):
         if item.IsOk():
             bom_module = self.tree_bom_modules_manager.ItemToObject(item).bom_module
             
-            bom.RemovePartModule(bom_module)
+            self.bom.RemovePartModule(bom_module)
             
             self.loadBomModules()
             self.loadModules()
@@ -161,16 +162,16 @@ class BomFrame(PanelBom):
         item = self.tree_bom_parts.GetSelection()
         if item.IsOk():
             bom_part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
-            bom.RemovePart(bom_part)
+            self.bom.RemovePart(bom_part)
 
             self.load()
         
     def onSelectPartCallback(self, part_event):
-        if bom.ExistPart(part_event.data)==True:
+        if self.bom.ExistPart(part_event.data)==True:
             wx.MessageDialog(self, "%s already added, skipped" % part_event.data.name, "Error adding part", wx.OK | wx.ICON_ERROR).ShowModal()
             return
         
-        bom.AddPart(part_event.data)
+        self.bom.AddPart(part_event.data)
         # refresh
         self.loadBomParts()
         self.loadBomModules()
@@ -184,9 +185,15 @@ class BomFrame(PanelBom):
         if item.IsOk():
             self.loadBomModules()
     
+    def get_project_name(self, file):
+        return os.path.splitext(os.path.basename(file))[0]
+    
+    def get_project_path(self, file):
+        return os.path.dirname(file)
+    
     def onToolOpenBrdClicked( self, event ):
-        if bom.saved==False:
-            res = wx.MessageDialog(self, "%s modified, save it?" % bom.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+        if self.bom.saved==False:
+            res = wx.MessageDialog(self, "%s modified, save it?" % self.bom.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
             if res == wx.ID_YES:
                 self.onToolSaveBomClicked(event)
     
@@ -204,26 +211,32 @@ class BomFrame(PanelBom):
         # Show the dialog and retrieve the user response. If it is the OK response,
         # process the data.
         if dlg.ShowModal() == wx.ID_OK:
-            pcb_filename = dlg.GetPath()
-            pcb.LoadFile(pcb_filename)
+            pcb = Pcb()
+            if pcb.LoadFile(dlg.GetPath())==False:
+                wx.MessageDialog(self, "Error", "Error opening %s"%dlg.GetPath(), wx.OK | wx.ICON_ERROR).ShowModal()
+                return
             self.enableBrd(True)
             
+            self.bom = Bom()
+            self.bom.pcb = pcb
+            
             # open BOM
-            bom_filename = pcb_filename.replace('kicad_pcb', 'bom')
+            bom_filename = os.path.join(self.get_project_path(dlg.GetPath()), self.get_project_name(dlg.GetPath())+".bom")
             if(os.path.isfile(bom_filename)==False):
-                bom.SaveFile(bom_filename)
+                # by default open bom with same name as board
+                self.bom.SaveFile(bom_filename)
                 self.enableBom(True)
             else:
-                bom.LoadFile(bom_filename)
+                # if it does not exists create it
+                self.bom.LoadFile(bom_filename)
                 self.enableBom(True)
             self.load()
 
     def onToolOpenBomClicked( self, event ):
-        if bom.saved==False:
-            res = wx.MessageDialog(self, "%s modified, save it?" % bom.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+        if self.bom.saved==False:
+            res = wx.MessageDialog(self, "%s modified, save it?" % self.bom.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
             print res
             if res==wx.ID_YES:
-                print "-----"
                 self.onToolSaveBomClicked(event)
 
         dlg = wx.FileDialog(
@@ -240,39 +253,39 @@ class BomFrame(PanelBom):
         # Show the dialog and retrieve the user response. If it is the OK response,
         # process the data.
         if dlg.ShowModal() == wx.ID_OK:
-            bom.LoadFile(dlg.GetPath())
+            self.bom.LoadFile(dlg.GetPath())
             self.load()
             self.enableBom(True)
     
     def onToolSaveBomClicked( self, event ):
-        if bom.filename==None and bom.saved==False:
-            filename = ''
-            path = os.getcwd()
-            if pcb.filename!=None:
-                filename = os.path.basename(pcb.filename.replace('kicad_pcb', 'bom'))
-                path = os.path.dirname(pcb.filename)
-    
-            dlg = wx.FileDialog(
-                self, message="Save a Kiparman BOM file",
-                defaultDir=path,
-                defaultFile=filename,
-                wildcard="Kipartman BOM (*.bom)|*.bom",
-                    style=wx.FD_SAVE | wx.FD_CHANGE_DIR
-            )
-            dlg.SetFilterIndex(0)
-            
-            # Show the dialog and retrieve the user response. If it is the OK response,
-            # process the data.
-            if dlg.ShowModal() == wx.ID_OK:
-                try:
-                    filename = dlg.GetPath()
-                    if filename[-4:]!='.bom':
-                        filename = filename+'.bom'
-                    bom.SaveFile(filename)
-                except:
-                    pass
-        elif bom.saved==False:
-            bom.Save()
+#         if self.bom.filename==None and self.bom.saved==False:
+#             filename = ''
+#             path = os.getcwd()
+#             if self.bom.pcb.filename!=None:
+#                 filename = os.path.basename(pcb.filename.replace('kicad_pcb', 'bom'))
+#                 path = os.path.dirname(pcb.filename)
+#     
+#             dlg = wx.FileDialog(
+#                 self, message="Save a Kiparman BOM file",
+#                 defaultDir=path,
+#                 defaultFile=filename,
+#                 wildcard="Kipartman BOM (*.bom)|*.bom",
+#                     style=wx.FD_SAVE | wx.FD_CHANGE_DIR
+#             )
+#             dlg.SetFilterIndex(0)
+#             
+#             # Show the dialog and retrieve the user response. If it is the OK response,
+#             # process the data.
+#             if dlg.ShowModal() == wx.ID_OK:
+#                 try:
+#                     filename = dlg.GetPath()
+#                     if filename[-4:]!='.bom':
+#                         filename = filename+'.bom'
+#                     bom.SaveFile(filename)
+#                 except:
+#                     pass
+#        elif bom.saved==False:
+        self.bom.Save()
 
     def onToolRefreshBrd( self, event ):
         self.load()

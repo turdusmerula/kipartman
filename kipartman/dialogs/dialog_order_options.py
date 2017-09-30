@@ -26,14 +26,13 @@ class DialogOrderOptions ( wx.Dialog ):
 		
 		self.checkbox_clean = wx.CheckBox( self, wx.ID_ANY, u"Clean current order list", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.checkbox_clean.SetValue(True) 
-		self.checkbox_clean.Hide()
-		
 		bSizer10.Add( self.checkbox_clean, 0, wx.ALL, 5 )
 		
 		radiobox_distributorsChoices = [ u"Select best distributor", u"Select best prices" ]
 		self.radiobox_distributors = wx.RadioBox( self, wx.ID_ANY, u"Distributors", wx.DefaultPosition, wx.DefaultSize, radiobox_distributorsChoices, 1, wx.RA_SPECIFY_COLS )
 		self.radiobox_distributors.SetSelection( 1 )
 		self.radiobox_distributors.Enable( False )
+		self.radiobox_distributors.Hide()
 		
 		bSizer10.Add( self.radiobox_distributors, 0, wx.ALL, 5 )
 		

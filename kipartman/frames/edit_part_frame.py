@@ -13,6 +13,7 @@ import wx.lib.newevent
 import datetime
 import re
 import rest
+from octopart.extractor import OctopartExtractor
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -135,55 +136,6 @@ class EditPartFrame(PanelEditPart):
         dropdown.panel.Bind( EVT_SELECT_OCTOPART_OK_EVENT, self.onSelectOctopartFrameOk )
         dropdown.Dropdown()
 
-    def GetUnit(self, spec):
-        symbol = self.GetUnitSymbol(spec)
-        if spec.metadata().unit():
-            try:
-                return rest.api.find_units(symbol=symbol)[0]
-            except Exception as e:
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-#            except Exception as e:
-                #TODO create unit if not found
-#                wx.MessageBox('%s: unit unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
-
-        return None
-    
-    def GetUnitPrefix(self, spec):
-        symbol = self.GetUnitPrefixSymbol(spec)
-        if symbol=='' or symbol is None:
-            return None
-        if spec.metadata().unit():
-            try:
-#                print "---", symbol, rest.api.find_unit_prefixes(symbol=symbol)[0]
-                return rest.api.find_unit_prefixes(symbol=symbol)[0]
-            except Exception as e:
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-#            except:
-#                wx.MessageBox('%s: unit prefix unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
-        return None
-        
-    def GetUnitSymbol(self, spec):
-        if spec.metadata().unit():
-            return spec.metadata().unit().symbol().encode('utf8')
-        return ""
-
-    def GetUnitPrefixSymbol(self, spec):
-        if spec.display_value() is None:
-            return ""
-        display_value = spec.display_value().split(" ")
-        unit = self.GetUnitSymbol(spec)
-        if len(display_value)<2:
-            return ""   # there is only a value, no unit
-        display_unit = display_value[1]
-        # filter non alpha chars
-        display_unit = re.sub('[ ,.;]', '', display_unit)
-        prefix = display_unit[:-len(unit)]
-        return prefix.encode('utf8')
-    
-    def GetPrefixedValue(self, value, prefix):
-        if prefix is None:
-            return float(value)
-        return float(value)/float(prefix.power)
     
     def onSelectOctopartFrameOk(self, event):
         octopart = event.data
@@ -192,6 +144,7 @@ class EditPartFrame(PanelEditPart):
 
         # convert octopart to part values
         print "octopart:", octopart.json
+        octopart_extractor = OctopartExtractor(octopart)
         
         # import part fields
         self.part.name = octopart.item().mpn()
@@ -199,56 +152,13 @@ class EditPartFrame(PanelEditPart):
         print "----", octopart.snippet()
         # set field octopart to indicatethat part was imported from octopart
         self.part.octopart = octopart.item().mpn()
+        self.part.octopart_uid = octopart.item().uid()
         self.part.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         
         # import parameters
         for spec_name in octopart.item().specs():
-            parameter = rest.model.PartParameter()
-            spec = octopart.item().specs()[spec_name]
-            print "spec: ", spec.json
-            parameter.name = spec_name
-            parameter.description = spec.metadata().name()
-            parameter.unit = self.GetUnit(spec)
-            parameter.nom_prefix = self.GetUnitPrefix(spec)
-            parameter.nom_value = None
-            parameter.text_value = None
-            if spec.value() and len(spec.value())>0:
-                try:
-                    if parameter.unit:
-                        parameter.nom_value = self.GetPrefixedValue(spec.value()[0], parameter.nom_prefix)
-                    else:
-                        parameter.nom_value = float(spec.value()[0])
-                    parameter.numeric = True
-                except:
-                    parameter.text_value = spec.value()[0]
-                    parameter.numeric = False
-            if spec.min_value():
-                try:
-                    if parameter.unit:
-                        parameter.min_value = self.GetPrefixedValue(spec.min_value(), parameter.nom_prefix)
-                    else:
-                        parameter.min_value = float(spec.value()[0])
-                    parameter.min_prefix = parameter.nom_prefix
-                    parameter.numeric = True
-                except:
-                    parameter.numeric = False
-            else:
-                parameter.min_value = None
-            if spec.max_value():
-                try:
-                    if parameter.unit:
-                        parameter.max_value = self.GetPrefixedValue(spec.max_value(), parameter.nom_prefix)
-                    else:
-                        parameter.max_value = float(spec.value()[0])
-                    parameter.numeric = True
-                    parameter.max_prefix = parameter.nom_prefix
-                except:
-                    parameter.numeric = False
-            else:
-                parameter.max_value = None
-            
+            parameter = octopart_extractor.ExtractParameter(spec_name)            
             self.edit_part_parameters.AddParameter(parameter)
-
 
         # remove all offers from distributor prior to add new offers
         for offer in octopart.item().offers():
@@ -273,8 +183,6 @@ class EditPartFrame(PanelEditPart):
                     distributor = rest.api.add_distributor(distributor)
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-#            except Exception as e:
-#                wx.MessageBox('%s: unknown error retrieving distributor' % (distributor_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
                         
             for price_name in offer.prices():
                 for quantity in offer.prices()[price_name]:

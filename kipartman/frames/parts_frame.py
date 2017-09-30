@@ -1,10 +1,15 @@
 from dialogs.panel_parts import PanelParts
+from frames.progression_frame import ProgressionFrame
 from frames.edit_category_frame import EditCategoryFrame
 from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
 import helper.tree
 from helper.filter import Filter
 import rest
 import wx
+from time import sleep
+from octopart.queries import PartsQuery
+import datetime
+from octopart.extractor import OctopartExtractor
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -287,6 +292,8 @@ class PartsFrame(PanelParts):
 
         self.edit_part(part)
 
+    def GetMenus(self):
+        return [{'title': 'Parts', 'menu': self.menu_parts}]
 
     def onButtonRefreshCategoriesClick( self, event ):
         self.loadCategories()
@@ -545,4 +552,172 @@ class PartsFrame(PanelParts):
 
     def onButtonRefreshPartsClick( self, event ):
         self.loadParts()
-#         
+
+    def OnMenuItem( self, event ):
+        # events are not distributed by the frame so we distribute them manually
+        if event.GetId()==self.menu_parts_refresh_octopart.GetId():
+            self.onMenuItemPartsRefreshOctopart(event)
+
+    def onMenuItemPartsRefreshOctopart( self, event ):
+        progression_frame = ProgressionFrame(self, "Refresh parts from Octopart") ;
+        progression_frame.Show() ;
+        self.Enabled = False 
+        
+        # get category
+        sel = self.tree_categories.GetSelection()
+        if sel.IsOk():
+            categoryobj = self.tree_categories_manager.ItemToObject(sel)
+        else:
+            categoryobj = None
+        if categoryobj is None:
+            parts = rest.api.find_parts()
+        else:
+            parts = rest.api.find_parts(category=categoryobj.category.id)
+
+        i = 1
+        for part in parts:
+            wx.Yield()
+            
+            if part.octopart and part.octopart!="":
+                self.refresh_octopart(part)
+            
+            progression_frame.SetProgression(part.name, i, len(parts)) ;
+            if progression_frame.Canceled():
+                break
+            
+            i = i+1
+
+        self.Enabled = True
+        progression_frame.Destroy()
+        
+    
+    def refresh_octopart(self, part):
+#        print "Refresh octopart for", part.name
+        
+        # get full part
+        part = rest.api.find_part(part.id, with_offers=True, with_parameters=True, with_distributors=True, with_manufacturers=True)
+        
+        # get octopart data
+        q = PartsQuery()
+        q.get(part.octopart)
+        sleep(1)    # only one request per second allowed
+
+        for octopart in q.results():
+            print octopart.json
+            if octopart.item().uid()==part.octopart_uid:
+                print "Refresh", part.octopart
+                self.octopart_to_part(octopart, part)
+                # update part
+                rest.api.update_part(part.id, part)
+
+        return 
+    
+    def octopart_to_part(self, octopart, part):
+        # convert octopart to part values
+        print "octopart:", octopart.json
+        octopart_extractor = OctopartExtractor(octopart)
+
+        # import part fields
+        part.name = octopart.item().mpn()
+        part.description = octopart.snippet()
+        if part.description is None:
+            part.description = ""
+            
+        # set field octopart to indicatethat part was imported from octopart
+        part.octopart = octopart.item().mpn()
+        part.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        
+        # import parameters
+        for spec_name in octopart.item().specs():
+            parameter = octopart_extractor.ExtractParameter(spec_name)            
+            
+            # check if parameter already exist
+            for p in part.parameters:
+                if p.name==parameter.name:
+                    part.parameters.remove(p)
+                    break
+            part.parameters.append(parameter)
+        
+        # remove all offers from distributor prior to add new offers
+        for offer in octopart.item().offers():
+            distributor_name = offer.seller().name()
+            if part.distributors is None:
+                return 
+            to_remove = []
+            for distributor in part.distributors:
+                if distributor.name==distributor_name:
+                    to_remove.append(distributor)            
+            # don't remove in previous loop to avoid missing elements
+            for distributor in to_remove:
+                part.distributors.remove(distributor)
+
+        # import distributors
+        part_distributors = {}
+        for offer in octopart.item().offers():
+            
+            distributor_name = offer.seller().name()
+            if part_distributors.has_key(distributor_name)==False:
+                distributor = None
+                try:
+                    distributors = rest.api.find_distributors(name=distributor_name)
+                    if len(distributors)>0:
+                        distributor = distributors[0]
+                    else:
+                        # distributor does not exists, create it
+                        distributor = rest.model.DistributorNew()
+                        distributor.name = offer.seller().name()
+                        distributor.website = offer.seller().homepage_url()
+                        distributor.allowed = True
+                        distributor = rest.api.add_distributor(distributor)
+                        
+                except Exception as e:
+                    wx.MessageBox(format(e), 'Error with distributor %s'%distributor_name, wx.OK | wx.ICON_ERROR)
+                
+                if distributor:
+                    part_distributor = rest.model.PartDistributor()
+                    part_distributor.id = distributor.id
+                    part_distributor.name = distributor.name
+                    part_distributor.offers = []
+                    part_distributors[distributor_name] = part_distributor
+            
+            if part_distributors.has_key(distributor_name):           
+                for price_name in offer.prices():
+                    for quantity in offer.prices()[price_name]:
+                        part_offer = rest.model.PartOffer()
+                        part_offer.name = distributor_name
+                        part_offer.distributor = distributor
+                        part_offer.currency = price_name
+                        if offer.moq():
+                            part_offer.packaging_unit = offer.moq()
+                        else:
+                            part_offer.packaging_unit = 1
+                        part_offer.quantity = quantity[0]
+                        part_offer.unit_price = float(quantity[1])
+                        part_offer.sku = offer.sku()
+                        part_distributors[distributor_name].offers.append(part_offer)
+        # add part_distributors to part
+        for distributor_name in part_distributors:
+            part.distributors.append(part_distributors[distributor_name])
+        
+        # import manufacturer
+        manufacturer_name = octopart.item().manufacturer().name()
+        manufacturer = None
+        part.manufacturers = []
+        try:
+            manufacturers = rest.api.find_manufacturers(name=manufacturer_name)
+            if len(manufacturers)>0:
+                manufacturer = manufacturers[0]
+            else:
+                # distributor does not exists, create it
+                manufacturer = rest.model.Manufacturer()
+                manufacturer.name = manufacturer_name
+                manufacturer.website = octopart.item().manufacturer().homepage_url()
+                manufacturer = rest.api.add_manufacturer(manufacturer)
+
+            # add new manufacturer
+            part_manufacturer = rest.model.PartManufacturer()
+            part_manufacturer.name = manufacturer.name
+            part_manufacturer.part_name = part.name
+            part.manufacturers.append(part_manufacturer)
+        except:
+            wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)

@@ -10,7 +10,7 @@ class Pcb(object):
     def LoadFile(self, filename):
         if(os.path.isfile(filename)==False):
             self.filename = None
-            wx.MessageBox("Error: %s does not exists" % filename, "File error", wx.OK | wx.ICON_ERROR)
+#            wx.MessageBox("Error: %s does not exists" % filename, "File error", wx.OK | wx.ICON_ERROR)
             raise Exception("Error: %s does not exists" % filename)
 
         self.filename = filename

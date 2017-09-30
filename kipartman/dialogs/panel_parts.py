@@ -149,6 +149,12 @@ class PanelParts ( wx.Panel ):
 		
 		self.SetSizer( bSizer1 )
 		self.Layout()
+		self.menu_parts = wx.Menu()
+		self.menu_parts_refresh_octopart = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Refresh octopart parts", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parts.Append( self.menu_parts_refresh_octopart )
+		
+		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelPartsOnContextMenu ) 
+		
 		
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
@@ -159,8 +165,10 @@ class PanelParts ( wx.Panel ):
 		self.button_add_part.Bind( wx.EVT_BUTTON, self.onButtonAddPartClick )
 		self.button_edit_part.Bind( wx.EVT_BUTTON, self.onButtonEditPartClick )
 		self.button_remove_part.Bind( wx.EVT_BUTTON, self.onButtonRemovePartClick )
+		self.search_parts.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchPartsButton )
 		self.search_parts.Bind( wx.EVT_TEXT_ENTER, self.onSearchPartsTextEnter )
 		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
+		self.Bind( wx.EVT_MENU, self.onMenuItemPartsRefreshOctopart, id = self.menu_parts_refresh_octopart.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -191,14 +199,23 @@ class PanelParts ( wx.Panel ):
 	def onButtonRemovePartClick( self, event ):
 		event.Skip()
 	
+	def onSearchPartsButton( self, event ):
+		event.Skip()
+	
 	def onSearchPartsTextEnter( self, event ):
 		event.Skip()
 	
 	def onButtonRefreshPartsClick( self, event ):
 		event.Skip()
 	
+	def onMenuItemPartsRefreshOctopart( self, event ):
+		event.Skip()
+	
 	def m_splitter2OnIdle( self, event ):
 		self.m_splitter2.SetSashPosition( 294 )
 		self.m_splitter2.Unbind( wx.EVT_IDLE )
 	
+	def PanelPartsOnContextMenu( self, event ):
+		self.PopupMenu( self.menu_parts, event.GetPosition() )
+		
 

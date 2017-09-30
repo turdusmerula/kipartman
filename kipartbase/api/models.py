@@ -30,6 +30,7 @@ class Part(models.Model):
     #attachements: is defined inside PartAttachement by ForeignKey part
     # octopart fields
     octopart = models.TextField(null=True, blank=True, default=None)
+    octopart_uid = models.TextField(null=True, blank=True, default=None)
     updated = models.DateTimeField(null=True, blank=True, default=None)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)

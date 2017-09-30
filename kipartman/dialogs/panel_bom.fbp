@@ -820,27 +820,6 @@
                                                     <event name="OnSize"></event>
                                                     <event name="OnUpdateUI"></event>
                                                     <object class="tool" expanded="0">
-                                                        <property name="bitmap">Load From Embedded File; resources/open-32x32.png</property>
-                                                        <property name="context_menu">0</property>
-                                                        <property name="id">wxID_ANY</property>
-                                                        <property name="kind">wxITEM_NORMAL</property>
-                                                        <property name="label">tool</property>
-                                                        <property name="name">tool_open_bom</property>
-                                                        <property name="permission">protected</property>
-                                                        <property name="statusbar"></property>
-                                                        <property name="tooltip">Open kipartman BOM file</property>
-                                                        <event name="OnAuiToolBarBeginDrag"></event>
-                                                        <event name="OnAuiToolBarMiddleClick"></event>
-                                                        <event name="OnAuiToolBarOverflowClick"></event>
-                                                        <event name="OnAuiToolBarRightClick"></event>
-                                                        <event name="OnAuiToolBarToolDropDown"></event>
-                                                        <event name="OnMenuSelection"></event>
-                                                        <event name="OnToolClicked">onToolOpenBomClicked</event>
-                                                        <event name="OnToolEnter"></event>
-                                                        <event name="OnToolRClicked"></event>
-                                                        <event name="OnUpdateUI"></event>
-                                                    </object>
-                                                    <object class="tool" expanded="0">
                                                         <property name="bitmap">Load From Embedded File; resources/save-32x32.png</property>
                                                         <property name="context_menu">0</property>
                                                         <property name="id">wxID_ANY</property>

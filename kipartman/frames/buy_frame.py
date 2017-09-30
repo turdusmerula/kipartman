@@ -1,23 +1,44 @@
 from dialogs.panel_buy import PanelBuy
 from frames.order_options_dialog import OrderOptionsDialog
 import wx.dataview
-from bom_frame import pcb, bom
 from currency.currency import Currency
 from configuration import Configuration
 import rest
 import helper.tree
 import math
+from basket.basket import Basket
+import os
+from bom.bom import Bom
+from frames.edit_wish_frame import EditWishFrame
 
 configuration = Configuration()
 currency = Currency(configuration.base_currency)
 
-board_number = 1
 view_all = True
 wish_parts = []
 
+class DataModelBomProduct(helper.tree.TreeItem):
+    def __init__(self, bom_product):
+        super(DataModelBomProduct, self).__init__()
+        self.bom_product = bom_product
+
+    def GetValue(self, col):
+        vMap = { 
+            0 : self.bom_product.bom.filename,
+            1 : str(self.bom_product.quantity),
+        }
+        return vMap[col]
+
+    def GetAttr(self, col, attr):
+        if os.path.isfile(self.bom_product.bom.filename)==False:
+            attr.SetColour('red') # red
+            return True
+        return False
+
 class DataModelBomPart(helper.tree.TreeItem):
-    def __init__(self, bom_part):
+    def __init__(self, bom_products, bom_part):
         super(DataModelBomPart, self).__init__()
+        self.bom_products = bom_products
         self.bom_part = bom_part
         self.build_equivalent_parts()
     
@@ -80,12 +101,17 @@ class DataModelBomPart(helper.tree.TreeItem):
     
     def num_modules(self):
         num_modules = 0
-        if bom.part_modules.has_key(self.bom_part.id):
-            num_modules = len(bom.part_modules[self.bom_part.id])
+        for bom_product in self.bom_products:
+            num_modules = num_modules+bom_product.bom.NumModules(self.bom_part)
         return num_modules
     
     def needed(self):
-        needed = board_number*self.num_modules()-self.stock()
+        needed = 0
+        for bom_product in self.bom_products:
+            needed = needed+bom_product.quantity*bom_product.bom.NumModules(self.bom_part)
+        
+        needed = needed-self.stock()
+            
         if needed<0 :
             needed = 0
         return needed
@@ -113,6 +139,25 @@ class DataModelBomPart(helper.tree.TreeItem):
             return True
         return False
 
+class TreeManagerBomParts(helper.tree.TreeManager):
+    def __init__(self, tree_view):
+        super(TreeManagerBomParts, self).__init__(tree_view)
+
+    def FindBomPart(self, bom_part_id):
+        for data in self.data:
+            if data.bom_part.id==bom_part_id:
+                return data
+        return None
+
+    def AppendBomPart(self, bom_product, bom_part):
+        bom_partobj = self.FindBomPart(bom_part.id)
+        if bom_partobj is None:
+            bom_partobj = DataModelBomPart([bom_product], bom_part)
+            self.AppendItem(None, bom_partobj)
+        else:
+            bom_partobj.bom_products.append(bom_product)
+            self.UpdateItem(bom_partobj)
+            
 class DataModelEquivalentPart(helper.tree.TreeItem):
     def __init__(self, equivalent_part):
         super(DataModelEquivalentPart, self).__init__()
@@ -174,41 +219,10 @@ class DataModelDistributorContainer(helper.tree.TreeContainerItem):
         return False
     
 class DataModelOffer(helper.tree.TreeItem):
-    def __init__(self, offer, bom_part):
+    def __init__(self, offer, bom_partobj):
         super(DataModelOffer, self).__init__()
         self.offer = offer
-        self.bom_part = bom_part
-        self.build_equivalent_parts()
-    
-    def build_equivalent_parts(self):
-        self.equivalent_parts = []
-        if self.bom_part.childs is None:
-            return
-        # load parts
-        to_add = []
-        added = {}
-        for child in self.bom_part.childs:
-            to_add.append(child)
-        
-        # recursive load subparts
-        for child in to_add:
-            if added.has_key(child.id)==False:
-                self.equivalent_parts.append(child)
-                added[child.id] = child
-                
-                if child.childs:
-                    for c in child.childs:
-                        to_add.append(c)    
-
-    def stock(self):
-        stock = 0
-
-        for storage in self.bom_part.storages:
-            stock = stock+storage.quantity
-        for equivalent_part in self.equivalent_parts:
-            for storage in equivalent_part.storages:
-                stock = stock+storage.quantity
-        return stock
+        self.bom_partobj = bom_partobj
 
     def item_price(self):
         return self.converted_unit_price()[0]*self.offer.quantity
@@ -220,21 +234,11 @@ class DataModelOffer(helper.tree.TreeItem):
         except:
             # error during conversion, no conversion
             return res
-    
-    def parts_num(self):
-        global board_number
-        num_modules = 0
-        if bom.part_modules.has_key(self.bom_part.id):
-            num_modules = len(bom.part_modules[self.bom_part.id])
-        parts_num = num_modules*board_number-self.stock()
-        if parts_num<0:
-            parts_num = 0
-        return parts_num
-    
+        
     def buy_packages(self):
         # number of packages to buy
-        buy_packages = int(self.parts_num()/self.offer.packaging_unit)
-        if divmod(self.parts_num(), self.offer.packaging_unit)[1]>0:
+        buy_packages = int(self.bom_partobj.needed()/self.offer.packaging_unit)
+        if divmod(self.bom_partobj.needed(), self.offer.packaging_unit)[1]>0:
             buy_packages = buy_packages+1
         if buy_packages*self.offer.packaging_unit<self.offer.quantity:
             buy_packages = self.offer.quantity/self.offer.packaging_unit
@@ -334,7 +338,12 @@ class BuyFrame(PanelBuy):
         super(BuyFrame, self).__init__(parent)
 
         # create module bom parts list
-        self.tree_bom_parts_manager = helper.tree.TreeManager(self.tree_bom_parts)
+        self.tree_boms_manager = helper.tree.TreeManager(self.tree_boms)
+        self.tree_boms_manager.AddTextColumn("Path")
+        self.tree_boms_manager.AddTextColumn("Production count")
+
+        # create module bom parts list
+        self.tree_bom_parts_manager = TreeManagerBomParts(self.tree_bom_parts)
         self.tree_bom_parts_manager.AddIntegerColumn("Id")
         self.tree_bom_parts_manager.AddTextColumn("Name")
         self.tree_bom_parts_manager.AddIntegerColumn("Modules")
@@ -374,6 +383,10 @@ class BuyFrame(PanelBuy):
         self.tree_wish_parts_manager.AddTextColumn("Currency")
         self.tree_wish_parts_manager.AddTextColumn("Description")
 
+        self.basket = Basket()
+
+        self.enableBom(False)
+
     def load(self):
         self.loadBomParts()
         self.loadPartEquivalents()
@@ -389,9 +402,11 @@ class BuyFrame(PanelBuy):
     def loadBomParts(self):
         self.tree_bom_parts_manager.ClearItems()
 
-        for bom_part in bom.Parts():
-            full_part = rest.api.find_part(bom_part.id, with_childs=True, with_storages=True)
-            self.tree_bom_parts_manager.AppendItem(None, DataModelBomPart(full_part))
+        for bom_file in self.basket.boms:
+            bom_product = self.basket.boms[bom_file]
+            for bom_part in bom_product.bom.Parts():
+                full_part = rest.api.find_part(bom_part.id, with_childs=True, with_storages=True)
+                self.tree_bom_parts_manager.AppendBomPart(bom_product, full_part)
 
     def loadPartEquivalents(self):
         self.tree_equivalent_parts_manager.ClearItems()
@@ -474,7 +489,7 @@ class BuyFrame(PanelBuy):
     
     def loadAllOffers(self, bom_part, distributorobj):
         for offer in distributorobj.distributor.offers:
-            offerobj = DataModelOffer(offer, bom_part)
+            offerobj = DataModelOffer(offer, self.tree_bom_parts_manager.FindBomPart(bom_part.id))
             self.tree_distributors_manager.AppendItem(distributorobj, offerobj)
     
     def loadBestOffers(self, bom_part, distributorobj):
@@ -494,10 +509,35 @@ class BuyFrame(PanelBuy):
 
         for sku in best_offers:
             self.tree_distributors_manager.AppendItem(distributorobj, DataModelOffer(best_offers[sku], bom_part))
+
+    def enableBom(self, enabled=True):
+        self.tree_boms.Enabled = enabled
+        self.tree_bom_parts.Enabled = enabled
+        self.tree_part_equivalents.Enabled = enabled
+        self.panel_buy.Enabled = enabled
         
     def GetMenus(self):
         return [{'title': 'Prices', 'menu': self.menu_prices}]
-    
+
+    def onSpinBomBoardsCtrl( self, event ):
+        item = self.tree_boms.GetSelection()
+        if item.IsOk():
+            bom_productobj = self.tree_boms_manager.ItemToObject(item)
+        else:
+            return
+        bom_productobj.bom_product.quantity = self.spin_bom_boards.GetValue()
+        self.tree_boms_manager.UpdateItem(bom_productobj)
+        self.loadBomParts()
+        self.loadDistributors()
+
+    def onTreeBomsSelectionChanged( self, event ):
+        item = self.tree_boms.GetSelection()
+        if item.IsOk():
+            bom_productobj = self.tree_boms_manager.ItemToObject(item)
+        else:
+            return
+        self.spin_bom_boards.SetValue(bom_productobj.bom_product.quantity)
+        
     def onTreeBomPartsSelectionChanged( self, event ):
         self.loadPartEquivalents()
         self.loadDistributors()
@@ -548,8 +588,8 @@ class BuyFrame(PanelBuy):
         if options is None:
             return
         
-#         if options['clean']:
-        self.tree_wish_parts_manager.ClearItems()
+        if options['clean']:
+            self.tree_wish_parts_manager.ClearItems()
 
         global wish_parts
         wish_parts = self.tree_wish_parts_manager.data
@@ -588,10 +628,10 @@ class BuyFrame(PanelBuy):
                     # only add best offers for asked distributor
                     if d.name==distributor.name:
                         for offer in d.offers:
-                            offerobj = DataModelOffer(offer, bom_part)
+                            offerobj = DataModelOffer(offer, self.tree_bom_parts_manager.FindBomPart(bom_part.id))
                             if sku_best_offer.has_key(offer.sku)==False:
                                 sku_best_offer[offer.sku] = [part, offer]
-                            if offer.quantity<=quantity and offerobj.buy_price()<DataModelOffer(sku_best_offer[offer.sku][1], bom_part).buy_price():
+                            if offer.quantity<=quantity and offerobj.buy_price()<DataModelOffer(sku_best_offer[offer.sku][1], self.tree_bom_parts_manager.FindBomPart(bom_part.id)).buy_price():
                                 sku_best_offer[offer.sku] = [part, offer]
 
         return sku_best_offer
@@ -624,102 +664,102 @@ class BuyFrame(PanelBuy):
 
         return parts
 
-    def add_wishes_best_distributor(self, distributors):
-        # compute distributor best prices
-                
-        # parts to search best distributor
-        bom_parts = self.needed_bom_parts()
-        while len(bom_parts)>0:
-            # loop until all parts are provisioned by one distributor
-            # at each loop try to find the best suitable distributor for parts left to provision
-            # the best distributor is the one who propose the best ratio parts available by total price
-            # TODO: this algorithm is too primitive, should be improved
-            print "--------------"
-            # list of distributors
-            distributor_parts = {}
-        
-            # search best offer for each distributor of each part
-            for bom_part in bom_parts:
-                equivalent_parts = self.get_equivalent_parts(bom_part)
-                quantity = DataModelBomPart(bom_part).needed()
-                
-                for distributor in distributors:
-                    if distributor.allowed:
-                        [part, best_offer] = self.get_distributor_best_offer(bom_part, equivalent_parts, distributor, quantity)
-#                        print "***", bom_part.name, distributor.name, best_offer
-                        if best_offer:
-                            if distributor_parts.has_key(distributor.name)==False:
-                                distributor_parts[distributor.name] = {'total_price': 0, 'parts': [], 'distributor': None}
-                            best_offerobj = DataModelOffer(best_offer, bom_part)
-                            distributor_parts[distributor.name]['parts'].append(
-                                {   
-                                    'bom_part': bom_part,
-                                    'part': part, 
-                                    'offer': best_offer,
-                                    'quantity': int(best_offerobj.buy_items())
-                                }
-                            )
-                            distributor_parts[distributor.name]['total_price'] = distributor_parts[distributor.name]['total_price']+best_offerobj.buy_price()
-                            distributor_parts[distributor.name]['distributor'] = distributor.name
-                        
-            for distributor_name in distributor_parts:
-                distributor = distributor_parts[distributor_name]
-                print distributor['distributor'], 'total price:', distributor['total_price'], 'parts:', len(distributor['parts'])
-                if distributor_parts.has_key(distributor['distributor']):
-                    for part in distributor_parts[distributor['distributor']]['parts']:
-                        print '- part:', part['part'].id, 'sku:', part['offer'].sku, 'quantity:', part['quantity']
-                
-            # search best distributor
-            best_distributor = None
-            best_ratio = None
-            for distributor_name in distributor_parts:
-                distributor = distributor_parts[distributor_name]
-#                ratio = distributor['total_price']
-                ratio = math.sqrt(distributor['total_price']*distributor['total_price']+len(distributor['parts'])*len(distributor['parts']))
-                if best_distributor is None:
-                    best_distributor = distributor
-                    best_ratio = ratio
-                if ratio<best_ratio:
-                        best_distributor = distributor
-                        best_ratio = ratio
-#                elif len(distributor['parts'])==len(best_distributor['parts']) and distributor['total_price']<best_distributor['total_price']:
-#                    best_distributor = distributor
-            
-            item_added = False
-            if best_distributor:
-                print "Best distributor: ", best_distributor['distributor']
-                # add wishes to list
-                for part in best_distributor['parts']:
-                    offer = part['offer']
-                    # get distributor
-                    distributor = None
-                    for d in part['part'].distributors:
-                        if d.name==best_distributor['distributor']:
-                            distributor = d
-                    if distributor:
-                        item_added = True
-                        self.tree_wish_parts_manager.AppendItem(None, 
-                            DataModelWishPart(part['part'], distributor, offer.sku, DataModelOffer(offer, part['bom_part']).buy_items()))
-                    else:
-                        print "Error with distributor %s for part %d"%(best_distributor['distributor'], part['part'].id)
-            
-            if item_added:
-                # will search best distributor for left parts
-                bom_parts = self.needed_bom_parts()
-            else:
-                # if no item added in previous loop it means that all is complete
-                bom_parts = []
-
-        self.refresh()
-        self.loadTotalPrice()
-        
+#     def add_wishes_best_distributor(self, distributors):
+#         # compute distributor best prices
+#                 
+#         # parts to search best distributor
+#         bom_parts = self.needed_bom_parts()
+#         while len(bom_parts)>0:
+#             # loop until all parts are provisioned by one distributor
+#             # at each loop try to find the best suitable distributor for parts left to provision
+#             # the best distributor is the one who propose the best ratio parts available by total price
+#             # TODO: this algorithm is too primitive, should be improved
+#             print "--------------"
+#             # list of distributors
+#             distributor_parts = {}
+#         
+#             # search best offer for each distributor of each part
+#             for bom_part in bom_parts:
+#                 equivalent_parts = self.get_equivalent_parts(bom_part)
+#                 quantity = DataModelBomPart(bom_part).needed()
+#                 
+#                 for distributor in distributors:
+#                     if distributor.allowed:
+#                         [part, best_offer] = self.get_distributor_best_offer(bom_part, equivalent_parts, distributor, quantity)
+# #                        print "***", bom_part.name, distributor.name, best_offer
+#                         if best_offer:
+#                             if distributor_parts.has_key(distributor.name)==False:
+#                                 distributor_parts[distributor.name] = {'total_price': 0, 'parts': [], 'distributor': None}
+#                             best_offerobj = DataModelOffer(best_offer, bom_part)
+#                             distributor_parts[distributor.name]['parts'].append(
+#                                 {   
+#                                     'bom_part': bom_part,
+#                                     'part': part, 
+#                                     'offer': best_offer,
+#                                     'quantity': int(best_offerobj.buy_items())
+#                                 }
+#                             )
+#                             distributor_parts[distributor.name]['total_price'] = distributor_parts[distributor.name]['total_price']+best_offerobj.buy_price()
+#                             distributor_parts[distributor.name]['distributor'] = distributor.name
+#                         
+#             for distributor_name in distributor_parts:
+#                 distributor = distributor_parts[distributor_name]
+#                 print distributor['distributor'], 'total price:', distributor['total_price'], 'parts:', len(distributor['parts'])
+#                 if distributor_parts.has_key(distributor['distributor']):
+#                     for part in distributor_parts[distributor['distributor']]['parts']:
+#                         print '- part:', part['part'].id, 'sku:', part['offer'].sku, 'quantity:', part['quantity']
+#                 
+#             # search best distributor
+#             best_distributor = None
+#             best_ratio = None
+#             for distributor_name in distributor_parts:
+#                 distributor = distributor_parts[distributor_name]
+# #                ratio = distributor['total_price']
+#                 ratio = math.sqrt(distributor['total_price']*distributor['total_price']+len(distributor['parts'])*len(distributor['parts']))
+#                 if best_distributor is None:
+#                     best_distributor = distributor
+#                     best_ratio = ratio
+#                 if ratio<best_ratio:
+#                         best_distributor = distributor
+#                         best_ratio = ratio
+# #                elif len(distributor['parts'])==len(best_distributor['parts']) and distributor['total_price']<best_distributor['total_price']:
+# #                    best_distributor = distributor
+#             
+#             item_added = False
+#             if best_distributor:
+#                 print "Best distributor: ", best_distributor['distributor']
+#                 # add wishes to list
+#                 for part in best_distributor['parts']:
+#                     offer = part['offer']
+#                     # get distributor
+#                     distributor = None
+#                     for d in part['part'].distributors:
+#                         if d.name==best_distributor['distributor']:
+#                             distributor = d
+#                     if distributor:
+#                         item_added = True
+#                         self.tree_wish_parts_manager.AppendItem(None, 
+#                             DataModelWishPart(part['part'], distributor, offer.sku, DataModelOffer(offer, part['bom_part']).buy_items()))
+#                     else:
+#                         print "Error with distributor %s for part %d"%(best_distributor['distributor'], part['part'].id)
+#             
+#             if item_added:
+#                 # will search best distributor for left parts
+#                 bom_parts = self.needed_bom_parts()
+#             else:
+#                 # if no item added in previous loop it means that all is complete
+#                 bom_parts = []
+# 
+#         self.refresh()
+#         self.loadTotalPrice()
+#         
     def add_wishes_best_offers(self, distributors):
         # parts to search best distributor
         bom_parts = self.needed_bom_parts()
         
         for bom_part in bom_parts:
             equivalent_parts = self.get_equivalent_parts(bom_part)
-            quantity = DataModelBomPart(bom_part).needed()
+            quantity = self.tree_bom_parts_manager.FindBomPart(bom_part.id).needed()
             print "- ", bom_part.name, quantity
             
             best_offer = None
@@ -733,8 +773,8 @@ class BuyFrame(PanelBuy):
                         best_part = part
                         best_distributor = distributor
                     if distributor_best_offer:
-                        best_offerobj = DataModelOffer(best_offer, bom_part)
-                        distributor_best_offerobj = DataModelOffer(distributor_best_offer, bom_part)
+                        best_offerobj = DataModelOffer(best_offer, self.tree_bom_parts_manager.FindBomPart(bom_part.id))
+                        distributor_best_offerobj = DataModelOffer(distributor_best_offer, self.tree_bom_parts_manager.FindBomPart(bom_part.id))
                         
                         if distributor_best_offerobj.buy_price()<best_offerobj.buy_price():
                             best_offer = distributor_best_offer
@@ -748,16 +788,10 @@ class BuyFrame(PanelBuy):
                         distributor = d
                 if distributor:
                     self.tree_wish_parts_manager.AppendItem(None, 
-                        DataModelWishPart(best_part, distributor, best_offer.sku, DataModelOffer(best_offer, bom_part).buy_items()))
+                        DataModelWishPart(best_part, distributor, best_offer.sku, DataModelOffer(best_offer, self.tree_bom_parts_manager.FindBomPart(bom_part.id)).buy_items()))
 
         self.refresh()
         self.loadTotalPrice()
-
-    def onSpinBoardNumberCtrl( self, event ):
-        global board_number
-        board_number = self.spin_board_number.Value
-        self.loadBomParts()
-        self.loadDistributors()
 
     def onButtonAddWishPartsClick( self, event ):
         global wish_parts
@@ -801,7 +835,16 @@ class BuyFrame(PanelBuy):
         self.load()
 
     def onButtonEditWishClick( self, event ):
-        event.Skip()
+        item = self.tree_wish_parts.GetSelection()
+        if item.IsOk()==False:
+            return        
+        wishobj = self.tree_wish_parts_manager.ItemToObject(item)
+        if wishobj is None:
+            return
+        
+        EditWishFrame(self).editWish(wishobj)
+        self.tree_wish_parts_manager.UpdateItem(wishobj)
+        self.load()
     
     def onButtonDeleteWishClick( self, event ):
         item = self.tree_wish_parts.GetSelection()
@@ -811,4 +854,58 @@ class BuyFrame(PanelBuy):
         self.tree_wish_parts_manager.DeleteItem(None, wishobj)
         
         self.refresh()
+
+    def onToolOpenBasketClicked( self, event ):
+        if self.basket.saved==False:
+            res = wx.MessageDialog(self, "%s modified, save it?" % self.basket.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+            print res
+            if res==wx.ID_YES:
+                self.onToolSaveBasketClicked(event)
+
+        dlg = wx.FileDialog(
+            self, message="Choose a basket file",
+            defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard="Kipartman basket (*.basket)|*.basket",
+                style=wx.FD_OPEN | wx.FD_MULTIPLE |
+                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
+                wx.FD_PREVIEW
+        )
+        dlg.SetFilterIndex(0)
+
+        # Show the dialog and retrieve the user response. If it is the OK response,
+        # process the data.
+        if dlg.ShowModal() == wx.ID_OK:
+            self.basket.LoadFile(dlg.GetPath())
+            self.load()
+            self.enableBuy(True)
+    
+    def onToolSaveBasketClicked( self, event ):
+        event.Skip()
+
+
+    def onButtonAddBomClick( self, event ):
+        dlg = wx.FileDialog(
+            self, message="Choose a BOM file",
+            defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard="Kipartman BOM (*.bom)|*.bom",
+                style=wx.FD_OPEN | wx.FD_MULTIPLE |
+                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
+                wx.FD_PREVIEW
+        )
+        dlg.SetFilterIndex(0)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            if self.basket.HasBom(dlg.GetPath())==False:
+                bom_product = self.basket.AddBom(dlg.GetPath(), 1)
+                self.tree_boms_manager.AppendItem(None, DataModelBomProduct(bom_product))
+            self.enableBom(True)
+            self.load()
+
+    def onButtonEditBomClick( self, event ):
+        event.Skip()
+    
+    def onButtonRemoveBomClick( self, event ):
+        event.Skip()
         
