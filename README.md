@@ -40,16 +40,9 @@ If you want to use postgres, mysql or any other database please read the django 
 
 The server can be run manually or through a docker-compose.
 
-  * To run it manually locate your pip package installation folder:
+  * To run it manually just use the command:
 
-  pip show kipartman
-
-You should find an item 'Location: ' containing the output path.
-You can then run a server by:
-
-  cd <dist-packages>/kipartbase
-  python manage.py migrate
-  PYTHONPATH=$(pwd) python -m swagger_server
+  kipartbase
 
   * You can also run it through a docker-compose from the git repository:
 
@@ -90,10 +83,8 @@ You can launch kipartman by simply calling it from the console:
 
   * Add filtering from parts parameters in part view
   * Improve sorting of non string columns in treeview and listviews
-  * Add a daemon to refresh prices regularly
   * Refresh kipart libraries and footprint from database
   * Add backup and restore
   * Add tutorials
-  * Add a stock manager
 
  

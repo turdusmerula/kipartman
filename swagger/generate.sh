@@ -66,6 +66,5 @@ touch ${swagger_server}/swagger/__init__.py
 cd -
 
 echo "-------- ${swagger_server}"
-cat __main__.py.tpl
 cat __main__.py.tpl > ${swagger_server}/__main__.py
 

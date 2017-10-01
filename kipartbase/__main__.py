@@ -1,13 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
+
+import os, sys
+sys.path.append(os.path.dirname(__file__))
 
 import connexion
 from swagger_server.encoder import JSONEncoder
 from os.path import expanduser
 
-home = expanduser("~")
 
-if __name__ == '__main__':
-    app = connexion.App(__name__, specification_dir='./swagger/')
+def main(args=None):    
+    home = expanduser("~")
+
+    app = connexion.App(__name__, specification_dir='./swagger_server/swagger/')
     app.app.json_encoder = JSONEncoder
     app.add_api('swagger.yaml', arguments={'title': 'Kipartman api specifications'})
 
@@ -17,3 +21,7 @@ if __name__ == '__main__':
         return send_from_directory(home+'/.kipartman/storage', path)
 
     app.run(port=8200, debug=True)
+
+
+if __name__ == '__main__':
+    main()

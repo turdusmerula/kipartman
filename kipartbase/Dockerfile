@@ -14,7 +14,7 @@ RUN apt-get update && \
 
 RUN pip install pip --upgrade && \
         pip install \
-                kipartman
+			kipartman
 
 COPY . /opt
 
@@ -22,4 +22,4 @@ EXPOSE 8100
 
 CMD cd /opt && \
 	python manage.py migrate && \
-	python manage.py runserver 0.0.0.0:8100
+	kipartbase

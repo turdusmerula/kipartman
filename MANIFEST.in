@@ -2,3 +2,4 @@ graft kipartman
 include *.rst
 include *.md
 include kipartman/resources/*.png
+include kipartbase/swagger_server/swagger/*.yaml
