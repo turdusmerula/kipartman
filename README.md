@@ -27,7 +27,9 @@ On Ubuntu systems you need to install some packages before installing kipartman:
 
 Kipartman is available through pip:
 
+<code>
   pip install kipartman
+</code>
 
 Note: wxPython can be quite long to install as it is built from sources
 
