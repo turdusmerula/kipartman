@@ -7,9 +7,11 @@ With kipartman you will be able to:
 
   * Organize and manage your team parts inside a part database 
   * Group equivalent parts to allow easy parts replacement
+  * Manage your part stock
   * Download your parts specifications and pricing from Octopart
   * Download you parts symbols and footprints from SnapEDA
-  * Create your BOM and chose your parts providers
+  * Create your BOM
+  * Prepare your buying order from your BOM by chosing the best prices
 
 Kipartman is a combination of a database and file server (kipartbase) and a graphical tool to manage it (kipartman).
 
@@ -21,21 +23,23 @@ Note: kipartman is still in active development phase, some functionalities may n
 
 On Ubuntu systems you need to install some packages before installing kipartman:
 
-  sudo apt-get install build-essential libgtk-3-dev libwebkitgtk-3.0-dev libwxgtk3.0-dev libwxgtk-media3.0-dev libwebkitgtk-dev libboost-dev
+<code>
+sudo apt-get install build-essential libgtk-3-dev libwebkitgtk-3.0-dev libwxgtk3.0-dev libwxgtk-media3.0-dev libwebkitgtk-dev libboost-dev
+</code>
 
 ## Installing
 
 Kipartman is available through pip:
 
 <code>
-  pip install kipartman
+pip install kipartman
 </code>
 
-Note: wxPython can be quite long to install as it is built from sources
+Note: wxPython can be quite long to install as it is built from sources.
 
 ## Configuration
 
-By default the database is a sqlite database and is installed in ~/.kipartbase, you can change this destination folder by setting the KIPARTBASE_PATH environment variable.
+By default the database is a sqlite database and is installed in ```~/.kipartbase```, you can change this destination folder by setting the ```KIPARTBASE_PATH``` environment variable.
 If you want to use postgres, mysql or any other database please read the django documentation (https://docs.djangoproject.com/en/1.11/ref/settings/)
 
 ## Run the server
@@ -44,13 +48,17 @@ The server can be run manually or through a docker-compose.
 
   * To run it manually just use the command:
 
-  kipartbase
+<code>
+kipartbase
+</code>
 
   * You can also run it through a docker-compose from the git repository:
 
-  git clone  https://github.com/turdusmerula/kipartman
-  cd kipartman
-  docker-compose up --build
+<code>
+git clone  https://github.com/turdusmerula/kipartman
+cd kipartman
+docker-compose up --build
+</code>
 
 ## Octopart
 
@@ -58,7 +66,7 @@ Octopart is a search engine for electronic parts, you will need to configure an 
 
 Create an account on the website https://octopart.com/ and create an api key at https://octopart.com/api/dashboard.
 
-Edit the file ~/.kipartman/configure.json and put your newly created api key:
+Edit the file ```~/.kipartman/configure.json``` and put your newly created api key:
 
 <code>
 {
@@ -78,8 +86,9 @@ By now SnapEDA is poorly integrated but works with the SnapEDA team is in progre
 
 You can launch kipartman by simply calling it from the console:
 
-  kipartman
-  
+<code>
+kipartman
+</code>
 
 ## TODO list
 
