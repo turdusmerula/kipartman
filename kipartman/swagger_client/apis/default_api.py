@@ -106,10 +106,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/distributors'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -130,7 +129,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/distributors', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -211,10 +210,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -235,7 +233,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/footprints', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -316,10 +314,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints/categories'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -340,7 +337,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/footprints/categories', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -421,10 +418,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/manufacturers'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -445,7 +441,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/manufacturers', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -526,10 +522,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -550,7 +545,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/models', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -631,10 +626,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models/categories'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -655,7 +649,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/models/categories', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -736,10 +730,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -760,7 +753,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/parts', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -841,10 +834,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts/categories'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -865,7 +857,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/parts/categories', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -946,10 +938,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -970,7 +961,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/storages', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1051,10 +1042,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages/categories'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -1075,7 +1065,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/storages/categories', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1153,10 +1143,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/upload'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -1177,7 +1166,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'POST',
+        return self.api_client.call_api('/upload', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1258,12 +1247,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/distributors/{distributor_id}'.replace('{format}', 'json')
         path_params = {}
         if 'distributor_id' in params:
             path_params['distributor_id'] = params['distributor_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -1282,7 +1270,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/distributors/{distributor_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1363,12 +1351,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints/{footprint_id}'.replace('{format}', 'json')
         path_params = {}
         if 'footprint_id' in params:
             path_params['footprint_id'] = params['footprint_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -1387,7 +1374,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/footprints/{footprint_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1468,12 +1455,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -1492,7 +1478,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/footprints/categories/{category_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1573,12 +1559,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/manufacturers/{manufacturer_id}'.replace('{format}', 'json')
         path_params = {}
         if 'manufacturer_id' in params:
             path_params['manufacturer_id'] = params['manufacturer_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -1597,7 +1582,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/manufacturers/{manufacturer_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1678,12 +1663,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models/{model_id}'.replace('{format}', 'json')
         path_params = {}
         if 'model_id' in params:
             path_params['model_id'] = params['model_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -1702,7 +1686,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/models/{model_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1783,12 +1767,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -1807,7 +1790,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/models/categories/{category_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1888,12 +1871,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts/{part_id}'.replace('{format}', 'json')
         path_params = {}
         if 'part_id' in params:
             path_params['part_id'] = params['part_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -1912,7 +1894,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/parts/{part_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1993,12 +1975,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -2017,7 +1998,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/parts/categories/{category_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2098,12 +2079,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages/{storage_id}'.replace('{format}', 'json')
         path_params = {}
         if 'storage_id' in params:
             path_params['storage_id'] = params['storage_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -2122,7 +2102,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/storages/{storage_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2203,12 +2183,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -2227,7 +2206,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'DELETE',
+        return self.api_client.call_api('/storages/categories/{category_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2308,12 +2287,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/distributors/{distributor_id}'.replace('{format}', 'json')
         path_params = {}
         if 'distributor_id' in params:
             path_params['distributor_id'] = params['distributor_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -2332,7 +2310,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/distributors/{distributor_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2410,12 +2388,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/distributors'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
         if 'name' in params:
-            query_params['name'] = params['name']
+            query_params.append(('name', params['name']))
 
         header_params = {}
 
@@ -2434,7 +2411,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/distributors', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2515,12 +2492,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints/{footprint_id}'.replace('{format}', 'json')
         path_params = {}
         if 'footprint_id' in params:
             path_params['footprint_id'] = params['footprint_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -2539,7 +2515,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/footprints/{footprint_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2619,14 +2595,13 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
         if 'category' in params:
-            query_params['category'] = params['category']
+            query_params.append(('category', params['category']))
         if 'search' in params:
-            query_params['search'] = params['search']
+            query_params.append(('search', params['search']))
 
         header_params = {}
 
@@ -2645,7 +2620,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/footprints', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2720,10 +2695,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints/categories'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -2742,7 +2716,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/footprints/categories', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2823,12 +2797,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -2847,7 +2820,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/footprints/categories/{category_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2928,12 +2901,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/manufacturers/{manufacturer_id}'.replace('{format}', 'json')
         path_params = {}
         if 'manufacturer_id' in params:
             path_params['manufacturer_id'] = params['manufacturer_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -2952,7 +2924,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/manufacturers/{manufacturer_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3030,12 +3002,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/manufacturers'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
         if 'name' in params:
-            query_params['name'] = params['name']
+            query_params.append(('name', params['name']))
 
         header_params = {}
 
@@ -3054,7 +3025,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/manufacturers', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3135,12 +3106,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models/{model_id}'.replace('{format}', 'json')
         path_params = {}
         if 'model_id' in params:
             path_params['model_id'] = params['model_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -3159,7 +3129,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/models/{model_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3239,14 +3209,13 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
         if 'category' in params:
-            query_params['category'] = params['category']
+            query_params.append(('category', params['category']))
         if 'search' in params:
-            query_params['search'] = params['search']
+            query_params.append(('search', params['search']))
 
         header_params = {}
 
@@ -3265,7 +3234,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/models', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3340,10 +3309,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models/categories'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -3362,7 +3330,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/models/categories', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3443,12 +3411,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -3467,7 +3434,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/models/categories/{category_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3562,26 +3529,25 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts/{part_id}'.replace('{format}', 'json')
         path_params = {}
         if 'part_id' in params:
             path_params['part_id'] = params['part_id']
 
-        query_params = {}
+        query_params = []
         if 'with_offers' in params:
-            query_params['with_offers'] = params['with_offers']
+            query_params.append(('with_offers', params['with_offers']))
         if 'with_parameters' in params:
-            query_params['with_parameters'] = params['with_parameters']
+            query_params.append(('with_parameters', params['with_parameters']))
         if 'with_childs' in params:
-            query_params['with_childs'] = params['with_childs']
+            query_params.append(('with_childs', params['with_childs']))
         if 'with_distributors' in params:
-            query_params['with_distributors'] = params['with_distributors']
+            query_params.append(('with_distributors', params['with_distributors']))
         if 'with_manufacturers' in params:
-            query_params['with_manufacturers'] = params['with_manufacturers']
+            query_params.append(('with_manufacturers', params['with_manufacturers']))
         if 'with_storages' in params:
-            query_params['with_storages'] = params['with_storages']
+            query_params.append(('with_storages', params['with_storages']))
         if 'with_attachements' in params:
-            query_params['with_attachements'] = params['with_attachements']
+            query_params.append(('with_attachements', params['with_attachements']))
 
         header_params = {}
 
@@ -3600,7 +3566,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/parts/{part_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3696,30 +3662,29 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
         if 'category' in params:
-            query_params['category'] = params['category']
+            query_params.append(('category', params['category']))
         if 'storage' in params:
-            query_params['storage'] = params['storage']
+            query_params.append(('storage', params['storage']))
         if 'with_offers' in params:
-            query_params['with_offers'] = params['with_offers']
+            query_params.append(('with_offers', params['with_offers']))
         if 'with_parameters' in params:
-            query_params['with_parameters'] = params['with_parameters']
+            query_params.append(('with_parameters', params['with_parameters']))
         if 'with_childs' in params:
-            query_params['with_childs'] = params['with_childs']
+            query_params.append(('with_childs', params['with_childs']))
         if 'with_distributors' in params:
-            query_params['with_distributors'] = params['with_distributors']
+            query_params.append(('with_distributors', params['with_distributors']))
         if 'with_manufacturers' in params:
-            query_params['with_manufacturers'] = params['with_manufacturers']
+            query_params.append(('with_manufacturers', params['with_manufacturers']))
         if 'with_storages' in params:
-            query_params['with_storages'] = params['with_storages']
+            query_params.append(('with_storages', params['with_storages']))
         if 'with_attachements' in params:
-            query_params['with_attachements'] = params['with_attachements']
+            query_params.append(('with_attachements', params['with_attachements']))
         if 'search' in params:
-            query_params['search'] = params['search']
+            query_params.append(('search', params['search']))
 
         header_params = {}
 
@@ -3738,7 +3703,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/parts', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3813,10 +3778,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts/categories'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -3835,7 +3799,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/parts/categories', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3916,12 +3880,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -3940,7 +3903,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/parts/categories/{category_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4021,12 +3984,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages/{storage_id}'.replace('{format}', 'json')
         path_params = {}
         if 'storage_id' in params:
             path_params['storage_id'] = params['storage_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -4045,7 +4007,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/storages/{storage_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4125,14 +4087,13 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
         if 'category' in params:
-            query_params['category'] = params['category']
+            query_params.append(('category', params['category']))
         if 'search' in params:
-            query_params['search'] = params['search']
+            query_params.append(('search', params['search']))
 
         header_params = {}
 
@@ -4151,7 +4112,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/storages', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4226,10 +4187,9 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages/categories'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -4248,7 +4208,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/storages/categories', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4329,12 +4289,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -4353,7 +4312,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/storages/categories/{category_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4434,12 +4393,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/units/{unit_id}'.replace('{format}', 'json')
         path_params = {}
         if 'unit_id' in params:
             path_params['unit_id'] = params['unit_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -4458,7 +4416,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/units/{unit_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4539,12 +4497,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/unitprefixes/{unit_prefix_id}'.replace('{format}', 'json')
         path_params = {}
         if 'unit_prefix_id' in params:
             path_params['unit_prefix_id'] = params['unit_prefix_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -4563,7 +4520,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/unitprefixes/{unit_prefix_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4641,12 +4598,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/unitprefixes'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
         if 'symbol' in params:
-            query_params['symbol'] = params['symbol']
+            query_params.append(('symbol', params['symbol']))
 
         header_params = {}
 
@@ -4665,7 +4621,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/unitprefixes', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4743,12 +4699,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/units'.replace('{format}', 'json')
         path_params = {}
 
-        query_params = {}
+        query_params = []
         if 'symbol' in params:
-            query_params['symbol'] = params['symbol']
+            query_params.append(('symbol', params['symbol']))
 
         header_params = {}
 
@@ -4767,7 +4722,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'GET',
+        return self.api_client.call_api('/units', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4853,12 +4808,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/distributors/{distributor_id}'.replace('{format}', 'json')
         path_params = {}
         if 'distributor_id' in params:
             path_params['distributor_id'] = params['distributor_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -4879,7 +4833,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/distributors/{distributor_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4965,12 +4919,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints/{footprint_id}'.replace('{format}', 'json')
         path_params = {}
         if 'footprint_id' in params:
             path_params['footprint_id'] = params['footprint_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -4991,7 +4944,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/footprints/{footprint_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5077,12 +5030,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/footprints/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -5103,7 +5055,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/footprints/categories/{category_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5189,12 +5141,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/manufacturers/{manufacturer_id}'.replace('{format}', 'json')
         path_params = {}
         if 'manufacturer_id' in params:
             path_params['manufacturer_id'] = params['manufacturer_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -5215,7 +5166,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/manufacturers/{manufacturer_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5301,12 +5252,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models/{model_id}'.replace('{format}', 'json')
         path_params = {}
         if 'model_id' in params:
             path_params['model_id'] = params['model_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -5327,7 +5277,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/models/{model_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5413,12 +5363,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/models/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -5439,7 +5388,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/models/categories/{category_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5525,12 +5474,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts/{part_id}'.replace('{format}', 'json')
         path_params = {}
         if 'part_id' in params:
             path_params['part_id'] = params['part_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -5551,7 +5499,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/parts/{part_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5637,12 +5585,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/parts/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -5663,7 +5610,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/parts/categories/{category_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5749,12 +5696,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages/{storage_id}'.replace('{format}', 'json')
         path_params = {}
         if 'storage_id' in params:
             path_params['storage_id'] = params['storage_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -5775,7 +5721,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/storages/{storage_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5861,12 +5807,11 @@ class DefaultApi(object):
 
         collection_formats = {}
 
-        resource_path = '/storages/categories/{category_id}'.replace('{format}', 'json')
         path_params = {}
         if 'category_id' in params:
             path_params['category_id'] = params['category_id']
 
-        query_params = {}
+        query_params = []
 
         header_params = {}
 
@@ -5887,7 +5832,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api(resource_path, 'PUT',
+        return self.api_client.call_api('/storages/categories/{category_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,

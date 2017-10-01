@@ -14,11 +14,7 @@ RUN apt-get update && \
 
 RUN pip install pip --upgrade && \
         pip install \
-                django \
-                django-mptt \
-                djangorestframework \
-                django-filters \
-                Pillow
+                kipartman
 
 COPY . /opt
 

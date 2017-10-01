@@ -16,7 +16,7 @@ def read(*names, **kwargs):
 
 setup(
     name='kipartman',
-    version='0.0.25',
+    version='0.1.0',
     description='Kicad part manager',
 #     long_description='%s\n%s' %
 #     (re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub(
@@ -29,7 +29,8 @@ setup(
     scripts=['kipartman/__main__.py'],
     packages=find_packages('.'),
     package_dir={'': '.'},
-    package_data={'kipartman.resources': ['*.png']},
+    package_data={'kipartman.resources': ['*.png'], 
+                  'kipartbase.swagger_server.swagger': ['*.yaml']},
 #    data_files=[('kipartman.resources' , glob('kipartman/resources/*.png')),],
 #    data_files=[('images' , glob('kipartman/resources/*.png')),],
 #    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
@@ -41,20 +42,21 @@ setup(
     },
 
     install_requires=[
-        'requests',
-        'wxPython',
-        'rfc3987',
-        'cfscrape',
-        'docutils',
-        
-        # for kipart base
-        'connexion',
-        'python_dateutil',
-        'typing',
-        'setuptools',
-        'django',
-        'django-mptt',
-        'Pillow'
+#         'requests',
+         'wxPython',
+#         'rfc3987',
+         'cfscrape',
+         'docutils',
+#         
+#         # for kipart base
+         'connexion>1.1,<1.2',
+#         'python_dateutil',
+#         'typing',
+         'django<1.12',
+         'django-mptt<0.9',
+#         'Pillow'
+
+         'setuptools',
     ],
 )
 

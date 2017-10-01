@@ -5,7 +5,8 @@ cd $xpl_path
 
 if [ ! -f /tmp/swagger-codegen-cli.jar ]
 then
-	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.2/swagger-codegen-cli-2.2.2.jar -O /tmp/swagger-codegen-cli.jar
+#	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.2/swagger-codegen-cli-2.2.2.jar -O /tmp/swagger-codegen-cli.jar
+	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar -O /tmp/swagger-codegen-cli.jar
 fi
 
 # generate client
@@ -60,6 +61,8 @@ fi
 cp -f swagger_server/*.py $swagger_server
 rsync --delete -rv swagger_server/models/ ${swagger_server}/models
 rsync --delete -rv swagger_server/swagger/ ${swagger_server}/swagger
+# add an init for packaging
+touch ${swagger_server}/swagger/__init__.py
 cd -
 
 echo "-------- ${swagger_server}"

@@ -205,6 +205,7 @@ class EditPartFrame(PanelEditPart):
         try:
             manufacturers = rest.api.find_manufacturers(name=manufacturer_name)
             if len(manufacturers)>0:
+                print "1"
                 manufacturer = manufacturers[0]
             else:
                 # distributor does not exists, create it
@@ -214,12 +215,16 @@ class EditPartFrame(PanelEditPart):
                 manufacturer = rest.api.add_manufacturer(manufacturer)
 
             # remove manufacturer prior to add new manufacturer
+            print "2"
             self.edit_part_manufacturers.RemoveManufacturer(manufacturer_name)
+            print "3"
+
             # add new manufacturer
             part_manufacturer = rest.model.PartManufacturer()
             part_manufacturer.name = manufacturer.name
             part_manufacturer.part_name = self.part.name
             self.edit_part_manufacturers.AddManufacturer(part_manufacturer)
+            print "4"
         except:
             wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
 

@@ -12,7 +12,7 @@ Requirements
 ^^^^^^^^^^^^
 
 ```
-sudo apt-get install libwxgtk3.0-dev libwxgtk-media3.0-dev libboost-dev libwebkitgtk-dev
+sudo apt-get install build-essential libgtk-3-dev libwebkitgtk-3.0-dev libwxgtk3.0-dev libwxgtk-media3.0-dev libwebkitgtk-dev libboost-dev
 ```
 
 Compatibility

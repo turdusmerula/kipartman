@@ -17,11 +17,19 @@ Note: in the future kipart base will allow multi-user simultaneous usage but thi
 
 Note: kipartman is still in active development phase, some functionalities may not be yet available.
 
+## Prerequisites
+
+On Ubuntu systems you need to install some packages before installing kipartman:
+
+  sudo apt-get install build-essential libgtk-3-dev libwebkitgtk-3.0-dev libwxgtk3.0-dev libwxgtk-media3.0-dev libwebkitgtk-dev libboost-dev
+
 ## Installing
 
 Kipartman is available through pip:
 
   pip install kipartman
+
+Note: wxPython can be quite long to install as it is built from sources
 
 ## Configuration
 
@@ -41,7 +49,7 @@ You can then run a server by:
 
   cd <dist-packages>/kipartbase
   python manage.py migrate
-  python manage.py runserver 8100
+  PYTHONPATH=$(pwd) python -m swagger_server
 
   * You can also run it through a docker-compose from the git repository:
 

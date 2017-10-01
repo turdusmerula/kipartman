@@ -1592,81 +1592,6 @@ definitions:
     - properties:
         category:
           $ref: "#/definitions/StorageCategoryRef"
-  FootprintData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-      comment:
-        type: "string"
-      snapeda:
-        type: "string"
-  FootprintCategoryData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-  FootprintCategoryRef:
-    type: "object"
-    required:
-    - "id"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-  ModelCategoryData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-  ModelCategoryRef:
-    type: "object"
-    required:
-    - "id"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-  ModelData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-      comment:
-        type: "string"
-      snapeda:
-        type: "string"
-  UploadFileRef:
-    type: "object"
-    required:
-    - "id"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-  StorageCategoryData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-  StorageCategoryRef:
-    type: "object"
-    required:
-    - "id"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
   PartCategoryData:
     type: "object"
     properties:
@@ -1682,56 +1607,6 @@ definitions:
       id:
         type: "integer"
         format: "int64"
-  DistributorData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      address:
-        type: "string"
-      website:
-        type: "string"
-      sku_url:
-        type: "string"
-      email:
-        type: "string"
-      phone:
-        type: "string"
-      comment:
-        type: "string"
-      allowed:
-        type: "boolean"
-  ManufacturerData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      address:
-        type: "string"
-      website:
-        type: "string"
-      email:
-        type: "string"
-      phone:
-        type: "string"
-      comment:
-        type: "string"
-  UploadFileData:
-    type: "object"
-    properties:
-      source_name:
-        type: "string"
-      storage_path:
-        type: "string"
-  StorageData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-      comment:
-        type: "string"
   PartData:
     type: "object"
     properties:
@@ -1820,6 +1695,131 @@ definitions:
       id:
         type: "integer"
         format: "int64"
+  FootprintCategoryData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+  FootprintCategoryRef:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+  FootprintData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      comment:
+        type: "string"
+      snapeda:
+        type: "string"
+  UploadFileRef:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+  ModelCategoryData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+  ModelCategoryRef:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+  ModelData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      comment:
+        type: "string"
+      snapeda:
+        type: "string"
+  DistributorData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      address:
+        type: "string"
+      website:
+        type: "string"
+      sku_url:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+      comment:
+        type: "string"
+      allowed:
+        type: "boolean"
+  ManufacturerData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      address:
+        type: "string"
+      website:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+      comment:
+        type: "string"
+  UploadFileData:
+    type: "object"
+    properties:
+      source_name:
+        type: "string"
+      storage_path:
+        type: "string"
+  StorageCategoryData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+  StorageCategoryRef:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+  StorageData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      comment:
+        type: "string"
   PartParameterData:
     type: "object"
     properties:
