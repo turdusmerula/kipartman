@@ -48,17 +48,17 @@ The server can be run manually or through a docker-compose.
 
   * To run it manually just use the command:
 
-<code>
+```
 kipartbase
-</code>
+```
 
   * You can also run it through a docker-compose from the git repository:
 
-<code>
+```
 git clone  https://github.com/turdusmerula/kipartman
 cd kipartman
 docker-compose up --build
-</code>
+```
 
 ## Octopart
 
@@ -68,12 +68,12 @@ Create an account on the website https://octopart.com/ and create an api key at 
 
 Edit the file ```~/.kipartman/configure.json``` and put your newly created api key:
 
-<code>
+```
 {
     "kipartbase": "http://localhost:8100",
     "octopart_api_key": "<your api key>"
 }
-</code>
+```
 
 ## SnapEDA
 
@@ -86,9 +86,9 @@ By now SnapEDA is poorly integrated but works with the SnapEDA team is in progre
 
 You can launch kipartman by simply calling it from the console:
 
-<code>
+```
 kipartman
-</code>
+```
 
 ## TODO list
 
