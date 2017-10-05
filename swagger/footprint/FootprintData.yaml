@@ -8,3 +8,8 @@ properties:
     type: string
   snapeda:
     type: string
+  snapeda_uid:
+    type: string
+  updated:
+    type: string
+    format: date-time

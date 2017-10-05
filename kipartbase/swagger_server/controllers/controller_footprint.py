@@ -28,6 +28,10 @@ def serialize_FootprintData(ffootprint, footprint=None):
     footprint.comment = ffootprint.comment
     if ffootprint.snapeda:
         footprint.snapeda = ffootprint.snapeda
+    if ffootprint.snapeda_uid:
+        footprint.snapeda_uid = ffootprint.snapeda_uid
+    if ffootprint.updated:
+        footprint.updated = ffootprint.updated
     return footprint
 
 def serialize_Footprint(ffootprint, footprint=None):
@@ -50,7 +54,12 @@ def deserialize_FootprintData(footprint, ffootprint=None):
     ffootprint.name = footprint.name
     ffootprint.description = footprint.description
     ffootprint.comment = footprint.comment
-    ffootprint.snapeda = footprint.snapeda
+    if footprint.snapeda:
+        ffootprint.snapeda = footprint.snapeda
+    if footprint.snapeda_uid:
+        ffootprint.snapeda_uid = footprint.snapeda_uid
+    if footprint.updated:
+        ffootprint.updated = footprint.updated
     return ffootprint
 
 

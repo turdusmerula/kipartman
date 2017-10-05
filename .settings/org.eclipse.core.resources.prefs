@@ -26,6 +26,7 @@ encoding//kipartman/dialogs/panel_bom.py=utf-8
 encoding//kipartman/dialogs/panel_buy.py=utf-8
 encoding//kipartman/dialogs/panel_distributors.py=utf-8
 encoding//kipartman/dialogs/panel_edit_footprint.py=utf-8
+encoding//kipartman/dialogs/panel_edit_model.py=utf-8
 encoding//kipartman/dialogs/panel_edit_part.py=utf-8
 encoding//kipartman/dialogs/panel_footprints.py=utf-8
 encoding//kipartman/dialogs/panel_manufacturers.py=utf-8

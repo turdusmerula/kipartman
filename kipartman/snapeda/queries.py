@@ -2,6 +2,7 @@ from snapeda import models
 import json
 import urllib
 import cfscrape
+from connection import snapeda_connection
 
 scraper = cfscrape.create_scraper()
 
@@ -17,13 +18,22 @@ class SnapedaQuery(object):
         for arg in kwargs:
             self.args.append((arg, kwargs[arg]))
         
-        self.url = self.baseurl+self.path+'?'+urllib.urlencode(self.args)
-        print self.url 
+        url = self.baseurl+self.path+'?'+urllib.urlencode(self.args)
+        print url 
 #        data = urllib.urlopen(self.url).read()
         # use scrapper to avoid cloudflare anti-bot protection
-        data = scraper.get(self.url).content
+        data = scraper.get(url).content
         return json.loads(data)
         
+    def post(self, *args, **kwargs):
+        url = self.baseurl+self.path
+        print url 
+
+        # use scrapper to avoid cloudflare anti-bot protection
+        data = scraper.post(url, data=kwargs).content
+
+        return json.loads(data)
+
 
 class PartsQuery(SnapedaQuery):
     path = "search"
@@ -56,3 +66,47 @@ class PartsQuery(SnapedaQuery):
         for item in self.json["results"]:
             list.append(models.SearchResult(item))
         return list
+
+class DownloadQuery(SnapedaQuery):
+    path = "parts/download"
+    
+    def get(self, part_number, manufacturer, uniqueid, has_symbol, has_footprint):
+                
+        if snapeda_connection.token=='':
+            # try connect to snapeda
+            snapeda_connection.connect()
+           
+        self.json = SnapedaQuery.post(self, 
+                                        part_number=part_number,
+                                        manufacturer=manufacturer,
+                                        uniqueid=uniqueid,
+                                        has_symbol=has_symbol,
+                                        has_footprint=has_footprint,
+                                        token=snapeda_connection.token,
+                                        format='kicad'
+                                    )
+        if self.json['status']=='not_logged_in':
+            # try connect to snapeda
+            snapeda_connection.connect()
+            
+            # relaunch request
+            self.json = SnapedaQuery.post(self, 
+                                            part_number=part_number,
+                                            manufacturer=manufacturer,
+                                            uniqueid=uniqueid,
+                                            has_symbol=has_symbol,
+                                            has_footprint=has_footprint,
+                                            token=snapeda_connection.token,
+                                            format='kicad'
+                                        )
+
+        return self.json
+
+    def url(self):
+        return self.json["url"]
+
+    def status(self):
+        return self.json["status"]
+
+    def error(self):
+        return self.json["error"]

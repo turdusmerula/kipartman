@@ -7,6 +7,8 @@ class ConfigurationFrame(DialogConfiguration):
         
         self.edit_kipartbase.Value = configuration.kipartbase
         self.edit_octopart_apikey.Value = configuration.octopart_api_key
+        self.edit_snapeda_user.Value = configuration.snapeda_user
+        self.edit_snapeda_password.Value = configuration.snapeda_password
 
     def onCancelButtonClick( self, event ):
         self.EndModal(False)
@@ -14,5 +16,7 @@ class ConfigurationFrame(DialogConfiguration):
     def onOkButtonClick( self, event ):
         configuration.kipartbase = self.edit_kipartbase.Value
         configuration.octopart_api_key = self.edit_octopart_apikey.Value
+        configuration.snapeda_user = self.edit_snapeda_user.Value
+        configuration.snapeda_password = self.edit_snapeda_password.Value
         configuration.Save()
         self.EndModal(True)

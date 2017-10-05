@@ -35,6 +35,8 @@ class Footprint(object):
         'description': 'str',
         'comment': 'str',
         'snapeda': 'str',
+        'snapeda_uid': 'str',
+        'updated': 'datetime',
         'id': 'int',
         'category': 'FootprintCategory',
         'image': 'UploadFile',
@@ -46,13 +48,15 @@ class Footprint(object):
         'description': 'description',
         'comment': 'comment',
         'snapeda': 'snapeda',
+        'snapeda_uid': 'snapeda_uid',
+        'updated': 'updated',
         'id': 'id',
         'category': 'category',
         'image': 'image',
         'footprint': 'footprint'
     }
 
-    def __init__(self, name=None, description=None, comment=None, snapeda=None, id=None, category=None, image=None, footprint=None):
+    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, id=None, category=None, image=None, footprint=None):
         """
         Footprint - a model defined in Swagger
         """
@@ -61,6 +65,8 @@ class Footprint(object):
         self._description = None
         self._comment = None
         self._snapeda = None
+        self._snapeda_uid = None
+        self._updated = None
         self._id = None
         self._category = None
         self._image = None
@@ -74,6 +80,10 @@ class Footprint(object):
           self.comment = comment
         if snapeda is not None:
           self.snapeda = snapeda
+        if snapeda_uid is not None:
+          self.snapeda_uid = snapeda_uid
+        if updated is not None:
+          self.updated = updated
         self.id = id
         if category is not None:
           self.category = category
@@ -165,6 +175,48 @@ class Footprint(object):
         """
 
         self._snapeda = snapeda
+
+    @property
+    def snapeda_uid(self):
+        """
+        Gets the snapeda_uid of this Footprint.
+
+        :return: The snapeda_uid of this Footprint.
+        :rtype: str
+        """
+        return self._snapeda_uid
+
+    @snapeda_uid.setter
+    def snapeda_uid(self, snapeda_uid):
+        """
+        Sets the snapeda_uid of this Footprint.
+
+        :param snapeda_uid: The snapeda_uid of this Footprint.
+        :type: str
+        """
+
+        self._snapeda_uid = snapeda_uid
+
+    @property
+    def updated(self):
+        """
+        Gets the updated of this Footprint.
+
+        :return: The updated of this Footprint.
+        :rtype: datetime
+        """
+        return self._updated
+
+    @updated.setter
+    def updated(self, updated):
+        """
+        Sets the updated of this Footprint.
+
+        :param updated: The updated of this Footprint.
+        :type: datetime
+        """
+
+        self._updated = updated
 
     @property
     def id(self):

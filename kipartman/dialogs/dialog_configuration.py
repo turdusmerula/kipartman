@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Jul 12 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO "NOT" EDIT THIS FILE!
@@ -17,17 +17,31 @@ import wx.xrc
 class DialogConfiguration ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 404,258 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 413,313 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 		
-		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Octopart" ), wx.HORIZONTAL )
+		sbSizer111 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"User" ), wx.HORIZONTAL )
+		
+		self.m_staticText111 = wx.StaticText( sbSizer111.GetStaticBox(), wx.ID_ANY, u"Currency", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText111.Wrap( -1 )
+		sbSizer111.Add( self.m_staticText111, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		m_choice1Choices = []
+		self.m_choice1 = wx.Choice( sbSizer111.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice1Choices, 0 )
+		self.m_choice1.SetSelection( 0 )
+		sbSizer111.Add( self.m_choice1, 0, wx.ALL, 5 )
+		
+		
+		bSizer10.Add( sbSizer111, 0, wx.EXPAND, 5 )
+		
+		sbSizer11 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Parts" ), wx.HORIZONTAL )
 		
 		self.m_staticText11 = wx.StaticText( sbSizer11.GetStaticBox(), wx.ID_ANY, u"Kipartbase", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText11.Wrap( -1 )
-		sbSizer11.Add( self.m_staticText11, 0, wx.ALL, 5 )
+		sbSizer11.Add( self.m_staticText11, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.edit_kipartbase = wx.TextCtrl( sbSizer11.GetStaticBox(), wx.ID_ANY, u"http://localhost:8100", wx.DefaultPosition, wx.DefaultSize, 0 )
 		sbSizer11.Add( self.edit_kipartbase, 1, wx.ALL, 5 )
@@ -39,7 +53,7 @@ class DialogConfiguration ( wx.Dialog ):
 		
 		self.m_staticText1 = wx.StaticText( sbSizer1.GetStaticBox(), wx.ID_ANY, u"API Key", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText1.Wrap( -1 )
-		sbSizer1.Add( self.m_staticText1, 0, wx.ALL, 5 )
+		sbSizer1.Add( self.m_staticText1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		self.edit_octopart_apikey = wx.TextCtrl( sbSizer1.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		sbSizer1.Add( self.edit_octopart_apikey, 1, wx.ALL, 5 )
@@ -65,14 +79,14 @@ class DialogConfiguration ( wx.Dialog ):
 		self.m_staticText3.Wrap( -1 )
 		fgSizer2.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.edit_snapeda_password = wx.TextCtrl( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.edit_snapeda_password = wx.TextCtrl( sbSizer2.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PASSWORD )
 		fgSizer2.Add( self.edit_snapeda_password, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
 		sbSizer2.Add( fgSizer2, 1, wx.EXPAND, 5 )
 		
 		
-		bSizer10.Add( sbSizer2, 1, wx.EXPAND, 5 )
+		bSizer10.Add( sbSizer2, 0, wx.EXPAND, 5 )
 		
 		m_sdbSizer1 = wx.StdDialogButtonSizer()
 		self.m_sdbSizer1OK = wx.Button( self, wx.ID_OK )

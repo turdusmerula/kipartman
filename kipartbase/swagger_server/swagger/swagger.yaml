@@ -1721,6 +1721,11 @@ definitions:
         type: "string"
       snapeda:
         type: "string"
+      snapeda_uid:
+        type: "string"
+      updated:
+        type: "string"
+        format: "date-time"
   UploadFileRef:
     type: "object"
     required:
@@ -1755,6 +1760,11 @@ definitions:
         type: "string"
       snapeda:
         type: "string"
+      snapeda_uid:
+        type: "string"
+      updated:
+        type: "string"
+        format: "date-time"
   DistributorData:
     type: "object"
     properties:

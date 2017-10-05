@@ -35,6 +35,8 @@ class ModelNew(object):
         'description': 'str',
         'comment': 'str',
         'snapeda': 'str',
+        'snapeda_uid': 'str',
+        'updated': 'datetime',
         'category': 'ModelCategoryRef',
         'image': 'UploadFileRef',
         'model': 'UploadFileRef'
@@ -45,12 +47,14 @@ class ModelNew(object):
         'description': 'description',
         'comment': 'comment',
         'snapeda': 'snapeda',
+        'snapeda_uid': 'snapeda_uid',
+        'updated': 'updated',
         'category': 'category',
         'image': 'image',
         'model': 'Model'
     }
 
-    def __init__(self, name=None, description=None, comment=None, snapeda=None, category=None, image=None, model=None):
+    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, category=None, image=None, model=None):
         """
         ModelNew - a model defined in Swagger
         """
@@ -59,6 +63,8 @@ class ModelNew(object):
         self._description = None
         self._comment = None
         self._snapeda = None
+        self._snapeda_uid = None
+        self._updated = None
         self._category = None
         self._image = None
         self._model = None
@@ -71,6 +77,10 @@ class ModelNew(object):
           self.comment = comment
         if snapeda is not None:
           self.snapeda = snapeda
+        if snapeda_uid is not None:
+          self.snapeda_uid = snapeda_uid
+        if updated is not None:
+          self.updated = updated
         if category is not None:
           self.category = category
         if image is not None:
@@ -161,6 +171,48 @@ class ModelNew(object):
         """
 
         self._snapeda = snapeda
+
+    @property
+    def snapeda_uid(self):
+        """
+        Gets the snapeda_uid of this ModelNew.
+
+        :return: The snapeda_uid of this ModelNew.
+        :rtype: str
+        """
+        return self._snapeda_uid
+
+    @snapeda_uid.setter
+    def snapeda_uid(self, snapeda_uid):
+        """
+        Sets the snapeda_uid of this ModelNew.
+
+        :param snapeda_uid: The snapeda_uid of this ModelNew.
+        :type: str
+        """
+
+        self._snapeda_uid = snapeda_uid
+
+    @property
+    def updated(self):
+        """
+        Gets the updated of this ModelNew.
+
+        :return: The updated of this ModelNew.
+        :rtype: datetime
+        """
+        return self._updated
+
+    @updated.setter
+    def updated(self, updated):
+        """
+        Sets the updated of this ModelNew.
+
+        :param updated: The updated of this ModelNew.
+        :type: datetime
+        """
+
+        self._updated = updated
 
     @property
     def category(self):

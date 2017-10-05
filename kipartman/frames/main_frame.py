@@ -50,7 +50,9 @@ class MainFrame(DialogMain):
     def onNotebookPageChanged( self, event ):
         if self.menus is None:
             return
-
+        if self.menu_bar is None:
+            return
+        
         self.menu_bar.SetMenus(self.menus)
 
         try:

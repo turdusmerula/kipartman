@@ -129,7 +129,10 @@ class Footprint(models.Model):
     comment = models.TextField(blank=True, default='')
     image = models.ForeignKey('File', related_name='image', on_delete=models.DO_NOTHING, null=True, default=None)
     footprint = models.ForeignKey('File', related_name='footprint', on_delete=models.DO_NOTHING, null=True, default=None)
+
     snapeda = models.TextField(null=True, blank=True)
+    snapeda_uid = models.TextField(null=True, blank=True, default=None)
+    updated = models.DateTimeField(null=True, blank=True, default=None)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
@@ -149,6 +152,8 @@ class Model(models.Model):
     image = models.ForeignKey('File', related_name='model_image', on_delete=models.DO_NOTHING, null=True, default=None)
     model = models.ForeignKey('File', related_name='model_file', on_delete=models.DO_NOTHING, null=True, default=None)
     snapeda = models.TextField(null=True, blank=True)
+    snapeda_uid = models.TextField(null=True, blank=True, default=None)
+    updated = models.DateTimeField(null=True, blank=True, default=None)
     childs = models.ManyToManyField('Model', related_name='model_childs', blank=True)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)

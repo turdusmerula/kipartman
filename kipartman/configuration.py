@@ -13,6 +13,9 @@ class Configuration(object):
         self.octopart_api_key = ''
         self.kipartbase = 'http://localhost:8200'
         
+        self.snapeda_user = ''
+        self.snapeda_password = ''
+        
         self.Load()
         
     def Load(self):
@@ -25,6 +28,8 @@ class Configuration(object):
                 print "Load configuration:", content
                 self.kipartbase = content['kipartbase']
                 self.octopart_api_key = content['octopart_api_key']
+                self.snapeda_user = content['snapeda_user']
+                self.snapeda_password = content['snapeda_password']
             except:
                 print "Error: load configuration failed"
 
@@ -33,9 +38,10 @@ class Configuration(object):
         with open(self.filename, 'w') as outfile:
             content['kipartbase'] = self.kipartbase
             content['octopart_api_key'] = self.octopart_api_key
-            json.dump(content, outfile, sort_keys=True,
-                  indent=4, separators=(',', ': '))
-        print "Save configuration:", content
+            content['snapeda_user'] = self.snapeda_user
+            content['snapeda_password'] = self.snapeda_password
+            json.dump(content, outfile, sort_keys=True, indent=4, separators=(',', ': '))
+#        print "Save configuration:", content
 
 configuration=Configuration()
 configuration.Load()

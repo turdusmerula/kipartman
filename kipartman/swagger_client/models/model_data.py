@@ -34,17 +34,21 @@ class ModelData(object):
         'name': 'str',
         'description': 'str',
         'comment': 'str',
-        'snapeda': 'str'
+        'snapeda': 'str',
+        'snapeda_uid': 'str',
+        'updated': 'datetime'
     }
 
     attribute_map = {
         'name': 'name',
         'description': 'description',
         'comment': 'comment',
-        'snapeda': 'snapeda'
+        'snapeda': 'snapeda',
+        'snapeda_uid': 'snapeda_uid',
+        'updated': 'updated'
     }
 
-    def __init__(self, name=None, description=None, comment=None, snapeda=None):
+    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None):
         """
         ModelData - a model defined in Swagger
         """
@@ -53,6 +57,8 @@ class ModelData(object):
         self._description = None
         self._comment = None
         self._snapeda = None
+        self._snapeda_uid = None
+        self._updated = None
 
         if name is not None:
           self.name = name
@@ -62,6 +68,10 @@ class ModelData(object):
           self.comment = comment
         if snapeda is not None:
           self.snapeda = snapeda
+        if snapeda_uid is not None:
+          self.snapeda_uid = snapeda_uid
+        if updated is not None:
+          self.updated = updated
 
     @property
     def name(self):
@@ -146,6 +156,48 @@ class ModelData(object):
         """
 
         self._snapeda = snapeda
+
+    @property
+    def snapeda_uid(self):
+        """
+        Gets the snapeda_uid of this ModelData.
+
+        :return: The snapeda_uid of this ModelData.
+        :rtype: str
+        """
+        return self._snapeda_uid
+
+    @snapeda_uid.setter
+    def snapeda_uid(self, snapeda_uid):
+        """
+        Sets the snapeda_uid of this ModelData.
+
+        :param snapeda_uid: The snapeda_uid of this ModelData.
+        :type: str
+        """
+
+        self._snapeda_uid = snapeda_uid
+
+    @property
+    def updated(self):
+        """
+        Gets the updated of this ModelData.
+
+        :return: The updated of this ModelData.
+        :rtype: datetime
+        """
+        return self._updated
+
+    @updated.setter
+    def updated(self, updated):
+        """
+        Sets the updated of this ModelData.
+
+        :param updated: The updated of this ModelData.
+        :type: datetime
+        """
+
+        self._updated = updated
 
     def to_dict(self):
         """

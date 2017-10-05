@@ -18,7 +18,6 @@ class DataModelSnapedaPart(helper.tree.TreeItem):
         self.part = part
             
     def GetValue(self, col):
-        print self.part.json
         vMap = { 
             0 : self.part.manufacturer(),
             1 : self.part.name(),
@@ -27,7 +26,6 @@ class DataModelSnapedaPart(helper.tree.TreeItem):
             4 : self.part.short_description(),
             5 : self.part._links().self().href(),
         }
-        print "---", vMap[col]
         return vMap[col]
 
             

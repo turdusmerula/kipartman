@@ -28,6 +28,10 @@ def serialize_ModelData(fmodel, model=None):
     model.comment = fmodel.comment
     if fmodel.snapeda:
         model.snapeda = fmodel.snapeda
+    if fmodel.snapeda_uid:
+        model.snapeda_uid = fmodel.snapeda_uid
+    if fmodel.updated:
+        model.updated = fmodel.updated
     return model
 
 def serialize_Model(fmodel, model=None):
@@ -50,7 +54,12 @@ def deserialize_ModelData(model, fmodel=None):
     fmodel.name = model.name
     fmodel.description = model.description
     fmodel.comment = model.comment
-    fmodel.snapeda = model.snapeda
+    if model.snapeda:
+        fmodel.snapeda = model.snapeda
+    if model.snapeda_uid:
+        fmodel.snapeda_uid = model.snapeda_uid
+    if model.updated:
+        fmodel.updated = model.updated
     return fmodel
 
 

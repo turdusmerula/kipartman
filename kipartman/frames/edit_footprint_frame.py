@@ -9,6 +9,12 @@ import webbrowser
 import cfscrape
 import rest
 from configuration import Configuration
+from dialogs.dialog_snapeda_error import DialogSnapedaError
+from snapeda.connection import snapeda_connection
+from snapeda.queries import DownloadQuery
+import zipfile
+import glob, os
+import datetime
 
 EditFootprintApplyEvent, EVT_EDIT_FOOTPRINT_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditFootprintCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -122,31 +128,76 @@ class EditFootprintFrame(PanelEditFootprint):
         snapeda = event.data
         if not snapeda:
             return
-#        res = wx.MessageBox(format(e), 'Open SnapEDA to the selected ', wx.YES | wx.NO | wx.ICON_QUESTION)
+        print snapeda.json
+        
         self.edit_footprint_name.Value = snapeda.part_number()
         self.edit_footprint_description.Value = snapeda.short_description()
+        self.snapeda_uid = snapeda.uniqueid()
+        
+        try:
+            download = DownloadQuery()
+            download.get(part_number=snapeda.part_number(), 
+                               manufacturer=snapeda.manufacturer(),
+                               uniqueid=snapeda.uniqueid(),
+                               has_symbol=snapeda.has_symbol(),
+                               has_footprint=snapeda.has_footprint())
+            if download.error():
+                wx.MessageBox(download.error(), 'Error downloading footprint', wx.OK | wx.ICON_ERROR)
+                
+        except:
+            DialogSnapedaError(self).ShowModal()
+            return
+        
         self.button_open_url_snapeda.Label = "https://www.snapeda.com"+snapeda._links().self().href()
+
         # download image
         if snapeda.image()!='':
             try:
-                filename = tempfile.gettempdir()+'/'+os.path.basename(snapeda.image())
+                filename = os.path.join(tempfile.gettempdir(), os.path.basename(snapeda.image()))
                 content = scraper.get(snapeda.image()).content
                 with open(filename, 'wb') as outfile:
                     outfile.write(content)
                 outfile.close()
-                
-                self.button_open_file_image.Label = filename
+                 
+                self.button_open_file_image.Label = os.path.basename(filename)
                 self.local_file_image = filename
                 self.SetImage(filename)
-            except:
-                print "%s: Error loading" % snapeda.image()
-            
-        self.SetImage(self.button_open_file_image.Label)
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error loading image', wx.OK | wx.ICON_ERROR)
+
+        # download footprint
+        if download.url() and download.url()!='':
+            try:
+                filename = os.path.join(tempfile.gettempdir(), os.path.basename(download.url()))
+                content = scraper.get(download.url()).content
+                with open(filename, 'wb') as outfile:
+                    outfile.write(content)
+                outfile.close()
+            except :
+                wx.MessageBox(download.url(), 'Error loading footprint', wx.OK | wx.ICON_ERROR)
+                return
+                
+            # unzip file
+            try:
+                zip_ref = zipfile.ZipFile(filename, 'r')
+                zip_ref.extractall(filename+".tmp")
+                zip_ref.close()
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error unziping footprint', wx.OK | wx.ICON_ERROR)
+
+            for file in glob.glob(filename+".tmp/*"):
+                if file.endswith(".lib"):
+                    self.button_open_file_footprint.Label = os.path.basename(file)
+                    self.local_file_footprint = file
 
     def onButtonOpenFileImageClick( self, event ):
+        url = None
         configuration = Configuration()
-        if self.button_open_file_image.Label!="<None>":
+        if self.local_file_image:
+            url = self.local_file_image
+        elif self.button_open_file_image.Label!="<None>":
             url = configuration.kipartbase+'/file'+self.footprint.image.storage_path
+        if url:    
             webbrowser.open(url)
 
     def onButtonAddFileImageClick( self, event ):
@@ -177,8 +228,11 @@ class EditFootprintFrame(PanelEditFootprint):
 
     def onButtonOpenFileFootprintClick( self, event ):
         configuration = Configuration()
-        if self.button_open_file_footprint.Label!="<None>":
+        if self.local_file_footprint:
+            url = self.local_file_footprint
+        elif self.button_open_file_footprint.Label!="<None>":
             url = configuration.kipartbase+'/file'+self.footprint.footprint.storage_path
+        if url:    
             webbrowser.open(url)
     
     def onButtonAddFileFootprintClick( self, event ):
@@ -229,6 +283,9 @@ class EditFootprintFrame(PanelEditFootprint):
             return
         
         footprint.snapeda = self.button_open_url_snapeda.Label
+        footprint.snapeda_uid = self.snapeda_uid
+        footprint.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        
         # send result event
         event = EditFootprintApplyEvent(data=footprint)
         wx.PostEvent(self, event)
