@@ -235,7 +235,6 @@ class BomFrame(PanelBom):
     def onToolOpenBomClicked( self, event ):
         if self.bom.saved==False:
             res = wx.MessageDialog(self, "%s modified, save it?" % self.bom.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
-            print res
             if res==wx.ID_YES:
                 self.onToolSaveBomClicked(event)
 

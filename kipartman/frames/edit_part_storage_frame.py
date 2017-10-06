@@ -12,7 +12,7 @@ class EditPartStorageFrame(DialogEditPartStorage):
         self.Title = "Add storage"
         self.button_validate.Label = "Add"
         self.part = part
-        self.part_storage = rest.model.PartStorage()
+        self.part_storage = rest.model.PartStorage(quantity=0)
  
         self.button_storage.Label = "<None>"
         self.storage = None

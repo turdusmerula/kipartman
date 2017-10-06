@@ -1,26 +1,8 @@
-#!/usr/bin/python
-
-# Convert a footprint library from one format to another, e.g. legacy to pretty.
-
-# 1) Build target _pcbnew after enabling scripting in cmake.
-# $ make _pcbnew
-
-# 2) Changed dir to pcbnew
-# $ cd pcbnew
-# $ pwd
-# build/pcbnew
-
-# 3) Entered following command line, script takes to arguments: oldLibPath & newLibPath
-# $ PYTHONPATH=. <path_to>/lib_convert.py /usr/local/share/kicad/modules/smd_dil.mod /tmp/smd_dil.pretty
-
-# 4) inspect one footprint found in new librarypath /tmp/smd_dil.pretty
-# $ less /tmp/smd_dil.pretty/msoic-10.kicad_mod
-
-
-from __future__ import print_function
+#from __future__ import print_function
 from pcbnew import *
 import sys
-import shutil
+import zipfile
+import os
 
 def convert_mod_to_pretty(src_libpath, dst_libpath):
 
@@ -44,6 +26,14 @@ def convert_mod_to_pretty(src_libpath, dst_libpath):
         dst_plugin.FootprintSave( dst_libpath, module )
     
     # create zip file with pretty
-    shutil.make_archive(dst_libpath+".zip", 'zip', dst_libpath)
-
+    zf = zipfile.ZipFile("%s.zip" % (dst_libpath), "w", zipfile.ZIP_DEFLATED)
+    abs_src = os.path.abspath(dst_libpath)
+    for dirname, subdirs, files in os.walk(dst_libpath):
+        for filename in files:
+            absname = os.path.abspath(os.path.join(dirname, filename))
+            arcname = absname[len(abs_src) + 1:]
+            print 'zipping %s as %s' % (os.path.join(dirname, filename), arcname)
+            zf.write(absname, arcname)
+    zf.close()
+    
     return dst_libpath+".zip"

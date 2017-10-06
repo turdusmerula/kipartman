@@ -603,7 +603,7 @@ class PartsFrame(PanelParts):
         sleep(1)    # only one request per second allowed
 
         for octopart in q.results():
-            print octopart.json
+            print "octopart:", octopart.json
             if octopart.item().uid()==part.octopart_uid:
                 print "Refresh", part.octopart
                 self.octopart_to_part(octopart, part)
@@ -614,7 +614,6 @@ class PartsFrame(PanelParts):
     
     def octopart_to_part(self, octopart, part):
         # convert octopart to part values
-        print "octopart:", octopart.json
         octopart_extractor = OctopartExtractor(octopart)
 
         # import part fields

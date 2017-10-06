@@ -609,10 +609,10 @@ class BuyFrame(PanelBuy):
 
     def needed_bom_parts(self):
         parts = []
-        print "---- Needed bom parts: "
+        print "Needed bom parts: "
         for bom_part in self.tree_bom_parts_manager.data:
             if bom_part.provisioning()<bom_part.needed():
-                print bom_part.bom_part.id, "provisionning:", bom_part.provisioning(), "needed:", bom_part.needed()
+                print "-", bom_part.bom_part.id, "provisionning:", bom_part.provisioning(), "needed:", bom_part.needed()
                 parts.append(rest.api.find_part(bom_part.bom_part.id, with_distributors=True, with_offers=True, with_childs=True, with_storages=True))
         return parts
     
@@ -760,7 +760,7 @@ class BuyFrame(PanelBuy):
         for bom_part in bom_parts:
             equivalent_parts = self.get_equivalent_parts(bom_part)
             quantity = self.tree_bom_parts_manager.FindBomPart(bom_part.id).needed()
-            print "- ", bom_part.name, quantity
+            print "-", bom_part.name, quantity
             
             best_offer = None
             best_part = None
@@ -858,7 +858,6 @@ class BuyFrame(PanelBuy):
     def onToolOpenBasketClicked( self, event ):
         if self.basket.saved==False:
             res = wx.MessageDialog(self, "%s modified, save it?" % self.basket.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
-            print res
             if res==wx.ID_YES:
                 self.onToolSaveBasketClicked(event)
 

@@ -394,7 +394,6 @@ class StoragesFrame(PanelStorages):
             self.tree_storages_manager.DeleteStorage(source_storage)
             self.tree_storages_manager.AppendStorage(storage)
         except Exception as e:
-            print "aaaaaaaaaaa"
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         return wx.DragMove
 

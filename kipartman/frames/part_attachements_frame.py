@@ -15,7 +15,7 @@ class DataModelPartAttachement(helper.tree.TreeContainerItem):
         self.attachement = attachement
 
     def GetValue(self, col):
-        url = configuration.kipartbase+'/file'+self.attachement.storage_path
+        url = os.path.join(configuration.kipartbase, 'file', self.attachement.storage_path)
         vMap = { 
             0 : self.attachement.source_name,
             1 : self.attachement.description,
@@ -62,7 +62,7 @@ class PartAttachementsFrame(PanelPartAttachements):
                 self.tree_attachements_manager.AppendItem(None, DataModelPartAttachement(attachement))
             
     def onButtonAddAttachementClick( self, event ):
-        attachement = EditAttachementFrame(self).addAttachement(rest.model.UploadFile)
+        attachement = EditAttachementFrame(self).addAttachement(rest.model.PartAttachement)
         if attachement:
             if self.part.attachements is None:
                 self.part.attachements = []
@@ -83,7 +83,6 @@ class PartAttachementsFrame(PanelPartAttachements):
             return
         attachementobj = self.tree_attachements_manager.ItemToObject(item)
         self.part.attachements.remove(attachementobj.attachement)
-        print self.part.attachements
         self.tree_attachements_manager.DeleteItem(None, attachementobj)
         
     def onTreeAttachementsContextMenu( self, event ):
@@ -96,5 +95,5 @@ class PartAttachementsFrame(PanelPartAttachements):
         attachementobj = self.tree_attachements_manager.ItemToObject(item)
 
         configuration = Configuration()
-        url = configuration.kipartbase+'/file'+attachementobj.attachement.storage_path
+        url = os.path.join(configuration.kipartbase, 'file', attachementobj.attachement.storage_path)
         webbrowser.open(url)

@@ -26,7 +26,6 @@ class OctopartExtractor(object):
             return None
         if spec.metadata().unit():
             try:
-#                print "---", symbol, rest.api.find_unit_prefixes(symbol=symbol)[0]
                 return rest.api.find_unit_prefixes(symbol=symbol)[0]
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)

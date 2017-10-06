@@ -40,8 +40,6 @@ class FileStorage(Storage):
         return levels
 
     def add_file(self, upfile):
-        id = str(uuid.uuid1())
-        
         # get content
         file = tempfile.NamedTemporaryFile()
         upfile.save(file)
@@ -50,7 +48,6 @@ class FileStorage(Storage):
         # get md5
         md5 = hashlib.md5(file.name).hexdigest()
         levels = self.get_sublevels(md5)
-        print md5, levels    
         
         # get current sublevel
         storage_path = ''
@@ -59,12 +56,16 @@ class FileStorage(Storage):
         dir = self.storage_path
         for level in levels:
             dir = os.path.join(dir, level)
-            storage_path = storage_path+'/'+level
+            storage_path = os.path.join(storage_path, level)
             if not os.path.exists(dir):
                 os.makedirs(dir)
-        storage_path = storage_path+'/'+md5
+        dir = os.path.join(dir, md5)
+        storage_path = os.path.join(storage_path, md5)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        storage_path = os.path.join(storage_path, upfile.filename)
         # copy file
-        shutil.copyfile(file.name, os.path.join(dir, md5))
+        shutil.copyfile(file.name, os.path.join(dir, upfile.filename))
 
         # add file to db
         file = models.File(source_name=upfile.filename, storage_path=storage_path)

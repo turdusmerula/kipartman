@@ -379,7 +379,6 @@ class FootprintsFrame(PanelFootprints):
             self.tree_footprints_manager.DeleteFootprint(source_footprint)
             self.tree_footprints_manager.AppendFootprint(footprint)
         except Exception as e:
-            print "aaaaaaaaaaa"
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         return wx.DragMove
 

@@ -1651,7 +1651,6 @@ definitions:
     allOf:
     - $ref: "#/definitions/StorageData"
     - required:
-      - "id"
       - "quantity"
       properties:
         id:

@@ -149,7 +149,6 @@ class EditPartFrame(PanelEditPart):
         # import part fields
         self.part.name = octopart.item().mpn()
         self.part.description = octopart.snippet()
-        print "----", octopart.snippet()
         # set field octopart to indicatethat part was imported from octopart
         self.part.octopart = octopart.item().mpn()
         self.part.octopart_uid = octopart.item().uid()

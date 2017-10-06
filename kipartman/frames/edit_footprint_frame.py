@@ -21,7 +21,7 @@ EditFootprintCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewE
 
 scraper = cfscrape.create_scraper()
 
-none_image = os.path.abspath('resources/none-128x128.png')
+none_image = os.path.abspath(os.path.join('resources', 'none-128x128.png'))
 
 def NoneValue(value, default):
     if value:
@@ -52,7 +52,7 @@ class EditFootprintFrame(PanelEditFootprint):
             try:
                 self.button_open_file_image.Label = footprint.image.source_name
                 try:
-                    self.SetImage(configuration.kipartbase+'/file'+footprint.image.storage_path)
+                    self.SetImage(os.path.join(configuration.kipartbase, 'file', footprint.image.storage_path))
                 except Exception as e:
                     wx.MessageBox(format(e), "Error, failed to load '%s'" % (configuration.kipartbase+footprint.image.storage_path), wx.OK | wx.ICON_ERROR)
             except:
@@ -93,7 +93,7 @@ class EditFootprintFrame(PanelEditFootprint):
         try:
             data = urllib2.urlopen(filename)
             print "Load url:", filename
-            f = tempfile.gettempdir()+'/'+os.path.basename(filename)
+            f = os.path.join(tempfile.gettempdir(), os.path.basename(filename))
             with open(f, 'wb') as outfile:
                 outfile.write(data.read())
             outfile.close()
@@ -196,7 +196,7 @@ class EditFootprintFrame(PanelEditFootprint):
         if self.local_file_image:
             url = self.local_file_image
         elif self.button_open_file_image.Label!="<None>":
-            url = configuration.kipartbase+'/file'+self.footprint.image.storage_path
+            url = os.path.join(configuration.kipartbase, 'file', self.footprint.image.storage_path)
         if url:    
             webbrowser.open(url)
 
@@ -231,7 +231,7 @@ class EditFootprintFrame(PanelEditFootprint):
         if self.local_file_footprint:
             url = self.local_file_footprint
         elif self.button_open_file_footprint.Label!="<None>":
-            url = configuration.kipartbase+'/file'+self.footprint.footprint.storage_path
+            url = os.path.join(configuration.kipartbase, 'file', self.footprint.footprint.storage_path)
         if url:    
             webbrowser.open(url)
     

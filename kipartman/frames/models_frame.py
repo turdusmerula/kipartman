@@ -379,7 +379,6 @@ class ModelsFrame(PanelModels):
             self.tree_models_manager.DeleteModel(source_model)
             self.tree_models_manager.AppendModel(model)
         except Exception as e:
-            print "aaaaaaaaaaa"
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         return wx.DragMove
 

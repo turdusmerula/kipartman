@@ -37,7 +37,7 @@ class EditAttachementFrame(DialogEditAttachement):
     def onButtonOpenFileClick( self, event ):
         configuration = Configuration()
         if self.button_open_file.Label!="<None>":
-            url = configuration.kipartbase+'/file'+self.attachement.storage_path
+            url = os.path.join(configuration.kipartbase, 'file', self.attachement.storage_path)
             webbrowser.open(url)
     
     def onButtonAddFileClick( self, event ):
@@ -66,7 +66,7 @@ class EditAttachementFrame(DialogEditAttachement):
             elif self.local_file:
                 attachement = rest.api.add_upload_file(upfile=self.local_file)
                 if self.attachement is None:
-                    self.attachement = rest.model.PartAttachement()
+                    self.attachement = rest.model.PartAttachement(id=attachement.id)
                 self.attachement.id = attachement.id
                 self.attachement.source_name = attachement.source_name
                 self.attachement.storage_path = attachement.storage_path

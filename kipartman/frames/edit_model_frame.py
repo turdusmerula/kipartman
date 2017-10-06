@@ -22,7 +22,7 @@ EditModelCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewEvent
 
 scraper = cfscrape.create_scraper()
 
-none_image = os.path.abspath('resources/none-128x128.png')
+none_image = os.path.abspath(os.path.join('resources', 'none-128x128.png'))
 
 def NoneValue(value, default):
     if value:
@@ -53,7 +53,7 @@ class EditModelFrame(PanelEditModel):
             try:
                 self.button_open_file_image.Label = model.image.source_name
                 try:
-                    self.SetImage(configuration.kipartbase+'/file'+model.image.storage_path)
+                    self.SetImage(os.path.join(configuration.kipartbase, 'file', model.image.storage_path))
                 except Exception as e:
                     wx.MessageBox(format(e), "Error, failed to load '%s'" % (configuration.kipartbase+model.image.storage_path), wx.OK | wx.ICON_ERROR)
             except:
@@ -94,7 +94,7 @@ class EditModelFrame(PanelEditModel):
         try:
             data = urllib2.urlopen(filename)
             print "Load url:", filename
-            f = tempfile.gettempdir()+'/'+os.path.basename(filename)
+            f = os.path.join(tempfile.gettempdir(), os.path.basename(filename))
             with open(f, 'wb') as outfile:
                 outfile.write(data.read())
             outfile.close()
@@ -129,7 +129,7 @@ class EditModelFrame(PanelEditModel):
         snapeda = event.data
         if not snapeda:
             return
-        print snapeda.json
+        print "snapeda:", snapeda.json
         
         self.edit_model_name.Value = snapeda.part_number()
         self.edit_model_description.Value = snapeda.short_description()
@@ -205,7 +205,7 @@ class EditModelFrame(PanelEditModel):
         if self.local_file_image:
             url = self.local_file_image
         elif self.button_open_file_image.Label!="<None>":
-            url = configuration.kipartbase+'/file'+self.model.image.storage_path
+            url = os.path.join(configuration.kipartbase, 'file', self.model.image.storage_path)
         if url:    
             webbrowser.open(url)
 
@@ -241,7 +241,7 @@ class EditModelFrame(PanelEditModel):
         if self.local_file_model:
             url = self.local_file_model
         elif self.button_open_file_model.Label!="<None>":
-            url = configuration.kipartbase+'/file'+self.model.model.storage_path
+            url = os.path.join(configuration.kipartbase, 'file', self.model.model.storage_path)
         if url:    
             webbrowser.open(url)
     
