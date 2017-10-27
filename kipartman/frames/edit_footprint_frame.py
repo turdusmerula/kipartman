@@ -151,10 +151,16 @@ class EditFootprintFrame(PanelEditFootprint):
         self.button_open_url_snapeda.Label = "https://www.snapeda.com"+snapeda._links().self().href()
 
         # download image
-        if snapeda.image()!='':
+        image_url = ""
+        if len(snapeda.models())>0:
+            if snapeda.models()[0].package_medium():
+                image_url = snapeda.models()[0].package_medium().url()
+        if image_url=="" and snapeda.image()!='':
+            image_url = snapeda.image()
+        if image_url!='':
             try:
-                filename = os.path.join(tempfile.gettempdir(), os.path.basename(snapeda.image()))
-                content = scraper.get(snapeda.image()).content
+                filename = os.path.join(tempfile.gettempdir(), os.path.basename(image_url))
+                content = scraper.get(image_url).content
                 with open(filename, 'wb') as outfile:
                     outfile.write(content)
                 outfile.close()

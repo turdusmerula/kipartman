@@ -16,21 +16,23 @@ class DataModelSnapedaPart(helper.tree.TreeItem):
     def __init__(self, part):
         super(DataModelSnapedaPart, self).__init__()
         self.part = part
-            
+    
     def GetValue(self, col):
+        package_type = ""
+        if self.part.package() and self.part.package().name():
+            package_type = self.part.package().name()
         vMap = { 
             0 : self.part.manufacturer(),
             1 : self.part.name(),
-            2 : str(NoneValue(self.part.pin_count(), '')),
-            3 : self.part.package_type(),
-            4 : self.part.short_description(),
-            5 : self.part._links().self().href(),
+            2 : package_type,
+            3 : self.part.short_description(),
+            4 : self.part._links().self().href(),
         }
         return vMap[col]
 
             
 class SelectSnapedaFrame(PanelSelectSnapeda):
-    def __init__(self, parent, initial_search=None): 
+    def __init__(self, parent, initial_search=None, filter=None): 
         """
         Create a popup window from frame
         :param parent: owner
@@ -39,12 +41,12 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
         super(SelectSnapedaFrame, self).__init__(parent)
 
         self.search_snapeda.Value = initial_search
-    
+        self.filter = filter 
+        
         # create snapedas list
         self.tree_snapeda_manager = helper.tree.TreeManager(self.tree_snapedas)
         self.tree_snapeda_manager.AddTextColumn("Manufacturer")
         self.tree_snapeda_manager.AddTextColumn("Part")
-        self.tree_snapeda_manager.AddIntegerColumn("Pin Count")
         self.tree_snapeda_manager.AddTextColumn("Package Type")
         self.tree_snapeda_manager.AddTextColumn("Description")
         self.tree_snapeda_manager.AddTextColumn("URL")
@@ -67,7 +69,7 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
             q.get(self.search_snapeda.Value)
             
             for snapeda in q.results():
-                if snapeda.has_footprint():
+                if self.filter is None or self.filter(snapeda)==False:
                     self.tree_snapeda_manager.AppendItem(None, DataModelSnapedaPart(snapeda))
 
     # Virtual event handlers, overide them in your derived class

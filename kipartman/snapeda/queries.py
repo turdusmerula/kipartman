@@ -7,7 +7,7 @@ from connection import snapeda_connection
 scraper = cfscrape.create_scraper()
 
 class SnapedaQuery(object):
-    baseurl = "https://www.snapeda.com/api/v1/"
+    baseurl = "https://www.snapeda.com/api/v1/parts/"
     start = 0
     limit = 50
     
@@ -31,7 +31,7 @@ class SnapedaQuery(object):
 
         # use scrapper to avoid cloudflare anti-bot protection
         data = scraper.post(url, data=kwargs).content
-
+        print "--", url, kwargs
         return json.loads(data)
 
 
@@ -68,7 +68,7 @@ class PartsQuery(SnapedaQuery):
         return list
 
 class DownloadQuery(SnapedaQuery):
-    path = "parts/download"
+    path = "download"
     
     def get(self, part_number, manufacturer, uniqueid, has_symbol, has_footprint):
                 

@@ -1,5 +1,6 @@
 from dialogs.panel_edit_model import PanelEditModel
-from frames.select_snapeda_frame import SelectSnapedaFrame, EVT_SELECT_SNAPEDA_OK_EVENT
+from frames.select_snapeda_frame import EVT_SELECT_SNAPEDA_OK_EVENT
+from frames.select_snapeda_model_frame import SelectSnapedaModelFrame
 from frames.dropdown_dialog import DropdownDialog
 import wx.lib.newevent
 import urllib2
@@ -121,7 +122,7 @@ class EditModelFrame(PanelEditModel):
     def onButtonSnapedaClick( self, event ):
         # create a snapeda frame
         # dropdown frame
-        dropdown = DropdownDialog(self.button_snapeda, SelectSnapedaFrame, self.edit_model_name.Value)
+        dropdown = DropdownDialog(self.button_snapeda, SelectSnapedaModelFrame, self.edit_model_name.Value)
         dropdown.panel.Bind( EVT_SELECT_SNAPEDA_OK_EVENT, self.onSelectSnapedaFrameOk )
         dropdown.Dropdown()
 
@@ -152,10 +153,16 @@ class EditModelFrame(PanelEditModel):
         self.button_open_url_snapeda.Label = "https://www.snapeda.com"+snapeda._links().self().href()
 
         # download image
-        if snapeda.image()!='':
+        image_url = ""
+        if len(snapeda.models())>0:
+            if snapeda.models()[0].symbol_medium():
+                image_url = snapeda.models()[0].symbol_medium().url()
+        if image_url=="" and snapeda.image()!='':
+            image_url = snapeda.image()
+        if image_url!="":
             try:
-                filename = os.path.join(tempfile.gettempdir(), os.path.basename(snapeda.image()))
-                content = scraper.get(snapeda.image()).content
+                filename = os.path.join(tempfile.gettempdir(), os.path.basename(image_url))
+                content = scraper.get(image_url).content
                 with open(filename, 'wb') as outfile:
                     outfile.write(content)
                 outfile.close()
