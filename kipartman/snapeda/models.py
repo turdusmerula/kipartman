@@ -70,9 +70,10 @@ class SearchResult(Model):
         return self.json["urlname"]
 
     def models(self):
-        list = [] 
-        for item in self.json["models"]:
-            list.append(ResultModel(item))
+        list = []
+        if(self.json.has_key("models")):
+            for item in self.json["models"]:
+                list.append(ResultModel(item))
         return list
 
 class Package(Model):

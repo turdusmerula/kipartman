@@ -157,8 +157,8 @@ class EditModelFrame(PanelEditModel):
         if len(snapeda.models())>0:
             if snapeda.models()[0].symbol_medium():
                 image_url = snapeda.models()[0].symbol_medium().url()
-        if image_url=="" and snapeda.image()!='':
-            image_url = snapeda.image()
+        if image_url=="" and len(snapeda.coverart())>0:
+            image_url = snapeda.coverart()[0].url()
         if image_url!="":
             try:
                 filename = os.path.join(tempfile.gettempdir(), os.path.basename(image_url))
