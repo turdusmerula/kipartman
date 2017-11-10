@@ -148,7 +148,7 @@ class PanelEditModel ( wx.Panel ):
 		self.Layout()
 		self.menu_kicad = wx.Menu()
 		self.menu_rebuild_models = wx.MenuItem( self.menu_kicad, wx.ID_ANY, u"Rebuild models", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_kicad.Append( self.menu_rebuild_models )
+		self.menu_kicad.AppendItem( self.menu_rebuild_models )
 		
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelEditModelOnContextMenu ) 
 		

@@ -181,7 +181,7 @@ class TreeManager(object):
 
         # create drag and drop targets
         self.drop_targets = []
-        self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
+        self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat().GetType()))
         self.tree_view.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
         self.tree_view.SetDropTarget(TreeDropTarget(self))
 

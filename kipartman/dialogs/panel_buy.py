@@ -61,7 +61,7 @@ class PanelBuy ( wx.Panel ):
 		self.button_remove_bom = wx.BitmapButton( self.m_panel311, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer18.Add( self.button_remove_bom, 0, wx.ALL, 5 )
 		
-		self.spin_bom_boards = wx.SpinCtrl( self.m_panel311, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 9999999999, 0 )
+		self.spin_bom_boards = wx.SpinCtrl( self.m_panel311, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 999999999, 0 )
 		bSizer18.Add( self.spin_bom_boards, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -151,7 +151,7 @@ class PanelBuy ( wx.Panel ):
 		self.button_add_wish_parts = wx.BitmapButton( self.m_panel3, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer112.Add( self.button_add_wish_parts, 0, wx.ALL, 5 )
 		
-		self.spin_add_wish_parts = wx.SpinCtrl( self.m_panel3, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 9999999999, 0 )
+		self.spin_add_wish_parts = wx.SpinCtrl( self.m_panel3, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 999999999, 0 )
 		bSizer112.Add( self.spin_add_wish_parts, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -216,16 +216,16 @@ class PanelBuy ( wx.Panel ):
 		self.Layout()
 		self.menu_prices = wx.Menu()
 		self.menu_item_prices_view_all = wx.MenuItem( self.menu_prices, wx.ID_ANY, u"View all prices", wx.EmptyString, wx.ITEM_CHECK )
-		self.menu_prices.Append( self.menu_item_prices_view_all )
+		self.menu_prices.AppendItem( self.menu_item_prices_view_all )
 		self.menu_item_prices_view_all.Check( True )
 		
 		self.menu_prices.AppendSeparator()
 		
 		self.menu_item_prices_select_bestprice = wx.MenuItem( self.menu_prices, wx.ID_ANY, u"Select best price", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_prices.Append( self.menu_item_prices_select_bestprice )
+		self.menu_prices.AppendItem( self.menu_item_prices_select_bestprice )
 		
 		self.menu_item_prices_automatic_order = wx.MenuItem( self.menu_prices, wx.ID_ANY, u"Automatic complete order", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_prices.Append( self.menu_item_prices_automatic_order )
+		self.menu_prices.AppendItem( self.menu_item_prices_automatic_order )
 		
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelBuyOnContextMenu ) 
 		
