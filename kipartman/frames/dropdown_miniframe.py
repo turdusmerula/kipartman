@@ -17,7 +17,7 @@ class DropdownMiniFrame(wx.MiniFrame):
         super(DropdownMiniFrame, self).__init__(parent)
         self.panel = frame(self, initial)
         
-        self.SetSize(0, 0, self.panel.GetSize().x, self.panel.GetSize().y)
+        self.SetSize(self.panel.GetSize())
     
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add( self.panel, 1, wx.EXPAND, 5 )

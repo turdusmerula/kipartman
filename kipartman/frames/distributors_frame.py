@@ -130,7 +130,8 @@ class DistributorsFrame(PanelDistributors):
     def onApplyButtonClick( self, event ):
         
         if self.distributor is None:
-            distributor = rest.model.Distributor()
+            distributor = rest.model.DistributorNew()
+            distributor.allowed = True
         else:
             distributor = self.distributor
         

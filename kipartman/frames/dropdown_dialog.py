@@ -16,9 +16,8 @@ class DropdownDialog(wx.Dialog):
 
         super(DropdownDialog, self).__init__(parent, style=wx.RESIZE_BORDER)
         self.panel = frame(self, initial)
+        self.SetSize( self.panel.GetSize())
         
-        self.SetSize(0, 0, self.panel.GetSize().x, self.panel.GetSize().y)
-    
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add( self.panel, 1, wx.EXPAND, 5 )
         self.SetSizer(sizer)
