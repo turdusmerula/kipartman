@@ -70,8 +70,10 @@ class TreeContainerLazyItem(TreeItem):
             return
         # remove dummy item
         parent = manager.model.ObjectToItem(self)
-        item = manager.model.ObjectToItem(self.childs[0])
-        manager.model.ItemDeleted(parent, item)
+        #TODO: WorkAround: Part Expander expansion with no children
+        if len(self.childs)>0 :
+            item = manager.model.ObjectToItem(self.childs[0])
+            manager.model.ItemDeleted(parent, item)
         # empty child list
         self.childs = []
         self.loaded = True
