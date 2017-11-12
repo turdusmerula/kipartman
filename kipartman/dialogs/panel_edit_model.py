@@ -133,7 +133,14 @@ class PanelEditModel ( wx.Panel ):
 		self.m_panel8 = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.bitmap_edit_model = wx.StaticBitmap( self.m_panel8, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		#TODO: Temporary fix wxNullBitmap Intialization causes bmp.IsOk() assertion failures
+		# Extablish alternative to using wx.NullBitmap
+		#
+		theBitmap = wx.Bitmap("resources/none-128x128.png")
+		self.bitmap_edit_model = wx.StaticBitmap(self.m_panel8,
+		wx.ID_ANY, theBitmap, wx.DefaultPosition, wx.DefaultSize, 0)
+		# self.bitmap_edit_model = wx.StaticBitmap( self.m_panel8, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		
 		bSizer16.Add( self.bitmap_edit_model, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		

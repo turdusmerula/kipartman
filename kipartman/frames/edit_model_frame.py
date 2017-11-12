@@ -54,7 +54,9 @@ class EditModelFrame(PanelEditModel):
             try:
                 self.button_open_file_image.Label = model.image.source_name
                 try:
-                    self.SetImage(os.path.join(configuration.kipartbase, 'file', model.image.storage_path))
+                    url = os.path.join(configuration.kipartbase, 'file', self.model.image.storage_path)
+                    url = url.replace('\\','/') #Work around for running on Windows                    
+                    self.SetImage(url)
                 except Exception as e:
                     wx.MessageBox(format(e), "Error, failed to load '%s'" % (configuration.kipartbase+model.image.storage_path), wx.OK | wx.ICON_ERROR)
             except:
@@ -213,6 +215,7 @@ class EditModelFrame(PanelEditModel):
             url = self.local_file_image
         elif self.button_open_file_image.Label!="<None>":
             url = os.path.join(configuration.kipartbase, 'file', self.model.image.storage_path)
+            url = url.replace('\\','/') #Work around for running on Windows
         if url:    
             webbrowser.open(url)
 
@@ -249,6 +252,7 @@ class EditModelFrame(PanelEditModel):
             url = self.local_file_model
         elif self.button_open_file_model.Label!="<None>":
             url = os.path.join(configuration.kipartbase, 'file', self.model.model.storage_path)
+            url = url.replace('\\','/') #Work around for running on Windows
         if url:    
             webbrowser.open(url)
     
