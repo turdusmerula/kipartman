@@ -207,7 +207,7 @@ class EditPartFrame(PanelEditPart):
                 manufacturer = manufacturers[0]
             else:
                 # distributor does not exists, create it
-                manufacturer = rest.model.Manufacturer()
+                manufacturer = rest.model.ManufacturerNew()
                 manufacturer.name = manufacturer_name
                 manufacturer.website = octopart.item().manufacturer().homepage_url()
                 manufacturer = rest.api.add_manufacturer(manufacturer)
