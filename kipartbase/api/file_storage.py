@@ -41,9 +41,10 @@ class FileStorage(Storage):
 
     def add_file(self, upfile):
         # get content
-        file = tempfile.NamedTemporaryFile()
+        file = tempfile.NamedTemporaryFile(delete=False)
         upfile.save(file)
         file.flush()
+        file.close()
         
         # get md5
         md5 = hashlib.md5(file.name).hexdigest()
@@ -66,9 +67,10 @@ class FileStorage(Storage):
         storage_path = os.path.join(storage_path, upfile.filename)
         # copy file
         shutil.copyfile(file.name, os.path.join(dir, upfile.filename))
+        #TODO: Delete file.name from temp storage
 
         # add file to db
-        file = models.File(source_name=upfile.filename, storage_path=storage_path)
+        file = models.File(source_name=upfile.filename, storage_path=storage_path.replace('\\','/'))
         file.save()
         
         print "Add file", upfile.filename, "as", storage_path

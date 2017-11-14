@@ -151,7 +151,7 @@ class PanelParts ( wx.Panel ):
 		self.Layout()
 		self.menu_parts = wx.Menu()
 		self.menu_parts_refresh_octopart = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Refresh octopart parts", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_parts.Append( self.menu_parts_refresh_octopart )
+		self.menu_parts.AppendItem( self.menu_parts_refresh_octopart )
 		
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelPartsOnContextMenu ) 
 		

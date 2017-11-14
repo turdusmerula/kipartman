@@ -121,7 +121,7 @@ class ManufacturersFrame(PanelManufacturers):
     def onApplyButtonClick( self, event ):
         
         if self.manufacturer is None:
-            manufacturer = rest.model.Manufacturer()
+            manufacturer = rest.model.ManufacturerNew()
         else:
             manufacturer = self.manufacturer
         

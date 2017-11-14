@@ -40,7 +40,10 @@ class OctopartDataModel(wx.dataview.PyDataViewModel):
         return 0
     
     def IsContainer(self, item):
-        return False
+        if not item:
+            return True
+        else:
+            return False
 
     def HasContainerColumns(self, item):
         return True

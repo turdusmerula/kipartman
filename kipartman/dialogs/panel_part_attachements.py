@@ -54,7 +54,7 @@ class PanelPartAttachements ( wx.Panel ):
 		self.Layout()
 		self.context_menu = wx.Menu()
 		self.context_menu_open = wx.MenuItem( self.context_menu, wx.ID_ANY, u"Open", wx.EmptyString, wx.ITEM_NORMAL )
-		self.context_menu.Append( self.context_menu_open )
+		self.context_menu.AppendItem( self.context_menu_open )
 		
 		
 		
