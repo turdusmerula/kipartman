@@ -8,7 +8,7 @@ class KipartmanImporter:
         try:
             self.extension
             self.wildcard
-            self.import
+            self.importitems
             return True
         except AttributeError as e:
             print("{} is invalid: {}".format(classname, str(e)))

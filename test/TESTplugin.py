@@ -1,4 +1,5 @@
-import sys, os
+import sys, os, wx
+
 sys.path.append(
     os.path.join(os.path.split(os.path.dirname(sys.argv[0]))[0],'kipartman')
 )
@@ -9,7 +10,7 @@ sys.path.append(
 #
 from plugins import plugin_loader
 from plugins import export_plugins as export_plugins
-
+from plugins import import_plugins as export_plugins
 print(sys.path)
 
 

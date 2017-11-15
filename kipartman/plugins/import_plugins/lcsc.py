@@ -1,12 +1,12 @@
 import csv
 
-from . import _export_base
+from . import _import_base
 
-class LCSCExport(_export_base.BomsAwayExporter):
+class LCSCImport(_import_base.KipartmanImporter):
     extension = 'csv'
     wildcard = 'lcsc.com CSV (*.csv)|*.csv'
 
-    def export(self, base_filename, components):
+    def importitems(self, base_filename, components):
         file_path = '{}.{}'.format(base_filename, self.extension)
 
         with open(file_path, 'w') as csvfile:
