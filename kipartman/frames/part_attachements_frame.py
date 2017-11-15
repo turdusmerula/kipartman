@@ -97,4 +97,5 @@ class PartAttachementsFrame(PanelPartAttachements):
 
         configuration = Configuration()
         url = os.path.join(configuration.kipartbase, 'file', attachementobj.attachement.storage_path)
+        url = url.replace('\\','/')  #Work around for running on Windows
         webbrowser.open(url)
