@@ -38,6 +38,7 @@ class EditAttachementFrame(DialogEditAttachement):
         configuration = Configuration()
         if self.button_open_file.Label!="<None>":
             url = os.path.join(configuration.kipartbase, 'file', self.attachement.storage_path)
+            url = url.replace('\\','/') #Work around for running on Windows
             webbrowser.open(url)
     
     def onButtonAddFileClick( self, event ):
