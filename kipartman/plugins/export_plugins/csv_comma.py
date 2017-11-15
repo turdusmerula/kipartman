@@ -12,19 +12,22 @@ class CsvExport(_export_base.KiPartmanExporter):
         with open(file_path, 'w') as csvfile:
             wrt = csv.writer(csvfile)
 
-            wrt.writerow(['Refs', 'Value', 'Footprint',
-                          'Quantity', 'MFR', 'MPN', 'SPR', 'SPN'])
+            wrt.writerow([key for key in 
+                components[0].swagger_types.viewkeys()])
 
             for fp in sorted(components):
-                for val in sorted(components[fp]):
-                    ctcont = components[fp][val]
-                    wrt.writerow([
-                        ctcont.refs,
-                        ctcont.value,
-                        ctcont.footprint,
-                        len(ctcont),
-                        ctcont.manufacturer,
-                        ctcont.manufacturer_pn,
-                        ctcont.supplier,
-                        ctcont.supplier_pn,
-                    ])
+                wrt.writerow(
+                    [format_csv_column_entry(fp, key)
+                    for key in 
+                    fp.swagger_types.viewkeys()])
+
+
+def format_csv_column_entry(fp, key):
+    #return repr(fp.to_dict()[key]).encode('ascii',errors='xmlcharrefreplace')
+    field = fp.to_dict()[key]
+    #if '{}'.format(type(field)) = "<type 'dict'>":
+    if isinstance(field,unicode):
+        #print('DEBUG:{}:{}:{}'.format(type(field), key, fp.to_dict()[key].encode('ascii', errors='xmlcharrefreplace')))
+        return fp.to_dict()[key].encode('ascii', errors='xmlcharrefreplace')
+    else:
+        return fp.to_dict()[key]
