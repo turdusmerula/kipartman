@@ -52,7 +52,9 @@ class EditFootprintFrame(PanelEditFootprint):
             try:
                 self.button_open_file_image.Label = footprint.image.source_name
                 try:
-                    self.SetImage(os.path.join(configuration.kipartbase, 'file', footprint.image.storage_path))
+                    url = os.path.join(configuration.kipartbase, 'file', footprint.image.storage_path)
+                    url = url.replace('\\','/') #Work around for running on Windows
+                    self.SetImage(url)
                 except Exception as e:
                     wx.MessageBox(format(e), "Error, failed to load '%s'" % (configuration.kipartbase+footprint.image.storage_path), wx.OK | wx.ICON_ERROR)
             except:
@@ -203,6 +205,7 @@ class EditFootprintFrame(PanelEditFootprint):
             url = self.local_file_image
         elif self.button_open_file_image.Label!="<None>":
             url = os.path.join(configuration.kipartbase, 'file', self.footprint.image.storage_path)
+            url = url.replace('\\','/') #Work around for running on Windows
         if url:    
             webbrowser.open(url)
 
@@ -238,6 +241,7 @@ class EditFootprintFrame(PanelEditFootprint):
             url = self.local_file_footprint
         elif self.button_open_file_footprint.Label!="<None>":
             url = os.path.join(configuration.kipartbase, 'file', self.footprint.footprint.storage_path)
+            url = url.replace('\\','/') #Work around for running on Windows
         if url:    
             webbrowser.open(url)
     

@@ -16,6 +16,7 @@ class DataModelPartAttachement(helper.tree.TreeContainerItem):
 
     def GetValue(self, col):
         url = os.path.join(configuration.kipartbase, 'file', self.attachement.storage_path)
+        url = url.replace('\\','/') #Work around for running on Windows
         vMap = { 
             0 : self.attachement.source_name,
             1 : self.attachement.description,
