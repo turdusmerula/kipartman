@@ -15,6 +15,10 @@ import re
 import rest
 from octopart.extractor import OctopartExtractor
 
+from plugins import plugin_loader
+from plugins import export_plugins as export_plugins
+
+
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
 
