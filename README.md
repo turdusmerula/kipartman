@@ -79,8 +79,17 @@ Edit the file ```~/.kipartman/configure.json``` and put your newly created api k
 
 SnapEDA is a database containing a huge pool of footprints and schematic symbols, you will need an account to download files on their website.
 
-By now SnapEDA is poorly integrated but works with the SnapEDA team is in progress to have access to the full api from kipartman.
+Create an account on the website https://www.snapeda.com/account/signup/?next=/.
 
+Edit the file ```~/.kipartman/configure.json``` and put your SnapEDA credentials:
+```
+{
+    "snapeda_password": "xxxxxxxx",
+    "snapeda_user": "john.doe@gmail.com"
+}
+```
+
+Note: works with the SnapEDA team is in progress to improve support for Kicad.
 
 ## Kipartman
 
