@@ -4,7 +4,7 @@ from . import external_sqltables
 
 import os
 
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine, MetaData, Table, inspect
@@ -53,7 +53,7 @@ class sqlExport(_export_base.KiPartmanExporter):
                 id=fp.id,
                 comment=fp.comment,
                 name=fp.name,
-                category='',#fp.category,
+                category='{}'.format(fp.category),
                 description=fp.description,
                  )
             s.add(k_part)
