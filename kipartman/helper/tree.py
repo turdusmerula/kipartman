@@ -43,7 +43,7 @@ class TreeItem(object):
         return False
 
     def HasContainerColumns(self):
-        return True
+        return False
 
     def GetDragData(self):
         return None
@@ -51,11 +51,17 @@ class TreeItem(object):
     def SetValue(self, value, col):
         return False
     
+#    def Compare(self, item):
+#        return 0
+    
 class TreeContainerItem(TreeItem):
     def __init__(self):
         super(TreeContainerItem, self).__init__()
         self.childs = None
         
+    def HasContainerColumns(self):
+        return True
+
     def IsContainer(self):
         return True
 
@@ -82,7 +88,10 @@ class TreeContainerLazyItem(TreeItem):
     # override this for lazy loading childs
     def Load(self, manager):
         pass
-    
+
+    def HasContainerColumns(self):
+        return True
+
     def IsContainer(self):
         return True
 
@@ -91,7 +100,8 @@ class TreeModel(wx.dataview.PyDataViewModel):
         super(TreeModel, self).__init__()
         self.columns_type = []
         self.root_nodes = []
-    
+        self.sort_function = []
+
     def ClearItems(self):
         self.root_nodes = []
         
@@ -122,6 +132,8 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return False
         
     def HasContainerColumns(self, item):
+        if not item:
+            return False
         obj = self.ItemToObject(item)
         return obj.HasContainerColumns()
 
@@ -136,6 +148,8 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return wx.dataview.NullDataViewItem
     
     def GetValue(self, item, col):
+        if not item or item.IsOk()==False:
+            return ""
         obj = self.ItemToObject(item)
         value = obj.GetValue(col)
         if value is None:
@@ -151,6 +165,19 @@ class TreeModel(wx.dataview.PyDataViewModel):
         res = obj.SetValue(value, col)
         self.ItemChanged(item)
         return res
+        
+    def Compare(self, item1, item2, column, ascending):
+        if self.sort_function[column] is None:
+            return 0
+        else:
+            if not ascending: # swap sort order?
+                item2, item1 = item1, item2
+
+            value1 = self.GetValue(item1, column)
+            value2 = self.GetValue(item2, column)
+            if value1=='' or value2=='':
+                return super(TreeModel, self).Compare(item1, item2, column, ascending)
+            return self.sort_function[column](value1, value2)
         
 class TreeDropTarget(wx.TextDropTarget):
     def __init__(self, manager):
@@ -170,6 +197,41 @@ class TreeDataObject(wx.TextDataObject):
         super(TreeDataObject, self).__init__()
         self.data = data
         self.SetText(json.dumps({'type': data.__class__.__name__, 'data': data.GetDragData()}))
+
+def CompareInteger(item1, item2):
+    if item1 is None or item1=="":
+        return -1
+    if item2 is None or item2=="":
+        return 1
+    
+    val1 = int(item1)
+    val2 = int(item2)
+    if val2>val1:
+        return 1
+    elif val2<val1:
+        return -1
+    return 0
+
+def CompareFloat(item1, item2):
+    if item1 is None or item1=="":
+        return -1
+    if item2 is None or item2=="":
+        return 1
+    
+    val1 = float(item1)
+    val2 = float(item2)
+    if val2>val1:
+        return 1
+    elif val2<val1:
+        return -1
+    return 0
+
+def CompareString(item1, item2):
+    if item2>item1:
+        return 1
+    elif item2<item1:
+        return -1
+    return 0 
 
 class TreeManager(object):
     drag_item = None
@@ -360,27 +422,38 @@ class TreeManager(object):
     def AddTextColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
         self.model.columns_type.append('string')
+        self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
     
     def AddFloatColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
         self.model.columns_type.append('float')
+        self.model.sort_function.append(CompareFloat)
         column.Sortable = True
         column.Reorderable = True
 
     def AddIntegerColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
         self.model.columns_type.append('integer')
+        self.model.sort_function.append(CompareInteger)
         column.Sortable = True
         column.Reorderable = True
 
     def AddToggleColumn(self, title):
         column = self.tree_view.AppendToggleColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE, mode=wx.dataview.DATAVIEW_CELL_ACTIVATABLE)
         self.model.columns_type.append('integer')
+        self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
-        
+
+    def AddCustomColumn(self, title, type, sort_function):
+        column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
+        self.model.columns_type.append(type)
+        self.model.sort_function.append(sort_function)
+        column.Sortable = True
+        column.Reorderable = True
+
     def ClearItems(self):
         self.data = []
         self.model.ClearItems()

@@ -63,8 +63,7 @@ class PartStorage(object):
           self.description = description
         if comment is not None:
           self.comment = comment
-        if id is not None:
-          self.id = id
+        self.id = id
         self.quantity = quantity
 
     @property
@@ -148,6 +147,8 @@ class PartStorage(object):
         :param id: The id of this PartStorage.
         :type: int
         """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")
 
         self._id = id
 

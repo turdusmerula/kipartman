@@ -1651,6 +1651,7 @@ definitions:
     allOf:
     - $ref: "#/definitions/StorageData"
     - required:
+      - "id"
       - "quantity"
       properties:
         id:
@@ -1868,8 +1869,8 @@ definitions:
         type: "integer"
         format: "int64"
       quantity:
-        type: "number"
-        format: "double"
+        type: "integer"
+        format: "int64"
       unit_price:
         type: "number"
         format: "double"
