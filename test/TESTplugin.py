@@ -45,6 +45,7 @@ Gets a file path via popup, then exports content
 '''
 
 exporters = plugin_loader.load_export_plugins()
+print([exporter.wildcard for exporter in exporters])
 importers = plugin_loader.load_import_plugins()
 wildcards = '|'.join([x.wildcard for x in exporters])
 wildcards
@@ -53,7 +54,10 @@ exporters[0]
 exportpath=os.path.join(os.getcwd(),'test','TESTexportCSV.csv')
 exportpath
 base, ext = os.path.splitext(exportpath)
-exporters[0]().export(base, parts)
+#CSV
+#exporters[0]().export(base, parts)
+#SQL
+exporters[1]().export(base, parts)
 
 # export_dialog = wx.FileDialog(self, "Export BOM", "", "",
 #                                 wildcards,
