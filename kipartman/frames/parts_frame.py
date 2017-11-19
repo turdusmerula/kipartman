@@ -300,6 +300,22 @@ class PartsFrame(PanelParts):
 
         self.edit_part(part)
 
+    def  export_parts(self):
+
+        exporters = plugin_loader.load_export_plugins()
+        wildcards = '|'.join([x.wildcard for x in exporters])
+        wildcards
+        
+
+        exportpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
+        exportpath
+        base, ext = os.path.splitext(exportpath)
+
+        #TODO: implement export
+
+        self.edit_state = None
+        self.show_part(part)
+
 
     def  import_parts(self):
 
@@ -645,6 +661,13 @@ class PartsFrame(PanelParts):
         # TODO: Implement onButtonImportPartsClick
         self.edit_state = 'import'
         self.import_parts()
+
+        pass
+
+    def onButtonExportPartsClick( self, event ):
+        # TODO: Implement onButtonImportPartsClick
+        self.edit_state = 'export'
+        self.export_parts()
 
         pass
 

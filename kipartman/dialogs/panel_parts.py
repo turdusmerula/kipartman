@@ -110,6 +110,11 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer10.Add( self.button_import_parts, 0, wx.ALL, 5 )
 		
+		self.button_export_parts = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/export.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_export_parts.SetToolTip( wx.ToolTip("Export Parts List"))
+		
+		bSizer10.Add( self.button_export_parts, 0, wx.ALL, 5 )
+		
 		
 		bSizer11.Add( bSizer10, 1, wx.EXPAND, 5 )
 		
@@ -171,6 +176,7 @@ class PanelParts ( wx.Panel ):
 		self.button_edit_part.Bind( wx.EVT_BUTTON, self.onButtonEditPartClick )
 		self.button_remove_part.Bind( wx.EVT_BUTTON, self.onButtonRemovePartClick )
 		self.button_import_parts.Bind( wx.EVT_BUTTON, self.onButtonImportPartsClick )
+		self.button_export_parts.Bind( wx.EVT_BUTTON, self.onButtonExportPartsClick )
 		self.search_parts.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchPartsButton )
 		self.search_parts.Bind( wx.EVT_TEXT_ENTER, self.onSearchPartsTextEnter )
 		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
@@ -206,6 +212,9 @@ class PanelParts ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonImportPartsClick( self, event ):
+		event.Skip()
+	
+	def onButtonExportPartsClick( self, event ):
 		event.Skip()
 	
 	def onSearchPartsButton( self, event ):
