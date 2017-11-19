@@ -1,4 +1,4 @@
-class KipartmanImporter:
+class KiPartmanImporter:
     def __init__(self):
         pass
 
@@ -8,7 +8,7 @@ class KipartmanImporter:
         try:
             self.extension
             self.wildcard
-            self.importitems
+            self.fetch
             return True
         except AttributeError as e:
             print("{} is invalid: {}".format(classname, str(e)))

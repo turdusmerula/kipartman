@@ -2,11 +2,11 @@ import csv
 
 from . import _import_base
 
-class LCSCImport(_import_base.KipartmanImporter):
+class LCSCImport(_import_base.KiPartmanImporter):
     extension = 'csv'
     wildcard = 'lcsc.com CSV (*.csv)|*.csv'
 
-    def importitems(self, base_filename, components):
+    def fetch(self, base_filename, importItem = object):
         file_path = '{}.{}'.format(base_filename, self.extension)
 
         with open(file_path, 'w') as csvfile:
