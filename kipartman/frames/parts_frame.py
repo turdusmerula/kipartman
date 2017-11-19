@@ -302,19 +302,34 @@ class PartsFrame(PanelParts):
 
     def  export_parts(self):
 
-        exporters = plugin_loader.load_export_plugins()
-        wildcards = '|'.join([x.wildcard for x in exporters])
-        wildcards
+        # exporters = plugin_loader.load_export_plugins()
+        # wildcards = '|'.join([x.wildcard for x in exporters])
+        # wildcards
         
 
-        exportpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
-        exportpath
-        base, ext = os.path.splitext(exportpath)
+        # exportpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
+        # exportpath
+        # base, ext = os.path.splitext(exportpath)
 
         #TODO: implement export
+        exporters = plugin_loader.load_export_plugins()
 
+        wildcards = '|'.join([x.wildcard for x in exporters])
+
+        export_dialog = wx.FileDialog(self, "Export Parts", "", "",
+                                      wildcards,
+                                      wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+
+        if export_dialog.ShowModal() == wx.ID_CANCEL:
+            return
+
+        base, ext = os.path.splitext(export_dialog.GetPath())
+        filt_idx = export_dialog.GetFilterIndex()
+        # load parts
+        parts = rest.api.find_parts(**self.parts_filter.query_filter())
+
+        exporters[filt_idx]().export(base, parts)     
         self.edit_state = None
-        self.show_part(part)
 
 
     def  import_parts(self):

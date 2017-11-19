@@ -17,8 +17,20 @@ from sqlalchemy.sql import select
 
 
 class sqlExport(_export_base.KiPartmanExporter):
-    extension = 'sql'
-    wildcard = 'sqldb|sql'
+    extension = 'db'
+    wildcard = 'SQLlite Files (*.db)|*.db'
+    table = None
+
+    def getTables(self, base_filename):
+        ds = Datastore(datastore_file)
+        meta = MetaData()
+        meta.reflect(bind = ds._eng)
+        tables = meta.tables
+        return tables
+
+    def setTable(self, table_name):
+        table = table_name
+    
 
     def export(self, base_filename, components):
 
@@ -30,6 +42,7 @@ class sqlExport(_export_base.KiPartmanExporter):
 
         # base_dir,top_sch,top_name
 
+        #location of Boms-Away DB
         config_dir = os.path.join(os.path.expanduser("~"), '.bomsaway.d')
 
         _legacy_dir = os.path.join( os.path.expanduser("~"), '.kicadbommgr.d',)
@@ -41,7 +54,7 @@ class sqlExport(_export_base.KiPartmanExporter):
 
         file_path = '{}.{}'.format(base_filename, self.extension)
 
-        ds = Datastore(datastore_file)
+        ds = Datastore(file_path)
         meta = MetaData()
         #TODO: Map parts to kipartman_parts
     # theMRP_ProductItems.to_sql('kipartman_parts',ds._eng,flavor='pysqlite', if_exists='append',index=False)
