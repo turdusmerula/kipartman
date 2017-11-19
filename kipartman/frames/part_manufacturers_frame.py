@@ -63,7 +63,7 @@ class PartManufacturersFrame(PanelPartManufacturers):
         """
         Remove a manufacturer using its name
         """
-        if self.part.manufacturers is None:
+        if self.part.manufacturers is None or len(self.part.manufacturers) == 0:
             return
         manufacturerobj = self.FindManufacturer(name)
         self.part.manufacturers.remove(manufacturerobj)
