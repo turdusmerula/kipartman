@@ -9,7 +9,7 @@ class Configuration(object):
             os.mkdir(expanduser("~")+'/.kipartman')
         self.filename = expanduser("~")+'/.kipartman/configure.json'
         
-        self.base_currency = 'EUR'
+        self.base_currency = 'NZD'
         self.octopart_api_key = ''
         self.kipartbase = 'http://localhost:8200'
         
