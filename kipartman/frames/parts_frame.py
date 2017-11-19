@@ -6,10 +6,18 @@ import helper.tree
 from helper.filter import Filter
 import rest
 import wx
+
+import os, datetime
 from time import sleep
 from octopart.queries import PartsQuery
-import datetime
+
 from octopart.extractor import OctopartExtractor
+
+
+from plugins import plugin_loader
+from plugins import import_plugins as import_plugins
+
+
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -292,7 +300,58 @@ class PartsFrame(PanelParts):
 
         self.edit_part(part)
 
-    def import_parts(self):
+
+    def  import_parts(self):
+
+        importers = plugin_loader.load_import_plugins()
+        wildcards = '|'.join([x.wildcard for x in importers])
+        wildcards
+        
+
+        importpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
+        importpath
+        base, ext = os.path.splitext(importpath)
+
+
+        # set category
+        item = self.tree_categories.GetSelection()
+        if item.IsOk():
+            category = self.tree_categories_manager.ItemToObject(item)
+            if category.category:
+                #TODO: deterine the importer to use
+                importItems = importers[1]().fetch(base, category.category, rest.model )
+
+        for importItem in importItems:
+
+            part = rest.model.PartNew()
+            #SET imported Parts Fields
+            
+            part.name = importItem.name
+            part.description = importItem.description
+            part.comment  = 'NEW IMPORT Timestamp:{:%y-%m-%d %H:%M:%S.%f}'.format(datetime.datetime.now())
+            
+            # set category
+            if category.category:
+                part.category = category.category
+            #Update edit_part panel
+            self.edit_part(part)
+            #Update progress indicator
+            #TODO: Import Progress Indicator
+
+            try:
+                if self.edit_state=='import':
+                    part = rest.api.add_part(part)
+                    self.tree_parts_manager.AppendPart(part)
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                return
+
+        self.edit_state = None
+        self.show_part(part)
+  
+
+
+    def TEST_import_parts(self):
         importItems = [{'name': 'CARBON RESISTOR, 510KOHM, 500mW, 5%', 'description': 'CARBON RESISTOR, 510KOHM, 500mW, 5%; Product Range:MCRC Series; Resistance:510kohm; Power Rating:500mW; Resistance Tolerance:  5%; Voltage Rating:350V; Resistor Case Style:Axial Leaded; Resistor Eleme 73K0236 ', 'barcode': False, 'display_name': 'CARBON RESISTOR, 510KOHM, 500mW, 5%', 'default_code': 'MCRC1/2G514JT-RH', 'id': 492},
        {'name': u'SMD Chip Resistor, Ceramic, MCSR 06 Series, 20 kohm, 75 V, 0603 [1608 Metric], 100 mW, 1%', 'description': u'RES, CERAMIC, 20K, 1%, 0.1W, 0603; Product Range:MCSR 06 Series; Resistance:20kohm; Voltage Rating:75V; Resistor Case Style:0603 [1608 Metric]; Power Rating:100mW; Resistance Tolerance: 1%; Packaging:Cut Tape; Resistor ', 'barcode': False, 'display_name': u'SMD Chip Resistor, Ceramic, MCSR 06 Series, 20 kohm, 75 V, 0603 [1608 Metric], 100 mW, 1%', 'default_code': 'MCSR06X2002FTL', 'id': 444}]
         #importItems = [(1,"TEST1"),(2,"TEST2")]
@@ -759,7 +818,7 @@ class PartsFrame(PanelParts):
                 manufacturer = manufacturers[0]
             else:
                 # distributor does not exists, create it
-                manufacturer = rest.model.Manufacturer()
+                manufacturer = rest.model.ManufacturerNew()
                 manufacturer.name = manufacturer_name
                 manufacturer.website = octopart.item().manufacturer().homepage_url()
                 manufacturer = rest.api.add_manufacturer(manufacturer)

@@ -63,7 +63,7 @@ def load_import_plugins():
                 continue
             baseclass = obj.__bases__[0]
 
-            if not baseclass.__name__ == 'KipartmanImporter':
+            if not baseclass.__name__ == 'KiPartmanImporter':
                 continue
 
             if not obj().validate():

@@ -71,7 +71,6 @@ meta.reflect(bind=ds._eng)
 [table for table in meta.tables]
 
 
-
 connection = ds._eng.connect()
 result = connection.execute("select * from Kipartman_Parts")
 for row in result:
