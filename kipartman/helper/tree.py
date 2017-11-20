@@ -1,3 +1,4 @@
+import logging
 import wx.dataview
 #import wx.dataview.DataViewTreeCtrl
 import json
@@ -267,14 +268,17 @@ class TreeManager(object):
         if self.drag_item is None:
             event.Skip()
             return wx.DragCancel
-        
-        drag_data = self.model.ItemToObject(event.GetItem())
+        try:
+            drag_data = self.model.ItemToObject(event.GetItem())
+        except Exception as inst:
+            if 'logging' in globals(): logging.debug('DRAG ERROR:{} {} {} {}'.format(type(inst), inst.message,inst.args,event.GetItem()))
+            return wx.DragCancel
         if drag_data.GetDragData() is None:
             event.Skip()
             return wx.DragCancel
 
         event.SetDataObject(TreeDataObject(drag_data))
-        
+        if 'logging' in globals():logging.debug('DRAG onItemBeginDrag STATE:{}'.format(self.OnItemBeginDrag))
         if self.OnItemBeginDrag:
             return self.OnItemBeginDrag(event)
     
