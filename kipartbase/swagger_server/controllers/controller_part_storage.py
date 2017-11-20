@@ -32,7 +32,7 @@ def find_part_storages(part_id):
     try:
         fpart = api.models.Part.objects.get(pk=part_id)
     except:
-        return Error(code=1000, message='Part %d does not exists'%part_id)
+        return Error(code=1000, message='Part %d does not exists'%part_id), 403
     
     for fstorage in fpart.storages.all():
         storages.append(serialize_PartStorage(fstorage))

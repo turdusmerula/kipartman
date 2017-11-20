@@ -82,7 +82,7 @@ def delete_distributor(distributor_id):
     try:
         fdistributor = api.models.Distributor.objects.get(pk=distributor_id)
     except:
-        return Error(code=1000, message='Distributor %d does not exists'%distributor_id)
+        return Error(code=1000, message='Distributor %d does not exists'%distributor_id), 403
     # delete distributor
     fdistributor.delete()
     return None
@@ -100,7 +100,7 @@ def find_distributor(distributor_id):
     try:
         fdistributor = api.models.Distributor.objects.get(pk=distributor_id)
     except:
-        return Error(code=1000, message='Distributor %d does not exists'%distributor_id)
+        return Error(code=1000, message='Distributor %d does not exists'%distributor_id), 403
     
     distributor = serialize_Distributor(fdistributor)
     return distributor
@@ -139,11 +139,11 @@ def update_distributor(distributor_id, category):
     if connexion.request.is_json:
         distributor = DistributorNew.from_dict(connexion.request.get_json())
     else:
-        return Error(code=1000, message='Missing payload')
+        return Error(code=1000, message='Missing payload'), 403
     try:
         fdistributor = deserialize_DistributorNew(distributor, api.models.Distributor.objects.get(pk=distributor_id))
     except:
-        return Error(code=1000, message='Distributor %d does not exists'%distributor_id)
+        return Error(code=1000, message='Distributor %d does not exists'%distributor_id), 403
         
     fdistributor.save()
     

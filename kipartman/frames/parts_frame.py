@@ -10,6 +10,7 @@ from time import sleep
 from octopart.queries import PartsQuery
 import datetime
 from octopart.extractor import OctopartExtractor
+import swagger_client
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -455,8 +456,9 @@ class PartsFrame(PanelParts):
     
                 dest_part = rest.api.find_part(dest_obj.part.id, with_childs=True)
                 dest_part.childs.append(source_partobj.part)
-                
+
                 rest.api.update_part(dest_part.id, dest_part)
+
                 # update tree model
                 self.tree_parts_manager.AppendChildPart(dest_part, source_partobj.part)
             except Exception as e:

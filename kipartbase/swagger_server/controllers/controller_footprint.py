@@ -107,7 +107,7 @@ def add_footprint(footprint):
     try:
         ffootprint = deserialize_FootprintNew(footprint)
     except ControllerError as e:
-        return e.error
+        return e.error, 403
 
         
     ffootprint.save()
@@ -127,7 +127,7 @@ def delete_footprint(footprint_id):
     try:
         ffootprint = api.models.Footprint.objects.get(pk=footprint_id)
     except:
-        return Error(code=1000, message='Footprint %d does not exists'%footprint_id)
+        return Error(code=1000, message='Footprint %d does not exists'%footprint_id), 403
     # delete footprint
     ffootprint.delete()
     return None
@@ -145,12 +145,12 @@ def find_footprint(footprint_id):
     try:
         ffootprint = api.models.Footprint.objects.get(pk=footprint_id)
     except:
-        return Error(code=1000, message='Footprint %d does not exists'%footprint_id)
+        return Error(code=1000, message='Footprint %d does not exists'%footprint_id), 403
     
     try:
         footprint = serialize_Footprint(ffootprint)
     except ControllerError as e:
-        return e.error
+        return e.error, 403
     
     return footprint
 
@@ -202,17 +202,17 @@ def update_footprint(footprint_id, footprint):
     if connexion.request.is_json:
         footprint = FootprintNew.from_dict(connexion.request.get_json())
     else:
-        return Error(code=1000, message='Missing payload')
+        return Error(code=1000, message='Missing payload'), 403
 
     try:
         ffootprint = api.models.Footprint.objects.get(pk=footprint_id)
     except:
-        return Error(code=1000, message='Footprint %d does not exists'%footprint_id)        
+        return Error(code=1000, message='Footprint %d does not exists'%footprint_id), 403      
 
     try:
         ffootprint = deserialize_FootprintNew(footprint, ffootprint)
     except ControllerError as e:
-        return e.error
+        return e.error, 403
 
     ffootprint.save()
     
