@@ -15,6 +15,7 @@ import swagger_client
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
 
+        
 class DataModelCategory(helper.tree.TreeContainerItem):
     def __init__(self, category):
         super(DataModelCategory, self).__init__()
@@ -56,23 +57,38 @@ class DataModelCategoryPath(helper.tree.TreeContainerItem):
             attr.Bold = True
             return True
         return False
-    
+
+class DataColumnParameter(object):
+    def __init__(self, parameter_name):
+        self.parameter_name = parameter_name
+
+    def GetValue(self, part):
+        if part.parameters:
+            for param in part.parameters:
+                if param.name==self.parameter_name:
+                    return str(param.nom_value)
+        return ""
+
 class DataModelPart(helper.tree.TreeContainerLazyItem):
-    def __init__(self, part):
+    def __init__(self, part, columns):
         super(DataModelPart, self).__init__()
         self.part = part
         if part.has_childs:
             # add a fake item
             self.childs.append(None)
-            
+        self.columns = columns
+        
     def GetValue(self, col):
-        vMap = { 
-            0 : str(self.part.id),
-            1 : self.part.name,
-            2 : self.part.description,
-            3 : self.part.comment
-        }
-        return vMap[col]
+        if col<4:
+            vMap = { 
+                0 : str(self.part.id),
+                1 : self.part.name,
+                2 : self.part.description,
+                3 : self.part.comment
+            }
+            return vMap[col]
+        else:
+            return self.columns[col-4].GetValue(self.part)
 
     def Load(self, manager):
         if self.part.has_childs==False:
@@ -80,7 +96,7 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
         part = rest.api.find_part(self.part.id, with_childs=True)
         
         for child in part.childs:
-            manager.AppendItem(self, DataModelPart(child))
+            manager.AppendItem(self, DataModelPart(child, self.columns))
 
     def GetDragData(self):
         if isinstance(self.parent, DataModelCategoryPath):
@@ -91,7 +107,8 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
 class TreeManagerParts(helper.tree.TreeManager):
     def __init__(self, tree_view):
         super(TreeManagerParts, self).__init__(tree_view)
-
+        self.columns = []
+    
     def FindPart(self, part_id):
         for data in self.data:
             if isinstance(data, DataModelPart) and isinstance(data.parent, DataModelCategoryPath) and data.part.id==part_id:
@@ -148,19 +165,23 @@ class TreeManagerParts(helper.tree.TreeManager):
     
     def AppendPart(self, part):
         categoryobj = self.AppendCategoryPath(part.category)
-        partobj = DataModelPart(part)
+        partobj = DataModelPart(part, self.columns)
         self.AppendItem(categoryobj, partobj)
         self.Expand(categoryobj)
         return partobj
     
     def AppendChildPart(self, parent_part, part):
         parentobj = self.FindPart(parent_part.id)
-        partobj = DataModelPart(part)
+        partobj = DataModelPart(part, self.columns)
         self.AppendItem(parentobj, partobj)
         self.Expand(parentobj)
         return partobj
 
-        
+    def AddParameterColumn(self, parameter_name):
+        self.columns.append(DataColumnParameter(parameter_name))
+        self.AddCustomColumn(parameter_name, 'parameter', None)
+
+
 class PartsFrame(PanelParts): 
     def __init__(self, parent): 
         super(PartsFrame, self).__init__(parent)
@@ -182,6 +203,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddTextColumn("description")
         self.tree_parts_manager.AddIntegerColumn("comment")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
+        self.tree_parts_manager.OnColumnHeaderRightClick = self.onTreePartsColumnHeaderRightClick
         self.tree_parts_manager.DropAccept(DataModelPart, self.onTreePartsDropPart)
         
         # 
@@ -230,7 +252,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.ClearItems()
         
         # load parts
-        parts = rest.api.find_parts(**self.parts_filter.query_filter())
+        parts = rest.api.find_parts( with_parameters=True, **self.parts_filter.query_filter())
 
         # load categories
         categories = {}
@@ -243,7 +265,7 @@ class PartsFrame(PanelParts):
             if categories.has_key(category_name)==False:
                 categories[category_name] = DataModelCategoryPath(part.category)
                 self.tree_parts_manager.AppendItem(None, categories[category_name])
-            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part))
+            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, self.tree_parts_manager.columns))
         
         for category in categories:
             self.tree_parts_manager.Expand(categories[category])
@@ -444,6 +466,10 @@ class PartsFrame(PanelParts):
             part = obj.part
         self.show_part(part)
 
+    def onTreePartsColumnHeaderRightClick( self, event ):
+        pos = event.GetPosition()
+        self.panel_parts.PopupMenu(self.menu_parameters, pos)
+        
     def onTreePartsDropPart(self, x, y, data):
         dest_item, _ = self.tree_parts.HitTest((x, y))
         if not dest_item.IsOk():
@@ -464,6 +490,12 @@ class PartsFrame(PanelParts):
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return wx.DragMove
+
+    def onMenuParametersAddSelection( self, event ):
+        self.tree_parts_manager.AddParameterColumn("resistance")
+    
+    def onMenuParametersRemoveSelection( self, event ):
+        event.Skip()
 
             
     def onEditPartApply( self, event ):
