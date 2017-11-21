@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Apr 29 2017)
+## Python code generated with wxFormBuilder (version Nov 13 2017)
 ## http://www.wxformbuilder.org/
 ##
-## PLEASE DO "NOT" EDIT THIS FILE!
+## PLEASE DO *NOT* EDIT THIS FILE!
 ###########################################################################
 
 import wx
@@ -19,7 +19,7 @@ class DialogEditPartParameter ( wx.Dialog ):
 	def __init__( self, parent ):
 		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 409,385 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
-		self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -32,8 +32,16 @@ class DialogEditPartParameter ( wx.Dialog ):
 		self.m_staticText3.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
+		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
+		
 		self.edit_part_parameter_name = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_part_parameter_name, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		bSizer61.Add( self.edit_part_parameter_name, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.button_search_parameter = wx.Button( self, wx.ID_ANY, u"  ...  ", wx.DefaultPosition, wx.DefaultSize, wx.BU_EXACTFIT )
+		bSizer61.Add( self.button_search_parameter, 0, wx.ALL, 5 )
+		
+		
+		fgSizer1.Add( bSizer61, 1, wx.EXPAND, 5 )
 		
 		self.m_staticText4 = wx.StaticText( self, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText4.Wrap( -1 )
@@ -143,6 +151,7 @@ class DialogEditPartParameter ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.button_search_parameter.Bind( wx.EVT_BUTTON, self.onButtonSearchParameterClick )
 		self.radio_choice_parameter_numeric.Bind( wx.EVT_RADIOBUTTON, self.onRadioNumeric )
 		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioText )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartParameterEditApply )
@@ -153,6 +162,9 @@ class DialogEditPartParameter ( wx.Dialog ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
+	def onButtonSearchParameterClick( self, event ):
+		event.Skip()
+	
 	def onRadioNumeric( self, event ):
 		event.Skip()
 	

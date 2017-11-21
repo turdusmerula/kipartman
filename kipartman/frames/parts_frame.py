@@ -1,7 +1,9 @@
 from dialogs.panel_parts import PanelParts
+from frames.dropdown_dialog import DropdownDialog
 from frames.progression_frame import ProgressionFrame
 from frames.edit_category_frame import EditCategoryFrame
 from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
+from frames.select_part_parameter_frame import SelectPartParameterFrame
 import helper.tree
 from helper.filter import Filter
 import rest
@@ -62,13 +64,41 @@ class DataColumnParameter(object):
     def __init__(self, parameter_name):
         self.parameter_name = parameter_name
 
+    def value_string(self, value, prefix, unit):
+        res = ""
+        if value is None:
+            return res
+        res = res+"%g"%value+" "
+        if not prefix is None:
+            res = res+prefix.symbol
+        if not unit is None:
+            res = res+unit.symbol
+        return res
+
+    def FormatParameter(self, param):
+        if param.numeric:
+            value = ""
+            if value is None:
+                return value
+            value = value+"%g"%param.nom_value+" "
+            if param.nom_prefix:
+                value = value+param.nom_prefix.symbol
+            if param.unit:
+                value = value+param.unit.symbol
+            return value
+        else:
+            return param.text_value
+    
     def GetValue(self, part):
         if part.parameters:
             for param in part.parameters:
                 if param.name==self.parameter_name:
-                    return str(param.nom_value)
+                    return self.FormatParameter(param)
         return ""
 
+    def Compare(self, item1, item2):
+        pass
+    
 class DataModelPart(helper.tree.TreeContainerLazyItem):
     def __init__(self, part, columns):
         super(DataModelPart, self).__init__()
@@ -495,8 +525,12 @@ class PartsFrame(PanelParts):
             return wx.DragCancel
 
     def onMenuParametersAddSelection( self, event ):
-        self.tree_parts_manager.AddParameterColumn("resistance")
+        frame = DropdownDialog(self, SelectPartParameterFrame, "")
+        frame.DropHere(self.onSelectPartParameterFrameOk)
     
+    def onSelectPartParameterFrameOk(self, parameter):
+        self.tree_parts_manager.AddParameterColumn(parameter.name)
+        
     def onMenuParametersRemoveSelection( self, event ):
         event.Skip()
             

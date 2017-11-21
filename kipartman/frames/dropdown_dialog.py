@@ -23,7 +23,7 @@ class DropdownDialog(wx.Dialog):
         self.SetSizer(sizer)
         self.Layout()
 
-    def Dropdown(self):
+    def Dropdown(self):    
         pos = self.Parent.GetScreenPosition()
         pos.y = pos.y+self.Parent.GetSize().y
         
@@ -39,7 +39,24 @@ class DropdownDialog(wx.Dialog):
         self.SetPosition(pos)
         self.ShowModal()
     
+    def DropHere(self, result_callback):
+        pos = wx.GetMousePosition()
+
+        screenSize = wx.Display(0).GetGeometry().GetSize()
+        if pos.y+self.panel.GetSize().y>screenSize.y:
+            pos.y = screenSize.y-self.panel.GetSize().y
+        if pos.x+self.panel.GetSize().x>screenSize.x:
+            pos.x = screenSize.x-self.panel.GetSize().x
+
+        # callbacks from panel
+        self.panel.SetResult(self.result, self.cancel)
+        self.result_callback = result_callback
+        
+        self.SetPosition(pos)
+        self.ShowModal()
+        
     def result(self, data):
+        self.result_callback(data)
         self.Destroy()
 
     def cancel(self):
