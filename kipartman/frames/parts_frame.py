@@ -489,14 +489,16 @@ class PartsFrame(PanelParts):
                 self.tree_parts_manager.AppendChildPart(dest_part, source_partobj.part)
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                return wx.DragCancel
             return wx.DragMove
+        else:
+            return wx.DragCancel
 
     def onMenuParametersAddSelection( self, event ):
         self.tree_parts_manager.AddParameterColumn("resistance")
     
     def onMenuParametersRemoveSelection( self, event ):
         event.Skip()
-
             
     def onEditPartApply( self, event ):
         part = event.data
