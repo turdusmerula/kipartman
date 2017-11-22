@@ -429,6 +429,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
+        return column
     
     def AddFloatColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
@@ -436,6 +437,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareFloat)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
     def AddIntegerColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
@@ -443,6 +445,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareInteger)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
     def AddToggleColumn(self, title):
         column = self.tree_view.AppendToggleColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE, mode=wx.dataview.DATAVIEW_CELL_ACTIVATABLE)
@@ -450,6 +453,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
     def AddCustomColumn(self, title, type, sort_function):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
@@ -457,7 +461,14 @@ class TreeManager(object):
         self.model.sort_function.append(sort_function)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
+    def RemoveColumn(self, index):
+        for column in self.tree_view.GetColumns():
+            if column.GetModelColumn()==index:
+                self.tree_view.DeleteColumn(column)
+                return
+        
     def ClearItems(self):
         self.data = []
         self.model.ClearItems()

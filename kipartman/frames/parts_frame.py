@@ -78,7 +78,7 @@ class DataColumnParameter(object):
     def FormatParameter(self, param):
         if param.numeric:
             value = ""
-            if value is None:
+            if param.nom_value is None:
                 return value
             value = value+"%g"%param.nom_value+" "
             if param.nom_prefix:
@@ -118,7 +118,7 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
             }
             return vMap[col]
         else:
-            return self.columns[col-4].GetValue(self.part)
+            return self.columns[col].GetValue(self.part)
 
     def Load(self, manager):
         if self.part.has_childs==False:
@@ -137,7 +137,7 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
 class TreeManagerParts(helper.tree.TreeManager):
     def __init__(self, tree_view):
         super(TreeManagerParts, self).__init__(tree_view)
-        self.columns = []
+        self.columns = {}
     
     def FindPart(self, part_id):
         for data in self.data:
@@ -208,9 +208,14 @@ class TreeManagerParts(helper.tree.TreeManager):
         return partobj
 
     def AddParameterColumn(self, parameter_name):
-        self.columns.append(DataColumnParameter(parameter_name))
-        self.AddCustomColumn(parameter_name, 'parameter', None)
-
+        column = self.AddCustomColumn(parameter_name, 'parameter', None)
+        self.columns[column.GetModelColumn()] = DataColumnParameter(parameter_name)
+        
+    def RemoveParameterColumn(self, index):
+        if self.columns.has_key(index)==False:
+            return
+        self.columns.pop(index)
+        self.RemoveColumn(index)
 
 class PartsFrame(PanelParts): 
     def __init__(self, parent): 
@@ -498,6 +503,8 @@ class PartsFrame(PanelParts):
 
     def onTreePartsColumnHeaderRightClick( self, event ):
         pos = event.GetPosition()
+        # TODO: Nasty hack, this would be better to have a way to pass the column in the event object 
+        self.menu_parameters.Column = event.GetDataViewColumn() 
         self.panel_parts.PopupMenu(self.menu_parameters, pos)
         
     def onTreePartsDropPart(self, x, y, data):
@@ -532,7 +539,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddParameterColumn(parameter.name)
         
     def onMenuParametersRemoveSelection( self, event ):
-        event.Skip()
+        self.tree_parts_manager.RemoveParameterColumn(self.menu_parameters.Column.GetModelColumn())
             
     def onEditPartApply( self, event ):
         part = event.data
