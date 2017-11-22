@@ -13,6 +13,7 @@ from octopart.queries import PartsQuery
 import datetime
 from octopart.extractor import OctopartExtractor
 import swagger_client
+from helper.tree import TreeModel
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -42,6 +43,9 @@ class DataModelCategoryPath(helper.tree.TreeContainerItem):
         super(DataModelCategoryPath, self).__init__()
         self.category = category
     
+    def GetParam(self, col):
+        return None
+    
     def GetValue(self, col):
         if self.category:
             path = self.category.path
@@ -63,7 +67,22 @@ class DataModelCategoryPath(helper.tree.TreeContainerItem):
 class DataColumnParameter(object):
     def __init__(self, parameter_name):
         self.parameter_name = parameter_name
+    
+class DataModelPart(helper.tree.TreeContainerLazyItem):
+    def __init__(self, part, columns):
+        super(DataModelPart, self).__init__()
+        self.part = part
+        self.columns = columns
+        
+        self.parameters = {}
+        if part.parameters:
+            for param in part.parameters:
+                self.parameters[param.name] = param 
 
+        if part.has_childs:
+            # add a fake item
+            self.childs.append(None)
+        
     def value_string(self, value, prefix, unit):
         res = ""
         if value is None:
@@ -89,25 +108,12 @@ class DataColumnParameter(object):
         else:
             return param.text_value
     
-    def GetValue(self, part):
-        if part.parameters:
-            for param in part.parameters:
-                if param.name==self.parameter_name:
-                    return self.FormatParameter(param)
-        return ""
-
-    def Compare(self, item1, item2):
-        pass
-    
-class DataModelPart(helper.tree.TreeContainerLazyItem):
-    def __init__(self, part, columns):
-        super(DataModelPart, self).__init__()
-        self.part = part
-        if part.has_childs:
-            # add a fake item
-            self.childs.append(None)
-        self.columns = columns
+    def GetParam(self, col):
+        if self.parameters.has_key(self.columns[col].parameter_name):
+            return self.parameters[self.columns[col].parameter_name]
+        return None
         
+
     def GetValue(self, col):
         if col<4:
             vMap = { 
@@ -117,8 +123,10 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
                 3 : self.part.comment
             }
             return vMap[col]
+        elif self.parameters.has_key(self.columns[col].parameter_name):
+            return self.FormatParameter(self.parameters[self.columns[col].parameter_name])
         else:
-            return self.columns[col].GetValue(self.part)
+            return ''
 
     def Load(self, manager):
         if self.part.has_childs==False:
@@ -134,11 +142,57 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
         return None
 
 
+class TreeModelParts(TreeModel):
+    def __init__(self):
+        super(TreeModelParts, self).__init__()
+        self.columns = {}
+
+    def Compare(self, item1, item2, column, ascending):
+        if self.columns.has_key(column)==False:
+            super(TreeModelParts, self).Compare(item1, item2, column, ascending)
+        else:
+            obj1 = self.ItemToObject(item1)
+            obj2 = self.ItemToObject(item2)
+
+            if obj1:
+                param1 = obj1.GetParam(column)
+            if obj2:
+                param2 = obj2.GetParam(column)
+            
+            if not ascending: # swap sort order?
+                param2, param1 = param1, param2
+
+            if not param1 or not param2:
+                return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
+            if param1.numeric!=param2.numeric:
+                return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
+
+            if param1.numeric==False and param2.numeric==False:
+                return helper.tree.CompareString(param1.text_value, param2.text_value)
+
+            if param1.unit and param2.unit and param1.unit!=param2.unit:
+                return helper.tree.CompareString(param1.unit.name, param2.unit.name)
+
+            value1 = 0
+            if param1.nom_value:
+                value1 = param1.nom_value
+            if param1.nom_prefix:
+                value1 = value1*float(param1.nom_prefix.power)
+                
+            value2 = 0
+            if param2.nom_value:
+                value2 = param2.nom_value
+            if param2.nom_prefix:
+                value2 = value2*float(param2.nom_prefix.power)
+                
+            return value2-value1
+
+
 class TreeManagerParts(helper.tree.TreeManager):
     def __init__(self, tree_view):
-        super(TreeManagerParts, self).__init__(tree_view)
-        self.columns = {}
-    
+        model = TreeModelParts()
+        super(TreeManagerParts, self).__init__(tree_view, model)
+        
     def FindPart(self, part_id):
         for data in self.data:
             if isinstance(data, DataModelPart) and isinstance(data.parent, DataModelCategoryPath) and data.part.id==part_id:
@@ -195,26 +249,26 @@ class TreeManagerParts(helper.tree.TreeManager):
     
     def AppendPart(self, part):
         categoryobj = self.AppendCategoryPath(part.category)
-        partobj = DataModelPart(part, self.columns)
+        partobj = DataModelPart(part, self.model.columns)
         self.AppendItem(categoryobj, partobj)
         self.Expand(categoryobj)
         return partobj
     
     def AppendChildPart(self, parent_part, part):
         parentobj = self.FindPart(parent_part.id)
-        partobj = DataModelPart(part, self.columns)
+        partobj = DataModelPart(part, self.model.columns)
         self.AppendItem(parentobj, partobj)
         self.Expand(parentobj)
         return partobj
 
     def AddParameterColumn(self, parameter_name):
         column = self.AddCustomColumn(parameter_name, 'parameter', None)
-        self.columns[column.GetModelColumn()] = DataColumnParameter(parameter_name)
+        self.model.columns[column.GetModelColumn()] = DataColumnParameter(parameter_name)
         
     def RemoveParameterColumn(self, index):
-        if self.columns.has_key(index)==False:
+        if self.model.columns.has_key(index)==False:
             return
-        self.columns.pop(index)
+        self.model.columns.pop(index)
         self.RemoveColumn(index)
 
 class PartsFrame(PanelParts): 
@@ -300,7 +354,7 @@ class PartsFrame(PanelParts):
             if categories.has_key(category_name)==False:
                 categories[category_name] = DataModelCategoryPath(part.category)
                 self.tree_parts_manager.AppendItem(None, categories[category_name])
-            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, self.tree_parts_manager.columns))
+            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, self.tree_parts_manager.model.columns))
         
         for category in categories:
             self.tree_parts_manager.Expand(categories[category])

@@ -171,11 +171,12 @@ class TreeModel(wx.dataview.PyDataViewModel):
         if self.sort_function[column] is None:
             return 0
         else:
-            if not ascending: # swap sort order?
-                item2, item1 = item1, item2
-
             value1 = self.GetValue(item1, column)
             value2 = self.GetValue(item2, column)
+
+            if not ascending: # swap sort order?
+                value2, value1 = value1, value2
+
             if value1=='' or value2=='':
                 return super(TreeModel, self).Compare(item1, item2, column, ascending)
             return self.sort_function[column](value1, value2)
@@ -238,10 +239,13 @@ class TreeManager(object):
     drag_item = None
     drag_source = None
     
-    def __init__(self, tree_view):
+    def __init__(self, tree_view, model=None):
         self.tree_view = tree_view
 
-        self.model = TreeModel()
+        if model==None:
+            self.model = TreeModel()
+        else:
+            self.model = model
         self.tree_view.AssociateModel(self.model)
 
         # create drag and drop targets
