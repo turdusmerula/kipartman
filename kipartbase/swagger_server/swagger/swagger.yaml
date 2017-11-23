@@ -312,6 +312,28 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /parts/parameters:
+    get:
+      description: "Return all available parts parameters"
+      operationId: "find_parts_parameters"
+      parameters:
+      - name: "search"
+        in: "query"
+        description: "Search parameter matching value"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "List of parts parameters"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/PartParameterDescription"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
   /units:
     get:
       description: "Return list of units"
@@ -1390,6 +1412,17 @@ definitions:
           type: "array"
           items:
             $ref: "#/definitions/PartAttachement"
+  PartParameterDescription:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      unit:
+        $ref: "#/definitions/Unit"
+      numeric:
+        type: "boolean"
   Unit:
     type: "object"
     required:

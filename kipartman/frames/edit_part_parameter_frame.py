@@ -1,4 +1,6 @@
 from dialogs.dialog_edit_part_parameter import DialogEditPartParameter
+from frames.dropdown_dialog import DropdownDialog
+from frames.select_part_parameter_frame import SelectPartParameterFrame
 import wx
 import rest
  
@@ -188,3 +190,22 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.static_max_value.Hide()
         self.edit_part_parameter_max_value.Hide()
         self.choice_part_parameter_max_prefix.Hide()
+
+    def onButtonSearchParameterClick( self, event ):
+        frame = DropdownDialog(self, SelectPartParameterFrame, "")
+        frame.DropHere(self.onSelectPartParameterFrameOk)
+    
+    def onSelectPartParameterFrameOk(self, parameter):
+        self.edit_part_parameter_name.Value = parameter.name
+        self.edit_part_parameter_description.Value = parameter.description
+        
+        if parameter.numeric:
+            self.radio_choice_parameter_numeric.SetValue(True)
+            self.onRadioNumeric(None)
+        else:
+            self.radio_choice_parameter_text.SetValue(True)
+            self.onRadioText(None)
+            
+        if parameter.unit:
+            self.choice_part_parameter_unit.SetSelection(parameter.unit.id)
+

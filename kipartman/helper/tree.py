@@ -171,13 +171,20 @@ class TreeModel(wx.dataview.PyDataViewModel):
         if self.sort_function[column] is None:
             return 0
         else:
-            if not ascending: # swap sort order?
-                item2, item1 = item1, item2
-
             value1 = self.GetValue(item1, column)
             value2 = self.GetValue(item2, column)
-            if value1=='' or value2=='':
+
+            # empty element are always treated inferior
+            if value1=="" and value2!="":
+                return 1
+            elif value1!="" and value2=="":
+                return -1
+            elif value1=="" and value2=="":
                 return super(TreeModel, self).Compare(item1, item2, column, ascending)
+
+            if not ascending: # swap sort order?
+                value2, value1 = value1, value2
+
             return self.sort_function[column](value1, value2)
         
 class TreeDropTarget(wx.TextDropTarget):
@@ -200,48 +207,41 @@ class TreeDataObject(wx.TextDataObject):
         self.SetText(json.dumps({'type': data.__class__.__name__, 'data': data.GetDragData()}))
 
 def CompareInteger(item1, item2):
-    if item1 is None or item1=="":
-        return -1
-    if item2 is None or item2=="":
-        return 1
-    
     val1 = int(item1)
     val2 = int(item2)
     if val2>val1:
-        return 1
-    elif val2<val1:
         return -1
+    elif val2<val1:
+        return 1
     return 0
 
 def CompareFloat(item1, item2):
-    if item1 is None or item1=="":
-        return -1
-    if item2 is None or item2=="":
-        return 1
-    
     val1 = float(item1)
     val2 = float(item2)
     if val2>val1:
-        return 1
-    elif val2<val1:
         return -1
+    elif val2<val1:
+        return 1
     return 0
 
 def CompareString(item1, item2):
     if item2>item1:
-        return 1
-    elif item2<item1:
         return -1
+    elif item2<item1:
+        return 1
     return 0 
 
 class TreeManager(object):
     drag_item = None
     drag_source = None
     
-    def __init__(self, tree_view):
+    def __init__(self, tree_view, model=None):
         self.tree_view = tree_view
 
-        self.model = TreeModel()
+        if model==None:
+            self.model = TreeModel()
+        else:
+            self.model = model
         self.tree_view.AssociateModel(self.model)
 
         # create drag and drop targets
@@ -429,6 +429,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
+        return column
     
     def AddFloatColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
@@ -436,6 +437,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareFloat)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
     def AddIntegerColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
@@ -443,6 +445,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareInteger)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
     def AddToggleColumn(self, title):
         column = self.tree_view.AppendToggleColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE, mode=wx.dataview.DATAVIEW_CELL_ACTIVATABLE)
@@ -450,6 +453,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
     def AddCustomColumn(self, title, type, sort_function):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
@@ -457,7 +461,14 @@ class TreeManager(object):
         self.model.sort_function.append(sort_function)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
+    def RemoveColumn(self, index):
+        for column in self.tree_view.GetColumns():
+            if column.GetModelColumn()==index:
+                self.tree_view.DeleteColumn(column)
+                return
+        
     def ClearItems(self):
         self.data = []
         self.model.ClearItems()

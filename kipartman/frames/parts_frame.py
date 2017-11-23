@@ -1,7 +1,9 @@
 from dialogs.panel_parts import PanelParts
+from frames.dropdown_dialog import DropdownDialog
 from frames.progression_frame import ProgressionFrame
 from frames.edit_category_frame import EditCategoryFrame
 from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
+from frames.select_part_parameter_frame import SelectPartParameterFrame
 import helper.tree
 from helper.filter import Filter
 import rest
@@ -11,10 +13,12 @@ from octopart.queries import PartsQuery
 import datetime
 from octopart.extractor import OctopartExtractor
 import swagger_client
+from helper.tree import TreeModel
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
 
+        
 class DataModelCategory(helper.tree.TreeContainerItem):
     def __init__(self, category):
         super(DataModelCategory, self).__init__()
@@ -39,6 +43,9 @@ class DataModelCategoryPath(helper.tree.TreeContainerItem):
         super(DataModelCategoryPath, self).__init__()
         self.category = category
     
+    def GetParam(self, col):
+        return None
+    
     def GetValue(self, col):
         if self.category:
             path = self.category.path
@@ -56,23 +63,70 @@ class DataModelCategoryPath(helper.tree.TreeContainerItem):
             attr.Bold = True
             return True
         return False
+
+class DataColumnParameter(object):
+    def __init__(self, parameter_name):
+        self.parameter_name = parameter_name
     
 class DataModelPart(helper.tree.TreeContainerLazyItem):
-    def __init__(self, part):
+    def __init__(self, part, columns):
         super(DataModelPart, self).__init__()
         self.part = part
+        self.columns = columns
+        
+        self.parameters = {}
+        if part.parameters:
+            for param in part.parameters:
+                self.parameters[param.name] = param 
+
         if part.has_childs:
             # add a fake item
             self.childs.append(None)
-            
+        
+    def value_string(self, value, prefix, unit):
+        res = ""
+        if value is None:
+            return res
+        res = res+"%g"%value+" "
+        if not prefix is None:
+            res = res+prefix.symbol
+        if not unit is None:
+            res = res+unit.symbol
+        return res
+
+    def FormatParameter(self, param):
+        if param.numeric:
+            value = ""
+            if param.nom_value is None:
+                return value
+            value = value+"%g"%param.nom_value+" "
+            if param.nom_prefix:
+                value = value+param.nom_prefix.symbol
+            if param.unit:
+                value = value+param.unit.symbol
+            return value
+        else:
+            return param.text_value
+    
+    def GetParam(self, col):
+        if self.parameters.has_key(self.columns[col].parameter_name):
+            return self.parameters[self.columns[col].parameter_name]
+        return None
+        
+
     def GetValue(self, col):
-        vMap = { 
-            0 : str(self.part.id),
-            1 : self.part.name,
-            2 : self.part.description,
-            3 : self.part.comment
-        }
-        return vMap[col]
+        if col<4:
+            vMap = { 
+                0 : str(self.part.id),
+                1 : self.part.name,
+                2 : self.part.description,
+                3 : self.part.comment
+            }
+            return vMap[col]
+        elif self.parameters.has_key(self.columns[col].parameter_name):
+            return self.FormatParameter(self.parameters[self.columns[col].parameter_name])
+        else:
+            return ''
 
     def Load(self, manager):
         if self.part.has_childs==False:
@@ -80,7 +134,7 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
         part = rest.api.find_part(self.part.id, with_childs=True)
         
         for child in part.childs:
-            manager.AppendItem(self, DataModelPart(child))
+            manager.AppendItem(self, DataModelPart(child, self.columns))
 
     def GetDragData(self):
         if isinstance(self.parent, DataModelCategoryPath):
@@ -88,10 +142,68 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
         return None
 
 
+class TreeModelParts(TreeModel):
+    def __init__(self):
+        super(TreeModelParts, self).__init__()
+        self.columns = {}
+
+    def Compare(self, item1, item2, column, ascending):
+        if self.columns.has_key(column)==False:
+            return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
+        else:
+            obj1 = self.ItemToObject(item1)
+            obj2 = self.ItemToObject(item2)
+
+            if obj1:
+                param1 = obj1.GetParam(column)
+            if obj2:
+                param2 = obj2.GetParam(column)
+            
+            # none element are always treated inferior
+            if not param1 and param2:
+                return 1
+            elif param1 and not param2:
+                return -1
+            elif not param1 and not param2:
+                return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
+
+            if not ascending: # swap sort order?
+                param2, param1 = param1, param2
+
+            
+            if param1.numeric!=param2.numeric:
+                return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
+
+            if param1.numeric==False and param2.numeric==False:
+                return helper.tree.CompareString(param1.text_value, param2.text_value)
+
+            if param1.unit and param2.unit and param1.unit!=param2.unit:
+                return helper.tree.CompareString(param1.unit.name, param2.unit.name)
+
+            value1 = 0
+            if param1.nom_value:
+                value1 = param1.nom_value
+            if param1.nom_prefix:
+                value1 = value1*float(param1.nom_prefix.power)
+                
+            value2 = 0
+            if param2.nom_value:
+                value2 = param2.nom_value
+            if param2.nom_prefix:
+                value2 = value2*float(param2.nom_prefix.power)
+            
+            if value2>value1:
+                return -1
+            elif value1>value2:
+                return 1
+            return 0
+
+
 class TreeManagerParts(helper.tree.TreeManager):
     def __init__(self, tree_view):
-        super(TreeManagerParts, self).__init__(tree_view)
-
+        model = TreeModelParts()
+        super(TreeManagerParts, self).__init__(tree_view, model)
+        
     def FindPart(self, part_id):
         for data in self.data:
             if isinstance(data, DataModelPart) and isinstance(data.parent, DataModelCategoryPath) and data.part.id==part_id:
@@ -148,19 +260,28 @@ class TreeManagerParts(helper.tree.TreeManager):
     
     def AppendPart(self, part):
         categoryobj = self.AppendCategoryPath(part.category)
-        partobj = DataModelPart(part)
+        partobj = DataModelPart(part, self.model.columns)
         self.AppendItem(categoryobj, partobj)
         self.Expand(categoryobj)
         return partobj
     
     def AppendChildPart(self, parent_part, part):
         parentobj = self.FindPart(parent_part.id)
-        partobj = DataModelPart(part)
+        partobj = DataModelPart(part, self.model.columns)
         self.AppendItem(parentobj, partobj)
         self.Expand(parentobj)
         return partobj
 
+    def AddParameterColumn(self, parameter_name):
+        column = self.AddCustomColumn(parameter_name, 'parameter', None)
+        self.model.columns[column.GetModelColumn()] = DataColumnParameter(parameter_name)
         
+    def RemoveParameterColumn(self, index):
+        if self.model.columns.has_key(index)==False:
+            return
+        self.model.columns.pop(index)
+        self.RemoveColumn(index)
+
 class PartsFrame(PanelParts): 
     def __init__(self, parent): 
         super(PartsFrame, self).__init__(parent)
@@ -182,6 +303,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddTextColumn("description")
         self.tree_parts_manager.AddIntegerColumn("comment")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
+        self.tree_parts_manager.OnColumnHeaderRightClick = self.onTreePartsColumnHeaderRightClick
         self.tree_parts_manager.DropAccept(DataModelPart, self.onTreePartsDropPart)
         
         # 
@@ -194,6 +316,7 @@ class PartsFrame(PanelParts):
         # initial edit state
         self.show_part(None)
         self.edit_state = None
+        self.show_categories = True
         
         self.load()
         
@@ -230,24 +353,28 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.ClearItems()
         
         # load parts
-        parts = rest.api.find_parts(**self.parts_filter.query_filter())
+        parts = rest.api.find_parts( with_parameters=True, **self.parts_filter.query_filter())
 
-        # load categories
-        categories = {}
-        for part in parts:
-            if part.category:
-                category_name = part.category.path
-            else:
-                category_name = "/"
-
-            if categories.has_key(category_name)==False:
-                categories[category_name] = DataModelCategoryPath(part.category)
-                self.tree_parts_manager.AppendItem(None, categories[category_name])
-            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part))
-        
-        for category in categories:
-            self.tree_parts_manager.Expand(categories[category])
-                
+        if self.show_categories:
+            # load categories
+            categories = {}
+            for part in parts:
+                if part.category:
+                    category_name = part.category.path
+                else:
+                    category_name = "/"
+    
+                if categories.has_key(category_name)==False:
+                    categories[category_name] = DataModelCategoryPath(part.category)
+                    self.tree_parts_manager.AppendItem(None, categories[category_name])
+                self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, self.tree_parts_manager.model.columns))
+            
+            for category in categories:
+                self.tree_parts_manager.Expand(categories[category])
+        else:
+            for part in parts:
+                self.tree_parts_manager.AppendItem(None, DataModelPart(part, self.tree_parts_manager.model.columns))
+            
     def load(self):
         try:
             self.loadCategories()
@@ -432,6 +559,10 @@ class PartsFrame(PanelParts):
         return wx.DragMove
 
 
+    def onToggleCategoryPathButton( self, event ):
+        self.show_categories = self.toggle_category_path.GetValue()
+        self.loadParts()
+    
     def onTreePartsSelChanged( self, event ):
         item = self.tree_parts.GetSelection()
         part = None
@@ -444,6 +575,12 @@ class PartsFrame(PanelParts):
             part = obj.part
         self.show_part(part)
 
+    def onTreePartsColumnHeaderRightClick( self, event ):
+        pos = event.GetPosition()
+        # TODO: Nasty hack, this would be better to have a way to pass the column in the event object 
+        self.menu_parameters.Column = event.GetDataViewColumn() 
+        self.panel_parts.PopupMenu(self.menu_parameters, pos)
+        
     def onTreePartsDropPart(self, x, y, data):
         dest_item, _ = self.tree_parts.HitTest((x, y))
         if not dest_item.IsOk():
@@ -467,6 +604,16 @@ class PartsFrame(PanelParts):
             return wx.DragMove
         else:
             return wx.DragCancel
+
+    def onMenuParametersAddSelection( self, event ):
+        frame = DropdownDialog(self, SelectPartParameterFrame, "")
+        frame.DropHere(self.onSelectPartParameterFrameOk)
+    
+    def onSelectPartParameterFrameOk(self, parameter):
+        self.tree_parts_manager.AddParameterColumn(parameter.name)
+        
+    def onMenuParametersRemoveSelection( self, event ):
+        self.tree_parts_manager.RemoveParameterColumn(self.menu_parameters.Column.GetModelColumn())
             
     def onEditPartApply( self, event ):
         part = event.data
