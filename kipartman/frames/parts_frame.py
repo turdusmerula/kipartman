@@ -191,8 +191,12 @@ class TreeModelParts(TreeModel):
                 value2 = param2.nom_value
             if param2.nom_prefix:
                 value2 = value2*float(param2.nom_prefix.power)
-                
-            return value2-value1
+            
+            if value2>value1:
+                return -1
+            elif value1>value2:
+                return 1
+            return 0
 
 
 class TreeManagerParts(helper.tree.TreeManager):
