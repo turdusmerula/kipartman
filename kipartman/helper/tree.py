@@ -174,11 +174,17 @@ class TreeModel(wx.dataview.PyDataViewModel):
             value1 = self.GetValue(item1, column)
             value2 = self.GetValue(item2, column)
 
+            # empty element are always treated inferior
+            if value1=="" and value2!="":
+                return 1
+            elif value1!="" and value2=="":
+                return -1
+            elif value1=="" and value2=="":
+                return super(TreeModel, self).Compare(item1, item2, column, ascending)
+
             if not ascending: # swap sort order?
                 value2, value1 = value1, value2
 
-            if value1=='' or value2=='':
-                return super(TreeModel, self).Compare(item1, item2, column, ascending)
             return self.sort_function[column](value1, value2)
         
 class TreeDropTarget(wx.TextDropTarget):
@@ -201,38 +207,28 @@ class TreeDataObject(wx.TextDataObject):
         self.SetText(json.dumps({'type': data.__class__.__name__, 'data': data.GetDragData()}))
 
 def CompareInteger(item1, item2):
-    if item1 is None or item1=="":
-        return -1
-    if item2 is None or item2=="":
-        return 1
-    
     val1 = int(item1)
     val2 = int(item2)
     if val2>val1:
-        return 1
-    elif val2<val1:
         return -1
+    elif val2<val1:
+        return 1
     return 0
 
 def CompareFloat(item1, item2):
-    if item1 is None or item1=="":
-        return -1
-    if item2 is None or item2=="":
-        return 1
-    
     val1 = float(item1)
     val2 = float(item2)
     if val2>val1:
-        return 1
-    elif val2<val1:
         return -1
+    elif val2<val1:
+        return 1
     return 0
 
 def CompareString(item1, item2):
     if item2>item1:
-        return 1
-    elif item2<item1:
         return -1
+    elif item2<item1:
+        return 1
     return 0 
 
 class TreeManager(object):

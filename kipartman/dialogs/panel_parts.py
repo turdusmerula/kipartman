@@ -105,6 +105,12 @@ class PanelParts ( wx.Panel ):
 		self.button_remove_part = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer10.Add( self.button_remove_part, 0, wx.ALL, 5 )
 		
+		self.toggle_category_path = wx.ToggleButton( self.panel_parts, wx.ID_ANY, u"/", wx.DefaultPosition, wx.Size( -1,-1 ), 0 )
+		self.toggle_category_path.SetValue( True ) 
+		self.toggle_category_path.SetMaxSize( wx.Size( 32,-1 ) )
+		
+		bSizer10.Add( self.toggle_category_path, 0, wx.ALL, 5 )
+		
 		
 		bSizer11.Add( bSizer10, 1, wx.EXPAND, 5 )
 		
@@ -174,6 +180,7 @@ class PanelParts ( wx.Panel ):
 		self.button_add_part.Bind( wx.EVT_BUTTON, self.onButtonAddPartClick )
 		self.button_edit_part.Bind( wx.EVT_BUTTON, self.onButtonEditPartClick )
 		self.button_remove_part.Bind( wx.EVT_BUTTON, self.onButtonRemovePartClick )
+		self.toggle_category_path.Bind( wx.EVT_TOGGLEBUTTON, self.onToggleCategoryPathButton )
 		self.search_parts.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchPartsButton )
 		self.search_parts.Bind( wx.EVT_TEXT_ENTER, self.onSearchPartsTextEnter )
 		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
@@ -208,6 +215,9 @@ class PanelParts ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonRemovePartClick( self, event ):
+		event.Skip()
+	
+	def onToggleCategoryPathButton( self, event ):
 		event.Skip()
 	
 	def onSearchPartsButton( self, event ):

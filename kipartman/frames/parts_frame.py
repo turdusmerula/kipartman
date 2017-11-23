@@ -149,7 +149,7 @@ class TreeModelParts(TreeModel):
 
     def Compare(self, item1, item2, column, ascending):
         if self.columns.has_key(column)==False:
-            super(TreeModelParts, self).Compare(item1, item2, column, ascending)
+            return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
         else:
             obj1 = self.ItemToObject(item1)
             obj2 = self.ItemToObject(item2)
@@ -159,11 +159,18 @@ class TreeModelParts(TreeModel):
             if obj2:
                 param2 = obj2.GetParam(column)
             
+            # none element are always treated inferior
+            if not param1 and param2:
+                return 1
+            elif param1 and not param2:
+                return -1
+            elif not param1 and not param2:
+                return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
+
             if not ascending: # swap sort order?
                 param2, param1 = param1, param2
 
-            if not param1 or not param2:
-                return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
+            
             if param1.numeric!=param2.numeric:
                 return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
 
@@ -305,6 +312,7 @@ class PartsFrame(PanelParts):
         # initial edit state
         self.show_part(None)
         self.edit_state = None
+        self.show_categories = True
         
         self.load()
         
@@ -343,22 +351,26 @@ class PartsFrame(PanelParts):
         # load parts
         parts = rest.api.find_parts( with_parameters=True, **self.parts_filter.query_filter())
 
-        # load categories
-        categories = {}
-        for part in parts:
-            if part.category:
-                category_name = part.category.path
-            else:
-                category_name = "/"
-
-            if categories.has_key(category_name)==False:
-                categories[category_name] = DataModelCategoryPath(part.category)
-                self.tree_parts_manager.AppendItem(None, categories[category_name])
-            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, self.tree_parts_manager.model.columns))
-        
-        for category in categories:
-            self.tree_parts_manager.Expand(categories[category])
-                
+        if self.show_categories:
+            # load categories
+            categories = {}
+            for part in parts:
+                if part.category:
+                    category_name = part.category.path
+                else:
+                    category_name = "/"
+    
+                if categories.has_key(category_name)==False:
+                    categories[category_name] = DataModelCategoryPath(part.category)
+                    self.tree_parts_manager.AppendItem(None, categories[category_name])
+                self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, self.tree_parts_manager.model.columns))
+            
+            for category in categories:
+                self.tree_parts_manager.Expand(categories[category])
+        else:
+            for part in parts:
+                self.tree_parts_manager.AppendItem(None, DataModelPart(part, self.tree_parts_manager.model.columns))
+            
     def load(self):
         try:
             self.loadCategories()
@@ -543,6 +555,10 @@ class PartsFrame(PanelParts):
         return wx.DragMove
 
 
+    def onToggleCategoryPathButton( self, event ):
+        self.show_categories = self.toggle_category_path.GetValue()
+        self.loadParts()
+    
     def onTreePartsSelChanged( self, event ):
         item = self.tree_parts.GetSelection()
         part = None
