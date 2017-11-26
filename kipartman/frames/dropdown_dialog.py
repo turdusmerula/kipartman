@@ -13,7 +13,7 @@ class DropdownDialog(wx.Dialog):
         :param initial: item to select by default
         Frame should contain a SetResult method allowing to set result and cancel callback 
         """
-
+        self.result_callback = None
         super(DropdownDialog, self).__init__(parent, style=wx.RESIZE_BORDER)
         self.panel = frame(self, initial)
         self.SetSize( self.panel.GetSize())
@@ -39,7 +39,7 @@ class DropdownDialog(wx.Dialog):
         self.SetPosition(pos)
         self.ShowModal()
     
-    def DropHere(self, result_callback):
+    def DropHere(self, result_callback=None):
         pos = wx.GetMousePosition()
 
         screenSize = wx.Display(0).GetGeometry().GetSize()
@@ -50,13 +50,15 @@ class DropdownDialog(wx.Dialog):
 
         # callbacks from panel
         self.panel.SetResult(self.result, self.cancel)
+
         self.result_callback = result_callback
         
         self.SetPosition(pos)
         self.ShowModal()
         
     def result(self, data):
-        self.result_callback(data)
+        if self.result_callback:
+            self.result_callback(data)
         self.Destroy()
 
     def cancel(self):
