@@ -1,4 +1,5 @@
 import logging
+import datetime
 import wx.dataview
 #import wx.dataview.DataViewTreeCtrl
 import json
@@ -192,11 +193,33 @@ class TreeDropTarget(wx.TextDropTarget):
         super(TreeDropTarget, self).__init__()
         self.manager = manager
 
-    #TODO: set drag cursor depending on accept/reject drop
+ #TODO: set drag cursor depending on accept/reject drop
+    '''
+    @TODO: FIX - onDragOver, in MSW does not show over dataviewitems, 
+    @TODO: CHECK onDragOver, in Linux does this fire ?
+    @TODO: FIX - (return) only wx.DragCopy works, wx.DragMove shows (ICON Notpossible)
+    '''
+    def OnDragOver(self, x, y, d):
+        if 'logging' in globals():logging.debug(
+             "{:%H:%M:%S.%f}  TreeDropTarget:OnDragOver : SuggestedResult:{}".format(
+                    datetime.datetime.now(),
+                    d
+                    ))
+        return wx.DragNone  #wx.DragMove
+
     def OnDropText(self, x, y, text):
+        if 'logging' in globals():logging.debug(
+            "{:%H:%M:%S.%f}  TreeDropTarget:OnDropText : Position:X{}Y{} Text:{}".format(
+                                            datetime.datetime.now(),
+                                            x,y,text
+                                            ))
+
         payload = json.loads(text)
         for target in self.manager.drop_targets:
             if payload['type']==target['type']:
+                if 'logging' in globals():logging.debug( 
+                        "{:%H:%M:%S.%f}  TreeDropTarget:OnDropText(payload process) : target:{} payload:{}".format(
+                            datetime.datetime.now(),target['trigger'],payload['data']))
                 return target['trigger'](x, y, payload['data'])
         return wx.DragError
 
@@ -236,6 +259,10 @@ class TreeManager(object):
     drag_source = None
     
     def __init__(self, tree_view, model=None):
+        #TODO ISSUE#8 Debug assist to Try various options
+        self.onItemDropPossible_returnResult = 1
+        self.onItemDropPossible_eventAction = 1
+
         self.tree_view = tree_view
 
         if model==None:
@@ -246,8 +273,8 @@ class TreeManager(object):
 
         # create drag and drop targets
         self.drop_targets = []
-        self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat().GetType()))
-        self.tree_view.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
+        self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
+        self.tree_view.EnableDropTarget(wx.DataFormat(wx.TextDataObject().GetFormat()))
         self.tree_view.SetDropTarget(TreeDropTarget(self))
 
         # data elements
@@ -323,13 +350,22 @@ class TreeManager(object):
     
     def _onItemBeginDrag( self, event ):
         event.manager = self
-        
+        '''
+        @TODO: Confirm SetDragFlags under Linux
+        according to documentation https://wxpython.org/Phoenix/docs/html/wx.dataview.DataViewEvent.html#wx-dataview-dataviewevent
+
+        Currently it is only honoured by the generic version of wx.dataview.DataViewCtrl (used e.g. under MSW)'
+        '''
+        # Suppress the standard drag symbol on MSW (copy)
+        event.SetDragFlags(wx.Drag_DefaultMove)
+
         TreeManager.drag_item = event.GetItem()
         TreeManager.drag_source = self
         
         if self.drag_item is None:
             event.Skip()
             return wx.DragCancel
+
         try:
             drag_data = self.model.ItemToObject(event.GetItem())
         except Exception as inst:
@@ -341,8 +377,13 @@ class TreeManager(object):
 
         event.SetDataObject(TreeDataObject(drag_data))
         if 'logging' in globals():logging.debug('DRAG onItemBeginDrag STATE:{}'.format(self.OnItemBeginDrag))
+        dragSource = wx.DropSource(self.tree_view.TopLevelParent)
+        dataObject = TreeDataObject(drag_data)
+
         if self.OnItemBeginDrag:
             return self.OnItemBeginDrag(event)
+        return wx.Drag_DefaultMove
+
     
     def _onItemCollapsed( self, event ):
         event.manager = self
@@ -364,15 +405,94 @@ class TreeManager(object):
     
     def _onItemDrop( self, event ):
         event.manager = self
+        if 'logging' in globals():logging.debug("{:%H:%M:%S.%f}  TreeManager:onItemDrop self:{} event:{} {}".format(datetime.datetime.now(),
+                                    self,
+                                    event.GetClassName(),
+                                    hex(id(event)).upper(),
+                                    ))
+        drag_data = self.drag_source.model.ItemToObject(self.drag_source.drag_item)
+        if drag_data.GetDragData() is None:
+            event.Skip()
+            return wx.DragCancel
+        sourceDataObject = TreeDataObject(drag_data)
+        event.SetDataObject(sourceDataObject)
+
+        #TODO 17W47.5 WORKAROUND for defect 17561.
+        # WORKAROUND y-25
+        # Q: Can we determine What is the Header Row Height , so we can adjust, also need to detect if the header is displayed ???
+        # Q: When will wxWidget fix this? Anything we can do ?, is it specific to MSW
+        # BACKGROUND
+        '''
+        The generic versions of wxDataViewCtrl::HitTest() and wxDataViewCtrl::GetItemRect() do not take the size of the optional header of the control into account. Instead they just forward the calls to the client area (m_clientArea) without correcting the y-coordinate by the height of the optional header (m_headerArea). This leads to wrong results.
+
+        From <http://trac.wxwidgets.org/ticket/17561#no1> 
+
+        '''
+        mouse_x,mouse_y = wx.GetMousePosition()
+        mouse_x, mouse_y = self.tree_view.ScreenToClient((mouse_x, mouse_y-25))
+
+        #TODO 17W47.7 WORKAROUND for defect xxxxx.
+        # WORKAROUND as DropTarget is not called for Dataview Items, call it manually in onDrop
+        # BACKGROUND
+        '''
+        
+        '''
+
+
+        self.tree_view.DropTarget.OnDropText(
+            mouse_x, mouse_y, 
+            sourceDataObject.Text)
+
         if self.OnItemDrop:
             return self.OnItemDrop(event)
-        event.Skip()
+        event.Allow()
+        return True
     
     def _onItemDropPossible( self, event ):
         event.manager = self
         if self.OnItemDropPossible:
-            return self.OnItemDropPossible(event)
-        event.Skip()
+            return self.OnItemDropPossible(event) 
+               #return False
+        '''
+        @TODO: Implement Drag Feedback 
+         Ok/Not Ok for drop by event.Allow or event.Skip
+        
+        Hit test on ?
+        
+        Define:  onItemDropPossible_eventAction 
+        if onItemDropPossible_eventAction:
+            event.Allow()
+        else:
+            event.Skip()
+            
+        @TODO: Undestand as below the event.Skip(False) vs event.Skip(True)
+        '''
+
+        #Control the Drag Cursor
+        #self.onItemDropPossible_eventAction = 1
+        if self.onItemDropPossible_eventAction == 1:
+            #Generates a working drag cursor
+            event.Allow()
+        elif self.onItemDropPossible_eventAction == 2:
+            #'banned' cursor (on MSWindows--the cursor that is a circle with a line diagonally through it).
+            event.Skip(True)
+        elif self.onItemDropPossible_eventAction == 3:
+            #Generates a working drag cursor
+            event.Skip(False)
+        else:
+            pass
+
+        #TODO: Debug assist code for Issue#8 DnD, Parts to Categories on MSW
+        # if self.onItemDropPossible_returnResult == 1:
+        #     return wx.Drag_DefaultMove
+        # elif self.onItemDropPossible_returnResult == 2:
+        #     return wx.Drag_CopyOnly
+        # elif self.onItemDropPossible_returnResult == 3:
+        #     return wx.Drag_AllowMove
+        # else:
+        #     pass
+
+        return wx.Drag_DefaultMove
     
     def _onItemEditingDone( self, event ):
         event.manager = self
