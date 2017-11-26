@@ -124,7 +124,7 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
             }
             return vMap[col]
         #if columns are not yet defined
-        elif self.columns=={}:
+        elif not(col in self.columns):
             return ''
         elif self.parameters.has_key(self.columns[col].parameter_name):
             return self.FormatParameter(self.parameters[self.columns[col].parameter_name])
