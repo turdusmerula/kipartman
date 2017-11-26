@@ -586,6 +586,46 @@ class PartsFrame(PanelParts):
         if not dest_item.IsOk():
             return 
         dest_obj = self.tree_parts_manager.ItemToObject(dest_item)
+        '''
+        @TODO: Additional Use Cases for dragging parts on to lines on the parts list
+               USE CASE: 1. Drag a part in the tree_parts onto an line. That is a Category Path
+                Essentially changing a parts category
+               USE CASE: 2. Drag a category in the tree_parts onto a line That is a Category path
+                Essentially changing all items to a sub category of the selected Category path
+
+            PSUEDOCODE: Usecase 1- part to cat
+            if isinstance(dest_obj, DataModelCategoryPath) and isinstance(source_obj,DataModelPart)
+                dest.obj.tree_categories. onTreeCategoriesDropPart(dest, x, y, data):
+
+            CODE: as per (onTreeCategoriesDropPart)
+                try:
+                    source_part_id = data['id']
+                    source_part = rest.api.find_part(source_part_id)
+
+                    dest_category = None
+                    dest_categoryobj = None
+                    if dest_categoryitem.IsOk():
+                        dest_categoryobj = self.tree_categories_manager.ItemToObject(dest_categoryitem)
+                        dest_category = dest_categoryobj.category
+                        source_part.category = rest.model.PartCategoryRef(id=dest_category.id)
+                    else:
+                        # set if as root category
+                        source_part.category = None
+                    
+                    # update on server
+                    part = rest.api.update_part(source_part.id, source_part)
+                    
+                    # update tree model
+                    self.tree_parts_manager.DeletePart(source_part)
+                    self.tree_parts_manager.AppendPart(part)
+                except Exception as e:
+                    wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                return wx.DragMove
+
+            PSUEDOCODE: Usecase 2- cat to cat
+            if isinstance(dest_obj, DataModelCategoryPath) and isinstance(source_obj,DataModelCategoryPath)
+                dest.obj.tree_categories. onTreeCategoriesDropCategory(, x, y, data):
+        '''
         if isinstance(dest_obj, DataModelPart) and isinstance(dest_obj.parent, DataModelCategoryPath):
             try:
                 source_part_id = data['id']
