@@ -123,6 +123,9 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
                 3 : self.part.comment
             }
             return vMap[col]
+        #if columns are not yet defined
+        elif self.columns=={}:
+            return ''
         elif self.parameters.has_key(self.columns[col].parameter_name):
             return self.FormatParameter(self.parameters[self.columns[col].parameter_name])
         else:
@@ -898,8 +901,8 @@ class PartsFrame(PanelParts):
             if len(manufacturers)>0:
                 manufacturer = manufacturers[0]
             else:
-                # distributor does not exists, create it
-                manufacturer = rest.model.Manufacturer()
+                # manufacturer does not exists, create it
+                manufacturer = rest.model.ManufacturerNew()
                 manufacturer.name = manufacturer_name
                 manufacturer.website = octopart.item().manufacturer().homepage_url()
                 manufacturer = rest.api.add_manufacturer(manufacturer)
