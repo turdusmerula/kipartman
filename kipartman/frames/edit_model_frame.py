@@ -16,7 +16,12 @@ from snapeda.queries import DownloadQuery
 import zipfile
 import glob, os
 import datetime
-import kicad.lib_convert
+try:
+    import kicad.lib_convert
+except ImportError:
+    print(' Kicad PCBNEW library not available')
+else:
+    pass
 
 EditModelApplyEvent, EVT_EDIT_FOOTPRINT_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditModelCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewEvent()
