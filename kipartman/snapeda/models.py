@@ -27,6 +27,11 @@ class SearchResult(Model):
 
     def coverart(self):
         list = []
+        '''
+        @TODO: Crash because of key error happened a couple of times
+        after a 3rd retrieval from SnapEDA coverart was present so could not
+        debug further to put in the following catch
+        '''
         # try:
         #     pass
         # except expression as identifier:

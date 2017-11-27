@@ -2,6 +2,7 @@ from dialogs.panel_edit_part import PanelEditPart
 from frames.select_footprint_frame import SelectFootprintFrame
 from frames.select_model_frame import SelectModelFrame
 from frames.part_parameters_frame import PartParametersFrame
+from frames.part_ecaddata_frame import PartEcadDataFrame
 from frames.part_distributors_frame import PartDistributorsFrame
 from frames.part_manufacturers_frame import PartManufacturersFrame
 from frames.part_attachements_frame import PartAttachementsFrame
@@ -30,6 +31,9 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_parameters = PartParametersFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_parameters, "Parameters")
         
+        self.edit_part_ecaddata = PartEcadDataFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_ecaddata, "ECADdata")
+        
         self.edit_part_distributors = PartDistributorsFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_distributors, "Distributors")
 
@@ -46,6 +50,7 @@ class EditPartFrame(PanelEditPart):
         self.part = part
         self.ShowPart(part)
         self.edit_part_parameters.SetPart(part)
+        self.edit_part_ecaddata.SetPart(part)
         self.edit_part_distributors.SetPart(part)
         self.edit_part_manufacturers.SetPart(part)
         self.edit_part_storages.SetPart(part)
