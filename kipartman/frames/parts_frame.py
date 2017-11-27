@@ -115,12 +115,21 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
         
 
     def GetValue(self, col):
-        if col<4:
+        if col<6:
+            model = ''
+            if self.part.model:
+                model = self.part.model.name
+            footprint = ''
+            if self.part.footprint:
+                footprint = self.part.footprint.name
+            
             vMap = { 
                 0 : str(self.part.id),
                 1 : self.part.name,
                 2 : self.part.description,
-                3 : self.part.comment
+                3 : self.part.comment,
+                4 : model,
+                5 : footprint
             }
             return vMap[col]
         #if columns are not yet defined
@@ -305,6 +314,8 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
         self.tree_parts_manager.AddIntegerColumn("comment")
+        self.tree_parts_manager.AddTextColumn("model")
+        self.tree_parts_manager.AddTextColumn("footprint")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
         self.tree_parts_manager.OnColumnHeaderRightClick = self.onTreePartsColumnHeaderRightClick
         self.tree_parts_manager.DropAccept(DataModelPart, self.onTreePartsDropPart)
