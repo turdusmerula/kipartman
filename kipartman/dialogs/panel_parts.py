@@ -10,6 +10,7 @@
 import wx
 import wx.xrc
 import wx.dataview
+import wx.lib.splitter
 
 ###########################################################################
 ## Class PanelParts
@@ -68,7 +69,7 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer7 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.part_splitter = wx.SplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.part_splitter = wx.lib.splitter.MultiSplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
 		self.part_splitter.SetMinimumPaneSize( 300 )
 		
 		self.panel_parts = wx.Panel( self.part_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -148,7 +149,7 @@ class PanelParts ( wx.Panel ):
 		
 		self.panel_parts.Bind( wx.EVT_RIGHT_DOWN, self.panel_partsOnContextMenu ) 
 		
-		self.part_splitter.Initialize( self.panel_parts )
+		self.part_splitter.InsertWindow( 0, self.panel_parts )
 		bSizer7.Add( self.part_splitter, 1, wx.EXPAND, 5 )
 		
 		

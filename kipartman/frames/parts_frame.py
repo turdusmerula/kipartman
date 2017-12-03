@@ -3,7 +3,7 @@ from frames.dropdown_dialog import DropdownDialog
 from frames.progression_frame import ProgressionFrame
 from frames.edit_category_frame import EditCategoryFrame
 from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
-from frames.kicadlink_part_frame import KicadLinkPartFrame EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT #TODO Define events
+from frames.kicadlink_part_frame import KicadLinkPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT #TODO Define events
 from frames.select_part_parameter_frame import SelectPartParameterFrame
 import helper.tree
 from helper.filter import Filter
@@ -324,13 +324,15 @@ class PartsFrame(PanelParts):
         # 
         # create edit part panel
         self.panel_edit_part = EditPartFrame(self.part_splitter)
-        self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
+        self.part_splitter.SetOrientation(wx.VERTICAL)
+        self.part_splitter.AppendWindow(self.panel_edit_part, 0)
+#        . .SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
         self.panel_edit_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
         self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
         # 
         # create KicadLink part panel
         self.panel_kicadlink_part = KicadLinkPartFrame(self.part_splitter)
-        self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_kicadlink_part, 400)
+        self.part_splitter.AppendWindow( self.panel_kicadlink_part, 0)
         self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
         self.panel_kicadlink_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
 
