@@ -3,6 +3,7 @@ from frames.dropdown_dialog import DropdownDialog
 from frames.progression_frame import ProgressionFrame
 from frames.edit_category_frame import EditCategoryFrame
 from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
+from frames.kicadlink_part_frame import KicadLinkPartFrame EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT #TODO Define events
 from frames.select_part_parameter_frame import SelectPartParameterFrame
 import helper.tree
 from helper.filter import Filter
@@ -115,12 +116,21 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
         
 
     def GetValue(self, col):
-        if col<4:
+        if col<6:
+            model = ''
+            if self.part.model:
+                model = self.part.model.name
+            footprint = ''
+            if self.part.footprint:
+                footprint = self.part.footprint.name
+            
             vMap = { 
                 0 : str(self.part.id),
                 1 : self.part.name,
                 2 : self.part.description,
-                3 : self.part.comment
+                3 : self.part.comment,
+                4 : model,
+                5 : footprint
             }
             return vMap[col]
         #if columns are not yet defined
@@ -305,6 +315,8 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
         self.tree_parts_manager.AddIntegerColumn("comment")
+        self.tree_parts_manager.AddTextColumn("model")
+        self.tree_parts_manager.AddTextColumn("footprint")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
         self.tree_parts_manager.OnColumnHeaderRightClick = self.onTreePartsColumnHeaderRightClick
         self.tree_parts_manager.DropAccept(DataModelPart, self.onTreePartsDropPart)
@@ -315,6 +327,13 @@ class PartsFrame(PanelParts):
         self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
         self.panel_edit_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
         self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+        # 
+        # create KicadLink part panel
+        self.panel_kicadlink_part = KicadLinkPartFrame(self.part_splitter)
+        self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_kicadlink_part, 400)
+        self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
+        self.panel_kicadlink_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+
 
         # initial edit state
         self.show_part(None)
