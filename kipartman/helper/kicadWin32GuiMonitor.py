@@ -1,3 +1,5 @@
+from helper.debugtools import debugprint
+
 import sys
 import ctypes
 import ctypes.wintypes
@@ -111,31 +113,32 @@ class EventHandler(object):
 
         EventHandler.lastTime = dwmsEventTime
 
-        @staticmethod
-        def start(q):
-            q.put('Main Started')
-            eh = EventHandler('WinEvents')
-            eh.set_queue(q)
-            
+    @staticmethod
+    def main(q):
+        q.put('Kicad GUI Monitor (MSW): Event Monitoring Starting')
+        eh = EventHandler('KicadGuiMonitorEvents')
+        eh.set_queue(q)
+        ole32.CoInitialize(0)
 
-            ole32.CoInitialize(0)
+        WinEventProc = WinEventProcType(EventHandler.callback)
+        user32.SetWinEventHook.restype = ctypes.wintypes.HANDLE
 
-            WinEventProc = WinEventProcType(EventHandler.callback)
-            user32.SetWinEventHook.restype = ctypes.wintypes.HANDLE
+        hookIDs = [setHook(WinEventProc, et) for et in eventTypes.keys()]
+        if not any(hookIDs):
+            print 'SetWinEventHook failed'
+            sys.exit(1)
 
-            hookIDs = [setHook(WinEventProc, et) for et in eventTypes.keys()]
-            if not any(hookIDs):
-                print 'SetWinEventHook failed'
-                sys.exit(1)
+        msg = ctypes.wintypes.MSG()
+        debugprint('EventHandler Initialization complete')
 
-            msg = ctypes.wintypes.MSG()
-            while user32.GetMessageW(ctypes.byref(msg), 0, 0, 0) != 0:
-                user32.TranslateMessageW(msg)
-                user32.DispatchMessageW(msg)
 
-            for hookID in hookIDs:
-                user32.UnhookWinEvent(hookID)
-            ole32.CoUninitialize()
+        while user32.GetMessageW(ctypes.byref(msg), 0, 0, 0) != 0:
+            user32.TranslateMessageW(msg)
+            user32.DispatchMessageW(msg)
+
+        for hookID in hookIDs:
+            user32.UnhookWinEvent(hookID)
+        ole32.CoUninitialize()
             
 def logError(msg):
         sys.stdout.write(msg + '\n')

@@ -1,9 +1,12 @@
 '''
 docstring
 '''
+from helper.debugtools import debugprint
+
 import platform
-import logging
+
     #TODO implement logging
+from configuration import Configuration
 
 if platform.system == 'Windows':
     import helper.kicadWin32GuiMonitor as kicadGUImonitor
@@ -49,16 +52,10 @@ class KicadEeschema(object):
 
  
 
-class KicadGUIEventWatcher():
-    @staticmethod
-    def start(q):
-        if platform.system == 'Windows':
-            kicadGUImonitor.EventHandler.start(q) 
-        else:
-            pass
 
+class KicadGUIEventProcessor():
     @staticmethod
-    def receiver(q):
+    def run(q):
         #Statemachine Config
         # https://github.com/pytransitions/transitions#states
 
@@ -221,3 +218,14 @@ class KicadGUIEventWatcher():
                 pass
             finally:
                 pass
+
+def EventWatcher(q):
+        if platform.system() == 'Windows':
+            import kicadWin32GuiMonitor as kGm
+        else:
+            pass
+        configuration=Configuration()
+        configuration.Load()
+        debugprint('Launching kGm.EventHandler.main')
+
+        kGm.EventHandler.main(q) 

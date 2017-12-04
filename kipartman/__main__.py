@@ -19,7 +19,7 @@ from threading import Thread
 # configure wxPython
 import wx
 from frames.main_frame import MainFrame
-from helper.kicad_gui_monitor import KicadGUIEventWatcher
+from helper import kicad_gui_monitor
 import sys, time
 
 def sleeper(i):
@@ -50,8 +50,9 @@ if __name__ == "__main__":
     t = Thread(target=sleeper, args=(1,))
     t.start()
 
-    processKcW32Ew = multiprocessing.Process(target=KicadGUIEventWatcher.start, args=(kcW32eventQueue,))
+    processKcW32Ew = multiprocessing.Process(target=kicad_gui_monitor.EventWatcher, args=(kcW32eventQueue,))
+    #FOR DEBUG -- comment out start and uncomment the following line
     processKcW32Ew.start()
-
+    #kicad_gui_monitor.EventWatcher(kcW32eventQueue)
     main()
 
