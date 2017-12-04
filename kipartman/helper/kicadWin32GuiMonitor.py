@@ -112,7 +112,7 @@ class EventHandler(object):
         EventHandler.lastTime = dwmsEventTime
 
         @staticmethod
-        def run(q):
+        def start(q):
             q.put('Main Started')
             eh = EventHandler('WinEvents')
             eh.set_queue(q)

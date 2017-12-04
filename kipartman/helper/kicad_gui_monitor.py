@@ -6,7 +6,7 @@ import logging
     #TODO implement logging
 
 if platform.system == 'Windows':
-    import helper.kicadWin32GuiMonitor
+    import helper.kicadWin32GuiMonitor as kicadGUImonitor
 else:
     pass #TODO implement linux handler
 
@@ -53,7 +53,7 @@ class KicadGUIEventWatcher():
     @staticmethod
     def start(q):
         if platform.system == 'Windows':
-            kicadWin32GuiMonitor.start(q)
+            kicadGUImonitor.EventHandler.start(q) 
         else:
             pass
 
