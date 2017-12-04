@@ -1,3 +1,4 @@
 #Requirements for Kicad Gui Monitor 
 #Platform 'Windows'  
 pypiwin32
+transitions

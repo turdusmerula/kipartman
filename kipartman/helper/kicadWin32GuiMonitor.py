@@ -57,7 +57,7 @@ class EventHandler(object):
     @staticmethod
     def log( msg):
         #EventHandler.clsQueue.put(msg)
-        print(msg)
+        debugprint(msg)
 
     @staticmethod
     def queue_put( object):
