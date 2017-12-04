@@ -7,6 +7,9 @@ if not os.path.exists('resources'):
     # we are in an installed package, set new path
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+import multiprocessing
+from threading import Thread
+
 # configure django to use the model
 #from django.core.wsgi import get_wsgi_application
 #import os
@@ -16,8 +19,13 @@ if not os.path.exists('resources'):
 # configure wxPython
 import wx
 from frames.main_frame import MainFrame
-import sys
+from helper.kicad_gui_monitor import KicadGUIEventWatcher
+import sys, time
 
+def sleeper(i):
+    print "thread %d sleeps for 5 seconds" % i
+    time.sleep(5)
+    print "thread %d woke up" % i
 
 def main(args=None):
     """The main routine."""
@@ -38,5 +46,12 @@ def main(args=None):
 
 
 if __name__ == "__main__":
+    kcW32eventQueue = multiprocessing.Queue()
+    t = Thread(target=sleeper, args=(1,))
+    t.start()
+
+    processKcW32Ew = multiprocessing.Process(target=KicadGUIEventWatcher.start, args=(kcW32eventQueue,))
+    processKcW32Ew.start()
+
     main()
 
