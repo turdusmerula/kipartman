@@ -40,7 +40,7 @@ class KicadEeschema(object):
 
     def enter_EeschemaBackground(self): 
         print("Kicad:Eeschema: STATE: Entered Background")
-        pub.sendMessage('update.status', listen_to = 'Eeschema.Background')
+        pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.Background')
 
     #Component Properties Dialog
     def enter_EeschemaComponentPropertiesForeground(self): print("Kicad:componentProperties: STATE: Foreground: Entered")

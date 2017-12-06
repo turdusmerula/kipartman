@@ -11,6 +11,7 @@ from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
 import wx.lib.newevent
+from wx.lib.pubsub import pub
 import datetime
 import re
 import rest
@@ -45,6 +46,20 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
 
         self.edit_part_attachements = PartAttachementsFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_attachements, "Attachements")
+
+        #
+        #Subscribe to the Kicad GUI event monitor announcements
+        pub.subscribe(self.updateFromKicad, "kicad.change.status")
+
+    def updateFromKicad(self, listen_to):
+        if listen_to == 'Eeschema.Foreground':
+            self.m_checkBoxKcEeschemaRunning.SetValue(True)
+        elif listen_to == 'Eeschema.Background':
+            self.m_checkBoxKcEeschemaRunning.SetValue(False)
+        print("Kicadlink_part_frame----XXXXXX-------XXXXXXX--------XXXXXX-------SUBSCRIBED EVENT RECIEVED:{}".format(listen_to))
+
+
+
 
     def SetPart(self, part):
         self.part = part
