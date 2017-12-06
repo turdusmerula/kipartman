@@ -2,6 +2,7 @@
 docstring
 '''
 
+from wx.lib.pubsub import pub
 
 from helper.debugtools import debugprint
 
@@ -33,8 +34,14 @@ class KicadEeschema(object):
         self.hwnd = hwnd
         self.component_add_hwnd = component_add_hwnd
 
-    def enter_EeschemeForeground(self): print("Kicad:Eeschem: STATE: Entered Foreground")
-    def enter_EeschemeBackground(self): print("Kicad:Eeschem: STATE: Entered Background")
+    def enter_EeschemaForeground(self): 
+        print("Kicad:Eeschema: STATE: Entered Foreground ")
+        pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.Foreground')
+
+    def enter_EeschemaBackground(self): 
+        print("Kicad:Eeschema: STATE: Entered Background")
+        pub.sendMessage('update.status', listen_to = 'Eeschema.Background')
+
     #Component Properties Dialog
     def enter_EeschemaComponentPropertiesForeground(self): print("Kicad:componentProperties: STATE: Foreground: Entered")
     def exit_EeschemaComponentPropertiesForeground(self): print("Kicad:componentProperties: STATE: Foreground: Exit")
@@ -65,7 +72,7 @@ def EventProcessor(q):
     kcE = KicadEeschema()
     states = [
         'EeschemaClosed',
-        State(name='Eeschema_Foreground', on_enter=['enter_EeschemeForeground']),
+        State(name='Eeschema_Foreground', on_enter=['enter_EeschemaForeground']),
         State(name='Eeschema_componentProperties_Foreground'
             , on_enter=['enter_EeschemaComponentPropertiesForeground']
             , on_exit=['exit_EeschemaComponentPropertiesForeground']),
@@ -74,7 +81,7 @@ def EventProcessor(q):
         State(name='Eeschema_componentAdd_Foreground'
             , on_enter=['enter_EeschemaComponentAddForeground']
             , on_exit=['exit_EeschemaComponentAddForeground']),
-        State(name='Eeschema_Background', on_enter=['enter_EeschemeBackground'])
+        State(name='Eeschema_Background', on_enter=['enter_EeschemaBackground'])
     ]
     transitions = [
         #Component Properties Edit
