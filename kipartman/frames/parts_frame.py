@@ -256,6 +256,14 @@ class TreeManagerParts(helper.tree.TreeManager):
         self.DeleteItem(partobj.parent, partobj)
         self.UpdateItem(parentobj)
 
+    def ExistChildPart(self, parent_part, part):
+        if parent_part.childs is None:
+            return False
+        for child in parent_part.childs:
+            if child.id==part.id:
+                return True
+        return False
+    
     def UpdatePart(self, part):
         partobj = self.FindPart(part.id)
         if partobj is None:
@@ -640,14 +648,18 @@ class PartsFrame(PanelParts):
             if isinstance(dest_obj, DataModelCategoryPath) and isinstance(source_obj,DataModelCategoryPath)
                 dest.obj.tree_categories. onTreeCategoriesDropCategory(, x, y, data):
         '''
-        if isinstance(dest_obj, DataModelPart) and isinstance(dest_obj.parent, DataModelCategoryPath):
+        if isinstance(dest_obj, DataModelPart): #and isinstance(dest_obj.parent, DataModelCategoryPath):
             try:
                 source_part_id = data['id']
                 source_partobj = self.tree_parts_manager.FindPart(source_part_id)
     
                 dest_part = rest.api.find_part(dest_obj.part.id, with_childs=True)
-                dest_part.childs.append(source_partobj.part)
 
+                if self.tree_parts_manager.ExistChildPart(dest_part, source_partobj.part):
+                    wx.MessageBox("Part %s is already a subpart of %s"%(source_partobj.part.name, dest_part.name), 'Error', wx.OK | wx.ICON_ERROR)
+                    return wx.DragCancel
+
+                dest_part.childs.append(source_partobj.part)
                 rest.api.update_part(dest_part.id, dest_part)
 
                 # update tree model
