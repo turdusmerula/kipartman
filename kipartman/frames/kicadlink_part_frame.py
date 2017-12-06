@@ -56,6 +56,21 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
             self.m_checkBoxKcEeschemaRunning.SetValue(True)
         elif listen_to == 'Eeschema.Background':
             self.m_checkBoxKcEeschemaRunning.SetValue(False)
+
+        if 'Eeschema.ComponentProperties.' in listen_to:
+            self.m_checkBoxComponentEdit.SetValue(
+                {'Entered':True
+                , 'Exited':False
+                }[listen_to.split('.')[-1]]
+            )
+        if 'Eeschema.ComponentAdd.' in listen_to:
+            self.m_checkBoxEeschemaComponentAdd.SetValue(
+               {'Entered':True
+                , 'Exited':False
+                }[listen_to.split('.')[-1]]
+            )
+            pass
+            
         print("Kicadlink_part_frame----XXXXXX-------XXXXXXX--------XXXXXX-------SUBSCRIBED EVENT RECIEVED:{}".format(listen_to))
 
 

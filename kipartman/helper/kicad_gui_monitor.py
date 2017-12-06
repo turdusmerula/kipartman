@@ -43,15 +43,22 @@ class KicadEeschema(object):
         pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.Background')
 
     #Component Properties Dialog
-    def enter_EeschemaComponentPropertiesForeground(self): print("Kicad:componentProperties: STATE: Foreground: Entered")
-    def exit_EeschemaComponentPropertiesForeground(self): print("Kicad:componentProperties: STATE: Foreground: Exit")
+    def enter_EeschemaComponentPropertiesForeground(self): 
+        pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.ComponentProperties.Entered')
+        print("Kicad:componentProperties: STATE: Foreground: Entered")
+    def exit_EeschemaComponentPropertiesForeground(self): 
+        pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.ComponentProperties.Exited')
+        print("Kicad:componentProperties: STATE: Foreground: Exit")
     #Component Add Dialog
     def enter_EeschemaComponentAddForeground(self, hwnd=0, component_add_hwnd=0):
         self.component_add_hwnd = component_add_hwnd
+        pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.ComponentAdd.Entered')
         print("Kicad:componentAdd: STATE: Foreground: Entered hwnd:{}".format(component_add_hwnd))
 
     def exit_EeschemaComponentAddForeground(self, hwnd=0, component_add_hwnd=0): 
 #        self.component_add_hwnd = component_add_hwnd
+        pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.ComponentAdd.Exited')
+
         print("Kicad:componentAdd: STATE: Foreground: Exit")
 
 
@@ -124,7 +131,7 @@ def EventProcessor(q):
     kcE_stateMachine.add_states(states)
     kcE_stateMachine.add_transitions(transitions)
 
-   #TODO: Determine state (is kicad open, is component properties open
+    #TODO: Determine state (is kicad open, is component properties open
     kcE_stateMachine.set_state('EeschemaClosed')
     # TODO: are there many instances open (Handle multiple instances)
     '''
@@ -140,6 +147,8 @@ def EventProcessor(q):
             , 'titleValue':title.value})
     '''
     debugprint('about to start receiving events')
+    #TODO: Respond to a Thread Stop condition
+
     while True:
         obj = q.get()
         #print type(obj)

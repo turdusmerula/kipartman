@@ -87,10 +87,10 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		fgSizer1.Add( self.m_checkBoxKcEeschemaRunning, 0, wx.ALL, 5 )
 		
-		self.m_checkBoxEeschemaComponetAdd = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Componet Add", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_checkBoxEeschemaComponetAdd.Enable( False )
+		self.m_checkBoxEeschemaComponentAdd = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Componet Add", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_checkBoxEeschemaComponentAdd.Enable( False )
 		
-		fgSizer1.Add( self.m_checkBoxEeschemaComponetAdd, 0, wx.ALL, 5 )
+		fgSizer1.Add( self.m_checkBoxEeschemaComponentAdd, 0, wx.ALL, 5 )
 		
 		self.m_checkBoxComponentEdit = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Component Edit", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_checkBoxComponentEdit.Enable( False )
