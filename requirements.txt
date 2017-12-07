@@ -1,4 +1,5 @@
 #Requirements for Kicad Gui Monitor 
 #Platform 'Windows'  
-pypiwin32
-transitions
+pypiwin32==219
+pywinauto==0.6.3
+transitions==0.6.3
