@@ -338,6 +338,12 @@ class PartsFrame(PanelParts):
 
 
         # initial edit state
+        self.part_splitter.SetSashPosition(0,-1)
+        self.part_splitter.SetSashPosition(1,10)
+        self.part_splitter.SetSashPosition(1, -1)
+
+        self.part_splitter.GetWindow(1).SetBackgroundColour('sky blue')
+       # self.part_splitter.GetWindow(0).SetBackgroundColour('lime green')
         self.show_part(None)
         self.edit_state = None
         self.show_categories = True

@@ -76,6 +76,10 @@ class EventHandler(object):
 
         shortName = '?'
         if processID:
+            #TODO: Process we do not have permission to  cause unnecessary errors /
+            # OpenProcess(%s) failed: %s / 
+            # Can we be smarter with this ?
+       
             filename = getProcessFilename(processID)
             if filename:
                 shortName = '\\'.join(filename.rsplit('\\', 2)[-2:])

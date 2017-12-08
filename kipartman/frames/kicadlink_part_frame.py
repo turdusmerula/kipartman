@@ -78,6 +78,10 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
                         self.compProperties.get_field('Value'),
                         self.compProperties.get_field('Footprint')
                     ))
+                    self.button_part_footprint.Label = self.compProperties.get_field('Footprint')
+                    self.edit_part_name.Value = self.compProperties.get_field('Value')
+
+
                 else:
                     pass
             else:
