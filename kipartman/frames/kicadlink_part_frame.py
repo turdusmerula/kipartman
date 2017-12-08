@@ -16,6 +16,7 @@ import datetime
 import re
 import rest
 from octopart.extractor import OctopartExtractor
+import kicadGUI.KicadEeschemaAutomation as KEA
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -51,6 +52,9 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
         #Subscribe to the Kicad GUI event monitor announcements
         pub.subscribe(self.updateFromKicad, "kicad.change.status")
 
+        self.compProperties = KEA.KicadEeschemaComponentProperties()
+        self.compProperties.connect()
+
     def updateFromKicad(self, listen_to):
         if listen_to == 'Eeschema.Foreground':
             self.m_checkBoxKcEeschemaRunning.SetValue(True)
@@ -63,6 +67,21 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
                 , 'Exited':False
                 }[listen_to.split('.')[-1]]
             )
+            if listen_to=='Eeschema.ComponentProperties.Entered':
+                print('-----------------000000000000000----------Trying to fetch values')
+                if self.compProperties.windowComponentProperties():
+                    print('-----------------000000000000000----------Trying to fetch values ----------- Window Detected')
+                    self.compProperties.refresh()
+                    print('-----------------000000000000000----------Trying to fetch values ----------- Refreshed')
+
+                    print('-----------------000000000000000----------Trying to fetch values :FOUND {} : {}'.format(
+                        self.compProperties.get_field('Value'),
+                        self.compProperties.get_field('Footprint')
+                    ))
+                else:
+                    pass
+            else:
+                pass
         if 'Eeschema.ComponentAdd.' in listen_to:
             self.m_checkBoxEeschemaComponentAdd.SetValue(
                {'Entered':True

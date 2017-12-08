@@ -24,18 +24,20 @@ class KicadEeschemaComponentProperties:
 
     def __init__( self  ):
         self._app = Application(backend="uia")
-
+        self.hWnd = 0
     def connect(self):
 
 #        self._app = self._app.connect(path='Kicad')
         self._app = self._app.connect(path='kicad.exe')
- 
         #TODO: check connection was made
         self._thewinTop = self._app.top_window()
+        
+    def windowComponentProperties(self):
+
         self._dlgCompProp = self._thewinTop.window(best_match=u'Component Properties')
         if self._dlgCompProp.exists():
                 #self.refresh()
-                pass
+                return True
 
         else:
              print("Window Does not exist")
@@ -60,7 +62,7 @@ class KicadEeschemaComponentProperties:
 
     def get_field(self,field_name=''):
         #TODO: check if there is a better way to refresh maybe not on every get
-        self.refresh()
+        #self.refresh()
         return self._cFields[field_name]['Value'][0]
 
 

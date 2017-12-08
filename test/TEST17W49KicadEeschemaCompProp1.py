@@ -1,4 +1,4 @@
-import os,sys
+import os,sys,datetime
 
 sys.path.append(
     os.path.join(os.path.split(os.path.dirname(sys.argv[0]))[0],'kipartman'))
@@ -9,9 +9,16 @@ import kicadGUI.KicadEeschemaAutomation as KEA
 
 compProperties = KEA.KicadEeschemaComponentProperties()
 compProperties.connect()
-print('Connected')
+def dprint(msg):
+    print("{:%H:%M:%S.%f}: {}".format(
+               datetime.datetime.now(),msg))
 
-print(' {} : {}'.format(
+dprint('Connected')
+dprint('Does Window Exist ?')
+dprint('Window Exists:{}'.format(compProperties.windowComponentProperties()))
+compProperties.refresh()
+dprint('Refreshed')
+dprint(' {} : {}'.format(
     compProperties.get_field('Value'),
     compProperties.get_field('Footprint')
 ))
