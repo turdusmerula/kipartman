@@ -79,6 +79,15 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
                         self.compProperties.get_field('Footprint')
                     ))
                     self.button_part_footprint.Label = self.compProperties.get_field('Footprint')
+
+                    # initiate Search
+                    m_search_part = self.Parent.Parent.Parent.Parent.search_parts
+                    m_search_part.SetValue(self.compProperties.get_field('Value'))
+                    #evt = wx.PyCommandEvent(wx.EVT_BUTTON.typeId,m_search_part.GetId())
+                    evt = wx.PyCommandEvent(wx.EVT_TEXT_ENTER.typeId, m_search_part.GetId())
+                    wx.PostEvent(m_search_part, evt)  #attach event to self ... alternatively maybe attach to btnInfo
+                    #self.search_parts.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchPartsButton )
+
                     self.edit_part_name.Value = self.compProperties.get_field('Value')
 
 
