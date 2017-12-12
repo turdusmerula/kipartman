@@ -18,9 +18,10 @@ dprint('Does Window Exist ?')
 dprint('Window Exists:{}'.format(compProperties.windowComponentProperties()))
 compProperties.refresh()
 dprint('Refreshed')
-dprint(' {} : {}'.format(
+dprint(' Value:{},  Footprint:{}, ID:{}'.format(
     compProperties.get_field('Value'),
-    compProperties.get_field('Footprint')
+    compProperties.get_field('Footprint'),
+    compProperties.componentID
 ))
 
 #compProperties.test()

@@ -25,6 +25,8 @@ class KicadEeschemaComponentProperties:
     def __init__( self  ):
         self._app = Application(backend="uia")
         self.hWnd = 0
+        self.componentID=''
+
     def connect(self):
 
 #        self._app = self._app.connect(path='Kicad')
@@ -45,6 +47,19 @@ class KicadEeschemaComponentProperties:
         pass
 
     def refresh(self):
+        #TODO: Retrieve 'Component ID:' /
+        #https://onedrive.live.com/edit.aspx/Personal%20^5Web^6?cid=cc518521c9785e69&id=documents&wd=target%28BSFE%20Electronic%20Engineering%2FKICAD%20notes.one%7C51EBB93C-A386-41F3-A731-AE7350ADC068%2F17W48%20Kipartman%20Kicad%20Interface%7CB4FF5EE3-FF6B-43C8-8083-6866445524F6%2F%29
+        #onenote:https://d.docs.live.net/cc518521c9785e69/Personal%20(Web)/BSFE%20Electronic%20Engineering/KICAD%20notes.one#17W48%20Kipartman%20Kicad%20Interface&section-id={51EBB93C-A386-41F3-A731-AE7350ADC068}&page-id={B4FF5EE3-FF6B-43C8-8083-6866445524F6}&object-id={35BAD83A-5084-4002-885B-34598FF497A8}&E
+        #
+        #TODO: IMPROVE the pywinauto interface remove wrapper_object. /
+        #http://pywinauto.readthedocs.io/en/latest/getting_started.html?highlight=wrapper_object
+        #Python can hide this wrapper_object() call so that you have more compact code in production. The following statements do absolutely the same:
+        # Alter child_window
+        # Remove wrapper_object
+        # does not seem possible but the line below using iface_value seems the better way ??
+        #self.componentID = self._dlgCompProp.child_window(title="Component ID:",  control_type="Edit").wrapper_object().legacy_properties()['Value']
+        #self.componentID = self._dlgCompProp.child_window(title="Component ID:", control_type="Edit").wrapper_object().iface_value.CurrentValue
+        self.componentID = self._dlgCompProp.componentidEdit.wrapper_object().iface_value.CurrentValue
         # Retrieve the Dict of fields on the Component
         self._cListBox = self._dlgCompProp.ListBox.wrapper_object()
         self._cFields = {t[0]:{'Index': i,'Value':t[1:]} for i,t in enumerate(self._cListBox.texts())}

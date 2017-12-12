@@ -78,17 +78,21 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
                         self.compProperties.get_field('Value'),
                         self.compProperties.get_field('Footprint')
                     ))
-                    self.button_part_footprint.Label = self.compProperties.get_field('Footprint')
+                    self.kicad_part_value.Value = self.compProperties.get_field('Value')
+                    self.kicad_part_reference.Value = self.compProperties.get_field('Reference')
+                    self.kicad_part_id.Value = self.compProperties.componentID
+                    self.kicad_part_footprint.Value = self.compProperties.get_field('Footprint')
+                    self.kicad_part_SKU.Value = self.compProperties.get_field('SKU')
+                    self.kicad_part_MPN.Value = self.compProperties.get_field('MPN')
+                    self.kicad_part_MFR.Value = self.compProperties.get_field('MFR')
+                    self.kicad_part_SPN.Value = self.compProperties.get_field('SPN')
+                    self.kicad_part_SPR.Value = self.compProperties.get_field('SPR')
 
                     # initiate Search
-                    m_search_part = self.Parent.Parent.Parent.Parent.search_parts
-                    m_search_part.SetValue(self.compProperties.get_field('Value'))
-                    #evt = wx.PyCommandEvent(wx.EVT_BUTTON.typeId,m_search_part.GetId())
-                    evt = wx.PyCommandEvent(wx.EVT_TEXT_ENTER.typeId, m_search_part.GetId())
-                    wx.PostEvent(m_search_part, evt)  #attach event to self ... alternatively maybe attach to btnInfo
-                    #self.search_parts.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchPartsButton )
-
-                    self.edit_part_name.Value = self.compProperties.get_field('Value')
+                    search_parts = self.TopLevelParent.partsframe.search_parts #TODO: improve finding this control
+                    search_parts.SetValue(self.compProperties.get_field('Value'))
+                    evt = wx.PyCommandEvent(wx.EVT_TEXT_ENTER.typeId, search_parts.GetId())
+                    wx.PostEvent(search_parts, evt)
 
 
                 else:
