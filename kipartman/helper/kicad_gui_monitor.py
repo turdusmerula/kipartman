@@ -15,7 +15,7 @@ from transitions import Machine, State
 if platform.system() == 'Windows':
     from helper import kicadWin32GuiMonitor as kicadGUImonitor
 else:
-    pass #TODO implement linux handler
+    pass #TODO: implement linux handler
 
 
 class KicadEeschema(object):

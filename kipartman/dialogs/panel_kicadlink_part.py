@@ -26,17 +26,55 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_splitter3.Bind( wx.EVT_IDLE, self.m_splitter3OnIdle )
 		
 		self.panel_kicadlink_part_basic = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_kicadlink_part_basic.SetBackgroundColour( wx.Colour( 128, 255, 255 ) )
+		
 		bSizer15 = wx.BoxSizer( wx.VERTICAL )
 		
-		bSizer181 = wx.BoxSizer( wx.HORIZONTAL )
+		fgSizer5 = wx.FlexGridSizer( 0, 3, 0, 0 )
+		fgSizer5.SetFlexibleDirection( wx.BOTH )
+		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
+		
+		self.m_staticText31 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"KICAD Eeschema Link", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText31.Wrap( -1 )
+		fgSizer5.Add( self.m_staticText31, 0, wx.ALL, 5 )
+		
+		self.m_staticText3121 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText3121.Wrap( -1 )
+		fgSizer5.Add( self.m_staticText3121, 0, wx.ALL, 5 )
+		
+		self.m_staticText312 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText312.Wrap( -1 )
+		fgSizer5.Add( self.m_staticText312, 0, wx.ALL, 5 )
+		
+		bSizer1811 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_staticText311 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"AutoSearch", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText311.Wrap( -1 )
+		bSizer1811.Add( self.m_staticText311, 0, wx.ALL, 5 )
+		
+		self.checkBox_search_auto = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_search_auto.SetValue(True) 
+		bSizer1811.Add( self.checkBox_search_auto, 0, wx.ALL, 5 )
+		
+		
+		fgSizer5.Add( bSizer1811, 1, wx.EXPAND, 5 )
+		
+		self.m_staticText3122 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"--------------", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText3122.Wrap( -1 )
+		fgSizer5.Add( self.m_staticText3122, 0, wx.ALL, 5 )
 		
 		self.button_kicad_part_search = wx.Button( self.panel_kicadlink_part_basic, wx.ID_ANY, u"SEARCH", wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
-		bSizer181.Add( self.button_kicad_part_search, 0, wx.ALL|wx.EXPAND, 5 )
+		fgSizer5.Add( self.button_kicad_part_search, 0, wx.ALL|wx.EXPAND|wx.ALIGN_RIGHT, 5 )
+		
+		
+		bSizer15.Add( fgSizer5, 1, wx.EXPAND, 5 )
+		
+		bSizer181 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		
 		bSizer15.Add( bSizer181, 1, wx.EXPAND, 5 )
 		
-		fgSizer1 = wx.FlexGridSizer( 0, 3, 0, 0 )
+		fgSizer1 = wx.FlexGridSizer( 0, 4, 0, 0 )
 		fgSizer1.AddGrowableCol( 1 )
 		fgSizer1.SetFlexibleDirection( wx.BOTH )
 		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
@@ -51,7 +89,11 @@ class PanelKicadLinkPart ( wx.Panel ):
 		fgSizer1.Add( self.kicad_part_value, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
 		self.checkBox_search_value = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_search_value.SetValue(True) 
 		fgSizer1.Add( self.checkBox_search_value, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+		
+		self.checkBox_update_value = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.checkBox_update_value, 0, wx.ALL, 5 )
 		
 		self.m_staticText4 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Reference", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText4.Wrap( -1 )
@@ -68,6 +110,12 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		fgSizer1.Add( self.checkBox_search_reference, 0, wx.ALL, 5 )
 		
+		self.checkBox_update_reference = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_update_reference.Enable( False )
+		self.checkBox_update_reference.Hide()
+		
+		fgSizer1.Add( self.checkBox_update_reference, 0, wx.ALL, 5 )
+		
 		self.m_staticText41 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Component ID", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText41.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText41, 0, wx.ALL, 5 )
@@ -83,6 +131,12 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		fgSizer1.Add( self.checkBox_search_componentId, 0, wx.ALL, 5 )
 		
+		self.checkBox_update_componentid = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_update_componentid.Enable( False )
+		self.checkBox_update_componentid.Hide()
+		
+		fgSizer1.Add( self.checkBox_update_componentid, 0, wx.ALL, 5 )
+		
 		self.m_staticText5 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Footprint", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText5.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -94,6 +148,9 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		self.checkBox_search_footprint = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer1.Add( self.checkBox_search_footprint, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+		
+		self.checkBox_update_footprint = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.checkBox_update_footprint, 0, wx.ALL, 5 )
 		
 		self.m_staticText51 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Model", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText51.Wrap( -1 )
@@ -110,6 +167,12 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		fgSizer1.Add( self.checkBox_search_model, 0, wx.ALL, 5 )
 		
+		self.checkBox_update_model = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_update_model.Enable( False )
+		self.checkBox_update_model.Hide()
+		
+		fgSizer1.Add( self.checkBox_update_model, 0, wx.ALL, 5 )
+		
 		self.m_staticText511 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"SKU", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText511.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText511, 0, wx.ALL, 5 )
@@ -122,6 +185,10 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.checkBox_search_SKU = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer1.Add( self.checkBox_search_SKU, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
 		
+		self.checkBox_update_SKU = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_update_SKU.SetValue(True) 
+		fgSizer1.Add( self.checkBox_update_SKU, 0, wx.ALL, 5 )
+		
 		self.m_staticText5111 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"MPN", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText5111.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText5111, 0, wx.ALL, 5 )
@@ -133,6 +200,10 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		self.checkBox_search_MPN = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer1.Add( self.checkBox_search_MPN, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+		
+		self.checkBox_update_MPN = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_update_MPN.SetValue(True) 
+		fgSizer1.Add( self.checkBox_update_MPN, 0, wx.ALL, 5 )
 		
 		self.m_staticText51111 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"MFR", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText51111.Wrap( -1 )
@@ -149,6 +220,12 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		fgSizer1.Add( self.checkBox_search_MFR, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
 		
+		self.checkBox_update_MFR = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_update_MFR.Enable( False )
+		self.checkBox_update_MFR.Hide()
+		
+		fgSizer1.Add( self.checkBox_update_MFR, 0, wx.ALL, 5 )
+		
 		self.m_staticText51112 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"SPN", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText51112.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText51112, 0, wx.ALL, 5 )
@@ -160,6 +237,10 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		self.checkBox_search_SPN = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer1.Add( self.checkBox_search_SPN, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+		
+		self.checkBox_update_SPN = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_update_SPN.SetValue(True) 
+		fgSizer1.Add( self.checkBox_update_SPN, 0, wx.ALL, 5 )
 		
 		self.m_staticText511111 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"SPR", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText511111.Wrap( -1 )
@@ -176,6 +257,12 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		fgSizer1.Add( self.checkBox_search_SPR, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
 		
+		self.checkBox_update_SPR = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.checkBox_update_SPR.Enable( False )
+		self.checkBox_update_SPR.Hide()
+		
+		fgSizer1.Add( self.checkBox_update_SPR, 0, wx.ALL, 5 )
+		
 		self.m_staticText6 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -188,6 +275,10 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText13 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText13.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText13, 0, wx.ALL, 5 )
+		
+		self.m_staticText131 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText131.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText131, 0, wx.ALL, 5 )
 		
 		self.m_staticText61 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Kicad Eeschema Status", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText61.Wrap( -1 )
@@ -252,7 +343,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
-		self.button_kicad_part_search.Bind( wx.EVT_BUTTON, self.onButtonPartFootprintClick )
+		self.button_kicad_part_search.Bind( wx.EVT_BUTTON, self.onButtonKicadLinkComponentSearchClick )
 		self.kicad_part_value.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.kicad_part_reference.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.kicad_part_id.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
@@ -264,7 +355,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.kicad_part_SPN.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.kicad_part_SPR.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.edit_part_comment.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
-		self.button_kicadupdate.Bind( wx.EVT_BUTTON, self.onButtonOctopartClick )
+		self.button_kicadupdate.Bind( wx.EVT_BUTTON, self.onButtonKicadLinkFieldsUpdateClick )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartEditApply )
 		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartEditCancel )
 	
@@ -276,7 +367,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 	def onInitDialog( self, event ):
 		event.Skip()
 	
-	def onButtonPartFootprintClick( self, event ):
+	def onButtonKicadLinkComponentSearchClick( self, event ):
 		event.Skip()
 	
 	def onTextEditPartPartText( self, event ):
@@ -292,7 +383,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 	
 	
 	
-	def onButtonOctopartClick( self, event ):
+	def onButtonKicadLinkFieldsUpdateClick( self, event ):
 		event.Skip()
 	
 	def onButtonPartEditApply( self, event ):
