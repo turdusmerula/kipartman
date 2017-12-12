@@ -1,6 +1,6 @@
 import wx
 import os
-from kicad_objects import *
+from kicad_object import KicadObject
 import Canvas
 
 def tab(level):
@@ -16,6 +16,9 @@ class KicadFile(object):
         self.parent = KicadObject('')
         
     def LoadFile(self, filename):
+        """
+        Load file
+        """
         if(os.path.isfile(filename)==False):
             self.filename = None
 #            wx.MessageBox("Error: %s does not exists" % filename, "File error", wx.OK | wx.ICON_ERROR)
@@ -33,48 +36,21 @@ class KicadFile(object):
             
         if self.onChanged:
             self.onChanged()
-    
+
     def Render(self, filename):
-        canvas = Canvas.FootprintCanvas()
-        surface = canvas.Render(self.parent)
-        surface.write_to_png (filename)
-        
+        """
+        Render to png file
+        """
+        pass
+    
     def Write(self, obj, level=0):
-        line = "%s(%s"%(tab(level), obj.header)
-        for attr in obj.attributes:
-            line = line+" "+attr
-        
-        if len(obj.nodes)>0:
-            print line
-            for node in obj.nodes:
-                self.Write(node, level+1)
-            print "%s)"%tab(level)
-        else:
-            line = line+")"
-            print line
+        """
+        Write to string buffer
+        """
+        pass
     
     def read_blocks(self, parent):
-        block_header = self._read_block_header()
-        if block_header=='':
-            return None
-        obj = KicadObject.Instance(block_header)        
-        parent.AddNode(obj)
-
-        attr = self._read_field()
-        while attr!='':
-            obj.AddAttribute(attr)
-            attr = self._read_field()
-        
-        node = self.read_blocks(obj)
-        while node:
-            node = self.read_blocks(obj)
-        
-        self._skip_spaces()
-        c = self.observe(1)
-        if c==')':
-            self.read(1)
-
-        return obj
+        pass
         
     def _skip_spaces(self):
         """
@@ -102,44 +78,3 @@ class KicadFile(object):
         else:
             self.buff = self.buff+self.file.read(size-len(self.buff))
         return self.buff
-    
-    def _read_block_header(self):
-        """
-        Read next block header
-        """
-        # read spaces
-        self._skip_spaces()
-
-        c = self.observe(1)
-        if c=='(':
-            self.read(1)
-            return self._read_field()
-        return ""
-    
-    def _read_field(self):
-        field = ''
-        
-        # read spaces
-        self._skip_spaces()
-        c = self.observe(1)
-        
-        if c=='(' or c==')':
-            return ''
-        
-        if c=='"':
-            self.read(1)
-            c = self.observe(1)
-            while c!='"':
-                c = self.observe(1)
-                if c!='"':
-                    field = field+c
-                    c = self.read(1)
-            self.read(1)
-        else:
-            c = self.observe(1)
-            while c!='' and c.isspace()==False and c!='(' and c!=')':
-                field = field+c
-                self.read(1)
-                c = self.observe(1)
-
-        return field

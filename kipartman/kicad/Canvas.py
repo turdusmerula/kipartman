@@ -1,5 +1,6 @@
 import math
 import cairo
+import re
 
 class ColorRGB(object):
     def __init__(self, r=0, g=0, b=0, l=1):
@@ -16,6 +17,10 @@ class ColorRGB(object):
     def Blue():
         return ColorRGB(0, 0, 1)
     
+    @staticmethod
+    def Yellow():
+        return ColorRGB(0.5, 0.5, 0)
+
     @staticmethod
     def White():
         return ColorRGB(1, 1, 1)
@@ -35,6 +40,17 @@ class Layer(object):
         
     def Apply(self, ctx):
         ctx.set_source_rgb(self.color.r, self.color.g, self.color.b)
+
+class Position(object):
+    def __init__(self, x=0, y=0, angle=0):
+        super(Position, self).__init__()
+        self.x = x
+        self.y = y
+        self.angle = angle
+    
+    def Apply(self, ctx):
+        ctx.move_to(self.x, self.y)
+        ctx.rotate(self.angle)
         
 class Drawing(object):
     def __init__(self):
@@ -50,20 +66,35 @@ class Point(Drawing):
         self.y = y
     
 class Pad(Drawing):
-    def __init__(self, smd=False, rect=False):
+    def __init__(self, smd=False, rect=False, thru_hole=False, oval=False):
         super(Pad, self).__init__()
         self.smd = smd
+        self.thru_hole = thru_hole
         self.rect = rect
+        self.oval = oval
         self.at = Point()
         self.size = Point()
         self.drill = 0
         
     def Render(self, ctx):
         ctx.set_line_width(0)
+        print "-------"
         if self.rect:
             ctx.rectangle(self.at.x-self.size.x/2, self.at.y-self.size.y/2, self.size.x, self.size.y)
             ctx.fill()
+        elif self.oval:
+            ctx.arc(self.at.x, self.at.y, self.size.x/2 , 0, 2*math.pi)
+            ctx.fill()
+        if self.thru_hole:
+            ctx.save()
+            color = ColorRGB.Blue()
+            ctx.set_source_rgb(color.r, color.g, color.b)
+            #ctx.set_operator(cairo.OPERATOR_CLEAR)
+            ctx.arc(self.at.x, self.at.y, self.drill/2 , 0, 2*math.pi)
+            ctx.fill()
+            ctx.restore()
             
+
 class Line(Drawing):
     def __init__(self):
         super(Line, self).__init__()
@@ -78,19 +109,50 @@ class Line(Drawing):
         ctx.line_to(self.end.x, self.end.y)
         ctx.stroke()
         
-class Rect(Drawing):
-    def __init__(self, effect=None):
-        super(Rect, self).__init__()
-        self.at = Point()
-        self.size = Point()
-
 class Circle(Drawing):
-    def __init__(self, effect=None):
+    def __init__(self):
         super(Circle, self).__init__()
+        self.centre = Point()
+        self.end = Point()
+        self.width = 0
+
+    def Render(self, ctx):
+        ctx.set_line_width(self.width)
+        x1 = self.end.x-self.centre.x
+        y1 = self.end.y-self.centre.y
+        ctx.arc(self.centre.x, self.centre.y, math.sqrt(x1*x1+y1*y1), 0, 2*math.pi)
+        ctx.stroke()
 
 class Text(Drawing):
-    def __init__(self, effect=None):
+    def __init__(self, value=""):
         super(Text, self).__init__()
+        self.value = value
+        self.at = Position()
+        
+    def Render(self, ctx):
+        ctx.save()
+        self.at.Apply(ctx)
+        x, y, width, height, x_advance, y_advance=ctx.text_extents(self.value)
+        ctx.move_to(self.at.x-width/2, self.at.y)
+        ctx.show_text(self.value)
+        ctx.restore()
+
+class Font(object):
+    def __init__(self, size=Point(), thickness=0):
+        self.size = Point()
+        self.thickness = 0
+
+    def Apply(self, ctx):
+        if self.size.x>self.size.y:
+            ctx.set_font_size(self.size.x)
+        else:
+            ctx.set_font_size(self.size.y)
+
+
+def regex_match(value1, value2):
+    value1 = value1.replace('.', '\.').replace('*', '.*')
+    pattern = re.compile(value1)
+    return pattern.match(value2)
 
 class Canvas(object):
 
@@ -98,7 +160,8 @@ class Canvas(object):
         self.layers = []
         self.current_layers = []
         self.background = ColorRGB.Black()
-                
+        self.font = Font()
+        
     def AddLayer(self, name, color=ColorRGB.Black()):
         for layer in self.layers:
             if layer.name==name:
@@ -108,24 +171,27 @@ class Canvas(object):
         self.layers.append(layer)
         return layer
 
+    def SetFont(self, font):
+        self.font = font
+        
     def SelectLayer(self, name):
         self.current_layers = []
         for layer in self.layers:
-            if layer.name==name:
+            if regex_match(name, layer.name):
                 self.current_layers.append(layer)
                 return
-
+    
     def SelectLayers(self, names):
         self.current_layers = []
         for name in names:
             for layer in self.layers:
-                if layer.name==name:
+                if regex_match(name, layer.name):
                     self.current_layers.append(layer)
     
     def Draw(self, obj):
         for layer in self.current_layers:
-            print "--", layer.name
             layer.Apply(self.ctx)
+            self.font.Apply(self.ctx)
             obj.Render(self.ctx)
                 
     def Render(self, obj):
@@ -133,7 +199,7 @@ class Canvas(object):
         # create drawing
         surface = cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, None)
         self.ctx = cairo.Context (surface)
-        
+
         # draw all objects
         for node in obj.nodes:
             node.Render(self)
@@ -181,15 +247,20 @@ class FootprintCanvas(Canvas):
 #        self.AddLayer("B.Mask")
 #        self.AddLayer("F.Mask")
         self.AddLayer("Dwgs.User", ColorRGB.Grey())
-        self.AddLayer("Cmts.User")
+        self.AddLayer("Cmts.User", ColorRGB.Grey())
 #        self.AddLayer("Eco1.User")
 #        self.AddLayer("Eco2.User")
 #        self.AddLayer("Edge.Cuts", ColorRGB.Grey())
 #        self.AddLayer("Margin")
 #        self.AddLayer("B.CrtYd", ColorRGB.Grey())
 #        self.AddLayer("F.CrtYd", ColorRGB.Grey())
-#        self.AddLayer("B.Fab")
-#        self.AddLayer("F.Fab")
+        self.AddLayer("B.Fab", ColorRGB.Grey())
+        self.AddLayer("F.Fab", ColorRGB.Grey())
 
-        # add default effects
-    
+class LibraryCanvas(Canvas):
+    def __init__(self):
+        super(FootprintCanvas, self).__init__()
+
+        self.background = ColorRGB.White()
+             
+        # add default layers
