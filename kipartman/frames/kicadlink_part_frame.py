@@ -216,14 +216,58 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
         event = EditPartCancelEvent()
         wx.PostEvent(self, event)
 
+    def onButtonKicadLinkPartSelect(self, event):
+        #TODO: have this event triggered by selecting a part in the treeview
+        selected_part = self.TopLevelParent.partsframe.panel_edit_part.edit_part_name #TODO: improve finding this control
+        log('Selected Item:{}'.format(selected_part.Value))
+        if self.checkBox_update_value.GetValue():
+            self.kicad_part_value_new.Value = self.kicad_part_value.Value #TODO: SOMEFUNCtogetValue(selected_part.Value)
+            pass #TODO : Implement value update
+
+        if self.checkBox_update_footprint.GetValue():
+            #self.kicad_part_footprint_new.Value = SOMEFUNCTIONof(selected_part) # TODO: Get from ECADdata
+            self.kicad_part_footprint_new.Value = self.kicad_part_footprint.Value #TODO: SOMEFUNCtogetFootprint(selected_part.Value)
+
+        if self.checkBox_update_SKU.GetValue():
+            self.kicad_part_SKU_new.Value = selected_part.Value
+
+        if self.checkBox_update_MPN.GetValue():
+            self.kicad_part_MPN_new.Value = selected_part.Value
+
+        if self.checkBox_update_MFR.GetValue():
+            #TODO: Detect MFR
+            # self.kicad_part_MFR_new.Value = selected_part.Value
+            pass
+
+        if self.checkBox_update_SPN.GetValue():
+            pass #TODO: should not really have SPN in schematic, Decide what ?
+        if self.checkBox_update_SPR.GetValue():
+            pass #TODO: should not really have SPR in schematic, Decide what ?
+        pass
+
     def onButtonKicadLinkFieldsUpdateClick(self, event):
-        #TODO: implement selection 
-        selected_part = self.TopLevelParent.partsframe #TODO: improve finding this control
-        log('Selected Item:{}'.format(selected_part.panel_edit_part.edit_part_name.Value))
-        self.kicad_part_SKU.Value = selected_part.panel_edit_part.edit_part_name.Value
-        self.kicad_part_MPN.Value = selected_part.panel_edit_part.edit_part_name.Value
-        self.compProperties.update_field('SKU', selected_part.panel_edit_part.edit_part_name.Value )
-        self.compProperties.update_field('MPN', selected_part.panel_edit_part.edit_part_name.Value )
+        #TODO: 17W50 Suppress Receiving GUI events Whilst updating, Put up a dialog
+        #TODO: Furtherimplement selection
+        selected_part = self.TopLevelParent.partsframe.panel_edit_part.edit_part_name #TODO: improve finding this control
+        log('Selected Item:{}'.format(selected_part.Value))
+        if self.checkBox_update_value.GetValue() and len(self.kicad_part_value_new.Value)!=0:
+            self.compProperties.update_field('Value', self.kicad_part_value_new.Value )
+            pass #TODO : Implement value update
+
+        if self.checkBox_update_footprint.GetValue() and len(self.kicad_part_footprint_new.Value)!=0:
+            self.compProperties.update_field('Footprint', self.kicad_part_footprint_new.Value )
+
+        if self.checkBox_update_SKU.GetValue() and len(self.kicad_part_SKU_new.Value)!=0:
+            self.compProperties.update_field('SKU', self.kicad_part_SKU_new.Value )
+
+        if self.checkBox_update_MPN.GetValue() and len(self.kicad_part_MPN_new.Value)!=0:
+            self.compProperties.update_field('MPN', self.kicad_part_MPN_new.Value )
+
+
+        if self.checkBox_update_SPN.GetValue() and len(self.kicad_part_SPN_new.Value)!=0:
+            pass #TODO: should not really have SPN in schematic, Decide what ?
+        if self.checkBox_update_SPR.GetValue() and len(self.kicad_part_SPR_new.Value)!=0:
+            pass #TODO: should not really have SPR in schematic, Decide what ?
         pass
 
     def onButtonKicadLinkComponentSearchClick(self, event):

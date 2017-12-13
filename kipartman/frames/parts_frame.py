@@ -339,7 +339,7 @@ class PartsFrame(PanelParts):
 
         # initial edit state
         self.part_splitter.SetSashPosition(0,100)
-        self.part_splitter.SetSashPosition(1,-1)
+        self.part_splitter.SetSashPosition(1,100)
         self.part_splitter.SetSashPosition(1, -1)
 
         self.part_splitter.GetWindow(1).SetBackgroundColour('sky blue')
