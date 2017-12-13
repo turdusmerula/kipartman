@@ -60,64 +60,65 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
         #
         #Subscribe to the Kicad GUI event monitor announcements
         pub.subscribe(self.updateFromKicad, "kicad.change.status")
-
+        self.kicadGUImonitorProcess = True 
         self.compProperties = KEA.KicadEeschemaComponentProperties()
         self.compProperties.connect()
 
     def updateFromKicad(self, listen_to):
-        if listen_to == 'Eeschema.Foreground':
-            self.m_checkBoxKcEeschemaRunning.SetValue(True)
-        elif listen_to == 'Eeschema.Background':
-            self.m_checkBoxKcEeschemaRunning.SetValue(False)
+        if self.kicadGUImonitorProcess:
+            if listen_to == 'Eeschema.Foreground':
+                self.m_checkBoxKcEeschemaRunning.SetValue(True)
+            elif listen_to == 'Eeschema.Background':
+                self.m_checkBoxKcEeschemaRunning.SetValue(False)
 
-        if 'Eeschema.ComponentProperties.' in listen_to:
-            self.m_checkBoxComponentEdit.SetValue(
-                {'Entered':True
-                , 'Exited':False
-                }[listen_to.split('.')[-1]]
-            )
-            if listen_to=='Eeschema.ComponentProperties.Entered':
-                self.m_checkBoxKcEeschemaRunning.SetValue(True) #HACK, status not always displayed, dependent on window switch,
-                #TODO: # maybe this above hack should be in the kicad_gui_monitor
-                log('-----------------000000000000000----------Trying to fetch values')
-                if self.compProperties.windowComponentProperties():
-                    log('-----------------000000000000000----------Trying to fetch values ----------- Window Detected')
-                    self.compProperties.refresh()
-                    log('-----------------000000000000000----------Trying to fetch values ----------- Refreshed')
+            if 'Eeschema.ComponentProperties.' in listen_to:
+                self.m_checkBoxComponentEdit.SetValue(
+                    {'Entered':True
+                    , 'Exited':False
+                    }[listen_to.split('.')[-1]]
+                )
+                if listen_to=='Eeschema.ComponentProperties.Entered':
+                    self.m_checkBoxKcEeschemaRunning.SetValue(True) #HACK, status not always displayed, dependent on window switch,
+                    #TODO: # maybe this above hack should be in the kicad_gui_monitor
+                    log('-----------------000000000000000----------Trying to fetch values')
+                    if self.compProperties.windowComponentProperties():
+                        log('-----------------000000000000000----------Trying to fetch values ----------- Window Detected')
+                        self.compProperties.refresh()
+                        log('-----------------000000000000000----------Trying to fetch values ----------- Refreshed')
 
-                    log('-----------------000000000000000----------Trying to fetch values :FOUND {} : {}'.format(
-                        self.compProperties.get_field('Value'),
-                        self.compProperties.get_field('Footprint')
-                    ))
-                    self.kicad_part_value.Value = self.compProperties.get_field('Value')
-                    self.kicad_part_reference.Value = self.compProperties.get_field('Reference')
-                    self.kicad_part_id.Value = self.compProperties.componentID
-                    self.kicad_part_footprint.Value = self.compProperties.get_field('Footprint')
-                    self.kicad_part_SKU.Value = self.compProperties.get_field('SKU')
-                    self.kicad_part_MPN.Value = self.compProperties.get_field('MPN')
-                    self.kicad_part_MFR.Value = self.compProperties.get_field('MFR')
-                    self.kicad_part_SPN.Value = self.compProperties.get_field('SPN')
-                    self.kicad_part_SPR.Value = self.compProperties.get_field('SPR')
+                        log('-----------------000000000000000----------Trying to fetch values :FOUND {} : {}'.format(
+                            self.compProperties.get_field('Value'),
+                            self.compProperties.get_field('Footprint')
+                        ))
+                        self.kicad_part_value.Value = self.compProperties.get_field('Value')
+                        self.kicad_part_reference.Value = self.compProperties.get_field('Reference')
+                        self.kicad_part_id.Value = self.compProperties.componentID
+                        self.kicad_part_footprint.Value = self.compProperties.get_field('Footprint')
+                        self.kicad_part_SKU.Value = self.compProperties.get_field('SKU')
+                        self.kicad_part_MPN.Value = self.compProperties.get_field('MPN')
+                        self.kicad_part_MFR.Value = self.compProperties.get_field('MFR')
+                        self.kicad_part_SPN.Value = self.compProperties.get_field('SPN')
+                        self.kicad_part_SPR.Value = self.compProperties.get_field('SPR')
 
-                    # initiate Search
-                    #if self.kicad_autosearch checkbox checked #TODO: implement autosearch control
-                    if self.checkBox_search_auto.GetValue():
-                        self.search_format()
+                        # initiate Search
+                        #if self.kicad_autosearch checkbox checked #TODO: implement autosearch control
+                        if self.checkBox_search_auto.GetValue():
+                            self.search_format()
 
 
+                    else:
+                        pass
                 else:
                     pass
-            else:
+            if 'Eeschema.ComponentAdd.' in listen_to:
+                self.m_checkBoxEeschemaComponentAdd.SetValue(
+                {'Entered':True
+                    , 'Exited':False
+                    }[listen_to.split('.')[-1]]
+                )
                 pass
-        if 'Eeschema.ComponentAdd.' in listen_to:
-            self.m_checkBoxEeschemaComponentAdd.SetValue(
-               {'Entered':True
-                , 'Exited':False
-                }[listen_to.split('.')[-1]]
-            )
-            pass
-            
-        log("Kicadlink_part_frame----XXXXXX-------XXXXXXX--------XXXXXX-------SUBSCRIBED EVENT RECIEVED:{}".format(listen_to))
+                
+            log("Kicadlink_part_frame----XXXXXX-------XXXXXXX--------XXXXXX-------SUBSCRIBED EVENT RECIEVED:{}".format(listen_to))
 
 
 
@@ -225,7 +226,7 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
             pass #TODO : Implement value update
 
         if self.checkBox_update_footprint.GetValue():
-            #self.kicad_part_footprint_new.Value = SOMEFUNCTIONof(selected_part) # TODO: Get from ECADdata
+            #self.kicad_part_footprint_new.Value = SOMEFUNCTIONof(selected_part) # TODO: Get footprint from ECADdata, for now just copy existing footprint for manual change
             self.kicad_part_footprint_new.Value = self.kicad_part_footprint.Value #TODO: SOMEFUNCtogetFootprint(selected_part.Value)
 
         if self.checkBox_update_SKU.GetValue():
@@ -247,6 +248,7 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
 
     def onButtonKicadLinkFieldsUpdateClick(self, event):
         #TODO: 17W50 Suppress Receiving GUI events Whilst updating, Put up a dialog
+        self.kicadGUImonitorProcess = False 
         #TODO: Furtherimplement selection
         selected_part = self.TopLevelParent.partsframe.panel_edit_part.edit_part_name #TODO: improve finding this control
         log('Selected Item:{}'.format(selected_part.Value))
@@ -268,6 +270,8 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
             pass #TODO: should not really have SPN in schematic, Decide what ?
         if self.checkBox_update_SPR.GetValue() and len(self.kicad_part_SPR_new.Value)!=0:
             pass #TODO: should not really have SPR in schematic, Decide what ?
+        self.kicadGUImonitorProcess = True
+        self.compProperties.refresh()
         pass
 
     def onButtonKicadLinkComponentSearchClick(self, event):

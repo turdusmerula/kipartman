@@ -63,7 +63,7 @@ class KicadEeschemaComponentProperties:
         d2=self._dlgCompProp.child_window(title="Field Value:",  control_type="Edit").wrapper_object()
         d2.set_text(value)
         self._cListBox.items()[self._cFields['Reference']['Index']].select()
-        self.refresh()
+        #self.refresh() #TODO: Is this required, would speed up without refresh on every update
 
     def get_field(self,field_name=''):
         #TODO: check if there is a better way to refresh maybe not on every get

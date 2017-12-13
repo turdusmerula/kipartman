@@ -18,7 +18,7 @@ import wx.aui
 class PanelKicadLinkPart ( wx.Panel ):
 	
 	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1416,1172 ), style = wx.TAB_TRAVERSAL )
+		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1660,1172 ), style = wx.TAB_TRAVERSAL )
 		
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -30,7 +30,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		bSizer15 = wx.BoxSizer( wx.VERTICAL )
 		
-		fgSizer5 = wx.FlexGridSizer( 0, 3, 0, 0 )
+		fgSizer5 = wx.FlexGridSizer( 0, 4, 0, 0 )
 		fgSizer5.SetFlexibleDirection( wx.BOTH )
 		fgSizer5.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 		
@@ -43,6 +43,10 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText3121 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3121.Wrap( -1 )
 		fgSizer5.Add( self.m_staticText3121, 0, wx.ALL, 5 )
+		
+		self.m_staticText31211 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText31211.Wrap( -1 )
+		fgSizer5.Add( self.m_staticText31211, 0, wx.ALL, 5 )
 		
 		self.m_staticText312 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText312.Wrap( -1 )
@@ -67,6 +71,9 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		self.button_kicad_part_search = wx.Button( self.panel_kicadlink_part_basic, wx.ID_ANY, u"SEARCH", wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT|wx.BU_RIGHT )
 		fgSizer5.Add( self.button_kicad_part_search, 0, wx.ALL|wx.EXPAND|wx.ALIGN_RIGHT, 5 )
+		
+		self.button_partselect = wx.Button( self.panel_kicadlink_part_basic, wx.ID_ANY, u"SelectPart", wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer5.Add( self.button_partselect, 0, wx.ALL, 5 )
 		
 		
 		bSizer15.Add( fgSizer5, 1, wx.EXPAND, 5 )
@@ -340,23 +347,11 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		fgSizer1.Add( self.edit_part_comment, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText13 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText13.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText13, 0, wx.ALL, 5 )
-		
-		self.m_staticText131 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText131.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText131, 0, wx.ALL, 5 )
-		
-		self.m_staticText1311 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText1311.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText1311, 0, wx.ALL, 5 )
+		bSizer5 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.m_staticText61 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Kicad Eeschema Status", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText61.Wrap( -1 )
-		fgSizer1.Add( self.m_staticText61, 0, wx.ALL, 5 )
-		
-		bSizer5 = wx.BoxSizer( wx.VERTICAL )
+		bSizer5.Add( self.m_staticText61, 0, wx.ALL, 5 )
 		
 		self.m_checkBoxKcEeschemaRunning = wx.CheckBox( self.panel_kicadlink_part_basic, wx.ID_ANY, u"Eeschema Running", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_checkBoxKcEeschemaRunning.Enable( False )
@@ -379,20 +374,16 @@ class PanelKicadLinkPart ( wx.Panel ):
 		
 		fgSizer1.Add( bSizer5, 1, wx.EXPAND, 5 )
 		
+		self.m_staticText13 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText13.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText13, 0, wx.ALL, 5 )
+		
+		self.m_staticText131 = wx.StaticText( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText131.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText131, 0, wx.ALL, 5 )
+		
 		
 		bSizer15.Add( fgSizer1, 1, wx.EXPAND, 5 )
-		
-		button_part_edit = wx.StdDialogButtonSizer()
-		self.button_part_editApply = wx.Button( self.panel_kicadlink_part_basic, wx.ID_APPLY )
-		button_part_edit.AddButton( self.button_part_editApply )
-		self.button_part_editCancel = wx.Button( self.panel_kicadlink_part_basic, wx.ID_CANCEL )
-		button_part_edit.AddButton( self.button_part_editCancel )
-		button_part_edit.Realize();
-		
-		bSizer15.Add( button_part_edit, 0, wx.EXPAND, 5 )
-		
-		self.button_partselect = wx.Button( self.panel_kicadlink_part_basic, wx.ID_ANY, u"SelectPart", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer15.Add( self.button_partselect, 0, wx.ALL, 5 )
 		
 		
 		self.panel_kicadlink_part_basic.SetSizer( bSizer15 )
@@ -419,6 +410,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.button_kicad_part_search.Bind( wx.EVT_BUTTON, self.onButtonKicadLinkComponentSearchClick )
+		self.button_partselect.Bind( wx.EVT_BUTTON, self.onButtonKicadLinkPartSelect )
 		self.kicad_part_value.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.kicad_part_value_new.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.kicad_part_reference.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
@@ -441,9 +433,6 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.kicad_part_SPR_new.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.edit_part_comment.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
 		self.button_kicadupdate.Bind( wx.EVT_BUTTON, self.onButtonKicadLinkFieldsUpdateClick )
-		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartEditApply )
-		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartEditCancel )
-		self.button_partselect.Bind( wx.EVT_BUTTON, self.onButtonKicadLinkPartSelect )
 	
 	def __del__( self ):
 		pass
@@ -454,6 +443,9 @@ class PanelKicadLinkPart ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonKicadLinkComponentSearchClick( self, event ):
+		event.Skip()
+	
+	def onButtonKicadLinkPartSelect( self, event ):
 		event.Skip()
 	
 	def onTextEditPartPartText( self, event ):
@@ -480,15 +472,6 @@ class PanelKicadLinkPart ( wx.Panel ):
 	
 	
 	def onButtonKicadLinkFieldsUpdateClick( self, event ):
-		event.Skip()
-	
-	def onButtonPartEditApply( self, event ):
-		event.Skip()
-	
-	def onButtonPartEditCancel( self, event ):
-		event.Skip()
-	
-	def onButtonKicadLinkPartSelect( self, event ):
 		event.Skip()
 	
 	def m_splitter3OnIdle( self, event ):
