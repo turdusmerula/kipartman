@@ -223,7 +223,7 @@ def EventProcessor(q):
                 # May have to test if window is open
                 else:
                     if obj['shortName']==u'bin\\kicad.exe':
-                        print(u'\t\t\t---------------------********'
+                        log(u'\t\t\t---------------------********'
                             '----{}\t{}\t{}\t{}\t{}\t{}\tkcE:{}'.format(
                             obj['dwmsEventTime']
                             , obj['eventTypeText']
