@@ -6,7 +6,7 @@ from wx.lib.pubsub import pub
 
 from helper.debugtools import debugprint
 
-import platform, os, logging
+import platform, os, logging, datetime
 
 
 from configuration import Configuration
@@ -17,6 +17,12 @@ if platform.system() == 'Windows':
 else:
     pass #TODO: implement linux handler
 
+def log(msg):
+    if 'logging' in globals(): logging.debug(
+        "{:%H:%M:%S.%f}:{}".format(
+            datetime.datetime.now(),
+            msg
+        ))
 
 class KicadEeschema(object):
     def __init__(self): 
@@ -26,7 +32,7 @@ class KicadEeschema(object):
     def set_schematic(self, sheet='', file=''):
         self.sheet = sheet
         self.file = file
-        print("Kicad:Eeschem: SCHEMATIC: Sheet:{}, File:{}".format(
+        log("Kicad:Eeschem: SCHEMATIC: Sheet:{}, File:{}".format(
             self.sheet, self.file
         ))
 
@@ -35,35 +41,35 @@ class KicadEeschema(object):
         self.component_add_hwnd = component_add_hwnd
 
     def enter_EeschemaForeground(self): 
-        print("Kicad:Eeschema: STATE: Entered Foreground ")
+        log("Kicad:Eeschema: STATE: Entered Foreground ")
         pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.Foreground')
 
     def enter_EeschemaBackground(self): 
-        print("Kicad:Eeschema: STATE: Entered Background")
+        log("Kicad:Eeschema: STATE: Entered Background")
         pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.Background')
 
     #Component Properties Dialog
     def enter_EeschemaComponentPropertiesForeground(self): 
         pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.ComponentProperties.Entered')
-        print("Kicad:componentProperties: STATE: Foreground: Entered")
+        log("Kicad:componentProperties: STATE: Foreground: Entered")
     def exit_EeschemaComponentPropertiesForeground(self): 
         pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.ComponentProperties.Exited')
-        print("Kicad:componentProperties: STATE: Foreground: Exit")
+        log("Kicad:componentProperties: STATE: Foreground: Exit")
     #Component Add Dialog
     def enter_EeschemaComponentAddForeground(self, hwnd=0, component_add_hwnd=0):
         self.component_add_hwnd = component_add_hwnd
         pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.ComponentAdd.Entered')
-        print("Kicad:componentAdd: STATE: Foreground: Entered hwnd:{}".format(component_add_hwnd))
+        log("Kicad:componentAdd: STATE: Foreground: Entered hwnd:{}".format(component_add_hwnd))
 
     def exit_EeschemaComponentAddForeground(self, hwnd=0, component_add_hwnd=0): 
 #        self.component_add_hwnd = component_add_hwnd
         pub.sendMessage('kicad.change.status', listen_to = 'Eeschema.ComponentAdd.Exited')
 
-        print("Kicad:componentAdd: STATE: Foreground: Exit")
+        log("Kicad:componentAdd: STATE: Foreground: Exit")
 
 
-    def exit_EeschemaComponentProperties(self): print("Kicad:componentProperties: STATE: Exited")
-    def say_goodbye(self): print("goodbye, old state!")
+    def exit_EeschemaComponentProperties(self): log("Kicad:componentProperties: STATE: Exited")
+    def say_goodbye(self): log("goodbye, old state!")
 
     pass
 
@@ -146,7 +152,7 @@ def EventProcessor(q):
             , 'shortName':shortName
             , 'titleValue':title.value})
     '''
-    debugprint('about to start receiving events')
+    log('about to start receiving events')
     #TODO: Respond to a Thread Stop condition
 
     while True:
@@ -233,7 +239,7 @@ def EventProcessor(q):
                 pass
             pass
         except Exception as e:
-            print('\tERROR: {}, STATE:{}, OBJ:{}'.format(e,kcE.state, obj))
+            log('\tERROR: {}, STATE:{}, OBJ:{}'.format(e,kcE.state, obj))
             pass
         finally:
             pass
@@ -241,7 +247,7 @@ def EventProcessor(q):
 def EventWatcher(q):
         configuration=Configuration()
         configuration.Load()
-        debugprint('Launched EventWatcher PID:{}'.format(os.getpid()))
-        debugprint('Launching kGm.EventHandler.main')
+        log('Launched EventWatcher PID:{}'.format(os.getpid()))
+        log('Launching kGm.EventHandler.main')
 
         kicadGUImonitor.EventHandler.main(q) 
