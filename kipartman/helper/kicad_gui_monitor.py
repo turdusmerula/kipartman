@@ -163,7 +163,7 @@ def EventProcessor(q):
                 if (obj['eventTypeText'] in ['Foreground']
                         and obj['shortName'] == u'bin\\kicad.exe'
                         and obj['titleValue'] == u'Component Properties'):
-                    print(u' \t\t--------------------- Kicad Component Properties:{} hwnd:{}'.format(obj['eventTypeText']
+                    log(u' \t\t--------------------- Kicad Component Properties:{} hwnd:{}'.format(obj['eventTypeText']
                                                 , obj['hwnd'])
                                                 )
                     kcE.ComponentPropEdit()

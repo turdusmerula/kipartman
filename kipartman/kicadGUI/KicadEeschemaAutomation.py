@@ -42,7 +42,7 @@ class KicadEeschemaComponentProperties:
                 return True
 
         else:
-             print("Window Does not exist")
+             log("Window Does not exist")
              return False
         pass
 
