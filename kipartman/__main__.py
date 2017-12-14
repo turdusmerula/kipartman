@@ -47,8 +47,14 @@ def main(args=None):
 
 if __name__ == "__main__":
     kcW32eventQueue = multiprocessing.Queue()
-    kcW32eventProcessingThread = Thread(target=kicad_gui_monitor.EventProcessor, args=(kcW32eventQueue,))
+    kcW32eventProcessingThread = kicad_gui_monitor.KicadGUIEventProcessor(target=kicad_gui_monitor.KicadGUIEventProcessor.EventProcessor,
+                                                                          args=(kicad_gui_monitor.KicadGUIEventProcessor, kcW32eventQueue,))
+    print('kcW32eventProcessingThread is:{} STATUS:{}'.format(kcW32eventProcessingThread, kcW32eventProcessingThread.debugstatus))
+    kcW32eventProcessingThread.debugstatus = 'Starting'
     kcW32eventProcessingThread.start()
+    print('kcW32eventProcessingThread is:{} STATUS:{}'.format(kcW32eventProcessingThread,
+                                                              kcW32eventProcessingThread.debugstatus))
+    kcW32eventProcessingThread.debugstatus = 'Should Have Started'
 
     processKcW32Ew = multiprocessing.Process(target=kicad_gui_monitor.EventWatcher, args=(kcW32eventQueue,))
     #FOR DEBUG -- comment out start and uncomment the following line
@@ -56,6 +62,8 @@ if __name__ == "__main__":
     #kicad_gui_monitor.EventWatcher(kcW32eventQueue)
     main()
     #TODO: Terminate Threads and Process properly
-    processKcW32Ew.terminate()
     kcW32eventProcessingThread.terminate()
+    kcW32eventProcessingThread.join()
+    kcW32eventProcessingThread = None
+    processKcW32Ew.terminate()
 
