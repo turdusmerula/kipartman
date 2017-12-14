@@ -117,7 +117,7 @@ class SelectOctopartFrame(PanelSelectOctopart):
         self.octoparts_model = OctopartDataModel(self.search_octopart.Value)
         self.tree_octoparts.AssociateModel(self.octoparts_model)
 
-    # Virtual event handlers, overide them in your derived class
+   # Virtual event handlers, overide them in your derived class
     def onSearchOctopartButton( self, event ):
         self._search()
     

@@ -365,7 +365,6 @@ class TreeManager(object):
         if self.drag_item is None:
             event.Skip()
             return wx.DragCancel
-
         try:
             drag_data = self.model.ItemToObject(event.GetItem())
         except Exception as inst:
