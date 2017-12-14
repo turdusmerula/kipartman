@@ -8,7 +8,7 @@ if not os.path.exists('resources'):
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 import multiprocessing
-from threading import Thread
+
 
 # configure django to use the model
 #from django.core.wsgi import get_wsgi_application
@@ -49,12 +49,7 @@ if __name__ == "__main__":
     kcW32eventQueue = multiprocessing.Queue()
     kcW32eventProcessingThread = kicad_gui_monitor.KicadGUIEventProcessor(target=kicad_gui_monitor.KicadGUIEventProcessor.EventProcessor,
                                                                           args=(kicad_gui_monitor.KicadGUIEventProcessor, kcW32eventQueue,))
-    print('kcW32eventProcessingThread is:{} STATUS:{}'.format(kcW32eventProcessingThread, kcW32eventProcessingThread.debugstatus))
-    kcW32eventProcessingThread.debugstatus = 'Starting'
     kcW32eventProcessingThread.start()
-    print('kcW32eventProcessingThread is:{} STATUS:{}'.format(kcW32eventProcessingThread,
-                                                              kcW32eventProcessingThread.debugstatus))
-    kcW32eventProcessingThread.debugstatus = 'Should Have Started'
 
     processKcW32Ew = multiprocessing.Process(target=kicad_gui_monitor.EventWatcher, args=(kcW32eventQueue,))
     #FOR DEBUG -- comment out start and uncomment the following line
