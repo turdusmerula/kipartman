@@ -1,4 +1,5 @@
 from dialogs.panel_parts import PanelParts
+#from dialogs.panel_kicadlink_part import PanelKicadLinkPart
 from frames.dropdown_dialog import DropdownDialog
 from frames.progression_frame import ProgressionFrame
 from frames.edit_category_frame import EditCategoryFrame

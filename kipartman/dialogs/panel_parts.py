@@ -71,19 +71,7 @@ class PanelParts ( wx.Panel ):
 		self.panel_category.SetSizer( bSizer2 )
 		self.panel_category.Layout()
 		bSizer2.Fit( self.panel_category )
-		self.m_panel9 = wx.Panel( self.kicadlink_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer17 = wx.BoxSizer( wx.VERTICAL )
-		
-		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		
-		bSizer17.Add( bSizer18, 1, wx.EXPAND, 5 )
-		
-		
-		self.m_panel9.SetSizer( bSizer17 )
-		self.m_panel9.Layout()
-		bSizer17.Fit( self.m_panel9 )
-		self.kicadlink_splitter.SplitHorizontally( self.panel_category, self.m_panel9, -1 )
+		self.kicadlink_splitter.Initialize( self.panel_category )
 		bSizer161.Add( self.kicadlink_splitter, 1, wx.EXPAND, 5 )
 		
 		
