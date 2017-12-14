@@ -332,25 +332,24 @@ class PartsFrame(PanelParts):
         # 
         # create edit part panel
         self.panel_edit_part = EditPartFrame(self.part_splitter)
-        self.part_splitter.SetOrientation(wx.VERTICAL)
-        self.part_splitter.AppendWindow(self.panel_edit_part, 0)
-#        . .SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
+        self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
+        #        . .SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
         self.panel_edit_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
         self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
         # 
         # create KicadLink part panel
-        self.panel_kicadlink_part = KicadLinkPartFrame(self.part_splitter)
-        self.part_splitter.AppendWindow( self.panel_kicadlink_part, 0)
+        self.panel_kicadlink_part = KicadLinkPartFrame(self.kicadlink_splitter)
+        self.kicadlink_splitter.SplitHorizontally(self.kicadlink_splitter.Window1, self.panel_kicadlink_part, 400)
         self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
         self.panel_kicadlink_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
 
 
         # initial edit state
-        self.part_splitter.SetSashPosition(0,100)
-        self.part_splitter.SetSashPosition(1,100)
-        self.part_splitter.SetSashPosition(1, -1)
+        # self.part_splitter.SetSashPosition(0,100)
+        # self.part_splitter.SetSashPosition(1,100)
+        # self.part_splitter.SetSashPosition(1, -1)
 
-        self.part_splitter.GetWindow(1).SetBackgroundColour('sky blue')
+        self.kicadlink_splitter.Window2.SetBackgroundColour('sky blue')
        # self.part_splitter.GetWindow(0).SetBackgroundColour('lime green')
         self.show_part(None)
         self.edit_state = None

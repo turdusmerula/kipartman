@@ -10,7 +10,6 @@
 import wx
 import wx.xrc
 import wx.dataview
-import wx.lib.splitter
 
 ###########################################################################
 ## Class PanelParts
@@ -27,7 +26,13 @@ class PanelParts ( wx.Panel ):
 		self.m_splitter2.Bind( wx.EVT_IDLE, self.m_splitter2OnIdle )
 		self.m_splitter2.SetMinimumPaneSize( 300 )
 		
-		self.panel_category = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel6 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer15 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer161 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.kicadlink_splitter = wx.SplitterWindow( self.m_panel6, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.panel_category = wx.Panel( self.kicadlink_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
@@ -64,12 +69,34 @@ class PanelParts ( wx.Panel ):
 		self.panel_category.SetSizer( bSizer2 )
 		self.panel_category.Layout()
 		bSizer2.Fit( self.panel_category )
+		self.m_panel9 = wx.Panel( self.kicadlink_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer17 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		
+		bSizer17.Add( bSizer18, 1, wx.EXPAND, 5 )
+		
+		
+		self.m_panel9.SetSizer( bSizer17 )
+		self.m_panel9.Layout()
+		bSizer17.Fit( self.m_panel9 )
+		self.kicadlink_splitter.SplitHorizontally( self.panel_category, self.m_panel9, -1 )
+		bSizer161.Add( self.kicadlink_splitter, 1, wx.EXPAND, 5 )
+		
+		
+		bSizer15.Add( bSizer161, 1, wx.EXPAND, 5 )
+		
+		
+		self.m_panel6.SetSizer( bSizer15 )
+		self.m_panel6.Layout()
+		bSizer15.Fit( self.m_panel6 )
 		self.m_panel3 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer7 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.part_splitter = wx.lib.splitter.MultiSplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.part_splitter = wx.SplitterWindow( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
 		self.part_splitter.SetMinimumPaneSize( 300 )
 		
 		self.panel_parts = wx.Panel( self.part_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -164,7 +191,7 @@ class PanelParts ( wx.Panel ):
 		
 		self.panel_parts.Bind( wx.EVT_RIGHT_DOWN, self.panel_partsOnContextMenu ) 
 		
-		self.part_splitter.InsertWindow( 0, self.panel_parts )
+		self.part_splitter.Initialize( self.panel_parts )
 		bSizer7.Add( self.part_splitter, 1, wx.EXPAND, 5 )
 		
 		
@@ -174,7 +201,7 @@ class PanelParts ( wx.Panel ):
 		self.m_panel3.SetSizer( bSizer3 )
 		self.m_panel3.Layout()
 		bSizer3.Fit( self.m_panel3 )
-		self.m_splitter2.SplitVertically( self.panel_category, self.m_panel3, 294 )
+		self.m_splitter2.SplitVertically( self.m_panel6, self.m_panel3, 294 )
 		bSizer1.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
 		
 		
