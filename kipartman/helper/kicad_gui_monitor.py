@@ -178,7 +178,10 @@ class KicadGUIEventProcessor(threading.Thread):
         #TODO: Respond to a Thread Stop condition [WIP] 17W50
 
         while not KicadGUIEventProcessor.stop:
-            obj = multiprocessQueue.get()
+            try:
+                obj = multiprocessQueue.get(True,2)
+            except:
+                pass
             #print type(obj)
             if not KicadGUIEventProcessor.stop:
                 try:
