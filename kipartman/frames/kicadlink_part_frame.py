@@ -18,8 +18,7 @@ import rest
 from octopart.extractor import OctopartExtractor
 import kicadGUI.KicadEeschemaAutomation as KEA
 
-EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
-EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
+
 
 def log(msg):
     if 'logging' in globals(): logging.debug(
@@ -157,65 +156,6 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
         #TODO: decide what to do with this?
         self.button_part_editApply.Enabled = enabled
         self.button_part_editCancel.Enabled = enabled
-        #TODO: Remove
-        # self.edit_part_name.Enabled = enabled
-
-        # self.button_octopart.Enabled = enabled
-        # self.edit_part_description.Enabled = enabled
-        # self.button_part_footprint.Enabled = enabled
-        # self.button_part_model.Enabled = enabled
-
-        # self.edit_part_parameters.enable(enabled)
-        # self.edit_part_distributors.enable(enabled)
-        # self.edit_part_manufacturers.enable(enabled)
-        # self.edit_part_storages.enable(enabled)
-        # self.edit_part_attachements.enable(enabled)
-
-    #TODO:Remove        
-    # def onButtonPartFootprintClick( self, event ):
-    #     footprint = self.part.footprint
-    #     frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame, footprint)
-    #     frame.Dropdown(self.onSetFootprintCallback)
-    
-    # def onSetFootprintCallback(self, footprint):
-    #     if footprint:
-    #         self.button_part_footprint.Label = footprint.name
-    #     else:
-    #         self.button_part_footprint.Label = "<none>"
-    #     self.part.footprint = footprint
-        
-    # def onButtonPartModelClick( self, event ):
-    #     model = self.part.model
-    #     frame = DropdownFrame(self.button_part_footprint, SelectModelFrame, model)
-    #     frame.Dropdown(self.onSetModelCallback)
-    
-    # def onSetModelCallback(self, model):
-    #     if model:
-    #         self.button_part_model.Label = model.name
-    #     else:
-    #         self.button_part_model.Label = "<none>"
-    #     self.part.model = model
-
-    #TODO: Decide what to do with onButtonPartEditApply
-    def onButtonPartEditApply( self, event ):
-        part = self.part
-        if not part:
-            part = rest.model.PartNew()
-        if part.name!=part.octopart:
-            part.octopart = None
-            
-        # set part content
-        part.name = self.edit_part_name.Value
-        part.description = self.edit_part_description.Value
-        part.comment = self.edit_part_comment.Value
-        # send result event
-        event = EditPartApplyEvent(data=part)
-        wx.PostEvent(self, event)
-
-    #TODO: Decide what to do with onButtonPartEditCancel
-    def onButtonPartEditCancel( self, event ):
-        event = EditPartCancelEvent()
-        wx.PostEvent(self, event)
 
     def onButtonKicadLinkPartSelect(self, event):
         #TODO: have this event triggered by selecting a part in the treeview
@@ -291,102 +231,4 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
                 search_parts.SetValue(self.compProperties.get_field(fieldName))
                 evt = wx.PyCommandEvent(wx.EVT_TEXT_ENTER.typeId, search_parts.GetId())
                 wx.PostEvent(search_parts, evt)
-
-
-    #TODO: Remove
-    # def onButtonOctopartClick( self, event ):
-    #     # create an octopart frame
-    #     # dropdown frame
-    #     dropdown = DropdownDialog(self.button_octopart, SelectOctopartFrame, self.edit_part_name.Value)
-    #     dropdown.panel.Bind( EVT_SELECT_OCTOPART_OK_EVENT, self.onSelectOctopartFrameOk )
-    #     dropdown.Dropdown()
-
-    
-    # def onSelectOctopartFrameOk(self, event):
-    #     octopart = event.data
-    #     if not octopart:
-    #         return
-
-    #     # convert octopart to part values
-    #     print "octopart:", octopart.json
-    #     octopart_extractor = OctopartExtractor(octopart)
-        
-    #     # import part fields
-    #     self.part.name = octopart.item().mpn()
-    #     self.part.description = octopart.snippet()
-    #     # set field octopart to indicatethat part was imported from octopart
-    #     self.part.octopart = octopart.item().mpn()
-    #     self.part.octopart_uid = octopart.item().uid()
-    #     self.part.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        
-    #     # import parameters
-    #     for spec_name in octopart.item().specs():
-    #         parameter = octopart_extractor.ExtractParameter(spec_name)            
-    #         self.edit_part_parameters.AddParameter(parameter)
-
-    #     # remove all offers from distributor prior to add new offers
-    #     for offer in octopart.item().offers():
-    #         distributor_name = offer.seller().name()
-    #         self.edit_part_distributors.RemoveDistributor(distributor_name)
-
-    #     # import distributors
-    #     for offer in octopart.item().offers():
-            
-    #         distributor_name = offer.seller().name()
-    #         distributor = None
-    #         try:
-    #             distributors = rest.api.find_distributors(name=distributor_name)
-    #             if len(distributors)>0:
-    #                 distributor = distributors[0]
-    #             else:
-    #                 # distributor does not exists, create it
-    #                 distributor = rest.model.DistributorNew()
-    #                 distributor.name = offer.seller().name()
-    #                 distributor.website = offer.seller().homepage_url()
-    #                 distributor.allowed = True
-    #                 distributor = rest.api.add_distributor(distributor)
-    #         except Exception as e:
-    #             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-                        
-    #         for price_name in offer.prices():
-    #             for quantity in offer.prices()[price_name]:
-    #                 part_offer = rest.model.PartOffer()
-    #                 part_offer.name = distributor_name
-    #                 part_offer.distributor = distributor
-    #                 part_offer.currency = price_name
-    #                 if offer.moq():
-    #                     part_offer.packaging_unit = offer.moq()
-    #                 else:
-    #                     part_offer.packaging_unit = 1
-    #                 part_offer.quantity = quantity[0]
-    #                 part_offer.unit_price = float(quantity[1])
-    #                 part_offer.sku = offer.sku()
-    #                 self.edit_part_distributors.AddOffer(part_offer)
-        
-    #     # import manufacturer
-    #     manufacturer_name = octopart.item().manufacturer().name()
-    #     manufacturer = None
-    #     try:
-    #         manufacturers = rest.api.find_manufacturers(name=manufacturer_name)
-    #         if len(manufacturers)>0:
-    #             manufacturer = manufacturers[0]
-    #         else:
-    #             # distributor does not exists, create it
-    #             manufacturer = rest.model.ManufacturerNew()
-    #             manufacturer.name = manufacturer_name
-    #             manufacturer.website = octopart.item().manufacturer().homepage_url()
-    #             manufacturer = rest.api.add_manufacturer(manufacturer)
-
-    #         # remove manufacturer prior to add new manufacturer
-    #         self.edit_part_manufacturers.RemoveManufacturer(manufacturer_name)
-
-    #         # add new manufacturer
-    #         part_manufacturer = rest.model.PartManufacturer()
-    #         part_manufacturer.name = manufacturer.name
-    #         part_manufacturer.part_name = self.part.name
-    #         self.edit_part_manufacturers.AddManufacturer(part_manufacturer)
-    #     except:
-    #         wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
-
-    #     self.ShowPart(self.part)
 
