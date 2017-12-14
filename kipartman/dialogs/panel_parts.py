@@ -32,6 +32,8 @@ class PanelParts ( wx.Panel ):
 		bSizer161 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.kicadlink_splitter = wx.SplitterWindow( self.m_panel6, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.kicadlink_splitter.SetMinimumPaneSize( 300 )
+		
 		self.panel_category = wx.Panel( self.kicadlink_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 		
