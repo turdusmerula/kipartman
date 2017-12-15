@@ -1,5 +1,6 @@
 import logging
 import datetime
+import platform
 import wx.dataview
 #import wx.dataview.DataViewTreeCtrl
 import json
@@ -416,26 +417,28 @@ class TreeManager(object):
         sourceDataObject = TreeDataObject(drag_data)
         event.SetDataObject(sourceDataObject)
 
-        #TODO 17W47.5 WORKAROUND for defect 17561.
-        # WORKAROUND y-25
-        # Q: Can we determine What is the Header Row Height , so we can adjust, also need to detect if the header is displayed ???
-        # Q: When will wxWidget fix this? Anything we can do ?, is it specific to MSW
-        # BACKGROUND
-        '''
-        The generic versions of wxDataViewCtrl::HitTest() and wxDataViewCtrl::GetItemRect() do not take the size of the optional header of the control into account. Instead they just forward the calls to the client area (m_clientArea) without correcting the y-coordinate by the height of the optional header (m_headerArea). This leads to wrong results.
-
-        From <http://trac.wxwidgets.org/ticket/17561#no1> 
-
-        '''
         mouse_x,mouse_y = wx.GetMousePosition()
-        mouse_x, mouse_y = self.tree_view.ScreenToClient((mouse_x, mouse_y-25))
-
-        #TODO 17W47.7 WORKAROUND for defect xxxxx.
-        # WORKAROUND as DropTarget is not called for Dataview Items, call it manually in onDrop
-        # BACKGROUND
-        '''
-        
-        '''
+        if platform.system()=='Windows':
+            #TODO 17W47.5 WORKAROUND for defect 17561.
+            # WORKAROUND y-25
+            # Q: Can we determine What is the Header Row Height , so we can adjust, also need to detect if the header is displayed ???
+            # Q: When will wxWidget fix this? Anything we can do ?, is it specific to MSW
+            # BACKGROUND
+            '''
+            The generic versions of wxDataViewCtrl::HitTest() and wxDataViewCtrl::GetItemRect() do not take the size of the optional header of the control into account. Instead they just forward the calls to the client area (m_clientArea) without correcting the y-coordinate by the height of the optional header (m_headerArea). This leads to wrong results.
+    
+            From <http://trac.wxwidgets.org/ticket/17561#no1> 
+    
+            '''
+            mouse_x, mouse_y = self.tree_view.ScreenToClient((mouse_x, mouse_y-25))
+            #TODO 17W47.7 WORKAROUND for defect xxxxx.
+            # WORKAROUND as DropTarget is not called for Dataview Items, call it manually in onDrop
+            # BACKGROUND
+            '''
+            
+            '''
+        else:
+            mouse_x, mouse_y = self.tree_view.ScreenToClient((mouse_x, mouse_y))
 
 
         self.tree_view.DropTarget.OnDropText(
