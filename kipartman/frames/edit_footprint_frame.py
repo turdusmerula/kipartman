@@ -31,6 +31,7 @@ def NoneValue(value, default):
 class EditFootprintFrame(PanelEditFootprint): 
     def __init__(self, parent):
         super(EditFootprintFrame, self).__init__(parent)
+        self.snapeda_uid = ''
         
     def SetFootprint(self, footprint):
         self.footprint = footprint
