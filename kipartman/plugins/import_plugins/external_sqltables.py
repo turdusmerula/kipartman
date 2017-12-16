@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-#TODO fully/automaticall covert kipartman part to table schema
+#TODO: fully/automaticall covert kipartman part to table schema
 # Have only implemented a few fields to test
 class Kipartman_Parts(Base):
     __tablename__ = 'Kipartman_Parts'

@@ -47,7 +47,7 @@ def load_import_plugins():
         adhere to the following rules:
 
         * Must be a base class of KipartmanImporter
-        * Must expose an 'export' function
+        * Must expose an 'import' function
         * Must have class variables: extension, wildcard
     """
     results = []

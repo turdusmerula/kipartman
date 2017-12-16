@@ -486,12 +486,22 @@ class PartsFrame(PanelParts):
 
         importers = plugin_loader.load_import_plugins()
         wildcards = '|'.join([x.wildcard for x in importers])
-        wildcards
         
+        import_dialog = wx.FileDialog(self, "Import Parts", "", "",
+                                      wildcards,
+                                      wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
 
+        if import_dialog.ShowModal() == wx.ID_CANCEL:
+            return
+
+        base, ext = os.path.splitext(export_dialog.GetPath())
         importpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
-        importpath
+        filt_idx = import_dialog.GetFilterIndex()
+
         base, ext = os.path.splitext(importpath)
+        importpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
+
+
 
 
         # set category

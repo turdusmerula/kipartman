@@ -1,0 +1,3 @@
+#Requirements for Import and Export
+
+SQLAlchemy==1.1.15
