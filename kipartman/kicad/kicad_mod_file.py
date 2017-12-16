@@ -14,8 +14,11 @@ class KicadModFile(object):
         self.filename = None
         self.onChanged = None
         self.parent = KicadObject('')
-        
+
     def LoadFile(self, filename):
+        """
+        Load file
+        """
         if(os.path.isfile(filename)==False):
             self.filename = None
 #            wx.MessageBox("Error: %s does not exists" % filename, "File error", wx.OK | wx.ICON_ERROR)
@@ -24,16 +27,13 @@ class KicadModFile(object):
         self.filename = filename
         self.file = open(filename, 'r')
         self.buff = ''
-        
+
         self.read_blocks(self.parent) 
         self.Write(self.parent, 0)
-        
-        for node in self.parent.nodes:
-            print node.header
-            
+                    
         if self.onChanged:
             self.onChanged()
-    
+
     def Render(self, filename):
         canvas = Canvas.FootprintCanvas()
         surface = canvas.Render(self.parent)
@@ -75,7 +75,7 @@ class KicadModFile(object):
             self.read(1)
 
         return obj
-        
+
     def _skip_spaces(self):
         """
         Jump to the next non space character
@@ -95,14 +95,14 @@ class KicadModFile(object):
             res = self.buff+self.file.read(size-len(self.buff))
             self.buff = ''
         return res
-
+    
     def observe(self, size):
         if len(self.buff)>size:
             return self.buff[:size]
         else:
             self.buff = self.buff+self.file.read(size-len(self.buff))
         return self.buff
-    
+         
     def _read_block_header(self):
         """
         Read next block header
@@ -170,7 +170,6 @@ class KicadPad(KicadObject):
 
     def Render(self, canvas, obj):
         pad = Canvas.Pad()
-        print "---", self.attributes
         if self.Attribute(1)=='smd':
             pad.smd = True
         elif self.Attribute(1)=='np_thru_hole':

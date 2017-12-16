@@ -1,6 +1,8 @@
 import json
 import urllib
 
+# TODO: asynchronous load
+# TODO: store previous values in database
 class Currency(object):
     def __init__(self, base):
         self.base = base
@@ -9,7 +11,7 @@ class Currency(object):
     def load(self):
         data = urllib.urlopen('http://api.fixer.io/latest?base='+self.base).read()
         self.currencies = json.loads(data)
-        print "Currencies: ", self.currencies
+        print("Currencies: ", self.currencies)
         
     def convert(self, value, source, target):
         rates = self.currencies['rates']

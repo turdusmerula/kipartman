@@ -48,7 +48,7 @@ setup(
          'wxPython',
          'cfscrape',
          'docutils',
-#         
+         'asyncio', 
 #         # for kipart base
          'connexion>1.1,<1.2',
 #         'python_dateutil',

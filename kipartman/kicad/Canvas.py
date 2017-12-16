@@ -78,7 +78,6 @@ class Pad(Drawing):
         
     def Render(self, ctx):
         ctx.set_line_width(0)
-        print "-------"
         if self.rect:
             ctx.rectangle(self.at.x-self.size.x/2, self.at.y-self.size.y/2, self.size.x, self.size.y)
             ctx.fill()
@@ -96,11 +95,11 @@ class Pad(Drawing):
             
 
 class Line(Drawing):
-    def __init__(self):
+    def __init__(self, start=Point(), end=Point(), width=0):
         super(Line, self).__init__()
-        self.start = Point()
-        self.end = Point()
-        self.width = 0
+        self.start = start
+        self.end = end
+        self.width = width
 
     def Render(self, ctx):
         ctx.set_line_width(self.width)
@@ -109,38 +108,98 @@ class Line(Drawing):
         ctx.line_to(self.end.x, self.end.y)
         ctx.stroke()
         
+class PolyLine(Drawing):
+    def __init__(self, points=[], width=0, fill=False):
+        super(PolyLine, self).__init__()
+        self.points = points
+        self.width = width
+        self.fill = fill
+        
+    def Render(self, ctx):
+        ctx.set_line_width(self.width)
+        ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+        ctx.move_to(self.points[0].x, self.points[0].y)
+        for p in range(1, len(self.points)):
+            ctx.line_to(self.points[p].x, self.points[p].y)
+        if self.fill:
+            ctx.fill()  
+        else:
+            ctx.stroke()
+
 class Circle(Drawing):
-    def __init__(self):
+    def __init__(self, centre=Point(), end=Point(), width=0, fill=False):
         super(Circle, self).__init__()
-        self.centre = Point()
-        self.end = Point()
-        self.width = 0
+        self.centre = centre
+        self.end = end
+        self.width = width
+        self.fill = fill
 
     def Render(self, ctx):
         ctx.set_line_width(self.width)
         x1 = self.end.x-self.centre.x
         y1 = self.end.y-self.centre.y
+        ctx.move_to(self.end.x, self.end.y)
         ctx.arc(self.centre.x, self.centre.y, math.sqrt(x1*x1+y1*y1), 0, 2*math.pi)
-        ctx.stroke()
+        if self.fill:
+            ctx.fill()
+        else:
+            ctx.stroke()
+
+class Rect(Drawing):
+    def __init__(self, start=Point(), end=Point(), width=0, fill=False):
+        super(Rect, self).__init__()
+        self.start = start
+        self.end = end
+        self.width = width
+        self.fill = fill
+
+    def Render(self, ctx):
+        ctx.set_line_width(self.width)
+        ctx.move_to(self.start.x, self.start.y)
+        ctx.line_to(self.start.x, self.end.y)
+        ctx.line_to(self.end.x, self.end.y)
+        ctx.line_to(self.end.x, self.start.y)
+        ctx.line_to(self.start.x, self.start.y)
+        
+        #ctx.rectangle(self.start.x, self.start.y, self.end.x, self.end.y)
+        if self.fill:
+            ctx.fill()
+        else:
+            ctx.stroke()
 
 class Text(Drawing):
     def __init__(self, value=""):
         super(Text, self).__init__()
         self.value = value
         self.at = Position()
+        self.anchor_x = 'left'
+        self.anchor_y = 'top'
         
     def Render(self, ctx):
         ctx.save()
-        self.at.Apply(ctx)
+#        self.at.Apply(ctx)
         x, y, width, height, x_advance, y_advance=ctx.text_extents(self.value)
-        ctx.move_to(self.at.x-width/2, self.at.y)
+        posx = self.at.x
+        posy = self.at.y
+
+        if self.anchor_x=='center':
+            posx = posx-width/2*math.cos(self.at.angle)
+            posy = posy-width/2*math.sin(self.at.angle)
+        
+        if self.anchor_y=='center':
+            posx = posx-height/2*math.sin(self.at.angle)
+            posy = posy-height/2*math.cos(self.at.angle)
+        
+        ctx.move_to(posx, posy)
+        ctx.rotate(self.at.angle)
+
         ctx.show_text(self.value)
         ctx.restore()
 
 class Font(object):
     def __init__(self, size=Point(), thickness=0):
-        self.size = Point()
-        self.thickness = 0
+        self.size = size
+        self.thickness = thickness
 
     def Apply(self, ctx):
         if self.size.x>self.size.y:
@@ -218,10 +277,11 @@ class Canvas(object):
             ratio = height
             decx = math.fabs(width-height)/2
             decy = 0
-        img_ctx.scale (WIDTH/ratio, HEIGHT/ratio) # Normalizing the canvas
+        if ratio>0:
+            img_ctx.scale (WIDTH/ratio, HEIGHT/ratio) # Normalizing the canvas
         
         # draw background
-        img_ctx.rectangle(0, 0, WIDTH, HEIGHT)
+        img_ctx.rectangle(0, 0, WIDTH*ratio, HEIGHT*ratio)
         img_ctx.set_source_rgb(self.background.r, self.background.g, self.background.b)
         img_ctx.fill() 
 
@@ -230,6 +290,9 @@ class Canvas(object):
 
         return img_surface
     
+    def to_view_width(self, width):
+        x, y = self.ctx.device_to_user_distance(width, width)
+        return x 
     
 class FootprintCanvas(Canvas):
     def __init__(self):
@@ -259,8 +322,10 @@ class FootprintCanvas(Canvas):
 
 class LibraryCanvas(Canvas):
     def __init__(self):
-        super(FootprintCanvas, self).__init__()
+        super(LibraryCanvas, self).__init__()
 
         self.background = ColorRGB.White()
              
         # add default layers
+        self.AddLayer("Label", ColorRGB.Black())
+        self.AddLayer("Drawing", ColorRGB.Black())
