@@ -19,7 +19,7 @@ class PartOfferData(BaseModel):
         :param packaging_unit: The packaging_unit of this PartOfferData.
         :type packaging_unit: int
         :param quantity: The quantity of this PartOfferData.
-        :type quantity: float
+        :type quantity: int
         :param unit_price: The unit_price of this PartOfferData.
         :type unit_price: float
         :param currency: The currency of this PartOfferData.
@@ -31,7 +31,7 @@ class PartOfferData(BaseModel):
         """
         self.swagger_types = {
             'packaging_unit': int,
-            'quantity': float,
+            'quantity': int,
             'unit_price': float,
             'currency': str,
             'sku': str,
@@ -93,7 +93,7 @@ class PartOfferData(BaseModel):
         Gets the quantity of this PartOfferData.
 
         :return: The quantity of this PartOfferData.
-        :rtype: float
+        :rtype: int
         """
         return self._quantity
 
@@ -103,7 +103,7 @@ class PartOfferData(BaseModel):
         Sets the quantity of this PartOfferData.
 
         :param quantity: The quantity of this PartOfferData.
-        :type quantity: float
+        :type quantity: int
         """
 
         self._quantity = quantity

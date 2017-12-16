@@ -46,7 +46,6 @@ class FileStorage(Storage):
         file.flush()
         file.close()
         
-        
         # get md5
         md5 = hashlib.md5(file.name).hexdigest()
         levels = self.get_sublevels(md5)

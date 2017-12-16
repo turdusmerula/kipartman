@@ -75,7 +75,7 @@ def add_storages_category(category):
         try:
             fcategory.parent = api.models.StorageCategory.objects.get(pk=category.parent.id)
         except:
-            return Error(code=1000, message='Parent %d does not exists'%category.parent.id)
+            return Error(code=1000, message='Parent %d does not exists'%category.parent.id), 403
     fcategory.save()
     
     return serialize_StorageCategory(fcategory)
@@ -93,7 +93,7 @@ def delete_storages_category(category_id):
     try:
         fcategory = api.models.StorageCategory.objects.get(pk=category_id)
     except:
-        return Error(code=1000, message='Category %d does not exists'%category_id)
+        return Error(code=1000, message='Category %d does not exists'%category_id), 403
 
     # set childrens to parent id
     for child in fcategory.get_children():
@@ -166,7 +166,7 @@ def find_storages_category(category_id):
     try:
         category = serialize_StorageCategory(id_fcategory_map[category_id])
     except:
-        return Error(code=1000, message='Category %d does not exists'%category_id)
+        return Error(code=1000, message='Category %d does not exists'%category_id), 403
     
     return category
 
@@ -184,11 +184,11 @@ def update_storages_category(category_id, category):
     if connexion.request.is_json:
         category = StorageCategoryNew.from_dict(connexion.request.get_json())
     else:
-        return Error(code=1000, message='Missing payload')
+        return Error(code=1000, message='Missing payload'), 403
     try:
         fcategory = deserialize_StorageCategoryNew(category, api.models.StorageCategory.objects.get(pk=category_id))
     except:
-        return Error(code=1000, message='Category %d does not exists'%category_id)
+        return Error(code=1000, message='Category %d does not exists'%category_id), 403
     
     if category.parent:
         # check that instance will not be child of itself
@@ -196,12 +196,12 @@ def update_storages_category(category_id, category):
         try:
             fcategory.parent = api.models.StorageCategory.objects.get(pk=category.parent.id)
         except:
-            return Error(code=1000, message='Parent %d does not exists'%category.parent.id)
+            return Error(code=1000, message='Parent %d does not exists'%category.parent.id), 403
             
         fparent = fcategory.parent
         while fparent is not None:
             if fparent.pk==category_id:
-                return Error(code=1000, message='Category cannot be child of itself')
+                return Error(code=1000, message='Category cannot be child of itself'), 403
             if fparent.parent:
                 fparent = api.models.StorageCategory.objects.get(pk=fparent.parent.pk)
             else:

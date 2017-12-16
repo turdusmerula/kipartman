@@ -1,6 +1,7 @@
 import connexion
 from swagger_server.models.part_parameter import PartParameter
 from swagger_server.models.part_parameter_data import PartParameterData
+from swagger_server.models.part_parameter_description import PartParameterDescription
 from swagger_server.models.unit import Unit
 from swagger_server.models.unit_prefix import UnitPrefix
 
@@ -13,8 +14,19 @@ from ..util import deserialize_date, deserialize_datetime
 from swagger_server.controllers.controller_unit import find_unit, find_unit_prefix
 from swagger_server.controllers.helpers import raise_on_error
 
+from django.db.models import Q
 import api.models
 #import jsonpickle
+
+def serialize_PartParameterDescription(fpart_parameter, part_parameter=None):
+    if part_parameter is None:
+        part_parameter = PartParameterDescription()
+    part_parameter.name = fpart_parameter['name']
+    part_parameter.description = fpart_parameter['description']
+    if fpart_parameter['unit']:
+        part_parameter.unit = raise_on_error(find_unit(fpart_parameter['unit']))
+    part_parameter.numeric = fpart_parameter['numeric']
+    return part_parameter
 
 def serialize_PartParameterData(fpart_parameter, part_parameter=None):
     if part_parameter is None:
@@ -105,14 +117,14 @@ def add_part_parameters(part_id, parameters):
     try:
         fpart = api.models.Part.objects.get(pk=part_id)
     except:
-        return Error(code=1000, message='Part %d does not exists'%part_id)
+        return Error(code=1000, message='Part %d does not exists'%part_id), 403
 
     fparameters = []
     for parameter in parameters:
         try:
             fparameters.append(deserialize_PartParameter(parameter))
         except Error as e:
-            return e.error
+            return e.error, 403
         fpart.parameters.set(fparameters)
     
     return None
@@ -131,7 +143,7 @@ def delete_part_parameter(part_id, parameter_id):
     try:
         fpart_parameter = api.models.PartParameter.objects.get(part=part_id, pk=parameter_id)
     except:
-        return Error(code=1000, message='Part parameter %d for part %d does not exists'%(parameter_id, part_id))
+        return Error(code=1000, message='Part parameter %d for part %d does not exists'%(parameter_id, part_id)), 403
     fpart_parameter.delete()
     
     return None
@@ -158,7 +170,7 @@ def delete_part_parameters(part_id, parameters):
     try:
         api.models.PartParameter.objects.filter(part=part_id).filter(id__in=fparameters_id).delete()
     except:
-        return Error(code=1000, message='Deleting parameters failed')
+        return Error(code=1000, message='Deleting parameters failed'), 403
         
     return None
 
@@ -176,9 +188,40 @@ def find_part_parameter(part_id, parameter_id):
     try:
         fpart_parameter = api.models.PartParameter.objects.get(part=part_id, pk=parameter_id)
     except:
-        return Error(code=1000, message='Part parameter %d for part %d does not exists'%(parameter_id, part_id))
+        return Error(code=1000, message='Part parameter %d for part %d does not exists'%(parameter_id, part_id)), 403
 
     return serialize_PartParameter(fpart_parameter)
+
+def find_parts_parameters(search=None):
+    """
+    find_parts_parameters
+    Return all available parts parameters
+    :param search: Search parameter matching value
+    :type search: str
+
+    :rtype: List[PartParameterDescription]
+    """
+    parameters = []
+    
+    fparameters_request = api.models.PartParameter.objects
+    
+    if search:
+        fparameters_request = fparameters_request.filter(
+                    Q(name__contains=search) |
+                    Q(description__contains=search)
+                )
+    
+#    fparameters = api.models.PartParameter.objects.order_by().values('name').distinct()
+    fparameters = fparameters_request.values('name', 'description', 'unit', 'numeric').order_by('name', 'description', 'unit', 'numeric').distinct()
+    
+    try:
+        for fparameter in fparameters:
+            print fparameter
+            parameters.append(serialize_PartParameterDescription(fparameter))
+    except Error as e:
+        return e.error, 403
+        
+    return parameters
 
 def find_part_parameters(part_id):
     """
@@ -194,7 +237,7 @@ def find_part_parameters(part_id):
     try:
         fpart = api.models.Part.objects.get(pk=part_id)
     except:
-        return Error(code=1000, message='Part %d does not exists'%part_id)
+        return Error(code=1000, message='Part %d does not exists'%part_id), 403
     
     for fparameter in fpart.parameters.all():
         parameters.append(serialize_PartParameter(fparameter))

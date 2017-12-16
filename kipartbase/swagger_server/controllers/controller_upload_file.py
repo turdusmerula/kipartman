@@ -58,6 +58,6 @@ def find_upload_file(upload_file_id):
     try:
         fupload_file = api.models.File.objects.get(id=upload_file_id)
     except:
-        return Error(code=1000, message='File %d does not exists'%upload_file_id)
+        return Error(code=1000, message='File %d does not exists'%upload_file_id), 403
     
     return serialize_UploadFile(fupload_file)

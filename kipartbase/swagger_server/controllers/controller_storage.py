@@ -74,7 +74,7 @@ def add_storage(storage):
     try:
         fstorage = deserialize_StorageNew(storage)
     except ControllerError as e:
-        return e.error
+        return e.error, 403
 
         
     fstorage.save()
@@ -94,7 +94,7 @@ def delete_storage(storage_id):
     try:
         fstorage = api.models.Storage.objects.get(pk=storage_id)
     except:
-        return Error(code=1000, message='Storage %d does not exists'%storage_id)
+        return Error(code=1000, message='Storage %d does not exists'%storage_id), 403
     # delete storage
     fstorage.delete()
     return None
@@ -112,12 +112,12 @@ def find_storage(storage_id):
     try:
         fstorage = api.models.Storage.objects.get(pk=storage_id)
     except:
-        return Error(code=1000, message='Storage %d does not exists'%storage_id)
+        return Error(code=1000, message='Storage %d does not exists'%storage_id), 403
     
     try:
         storage = serialize_Storage(fstorage)
     except ControllerError as e:
-        return e.error
+        return e.error, 403
     
     return storage
 
@@ -169,12 +169,12 @@ def update_storage(storage_id, storage):
     if connexion.request.is_json:
         storage = StorageNew.from_dict(connexion.request.get_json())
     else:
-        return Error(code=1000, message='Missing payload')
+        return Error(code=1000, message='Missing payload'), 403
 
     try:
         fstorage = deserialize_StorageNew(storage, api.models.Storage.objects.get(pk=storage_id))
     except:
-        return Error(code=1000, message='Storage %d does not exists'%storage_id)        
+        return Error(code=1000, message='Storage %d does not exists'%storage_id), 403       
 
     fstorage.save()
     

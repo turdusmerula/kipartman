@@ -98,7 +98,7 @@ def add_model(model):
     try:
         fmodel = deserialize_ModelNew(model)
     except ControllerError as e:
-        return e.error
+        return e.error, 403
 
         
     fmodel.save()
@@ -118,7 +118,7 @@ def delete_model(model_id):
     try:
         fmodel = api.models.Model.objects.get(pk=model_id)
     except:
-        return Error(code=1000, message='Model %d does not exists'%model_id)
+        return Error(code=1000, message='Model %d does not exists'%model_id), 403
     # delete model
     fmodel.delete()
     return None
@@ -136,12 +136,12 @@ def find_model(model_id):
     try:
         fmodel = api.models.Model.objects.get(pk=model_id)
     except:
-        return Error(code=1000, message='Model %d does not exists'%model_id)
+        return Error(code=1000, message='Model %d does not exists'%model_id), 403
     
     try:
         model = serialize_Model(fmodel)
     except ControllerError as e:
-        return e.error
+        return e.error, 403
     
     return model
 
@@ -193,12 +193,12 @@ def update_model(model_id, model):
     if connexion.request.is_json:
         model = ModelNew.from_dict(connexion.request.get_json())
     else:
-        return Error(code=1000, message='Missing payload')
+        return Error(code=1000, message='Missing payload'), 403
 
     try:
         fmodel = deserialize_ModelNew(model, api.models.Model.objects.get(pk=model_id))
     except:
-        return Error(code=1000, message='Model %d does not exists'%model_id)        
+        return Error(code=1000, message='Model %d does not exists'%model_id), 403     
 
     fmodel.save()
     

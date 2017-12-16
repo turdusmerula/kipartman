@@ -1,0 +1,10 @@
+type: object
+properties:
+  name:
+    type: string
+  description:
+    type: string
+  unit:
+    $ref: '../../unit/Unit.yaml'
+  numeric:
+    type: boolean

@@ -51,6 +51,7 @@ from .part_offer import PartOffer
 from .part_offer_data import PartOfferData
 from .part_parameter import PartParameter
 from .part_parameter_data import PartParameterData
+from .part_parameter_description import PartParameterDescription
 from .part_ref import PartRef
 from .part_storage import PartStorage
 from .storage import Storage

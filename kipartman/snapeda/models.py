@@ -26,7 +26,11 @@ class SearchResult(Model):
         return self.json["availability_count"]
 
     def coverart(self):
-        list = [] 
+        list = []
+        # try:
+        #     pass
+        # except expression as identifier:
+        #     pass
         for item in self.json["coverart"]:
             list.append(Url(item))
         return list

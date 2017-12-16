@@ -42,7 +42,7 @@ def find_unit(unit_id):
     try:
         unit = serialize_Unit(api.models.Unit.objects.get(pk=unit_id))
     except:
-        return Error(code=1000, message='Unit %d does not exists'%unit_id)
+        return Error(code=1000, message='Unit %d does not exists'%unit_id), 403
 
     return unit
 
@@ -59,7 +59,7 @@ def find_unit_prefix(unit_prefix_id):
     try:
         unit_prefix = serialize_UnitPrefix(api.models.UnitPrefix.objects.get(pk=unit_prefix_id))
     except:
-        return Error(code=1000, message='Unit prefix %d does not exists'%unit_prefix_id)
+        return Error(code=1000, message='Unit prefix %d does not exists'%unit_prefix_id), 403
 
     return unit_prefix
 

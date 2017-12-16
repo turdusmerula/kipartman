@@ -129,20 +129,24 @@ def deserialize_PartNew(part, fpart=None):
 
     if not part.childs is None:
         fchilds = []
+        fchilds_check = []
         for child in part.childs:
             try:
-                fchilds.append(api.models.Part.objects.get(pk=child.id))
+                fchild = api.models.Part.objects.get(pk=child.id)
+                fchilds.append(fchild)
+                fchilds_check.append(fchild)
             except:
                 raise_on_error(Error(code=1000, message='Part %d does not exists'%part.id))
-        fpart.childs.set(fchilds)
 
         # recursive check
-        while len(fchilds)>0:
-            fchild = fchilds.pop()
+        while len(fchilds_check)>0:
+            fchild = fchilds_check.pop()
             if fchild.pk==part.id:
                 raise_on_error(Error(code=1000, message='Part cannot be child of itself'))
             for fchild in fchild.childs.all():
-                fchilds.append(fchild)
+                fchilds_check.append(fchild)
+
+        fpart.childs.set(fchilds)
 
     return fpart
 
@@ -165,7 +169,7 @@ def add_part(part):
     try:
         fpart = deserialize_PartNew(part)
     except ControllerError as e:
-        return e.error
+        return e.error, 403
     
     fpart.save()
     
@@ -185,7 +189,7 @@ def add_part(part):
             try:
                 fdistributor = api.models.Distributor.objects.get(name=part_distributor.name)
             except:
-                return Error(code=1000, message='Distributor %s does not exists'%part_distributor.name)
+                return Error(code=1000, message='Distributor %s does not exists'%part_distributor.name), 403
             for offer in part_distributor.offers:
                 foffer = deserialize_PartOffer(offer)
                 foffer.part = fpart
@@ -200,7 +204,7 @@ def add_part(part):
             try:
                 fmanufacturer = api.models.Manufacturer.objects.get(name=part_manufacturer.name)
             except:
-                return Error(code=1000, message='Manufacturer %s does not exists'%part_manufacturer.name)
+                return Error(code=1000, message='Manufacturer %s does not exists'%part_manufacturer.name), 403
             fpart_manufacturer = api.models.PartManufacturer()
             fpart_manufacturer.part = fpart
             fpart_manufacturer.manufacturer = fmanufacturer
@@ -215,7 +219,7 @@ def add_part(part):
             try:
                 fstorage = api.models.Storage.objects.get(id=part_storage.id)
             except:
-                return Error(code=1000, message='Storage %s does not exists'%part_storage.name)
+                return Error(code=1000, message='Storage %s does not exists'%part_storage.name), 403
             fpart_storage = api.models.PartStorage()
             fpart_storage.part = fpart
             fpart_storage.storage = fstorage
@@ -230,7 +234,7 @@ def add_part(part):
             try:
                 fattachement = api.models.File.objects.get(id=part_attachement.id)
             except:
-                return Error(code=1000, message='File %s does not exists'%part_attachement.id)
+                return Error(code=1000, message='File %s does not exists'%part_attachement.id), 403
             fpart_attachement = api.models.PartAttachement()
             fpart_attachement.part = fpart
             fpart_attachement.file = fattachement
@@ -254,7 +258,7 @@ def delete_part(part_id):
     try:
         fpart = api.models.Part.objects.get(pk=part_id)
     except:
-        return Error(code=1000, message='Part %d does not exists'%part_id)
+        return Error(code=1000, message='Part %d does not exists'%part_id), 403
     # delete part
     fpart.delete()
     return None
@@ -286,12 +290,12 @@ def find_part(part_id, with_offers=None, with_parameters=None, with_childs=None,
     try:
         fpart = api.models.Part.objects.get(pk=part_id)
     except:
-        return Error(code=1000, message='Part %d does not exists'%part_id)
+        return Error(code=1000, message='Part %d does not exists'%part_id), 403
     
     try:
         part = serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers, with_storages=with_storages, with_attachements=with_attachements)
     except Error as e:
-        return e
+        return e, 403
     return part
 
 def find_parts(category=None, storage=None, with_offers=None, with_parameters=None, with_childs=None, with_distributors=None, with_manufacturers=None, with_storages=None, search=None, with_attachements=None):
@@ -340,7 +344,6 @@ def find_parts(category=None, storage=None, with_offers=None, with_parameters=No
     if storage:
         fparts = api.models.PartStorage.objects.filter(storage=int(storage))
         fpart_ids = [fpart.part.id for fpart in fparts]
-        print "----", fpart_ids
         # add a category filter
         fpart_request = fpart_request.filter(id__in=fpart_ids)
 
@@ -348,7 +351,7 @@ def find_parts(category=None, storage=None, with_offers=None, with_parameters=No
         for fpart in fpart_request.all():
             parts.append(serialize_Part(fpart, with_offers=with_offers, with_parameters=with_parameters, with_childs=with_childs, with_distributors=with_distributors, with_manufacturers=with_manufacturers, with_storages=with_storages, with_attachements=with_attachements))
     except Error as e:
-        return e.error
+        return e.error, 403
 
     return parts
 
@@ -366,17 +369,17 @@ def update_part(part_id, part):
     if connexion.request.is_json:
         part = Part.from_dict(connexion.request.get_json())
     else:
-        return Error(code=1000, message='Missing payload')
+        return Error(code=1000, message='Missing payload'), 403
     
     try:
         fpart = api.models.Part.objects.get(pk=part_id)
     except:
-        return Error(code=1000, message='Part %d does not exists'%part_id)
+        return Error(code=1000, message='Part %d does not exists'%part_id), 403
     
     try:
         fpart = deserialize_Part(part, fpart)
     except ControllerError as e:
-        return e.error
+        return e.error, 403
     
     fpart.save()
 
@@ -401,7 +404,7 @@ def update_part(part_id, part):
             try:
                 fdistributor = api.models.Distributor.objects.get(name=part_distributor.name)
             except:
-                return Error(code=1000, message='Distributor %s does not exists'%part_distributor.name)
+                return Error(code=1000, message='Distributor %s does not exists'%part_distributor.name), 403
                 
             for offer in part_distributor.offers:
                 foffer = deserialize_PartOffer(offer)
@@ -420,7 +423,7 @@ def update_part(part_id, part):
             try:
                 fmanufacturer = api.models.Manufacturer.objects.get(name=part_manufacturer.name)
             except:
-                return Error(code=1000, message='Manufacturer %s does not exists'%part_manufacturer.name)
+                return Error(code=1000, message='Manufacturer %s does not exists'%part_manufacturer.name), 403
             fpart_manufacturer = api.models.PartManufacturer()
             fpart_manufacturer.part = fpart
             fpart_manufacturer.manufacturer = fmanufacturer
@@ -438,7 +441,7 @@ def update_part(part_id, part):
             try:
                 fstorage = api.models.Storage.objects.get(id=part_storage.id)
             except:
-                return Error(code=1000, message='Storage %s does not exists'%part_storage.id)
+                return Error(code=1000, message='Storage %s does not exists'%part_storage.id), 403
             fpart_storage = api.models.PartStorage()
             fpart_storage.part = fpart
             fpart_storage.storage = fstorage
@@ -459,7 +462,7 @@ def update_part(part_id, part):
             try:
                 fattachement = api.models.File.objects.get(id=part_attachement.id)
             except:
-                return Error(code=1000, message='File %s does not exists'%part_attachement.id)
+                return Error(code=1000, message='File %s does not exists'%part_attachement.id), 403
             fpart_attachement = api.models.PartAttachement()
             fpart_attachement.part = fpart
             fpart_attachement.file = fattachement

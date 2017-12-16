@@ -122,7 +122,6 @@ class ManufacturersFrame(PanelManufacturers):
         
         if self.manufacturer is None:
             manufacturer = rest.model.ManufacturerNew()
-            
         else:
             manufacturer = self.manufacturer
         

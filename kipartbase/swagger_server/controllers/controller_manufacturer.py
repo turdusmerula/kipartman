@@ -78,7 +78,7 @@ def delete_manufacturer(manufacturer_id):
     try:
         fmanufacturer = api.models.Manufacturer.objects.get(pk=manufacturer_id)
     except:
-        return Error(code=1000, message='Manufacturer %d does not exists'%manufacturer_id)
+        return Error(code=1000, message='Manufacturer %d does not exists'%manufacturer_id), 403
     # delete manufacturer
     fmanufacturer.delete()
     return None
@@ -96,7 +96,7 @@ def find_manufacturer(manufacturer_id):
     try:
         fmanufacturer = api.models.Manufacturer.objects.get(pk=manufacturer_id)
     except:
-        return Error(code=1000, message='Manufacturer %d does not exists'%manufacturer_id)
+        return Error(code=1000, message='Manufacturer %d does not exists'%manufacturer_id), 403
     
     manufacturer = serialize_Manufacturer(fmanufacturer)
     return manufacturer
@@ -135,11 +135,11 @@ def update_manufacturer(manufacturer_id, category):
     if connexion.request.is_json:
         manufacturer = ManufacturerNew.from_dict(connexion.request.get_json())
     else:
-        return Error(code=1000, message='Missing payload')
+        return Error(code=1000, message='Missing payload'), 403
     try:
         fmanufacturer = deserialize_ManufacturerNew(manufacturer, api.models.Manufacturer.objects.get(pk=manufacturer_id))
     except:
-        return Error(code=1000, message='Manufacturer %d does not exists'%manufacturer_id)
+        return Error(code=1000, message='Manufacturer %d does not exists'%manufacturer_id), 403
         
     fmanufacturer.save()
     

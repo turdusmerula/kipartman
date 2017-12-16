@@ -32,7 +32,7 @@ class PartOffer(object):
     """
     swagger_types = {
         'packaging_unit': 'int',
-        'quantity': 'float',
+        'quantity': 'int',
         'unit_price': 'float',
         'currency': 'str',
         'sku': 'str',
@@ -100,7 +100,7 @@ class PartOffer(object):
         Gets the quantity of this PartOffer.
 
         :return: The quantity of this PartOffer.
-        :rtype: float
+        :rtype: int
         """
         return self._quantity
 
@@ -110,7 +110,7 @@ class PartOffer(object):
         Sets the quantity of this PartOffer.
 
         :param quantity: The quantity of this PartOffer.
-        :type: float
+        :type: int
         """
 
         self._quantity = quantity

@@ -143,6 +143,8 @@ class PartStorage(BaseModel):
         :param id: The id of this PartStorage.
         :type id: int
         """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")
 
         self._id = id
 

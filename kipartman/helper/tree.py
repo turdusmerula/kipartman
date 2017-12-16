@@ -1,4 +1,6 @@
 import logging
+import datetime
+import platform
 import wx.dataview
 #import wx.dataview.DataViewTreeCtrl
 import json
@@ -44,7 +46,7 @@ class TreeItem(object):
         return False
 
     def HasContainerColumns(self):
-        return True
+        return False
 
     def GetDragData(self):
         return None
@@ -52,11 +54,17 @@ class TreeItem(object):
     def SetValue(self, value, col):
         return False
     
+#    def Compare(self, item):
+#        return 0
+    
 class TreeContainerItem(TreeItem):
     def __init__(self):
         super(TreeContainerItem, self).__init__()
         self.childs = None
         
+    def HasContainerColumns(self):
+        return True
+
     def IsContainer(self):
         return True
 
@@ -83,7 +91,10 @@ class TreeContainerLazyItem(TreeItem):
     # override this for lazy loading childs
     def Load(self, manager):
         pass
-    
+
+    def HasContainerColumns(self):
+        return True
+
     def IsContainer(self):
         return True
 
@@ -92,7 +103,8 @@ class TreeModel(wx.dataview.PyDataViewModel):
         super(TreeModel, self).__init__()
         self.columns_type = []
         self.root_nodes = []
-    
+        self.sort_function = []
+
     def ClearItems(self):
         self.root_nodes = []
         
@@ -123,6 +135,8 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return False
         
     def HasContainerColumns(self, item):
+        if not item:
+            return False
         obj = self.ItemToObject(item)
         return obj.HasContainerColumns()
 
@@ -137,6 +151,8 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return wx.dataview.NullDataViewItem
     
     def GetValue(self, item, col):
+        if not item or item.IsOk()==False:
+            return ""
         obj = self.ItemToObject(item)
         value = obj.GetValue(col)
         if value is None:
@@ -153,16 +169,58 @@ class TreeModel(wx.dataview.PyDataViewModel):
         self.ItemChanged(item)
         return res
         
+    def Compare(self, item1, item2, column, ascending):
+        if self.sort_function[column] is None:
+            return 0
+        else:
+            value1 = self.GetValue(item1, column)
+            value2 = self.GetValue(item2, column)
+
+            # empty element are always treated inferior
+            if value1=="" and value2!="":
+                return 1
+            elif value1!="" and value2=="":
+                return -1
+            elif value1=="" and value2=="":
+                return super(TreeModel, self).Compare(item1, item2, column, ascending)
+
+            if not ascending: # swap sort order?
+                value2, value1 = value1, value2
+
+            return self.sort_function[column](value1, value2)
+        
 class TreeDropTarget(wx.TextDropTarget):
     def __init__(self, manager):
         super(TreeDropTarget, self).__init__()
         self.manager = manager
 
-    #TODO: set drag cursor depending on accept/reject drop
+ #TODO: set drag cursor depending on accept/reject drop
+    '''
+    @TODO: FIX - onDragOver, in MSW does not show over dataviewitems, 
+    @TODO: CHECK onDragOver, in Linux does this fire ?
+    @TODO: FIX - (return) only wx.DragCopy works, wx.DragMove shows (ICON Notpossible)
+    '''
+    def OnDragOver(self, x, y, d):
+        if 'logging' in globals():logging.debug(
+             "{:%H:%M:%S.%f}  TreeDropTarget:OnDragOver : SuggestedResult:{}".format(
+                    datetime.datetime.now(),
+                    d
+                    ))
+        return wx.DragNone  #wx.DragMove
+
     def OnDropText(self, x, y, text):
+        if 'logging' in globals():logging.debug(
+            "{:%H:%M:%S.%f}  TreeDropTarget:OnDropText : Position:X{}Y{} Text:{}".format(
+                                            datetime.datetime.now(),
+                                            x,y,text
+                                            ))
+
         payload = json.loads(text)
         for target in self.manager.drop_targets:
             if payload['type']==target['type']:
+                if 'logging' in globals():logging.debug( 
+                        "{:%H:%M:%S.%f}  TreeDropTarget:OnDropText(payload process) : target:{} payload:{}".format(
+                            datetime.datetime.now(),target['trigger'],payload['data']))
                 return target['trigger'](x, y, payload['data'])
         return wx.DragError
 
@@ -172,20 +230,52 @@ class TreeDataObject(wx.TextDataObject):
         self.data = data
         self.SetText(json.dumps({'type': data.__class__.__name__, 'data': data.GetDragData()}))
 
+def CompareInteger(item1, item2):
+    val1 = int(item1)
+    val2 = int(item2)
+    if val2>val1:
+        return -1
+    elif val2<val1:
+        return 1
+    return 0
+
+def CompareFloat(item1, item2):
+    val1 = float(item1)
+    val2 = float(item2)
+    if val2>val1:
+        return -1
+    elif val2<val1:
+        return 1
+    return 0
+
+def CompareString(item1, item2):
+    if item2>item1:
+        return -1
+    elif item2<item1:
+        return 1
+    return 0 
+
 class TreeManager(object):
     drag_item = None
     drag_source = None
     
-    def __init__(self, tree_view):
+    def __init__(self, tree_view, model=None):
+        #TODO ISSUE#8 Debug assist to Try various options
+        self.onItemDropPossible_returnResult = 1
+        self.onItemDropPossible_eventAction = 1
+
         self.tree_view = tree_view
 
-        self.model = TreeModel()
+        if model==None:
+            self.model = TreeModel()
+        else:
+            self.model = model
         self.tree_view.AssociateModel(self.model)
 
         # create drag and drop targets
         self.drop_targets = []
-        self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat().GetType()))
-        self.tree_view.EnableDropTarget(wx.DataFormat(wx.DF_TEXT))
+        self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
+        self.tree_view.EnableDropTarget(wx.DataFormat(wx.TextDataObject().GetFormat()))
         self.tree_view.SetDropTarget(TreeDropTarget(self))
 
         # data elements
@@ -261,7 +351,15 @@ class TreeManager(object):
     
     def _onItemBeginDrag( self, event ):
         event.manager = self
-        
+        '''
+        @TODO: Confirm SetDragFlags under Linux
+        according to documentation https://wxpython.org/Phoenix/docs/html/wx.dataview.DataViewEvent.html#wx-dataview-dataviewevent
+
+        Currently it is only honoured by the generic version of wx.dataview.DataViewCtrl (used e.g. under MSW)'
+        '''
+        # Suppress the standard drag symbol on MSW (copy)
+        event.SetDragFlags(wx.Drag_DefaultMove)
+
         TreeManager.drag_item = event.GetItem()
         TreeManager.drag_source = self
         
@@ -279,8 +377,13 @@ class TreeManager(object):
 
         event.SetDataObject(TreeDataObject(drag_data))
         if 'logging' in globals():logging.debug('DRAG onItemBeginDrag STATE:{}'.format(self.OnItemBeginDrag))
+        dragSource = wx.DropSource(self.tree_view.TopLevelParent)
+        dataObject = TreeDataObject(drag_data)
+
         if self.OnItemBeginDrag:
             return self.OnItemBeginDrag(event)
+        return wx.Drag_DefaultMove
+
     
     def _onItemCollapsed( self, event ):
         event.manager = self
@@ -302,15 +405,96 @@ class TreeManager(object):
     
     def _onItemDrop( self, event ):
         event.manager = self
+        if 'logging' in globals():logging.debug("{:%H:%M:%S.%f}  TreeManager:onItemDrop self:{} event:{} {}".format(datetime.datetime.now(),
+                                    self,
+                                    event.GetClassName(),
+                                    hex(id(event)).upper(),
+                                    ))
+        drag_data = self.drag_source.model.ItemToObject(self.drag_source.drag_item)
+        if drag_data.GetDragData() is None:
+            event.Skip()
+            return wx.DragCancel
+        sourceDataObject = TreeDataObject(drag_data)
+        event.SetDataObject(sourceDataObject)
+
+        mouse_x,mouse_y = wx.GetMousePosition()
+        if platform.system()=='Windows':
+            #TODO 17W47.5 WORKAROUND for defect 17561.
+            # WORKAROUND y-25
+            # Q: Can we determine What is the Header Row Height , so we can adjust, also need to detect if the header is displayed ???
+            # Q: When will wxWidget fix this? Anything we can do ?, is it specific to MSW
+            # BACKGROUND
+            '''
+            The generic versions of wxDataViewCtrl::HitTest() and wxDataViewCtrl::GetItemRect() do not take the size of the optional header of the control into account. Instead they just forward the calls to the client area (m_clientArea) without correcting the y-coordinate by the height of the optional header (m_headerArea). This leads to wrong results.
+    
+            From <http://trac.wxwidgets.org/ticket/17561#no1> 
+    
+            '''
+            mouse_x, mouse_y = self.tree_view.ScreenToClient((mouse_x, mouse_y-25))
+            #TODO 17W47.7 WORKAROUND for defect xxxxx.
+            # WORKAROUND as DropTarget is not called for Dataview Items, call it manually in onDrop
+            # BACKGROUND
+            '''
+            
+            '''
+        else:
+            mouse_x, mouse_y = self.tree_view.ScreenToClient((mouse_x, mouse_y))
+
+
+        self.tree_view.DropTarget.OnDropText(
+            mouse_x, mouse_y, 
+            sourceDataObject.Text)
+
         if self.OnItemDrop:
             return self.OnItemDrop(event)
-        event.Skip()
+        event.Allow()
+        return True
     
     def _onItemDropPossible( self, event ):
         event.manager = self
         if self.OnItemDropPossible:
-            return self.OnItemDropPossible(event)
-        event.Skip()
+            return self.OnItemDropPossible(event) 
+               #return False
+        '''
+        @TODO: Implement Drag Feedback 
+         Ok/Not Ok for drop by event.Allow or event.Skip
+        
+        Hit test on ?
+        
+        Define:  onItemDropPossible_eventAction 
+        if onItemDropPossible_eventAction:
+            event.Allow()
+        else:
+            event.Skip()
+            
+        @TODO: Undestand as below the event.Skip(False) vs event.Skip(True)
+        '''
+
+        #Control the Drag Cursor
+        #self.onItemDropPossible_eventAction = 1
+        if self.onItemDropPossible_eventAction == 1:
+            #Generates a working drag cursor
+            event.Allow()
+        elif self.onItemDropPossible_eventAction == 2:
+            #'banned' cursor (on MSWindows--the cursor that is a circle with a line diagonally through it).
+            event.Skip(True)
+        elif self.onItemDropPossible_eventAction == 3:
+            #Generates a working drag cursor
+            event.Skip(False)
+        else:
+            pass
+
+        #TODO: Debug assist code for Issue#8 DnD, Parts to Categories on MSW
+        # if self.onItemDropPossible_returnResult == 1:
+        #     return wx.Drag_DefaultMove
+        # elif self.onItemDropPossible_returnResult == 2:
+        #     return wx.Drag_CopyOnly
+        # elif self.onItemDropPossible_returnResult == 3:
+        #     return wx.Drag_AllowMove
+        # else:
+        #     pass
+
+        return wx.Drag_DefaultMove
     
     def _onItemEditingDone( self, event ):
         event.manager = self
@@ -364,26 +548,48 @@ class TreeManager(object):
     def AddTextColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
         self.model.columns_type.append('string')
+        self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
+        return column
     
     def AddFloatColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
         self.model.columns_type.append('float')
+        self.model.sort_function.append(CompareFloat)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
     def AddIntegerColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
         self.model.columns_type.append('integer')
+        self.model.sort_function.append(CompareInteger)
         column.Sortable = True
         column.Reorderable = True
+        return column
 
     def AddToggleColumn(self, title):
         column = self.tree_view.AppendToggleColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE, mode=wx.dataview.DATAVIEW_CELL_ACTIVATABLE)
         self.model.columns_type.append('integer')
+        self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
+        return column
+
+    def AddCustomColumn(self, title, type, sort_function):
+        column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
+        self.model.columns_type.append(type)
+        self.model.sort_function.append(sort_function)
+        column.Sortable = True
+        column.Reorderable = True
+        return column
+
+    def RemoveColumn(self, index):
+        for column in self.tree_view.GetColumns():
+            if column.GetModelColumn()==index:
+                self.tree_view.DeleteColumn(column)
+                return
         
     def ClearItems(self):
         self.data = []
