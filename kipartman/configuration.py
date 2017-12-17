@@ -2,6 +2,8 @@ from os.path import expanduser
 import os.path
 import json
 import logging, sys
+import platform
+from distutils.spawn import find_executable
 
 class Configuration(object):
     
@@ -22,10 +24,13 @@ class Configuration(object):
         self.LOGFORMAT = '%(asctime)-15s %(levelname)-5s [%(module)s] %(message)s'
         
         # if kicad_path is not given then assume that kicad is in system path
+        if os.path.exists(expanduser("~")+'/.kipartman/library')==False:
+            os.mkdir(expanduser("~")+'/.kipartman/library')
         self.kicad_path = ''
-        self.kicad_library_path = ''
-        self.kicad_footprint_path = ''
-        self.kicad_3d_models_path = ''
+        self.kicad_library_path = expanduser("~")+'/.kipartman/library'
+        self.kicad_models_path = expanduser("~")+'/.kipartman/library'
+        self.kicad_3d_models_path = expanduser("~")+'/.kipartman/library'
+        self.kicad_library_common_path = True
         
         self.Load()
         
@@ -45,6 +50,11 @@ class Configuration(object):
                 self.base_currency = content['base_currency']
                 
                 self.kicad_path = content['kicad_path']
+                self.kicad_library_path = content['kicad_library_path']
+                self.kicad_models_path = content['kicad_models_path']
+                self.kicad_3d_models_path = content['kicad_3d_models_path']
+                self.kicad_library_common_path = content['kicad_library_common_path']
+                
                 self.find_kicad()
             except Exception as e:
                 print ("Error: loading kipartman key configuration failed {}:{}".format(type(e),e.message))
@@ -84,12 +94,24 @@ class Configuration(object):
             content['logfile'] = self.LOGFILE
             content['logformat'] = self.LOGFORMAT
 
+            content['kicad_path'] = unicode(self.kicad_path)
+            content['kicad_library_path'] = unicode(self.kicad_library_path)
+            content['kicad_models_path'] = unicode(self.kicad_models_path)
+            content['kicad_3d_models_path'] = unicode(self.kicad_3d_models_path)
+            content['kicad_library_common_path'] = self.kicad_library_common_path
 
             json.dump(content, outfile, sort_keys=True, indent=4, separators=(',', ': '))
 #        print "Save configuration:", content
 
-    def find_kicad(self, hint):
-        pass
+    def FindKicad(self, hint=""):
+        """
+        Search for kicad in system path
+        """
+#        if platform.system()=='Windows':
+        executable = find_executable("kicad")
+        if executable:
+            return os.path.dirname(os.path.abspath(executable))
+        return None     
         
 configuration=Configuration()
 configuration.Load()

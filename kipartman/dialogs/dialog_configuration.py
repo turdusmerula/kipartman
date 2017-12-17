@@ -162,9 +162,9 @@ class DialogConfiguration ( wx.Dialog ):
 		
 		bSizer3.Add( fgSizer21, 1, wx.EXPAND, 5 )
 		
-		self.check_common_folder = wx.CheckBox( sbSizer21.GetStaticBox(), wx.ID_ANY, u"Use same folder", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.check_common_folder.SetValue(True) 
-		bSizer3.Add( self.check_common_folder, 0, wx.ALL, 5 )
+		self.check_common_path = wx.CheckBox( sbSizer21.GetStaticBox(), wx.ID_ANY, u"Use same folder", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.check_common_path.SetValue(True) 
+		bSizer3.Add( self.check_common_path, 0, wx.ALL, 5 )
 		
 		
 		sbSizer21.Add( bSizer3, 0, wx.EXPAND, 5 )
@@ -192,7 +192,7 @@ class DialogConfiguration ( wx.Dialog ):
 		self.button_test_octopart.Bind( wx.EVT_BUTTON, self.onTestOctopart )
 		self.button_test_snapeda.Bind( wx.EVT_BUTTON, self.onTestSnapeda )
 		self.button_kicad_path_default.Bind( wx.EVT_BUTTON, self.onButtonKicadPathDefault )
-		self.check_common_folder.Bind( wx.EVT_CHECKBOX, self.onCheckCommonFolder )
+		self.check_common_path.Bind( wx.EVT_CHECKBOX, self.onCheckCommonPath )
 		self.m_sdbSizer1Cancel.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
 		self.m_sdbSizer1OK.Bind( wx.EVT_BUTTON, self.onOkButtonClick )
 	
@@ -213,7 +213,7 @@ class DialogConfiguration ( wx.Dialog ):
 	def onButtonKicadPathDefault( self, event ):
 		event.Skip()
 	
-	def onCheckCommonFolder( self, event ):
+	def onCheckCommonPath( self, event ):
 		event.Skip()
 	
 	def onCancelButtonClick( self, event ):
