@@ -16,15 +16,19 @@ class Configuration(object):
         
         self.snapeda_user = ''
         self.snapeda_password = ''
+        
         self.LOGLEVEL  = 10
         self.LOGFILE   = 'stream://sys.stderr'
         self.LOGFORMAT = '%(asctime)-15s %(levelname)-5s [%(module)s] %(message)s'
+        
+        # if kicad_path is not given then assume that kicad is in system path
+        self.kicad_path = ''
+        self.kicad_library_path = ''
+        self.kicad_footprint_path = ''
+        self.kicad_3d_models_path = ''
+        
         self.Load()
         
-
-
-
-
     def Load(self):
         if(os.path.isfile(self.filename)==False):
             return
@@ -37,6 +41,11 @@ class Configuration(object):
                 self.octopart_api_key = content['octopart_api_key']
                 self.snapeda_user = content['snapeda_user']
                 self.snapeda_password = content['snapeda_password']
+                
+                self.base_currency = content['base_currency']
+                
+                self.kicad_path = content['kicad_path']
+                self.find_kicad()
             except Exception as e:
                 print ("Error: loading kipartman key configuration failed {}:{}".format(type(e),e.message))
             try:
@@ -69,6 +78,8 @@ class Configuration(object):
             content['snapeda_user'] = self.snapeda_user
             content['snapeda_password'] = self.snapeda_password
 
+            content['base_currency'] = self.base_currency
+
             content['loglevelnumber'] = str(self.LOGLEVEL)
             content['logfile'] = self.LOGFILE
             content['logformat'] = self.LOGFORMAT
@@ -77,5 +88,8 @@ class Configuration(object):
             json.dump(content, outfile, sort_keys=True, indent=4, separators=(',', ': '))
 #        print "Save configuration:", content
 
+    def find_kicad(self, hint):
+        pass
+        
 configuration=Configuration()
 configuration.Load()

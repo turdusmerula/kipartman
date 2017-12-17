@@ -13,3 +13,4 @@ from controller_manufacturer import *
 from controller_upload_file import *
 from controller_storage_category import *
 from controller_storage import *
+from controller_currency import *

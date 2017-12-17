@@ -6,12 +6,14 @@ import urllib
 class Currency(object):
     def __init__(self, base):
         self.base = base
+        self.currencies = []
         self.load()
         
     def load(self):
         data = urllib.urlopen('http://api.fixer.io/latest?base='+self.base).read()
         self.currencies = json.loads(data)
         print("Currencies: ", self.currencies)
+        return self.currencies
         
     def convert(self, value, source, target):
         rates = self.currencies['rates']
