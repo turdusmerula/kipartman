@@ -524,20 +524,26 @@ class PartsFrame(PanelParts):
             matchingFootprints = rest.api.find_footprints(**searchParam)
             if len(matchingFootprints)==0: #ADD new footprint
                 #Check Footprint Category: "Uncatagorized" exists
-                try
+                try:
                     footprintcategoryid = {i.name: i.id for i in rest.api.find_footprints_categories()}['Uncategorized']
-                except e as excpection:
-                    if e == KeyError:
-                        #Create the "Uncategorized" category
-                        footprintcategoryid = #TODO:
-                    else:
-                        #some other error
+                except KeyError, e:  #Category 'Uncategorized' does not exist
+                    #Create the "Uncategorized" category
+                    category = rest.model.FootprintCategoryNew()
+                    category.name = "Uncategorized"
+                    category.description = 'imported footprint names not already defined'
+                    category = rest.api.add_footprints_category(category)
+                    footprintcategoryid = category.id
+                except:
+                        #TODO: handle other errors cleanly
+                        raise
                         pass
 
                 part.footprint = rest.model.FootprintNew()
+                #TODO: assigne  {footprintcategoryid} to footprint
+                part.footprint.category = footprintcategoryid
                 part.footprint.name = u'Resistors_SMD:R_0805' #TODO: change to importItem.footprint
                 # update part on server
-                part.footprint = rest.api.update_footprint(part.footprint.id, part.footprint)
+                part.footprint = rest.api.add_footprint( part.footprint)
 
             elif len(matchingFootprints)==1: # only 1 option so referece it
                 part.footprint = matchingFootprints[0]
