@@ -494,7 +494,7 @@ class PartsFrame(PanelParts):
         if import_dialog.ShowModal() == wx.ID_CANCEL:
             return
 
-        base, ext = os.path.splitext(export_dialog.GetPath())
+        base, ext = os.path.splitext(import_dialog.GetPath())
         importpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
         filt_idx = import_dialog.GetFilterIndex()
 
@@ -519,6 +519,32 @@ class PartsFrame(PanelParts):
             
             part.name = importItem.name
             part.description = importItem.description
+            #TODO: lookup footprint, if not created, create
+            searchParam = {'search': u'Resistors_SMD:R_0805'} #TODO: change to importItem.footprint
+            matchingFootprints = rest.api.find_footprints(**searchParam)
+            if len(matchingFootprints)==0: #ADD new footprint
+                #Check Footprint Category: "Uncatagorized" exists
+                try
+                    footprintcategoryid = {i.name: i.id for i in rest.api.find_footprints_categories()}['Uncategorized']
+                except e as excpection:
+                    if e == KeyError:
+                        #Create the "Uncategorized" category
+                        footprintcategoryid = #TODO:
+                    else:
+                        #some other error
+                        pass
+
+                part.footprint = rest.model.FootprintNew()
+                part.footprint.name = u'Resistors_SMD:R_0805' #TODO: change to importItem.footprint
+                # update part on server
+                part.footprint = rest.api.update_footprint(part.footprint.id, part.footprint)
+
+            elif len(matchingFootprints)==1: # only 1 option so referece it
+                part.footprint = matchingFootprints[0]
+            else: # multiple items
+                pass #TODO: handle if multiple options exist
+
+            #part.footprint.description = ''
             part.comment  = 'NEW IMPORT Timestamp:{:%y-%m-%d %H:%M:%S.%f}'.format(datetime.datetime.now())
             
             # set category
