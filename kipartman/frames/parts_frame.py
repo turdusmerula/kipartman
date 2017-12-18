@@ -540,8 +540,11 @@ class PartsFrame(PanelParts):
 
                 part.footprint = rest.model.FootprintNew()
                 #TODO: assigne  {footprintcategoryid} to footprint
-                part.footprint.category = footprintcategoryid
+                part.footprint.category = rest.model.FootprintCategoryRef(id=footprintcategoryid)
                 part.footprint.name = u'Resistors_SMD:R_0805' #TODO: change to importItem.footprint
+                part.footprint.description = u''
+                part.footprint.comment = u''
+
                 # update part on server
                 part.footprint = rest.api.add_footprint( part.footprint)
 
