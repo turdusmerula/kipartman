@@ -47,8 +47,9 @@ def main(args=None):
     ############
     from kicad.kicad_lib_file import KicadLibFile
     f = KicadLibFile()
-    f.LoadFile("/home/seb/git/kipartman/a.lib")
-    f.Render("/tmp/b.png")
+    #f.LoadFile("/home/seb/git/kipartman/a.lib")
+    #f.LoadFile(b"C:\TEST\BSFE17W44-BoostPSU-MIC2875\BSFE17W44-BoostPSU-MIC2875-cache.lib")
+    #f.Render("/tmp/b.png")
     ############
 
     app.MainLoop()
