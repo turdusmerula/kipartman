@@ -105,13 +105,35 @@ class Configuration(object):
 
     def FindKicad(self, hint=""):
         """
-        Search for kicad in system path
+        Search for kicad in system path, On MSW it is not necessarily found through the system Path
         """
-#        if platform.system()=='Windows':
-        executable = find_executable("kicad")
-        if executable:
-            return os.path.dirname(os.path.abspath(executable))
-        return None     
+        if platform.system()=='Windows':
+            import _winreg
+            try: # MSW 32bit check
+                key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                                   b'Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\kicad', 0,
+                                   _winreg.KEY_READ)
+                path = _winreg.QueryValueEx(key, 'InstallLocation')[0]
+            except:
+                pass
+            else:
+                try: # MSW 64bit check
+                    key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                                   b'Software\Microsoft\Windows\CurrentVersion\Uninstall\kicad', 0, _winreg.KEY_READ)
+                    path = _winreg.QueryValueEx(key, 'InstallLocation')[0]
+                except:
+                    pass
+                else:
+                    path='' # no instance of Kicad found
+            if path != '':
+                path = os.path.join(path, "bin")
+            return path
+
+        else:
+            executable = find_executable("kicad")
+            if executable:
+                return os.path.dirname(os.path.abspath(executable))
+            return None #TODO: this is not an acceptable return on Linux
         
 configuration=Configuration()
 configuration.Load()
