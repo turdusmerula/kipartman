@@ -94,6 +94,8 @@ class ConfigurationFrame(DialogConfiguration):
             q.get('atmega328p')
             self.data = q.results()
             print self.data
+            wx.MessageBox( 'OCTOPART CONNECTION OK', 
+                'OCTOPART CONNECTION OK', wx.OK )
         except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         OctpartPartsQuery.apikey = apikey
@@ -104,6 +106,8 @@ class ConfigurationFrame(DialogConfiguration):
         
         try:
             connection.connect(self.edit_snapeda_user.Value, self.edit_snapeda_password.Value)
+            wx.MessageBox( 'SNAPEDA CONNECTION OK', 
+                'SNAPEDA CONNECTION OK', wx.OK )
         except SnapedaConnectionException as e:
             wx.MessageBox(format(e.error), 'Error', wx.OK | wx.ICON_ERROR)
     
