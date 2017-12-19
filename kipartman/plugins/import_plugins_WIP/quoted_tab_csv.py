@@ -1,6 +1,6 @@
 import csv
 
-from . import _import_base
+from kipartman.plugins.import_plugins import _import_base
 
 class QuotedTabExport(_import_base.KiPartmanImporter):
     extension = 'csv'
