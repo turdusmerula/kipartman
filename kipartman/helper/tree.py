@@ -637,7 +637,6 @@ class TreeManager(object):
     def Select(self, obj):
         item = self.model.ObjectToItem(obj)
         if item.IsOk():
-            print "select", item
             self.tree_view.Select(item)
 #             self.tree_view.SetCurrentItem(item)
 #             items = wx.dataview.DataViewItemArray()

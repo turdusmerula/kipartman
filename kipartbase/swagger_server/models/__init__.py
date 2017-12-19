@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 # import models into model package
+from .currency import Currency
 from .distributor import Distributor
 from .distributor_data import DistributorData
 from .distributor_new import DistributorNew

@@ -1301,6 +1301,47 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /currencies:
+    get:
+      description: "Get supported currencies"
+      operationId: "find_currencies"
+      parameters: []
+      responses:
+        200:
+          description: "Categories"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Currency"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+    put:
+      description: "Update supported currencies"
+      operationId: "update_currencies"
+      parameters:
+      - in: "body"
+        name: "currencies"
+        description: "Currencies to update"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/Currency"
+      responses:
+        200:
+          description: "Updated currencies"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Currency"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
 definitions:
   PartCategory:
     allOf:
@@ -1625,6 +1666,23 @@ definitions:
     - properties:
         category:
           $ref: "#/definitions/StorageCategoryRef"
+  Currency:
+    type: "object"
+    required:
+    - "base"
+    - "name"
+    - "ratio"
+    - "symbol"
+    properties:
+      name:
+        type: "string"
+      symbol:
+        type: "string"
+      base:
+        type: "string"
+      ratio:
+        type: "number"
+        format: "double"
   PartCategoryData:
     type: "object"
     properties:

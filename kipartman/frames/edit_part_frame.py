@@ -6,6 +6,7 @@ from frames.part_distributors_frame import PartDistributorsFrame
 from frames.part_manufacturers_frame import PartManufacturersFrame
 from frames.part_attachements_frame import PartAttachementsFrame
 from frames.part_storages_frame import PartStoragesFrame
+from frames.part_ecad_data_frame import PartEcadDataFrame
 from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
@@ -34,6 +35,9 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_parameters = PartParametersFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_parameters, "Parameters")
         
+        self.edit_part_ecad_data = PartEcadDataFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_ecad_data, "ECADdata")
+
         self.edit_part_distributors = PartDistributorsFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_distributors, "Distributors")
 

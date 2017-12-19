@@ -14,6 +14,7 @@
 from __future__ import absolute_import
 
 # import models into sdk package
+from .models.currency import Currency
 from .models.distributor import Distributor
 from .models.distributor_data import DistributorData
 from .models.distributor_new import DistributorNew

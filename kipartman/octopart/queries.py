@@ -4,7 +4,7 @@ import urllib
 
 class OctopartQuery(object):
     baseurl = "http://octopart.com/api/v3/"
-    apikey = "69c36198"
+    apikey = ""
     start = 0
     limit = 100
     

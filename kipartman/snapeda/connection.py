@@ -5,7 +5,7 @@ from configuration import configuration
 
 scraper = cfscrape.create_scraper()
 
-class SnapedaConnectionException(BaseException):
+class SnapedaConnectionException(Exception):
     def __init__(self, error):
         self.error = error
 
@@ -15,11 +15,11 @@ class SnapedaConnection(object):
     def __init__(self):
         self.token = ''
     
-    def connect(self):
+    def connect(self, user=configuration.snapeda_user, password=configuration.snapeda_password):
         self.url = self.baseurl
         try:
             # use scrapper to avoid cloudflare anti-bot protection
-            data = scraper.post(self.url, data={'username': configuration.snapeda_user, 'password': configuration.snapeda_password}).content
+            data = scraper.post(self.url, data={'username': user, 'password': password}).content
             content = json.loads(data)
         except BaseException as e:
             raise SnapedaConnectionException(e)

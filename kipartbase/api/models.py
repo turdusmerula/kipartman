@@ -199,3 +199,11 @@ class PartStorageHistory(models.Model):
     location = models.ForeignKey('Storage', null=False, blank=False, default=None)
     reason = models.TextField(blank=False)
     amount = models.IntegerField()
+
+class Currency(models.Model):
+    name = models.TextField()
+    symbol = models.TextField(default='')
+    base = models.TextField(default='EUR')
+    ratio = models.IntegerField()
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
