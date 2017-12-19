@@ -450,25 +450,24 @@ class PartsFrame(PanelParts):
 
         self.edit_part(part)
 
-    def  export_parts(self):
+    def export_parts(self):
 
         # exporters = plugin_loader.load_export_plugins()
         # wildcards = '|'.join([x.wildcard for x in exporters])
         # wildcards
-        
 
         # exportpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
         # exportpath
         # base, ext = os.path.splitext(exportpath)
 
-        #TODO: implement export
+        # TODO: implement export
         exporters = plugin_loader.load_export_plugins()
 
         wildcards = '|'.join([x.wildcard for x in exporters])
 
         export_dialog = wx.FileDialog(self, "Export Parts", "", "",
                                       wildcards,
-                                      wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+                                      wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
 
         if export_dialog.ShowModal() == wx.ID_CANCEL:
             return
@@ -481,27 +480,20 @@ class PartsFrame(PanelParts):
         exporters[filt_idx]().export(base, parts)     
         self.edit_state = None
 
-
-    def  import_parts(self):
+    def import_parts(self):
 
         importers = plugin_loader.load_import_plugins()
         wildcards = '|'.join([x.wildcard for x in importers])
         
         import_dialog = wx.FileDialog(self, "Import Parts", "", "",
                                       wildcards,
-                                      wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+                                      wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
 
         if import_dialog.ShowModal() == wx.ID_CANCEL:
             return
 
         base, ext = os.path.splitext(import_dialog.GetPath())
-        importpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
         filt_idx = import_dialog.GetFilterIndex()
-
-        base, ext = os.path.splitext(importpath)
-        importpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
-
-
 
 
         # set category
@@ -509,60 +501,61 @@ class PartsFrame(PanelParts):
         if item.IsOk():
             category = self.tree_categories_manager.ItemToObject(item)
             if category.category:
-                #TODO: deterine the importer to use
-                importItems = importers[1]().fetch(base, category.category, rest.model )
+                import_items = importers[filt_idx]().fetch(base, category.category, rest.model)
 
-        for importItem in importItems:
+        for importItem in import_items:
 
             part = rest.model.PartNew()
-            #SET imported Parts Fields
+            # SET imported Parts Fields
             
             part.name = importItem.name
             part.description = importItem.description
-            #TODO: lookup footprint, if not created, create
-            searchParam = {'search': u'Resistors_SMD:R_0805'} #TODO: change to importItem.footprint
-            matchingFootprints = rest.api.find_footprints(**searchParam)
-            if len(matchingFootprints)==0: #ADD new footprint
-                #Check Footprint Category: "Uncatagorized" exists
-                try:
-                    footprintcategoryid = {i.name: i.id for i in rest.api.find_footprints_categories()}['Uncategorized']
-                except KeyError, e:  #Category 'Uncategorized' does not exist
-                    #Create the "Uncategorized" category
-                    category = rest.model.FootprintCategoryNew()
-                    category.name = "Uncategorized"
-                    category.description = 'imported footprint names not already defined'
-                    category = rest.api.add_footprints_category(category)
-                    footprintcategoryid = category.id
-                except:
-                        #TODO: handle other errors cleanly
-                        raise
-                        pass
+            if isinstance(importItem.footprint, str) and len(importItem.footprint) == 0:  # Blank Footprint
+                part.footprint = None
+            else:  # Determine or Create correct Footprint References
+                searchparam = {'search': importItem.footprint}
+                matching_footprints = rest.api.find_footprints(**searchparam)
+                if len(matching_footprints)==0: # ADD new footprint
+                    # Check Footprint Category: "Uncatagorized" exists
+                    try:
+                        footprintcategoryid = {i.name: i.id
+                                               for i in
+                                               rest.api.find_footprints_categories()}['Uncategorized']
+                    except KeyError, e:  # Category 'Uncategorized' does not exist
+                        # Create the "Uncategorized" category
+                        category = rest.model.FootprintCategoryNew()
+                        category.name = "Uncategorized"
+                        category.description = 'imported footprint names not already defined'
+                        category = rest.api.add_footprints_category(category)
+                        footprintcategoryid = category.id
+                    except:
+                            # TODO: handle other errors cleanly
+                            raise
+                            pass
 
-                part.footprint = rest.model.FootprintNew()
-                #TODO: assigne  {footprintcategoryid} to footprint
-                part.footprint.category = rest.model.FootprintCategoryRef(id=footprintcategoryid)
-                part.footprint.name = u'Resistors_SMD:R_0805' #TODO: change to importItem.footprint
-                part.footprint.description = u''
-                part.footprint.comment = u''
+                    part.footprint = rest.model.FootprintNew()
+                    part.footprint.category = rest.model.FootprintCategoryRef(id=footprintcategoryid)
+                    part.footprint.name = importItem.footprint
+                    part.footprint.description = u''
+                    part.footprint.comment = u''
 
-                # update part on server
-                part.footprint = rest.api.add_footprint( part.footprint)
+                    # update part on server
+                    part.footprint = rest.api.add_footprint(part.footprint)
 
-            elif len(matchingFootprints)==1: # only 1 option so referece it
-                part.footprint = matchingFootprints[0]
-            else: # multiple items
-                pass #TODO: handle if multiple options exist
+                elif len(matching_footprints)==1: # only 1 option so referece it
+                    part.footprint = matching_footprints[0]
+                else:  # multiple Footprint items
+                    pass  # TODO: handle if multiple Footprint options exist
 
-            #part.footprint.description = ''
-            part.comment  = 'NEW IMPORT Timestamp:{:%y-%m-%d %H:%M:%S.%f}'.format(datetime.datetime.now())
+            part.comment = 'NEW IMPORT Timestamp:{:%y-%m-%d %H:%M:%S.%f}'.format(datetime.datetime.now())
             
             # set category
             if category.category:
                 part.category = category.category
-            #Update edit_part panel
+            # Update edit_part panel
             self.edit_part(part)
-            #Update progress indicator
-            #TODO: Import Progress Indicator
+            # Update progress indicator
+            # TODO: Display a Progress Indicator for this import session
 
             try:
                 if self.edit_state=='import':

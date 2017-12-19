@@ -37,10 +37,11 @@ wildcards = '|'.join([x.wildcard for x in importers])
 wildcards
 importers[0]
 
-importpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
+importpath=os.path.join(os.getcwd(),'','17W50TESTimportCSV.csv')
 importpath
 base, ext = os.path.splitext(importpath)
 
 thecategory = eval(u"{'childs': None,\n 'description': '',\n 'id': 4,\n 'name': 'Test',\n 'parent': {'id': 1},\n 'path': '/Resistor/Test'}")
 # 1: For sqldb 0: for CsvImport
-importItems = importers[1]().fetch(base, thecategory,  rest.model)
+importItems = importers[0]().fetch(base, thecategory,  rest.model)
+pass
