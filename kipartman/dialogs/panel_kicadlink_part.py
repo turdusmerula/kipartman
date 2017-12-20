@@ -125,9 +125,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText3.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
-		self.kicad_part_value = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_value.Enable( False )
-		
+		self.kicad_part_value = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
 		self.kicad_part_value_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -144,9 +142,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText4.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.kicad_part_reference = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_reference.Enable( False )
-		
+		self.kicad_part_reference = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_reference, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
 		self.kicad_part_reference_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -171,9 +167,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText41.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText41, 0, wx.ALL, 5 )
 		
-		self.kicad_part_id = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_id.Enable( False )
-		
+		self.kicad_part_id = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_id, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.kicad_part_id_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -198,9 +192,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText5.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.kicad_part_footprint = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_footprint.Enable( False )
-		
+		self.kicad_part_footprint = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_footprint, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.kicad_part_footprint_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -216,9 +208,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText51.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText51, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.kicad_part_model = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_model.Enable( False )
-		
+		self.kicad_part_model = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_model, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.kicad_part_model_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -240,9 +230,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText511.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText511, 0, wx.ALL, 5 )
 		
-		self.kicad_part_SKU = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_SKU.Enable( False )
-		
+		self.kicad_part_SKU = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_SKU, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.kicad_part_SKU_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -259,9 +247,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText5111.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText5111, 0, wx.ALL, 5 )
 		
-		self.kicad_part_MPN = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_MPN.Enable( False )
-		
+		self.kicad_part_MPN = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_MPN, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.kicad_part_MPN_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -278,9 +264,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText51111.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText51111, 0, wx.ALL, 5 )
 		
-		self.kicad_part_MFR = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_MFR.Enable( False )
-		
+		self.kicad_part_MFR = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_MFR, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.kicad_part_MFR_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -302,9 +286,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText51112.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText51112, 0, wx.ALL, 5 )
 		
-		self.kicad_part_SPN = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_SPN.Enable( False )
-		
+		self.kicad_part_SPN = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_SPN, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.kicad_part_SPN_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -321,9 +303,7 @@ class PanelKicadLinkPart ( wx.Panel ):
 		self.m_staticText511111.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText511111, 0, wx.ALL, 5 )
 		
-		self.kicad_part_SPR = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.kicad_part_SPR.Enable( False )
-		
+		self.kicad_part_SPR = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
 		fgSizer1.Add( self.kicad_part_SPR, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.kicad_part_SPR_new = wx.TextCtrl( self.panel_kicadlink_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )

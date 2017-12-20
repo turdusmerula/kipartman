@@ -1,11 +1,4 @@
-
 #Requirements for Import and Export
 
 SQLAlchemy==1.1.15
-
-#Requirements for Kicad Gui Monitor 
-#Platform 'Windows'  
-pypiwin32==219
-pywinauto==0.6.3
-transitions==0.6.3
-
+pycairo==1.13.3
