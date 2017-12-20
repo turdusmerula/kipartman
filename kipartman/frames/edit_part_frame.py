@@ -7,7 +7,6 @@ from frames.part_distributors_frame import PartDistributorsFrame
 from frames.part_manufacturers_frame import PartManufacturersFrame
 from frames.part_attachements_frame import PartAttachementsFrame
 from frames.part_storages_frame import PartStoragesFrame
-from frames.part_ecad_data_frame import PartEcadDataFrame
 from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
@@ -55,7 +54,7 @@ class EditPartFrame(PanelEditPart):
         self.part = part
         self.ShowPart(part)
         self.edit_part_parameters.SetPart(part)
-        self.edit_part_ecaddata.SetPart(part)
+        self.edit_part_ecad_data.SetPart(part)
         self.edit_part_distributors.SetPart(part)
         self.edit_part_manufacturers.SetPart(part)
         self.edit_part_storages.SetPart(part)
