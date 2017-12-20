@@ -8,6 +8,10 @@ from frames.kicadlink_part_frame import KicadLinkPartFrame  #TODO Define events
 from frames.select_part_parameter_frame import SelectPartParameterFrame
 import helper.tree
 from helper.filter import Filter
+from configuration import Configuration
+configuration = Configuration()
+configuration.Load()
+
 import rest
 import wx
 
@@ -23,6 +27,10 @@ from helper.tree import TreeModel
 
 from plugins import plugin_loader
 from plugins import import_plugins as import_plugins
+
+configuration = Configuration()
+configuration.Load()
+
 
 
 
@@ -351,7 +359,8 @@ class PartsFrame(PanelParts):
         # kicad GUI link to Kipartman :PANEL SETUP
         # 2017-12 presently only Windows support
 
-        if platform.system() == 'Windows':  # TODO: possible have a configuration variable in place of Platform test
+        #if platform.system() == 'Windows':  # TODO: possible have a configuration variable in place of Platform test
+        if configuration.kicad_eeschema_link:
             self.panel_kicadlink_part = KicadLinkPartFrame(self.kicadlink_splitter)
             self.kicadlink_splitter.SplitHorizontally(self.kicadlink_splitter.Window1, self.panel_kicadlink_part, 400)
             self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )

@@ -18,9 +18,11 @@ class Configuration(object):
         
         self.snapeda_user = ''
         self.snapeda_password = ''
+
+        self.kicad_eeschema_link = False
         
-        self.LOGLEVEL  = 10
-        self.LOGFILE   = 'stream://sys.stderr'
+        self.LOGLEVEL = 10
+        self.LOGFILE = 'stream://sys.stderr'
         self.LOGFORMAT = '%(asctime)-15s %(levelname)-5s [%(module)s] %(message)s'
         
         # if kicad_path is not given then assume that kicad is in system path
@@ -46,6 +48,8 @@ class Configuration(object):
                 self.octopart_api_key = content['octopart_api_key']
                 self.snapeda_user = content['snapeda_user']
                 self.snapeda_password = content['snapeda_password']
+
+                self.kicad_eeschema_link = content['kicad_eeschema_link']
                 
                 self.base_currency = content['base_currency']
                 
@@ -58,14 +62,16 @@ class Configuration(object):
                 self.find_kicad()
             except Exception as e:
                 print ("Error: loading kipartman key configuration failed {}:{}".format(type(e),e.message))
+
             try:
                 self.LOGLEVEL  = int(content['loglevelnumber'])
                 self.LOGFILE   = content['logfile']
                 self.LOGFORMAT = content['logformat']
             except Exception as e:
                 print ("(USING DEFAULTS): loading kipartman log configuration failed  {}:{}".format(type(e),e.message))
-            try:
 
+            # TODO: Only initialize if  logging is not already initialized
+            try:
                 # initialise logging
                 # Send log messages to sys.stderr by configuring "logfile = stream://sys.stderr"
                 if self.LOGFILE.startswith('stream://'):
@@ -87,6 +93,8 @@ class Configuration(object):
             content['octopart_api_key'] = self.octopart_api_key
             content['snapeda_user'] = self.snapeda_user
             content['snapeda_password'] = self.snapeda_password
+
+            content['kicad_eeschema_link'] = self.kicad_eeschema_link
 
             content['base_currency'] = self.base_currency
 

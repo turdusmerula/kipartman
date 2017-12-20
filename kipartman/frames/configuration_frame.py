@@ -4,6 +4,7 @@ from currency.currency import Currency
 import rest
 import wx
 import swagger_client
+import platform
 from octopart.queries import PartsQuery as OctpartPartsQuery
 from snapeda.connection import SnapedaConnection, SnapedaConnectionException
 
@@ -15,6 +16,14 @@ class ConfigurationFrame(DialogConfiguration):
         self.edit_octopart_apikey.Value = configuration.octopart_api_key
         self.edit_snapeda_user.Value = configuration.snapeda_user
         self.edit_snapeda_password.Value = configuration.snapeda_password
+
+        # Kicad Eeschema GUI link to kipartman
+        if platform.system()=='Windows':
+            self.check_kicad_eeschema_link.Enable()
+            self.check_kicad_eeschema_link.Value = configuration.kicad_eeschema_link
+        else:
+            self.check_kicad_eeschema_link.Disable()
+            self.check_kicad_eeschema_link.Value = False
         
         if configuration.kicad_path=='':
             self.dir_kicad_path.SetPath(configuration.FindKicad())
@@ -55,6 +64,8 @@ class ConfigurationFrame(DialogConfiguration):
         configuration.octopart_api_key = self.edit_octopart_apikey.Value
         configuration.snapeda_user = self.edit_snapeda_user.Value
         configuration.snapeda_password = self.edit_snapeda_password.Value
+
+        configuration.kicad_eeschema_link = self.check_kicad_eeschema_link.Value
         
         configuration.base_currency = self.choice_user_currency.GetString(self.choice_user_currency.GetSelection())
         

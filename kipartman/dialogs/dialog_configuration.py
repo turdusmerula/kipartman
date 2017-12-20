@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Nov 13 2017)
+## Python code generated with wxFormBuilder (version Nov  6 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -17,7 +17,7 @@ import wx.xrc
 class DialogConfiguration ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 484,589 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 698,1241 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -166,11 +166,39 @@ class DialogConfiguration ( wx.Dialog ):
 		self.check_common_path.SetValue(True) 
 		bSizer3.Add( self.check_common_path, 0, wx.ALL, 5 )
 		
+		self.m_staticText211 = wx.StaticText( sbSizer21.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText211.Wrap( -1 )
+		bSizer3.Add( self.m_staticText211, 0, wx.ALL, 5 )
+		
 		
 		sbSizer21.Add( bSizer3, 0, wx.EXPAND, 5 )
 		
 		
 		bSizer10.Add( sbSizer21, 1, wx.EXPAND, 5 )
+		
+		sbSizer211 = wx.StaticBoxSizer( wx.StaticBox( self, wx.ID_ANY, u"Kicad GUI integration (Windows Only)" ), wx.VERTICAL )
+		
+		bSizer311 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.m_staticText2111 = wx.StaticText( sbSizer211.GetStaticBox(), wx.ID_ANY, u"Design Data Management from Kicad to Kipartman", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText2111.Wrap( -1 )
+		bSizer311.Add( self.m_staticText2111, 0, wx.ALL, 5 )
+		
+		self.m_staticText21111 = wx.StaticText( sbSizer211.GetStaticBox(), wx.ID_ANY, u"CHANGES REQUIRE RESTART of KIPARTMAN", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText21111.Wrap( -1 )
+		self.m_staticText21111.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
+		
+		bSizer311.Add( self.m_staticText21111, 0, wx.ALL, 5 )
+		
+		self.check_kicad_eeschema_link = wx.CheckBox( sbSizer211.GetStaticBox(), wx.ID_ANY, u"Kicad Eeschema Dialog link to Kipartman", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.check_kicad_eeschema_link.SetValue(True) 
+		bSizer311.Add( self.check_kicad_eeschema_link, 0, wx.ALL, 5 )
+		
+		
+		sbSizer211.Add( bSizer311, 1, wx.EXPAND, 5 )
+		
+		
+		bSizer10.Add( sbSizer211, 1, wx.EXPAND, 5 )
 		
 		m_sdbSizer1 = wx.StdDialogButtonSizer()
 		self.m_sdbSizer1OK = wx.Button( self, wx.ID_OK )
@@ -193,6 +221,7 @@ class DialogConfiguration ( wx.Dialog ):
 		self.button_test_snapeda.Bind( wx.EVT_BUTTON, self.onTestSnapeda )
 		self.button_kicad_path_default.Bind( wx.EVT_BUTTON, self.onButtonKicadPathDefault )
 		self.check_common_path.Bind( wx.EVT_CHECKBOX, self.onCheckCommonPath )
+		self.check_kicad_eeschema_link.Bind( wx.EVT_CHECKBOX, self.onCheckCommonPath )
 		self.m_sdbSizer1Cancel.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
 		self.m_sdbSizer1OK.Bind( wx.EVT_BUTTON, self.onOkButtonClick )
 	
@@ -215,6 +244,7 @@ class DialogConfiguration ( wx.Dialog ):
 	
 	def onCheckCommonPath( self, event ):
 		event.Skip()
+	
 	
 	def onCancelButtonClick( self, event ):
 		event.Skip()

@@ -70,8 +70,8 @@ def main(args=None):
 if __name__ == "__main__":
     # kicad GUI link to Kipartman :SETUP
     # 2017-12 presently only Windows support
-    # TODO: possible have a configuration variable in place of Platform test
-
+    # TODO: Change to the configuration variable configuration.kicad_eeschema_link
+    # TODO: Move Subprocess and Thread startup and teardown to where first configuration is accessed
     if platform.system() == 'Windows':
         from helper import kicad_gui_monitor
 
