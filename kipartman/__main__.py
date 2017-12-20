@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import platform
 os.sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 if not os.path.exists('resources'):
@@ -21,7 +22,7 @@ import wx
 from frames.main_frame import MainFrame
 
 # # kicad GUI link to Kipartman 2017-12 presently only Windows
-# if os.platform == 'Windows':
+# if platform.system == 'Windows':
 #     from helper import kicad_gui_monitor
 # else:
 #     pass  # TODO: Linux/Mac support for KICAD GUI to Kipartman : Imports
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     # 2017-12 presently only Windows support
     # TODO: possible have a configuration variable in place of Platform test
 
-    if os.platform == 'Windows':
+    if platform.system() == 'Windows':
         from helper import kicad_gui_monitor
 
         kcW32eventQueue = multiprocessing.Queue()
@@ -89,7 +90,7 @@ if __name__ == "__main__":
 
     #kicad GUI link to Kipartman : TEARDOWN
     # 2017-12 presently only Windows
-    if os.platform == 'Windows':
+    if platform.system() == 'Windows':
         kcW32eventProcessingThread.terminate()
         kcW32eventProcessingThread.join()
         kcW32eventProcessingThread = None

@@ -12,6 +12,7 @@ import rest
 import wx
 
 import os, datetime
+import platform
 from time import sleep
 from octopart.queries import PartsQuery
 
@@ -350,7 +351,7 @@ class PartsFrame(PanelParts):
         # kicad GUI link to Kipartman :PANEL SETUP
         # 2017-12 presently only Windows support
 
-        if os.platform == 'Windows':  # TODO: possible have a configuration variable in place of Platform test
+        if platform.system() == 'Windows':  # TODO: possible have a configuration variable in place of Platform test
             self.panel_kicadlink_part = KicadLinkPartFrame(self.kicadlink_splitter)
             self.kicadlink_splitter.SplitHorizontally(self.kicadlink_splitter.Window1, self.panel_kicadlink_part, 400)
             self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )

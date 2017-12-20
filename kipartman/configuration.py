@@ -109,7 +109,7 @@ class Configuration(object):
         """
         if platform.system()=='Windows':
             import _winreg
-            try: # MSW 32bit check
+            try:  # MSW 32bit check
                 key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
                                    b'Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\kicad', 0,
                                    _winreg.KEY_READ)
@@ -117,7 +117,7 @@ class Configuration(object):
             except:
                 pass
             else:
-                try: # MSW 64bit check
+                try:  # MSW 64bit check
                     key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
                                    b'Software\Microsoft\Windows\CurrentVersion\Uninstall\kicad', 0, _winreg.KEY_READ)
                     path = _winreg.QueryValueEx(key, 'InstallLocation')[0]
