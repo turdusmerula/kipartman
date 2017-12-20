@@ -1,8 +1,10 @@
 from dialogs.panel_parts import PanelParts
+#from dialogs.panel_kicadlink_part import PanelKicadLinkPart
 from frames.dropdown_dialog import DropdownDialog
 from frames.progression_frame import ProgressionFrame
 from frames.edit_category_frame import EditCategoryFrame
 from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
+from frames.kicadlink_part_frame import KicadLinkPartFrame  #TODO Define events
 from frames.select_part_parameter_frame import SelectPartParameterFrame
 import helper.tree
 from helper.filter import Filter
@@ -340,10 +342,24 @@ class PartsFrame(PanelParts):
         # create edit part panel
         self.panel_edit_part = EditPartFrame(self.part_splitter)
         self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
+        #        . .SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
         self.panel_edit_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
         self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+        # 
+        # create KicadLink part panel
+        self.panel_kicadlink_part = KicadLinkPartFrame(self.kicadlink_splitter)
+        self.kicadlink_splitter.SplitHorizontally(self.kicadlink_splitter.Window1, self.panel_kicadlink_part, 400)
+        self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
+        self.panel_kicadlink_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+
 
         # initial edit state
+        # self.part_splitter.SetSashPosition(0,100)
+        # self.part_splitter.SetSashPosition(1,100)
+        # self.part_splitter.SetSashPosition(1, -1)
+
+        self.kicadlink_splitter.Window2.SetBackgroundColour('sky blue')
+       # self.part_splitter.GetWindow(0).SetBackgroundColour('lime green')
         self.show_part(None)
         self.edit_state = None
         self.show_categories = True

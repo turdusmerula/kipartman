@@ -10,6 +10,18 @@ from frames.configuration_frame import ConfigurationFrame
 from frames.storages_frame import StoragesFrame
 
 import wx
+from wx.lib.pubsub import pub
+
+import logging, datetime
+
+def log(msg):
+    if 'logging' in globals(): logging.debug(
+        "{:%H:%M:%S.%f}:{}".format(
+            datetime.datetime.now(),
+            msg
+        ))
+
+
 
 class MainFrame(DialogMain): 
     def __init__(self, parent): 
@@ -43,6 +55,10 @@ class MainFrame(DialogMain):
         self.notebook.AddPage(self.bomframe, "BOM", False)
         self.pages.append(self.buyframe)
         self.notebook.AddPage(self.buyframe, "Buy", False)
+        pub.subscribe(self.updateFromKicad, "kicad.change.status")
+
+    def updateFromKicad(self, listen_to):
+        log("----XXXXXX-------XXXXXXX--------XXXXXX-------SUBSCRIBED EVENT RECIEVED:{}".format(listen_to))
 
     def onMenuViewConfigurationSelection( self, event ):
         ConfigurationFrame(self).ShowModal()
