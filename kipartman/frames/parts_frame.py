@@ -355,17 +355,19 @@ class PartsFrame(PanelParts):
             self.kicadlink_splitter.SplitHorizontally(self.kicadlink_splitter.Window1, self.panel_kicadlink_part, 400)
             self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
             self.panel_kicadlink_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+
+
+            # initial edit state
+            # self.part_splitter.SetSashPosition(0,100)
+            # self.part_splitter.SetSashPosition(1,100)
+            # self.part_splitter.SetSashPosition(1, -1)
+
+            self.kicadlink_splitter.Window2.SetBackgroundColour('sky blue')
+            # self.part_splitter.GetWindow(0).SetBackgroundColour('lime green')
         else:
             pass  # TODO: Linux/Mac support for KICAD GUI to Kipartman : SETUP
 
 
-        # initial edit state
-        # self.part_splitter.SetSashPosition(0,100)
-        # self.part_splitter.SetSashPosition(1,100)
-        # self.part_splitter.SetSashPosition(1, -1)
-
-        self.kicadlink_splitter.Window2.SetBackgroundColour('sky blue')
-       # self.part_splitter.GetWindow(0).SetBackgroundColour('lime green')
         self.show_part(None)
         self.edit_state = None
         self.show_categories = True
