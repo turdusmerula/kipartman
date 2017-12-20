@@ -19,13 +19,16 @@ import multiprocessing
 # configure wxPython
 import wx
 from frames.main_frame import MainFrame
-from helper import kicad_gui_monitor
+
+# # kicad GUI link to Kipartman 2017-12 presently only Windows
+# if os.platform == 'Windows':
+#     from helper import kicad_gui_monitor
+# else:
+#     pass  # TODO: Linux/Mac support for KICAD GUI to Kipartman : Imports
+
 import sys, time
 
-def sleeper(i):
-    print "thread %d sleeps for 5 seconds" % i
-    time.sleep(5)
-    print "thread %d woke up" % i
+
 
 def main(args=None):
     """The main routine."""
@@ -64,19 +67,33 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    kcW32eventQueue = multiprocessing.Queue()
-    kcW32eventProcessingThread = kicad_gui_monitor.KicadGUIEventProcessor(target=kicad_gui_monitor.KicadGUIEventProcessor.EventProcessor,
-                                                                          args=(kicad_gui_monitor.KicadGUIEventProcessor, kcW32eventQueue,))
-    kcW32eventProcessingThread.start()
+    # kicad GUI link to Kipartman :SETUP
+    # 2017-12 presently only Windows support
+    # TODO: possible have a configuration variable in place of Platform test
 
-    processKcW32Ew = multiprocessing.Process(target=kicad_gui_monitor.EventWatcher, args=(kcW32eventQueue,))
-    #FOR DEBUG -- comment out start and uncomment the following line
-    processKcW32Ew.start()
-    #kicad_gui_monitor.EventWatcher(kcW32eventQueue)
+    if os.platform == 'Windows':
+        from helper import kicad_gui_monitor
+
+        kcW32eventQueue = multiprocessing.Queue()
+        kcW32eventProcessingThread = kicad_gui_monitor.KicadGUIEventProcessor(target=kicad_gui_monitor.KicadGUIEventProcessor.EventProcessor,
+                                                                              args=(kicad_gui_monitor.KicadGUIEventProcessor, kcW32eventQueue,))
+        kcW32eventProcessingThread.start()
+
+        processKcW32Ew = multiprocessing.Process(target=kicad_gui_monitor.EventWatcher, args=(kcW32eventQueue,))
+        #FOR DEBUG -- comment out start and uncomment the following line
+        processKcW32Ew.start()
+        #kicad_gui_monitor.EventWatcher(kcW32eventQueue)
+    else:
+        pass  # TODO: Linux/Mac support for KICAD GUI to Kipartman : SETUP
     main()
-    #TODO: Terminate Threads and Process properly
-    kcW32eventProcessingThread.terminate()
-    kcW32eventProcessingThread.join()
-    kcW32eventProcessingThread = None
-    processKcW32Ew.terminate()
+
+    #kicad GUI link to Kipartman : TEARDOWN
+    # 2017-12 presently only Windows
+    if os.platform == 'Windows':
+        kcW32eventProcessingThread.terminate()
+        kcW32eventProcessingThread.join()
+        kcW32eventProcessingThread = None
+        processKcW32Ew.terminate()
+    else:
+        pass  # TODO: Linux/Mac support for KICAD GUI to Kipartman : TEARDOWN
 

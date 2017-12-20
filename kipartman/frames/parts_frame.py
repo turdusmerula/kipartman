@@ -347,10 +347,16 @@ class PartsFrame(PanelParts):
         self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
         # 
         # create KicadLink part panel
-        self.panel_kicadlink_part = KicadLinkPartFrame(self.kicadlink_splitter)
-        self.kicadlink_splitter.SplitHorizontally(self.kicadlink_splitter.Window1, self.panel_kicadlink_part, 400)
-        self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
-        self.panel_kicadlink_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+        # kicad GUI link to Kipartman :PANEL SETUP
+        # 2017-12 presently only Windows support
+
+        if os.platform == 'Windows':  # TODO: possible have a configuration variable in place of Platform test
+            self.panel_kicadlink_part = KicadLinkPartFrame(self.kicadlink_splitter)
+            self.kicadlink_splitter.SplitHorizontally(self.kicadlink_splitter.Window1, self.panel_kicadlink_part, 400)
+            self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
+            self.panel_kicadlink_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+        else:
+            pass  # TODO: Linux/Mac support for KICAD GUI to Kipartman : SETUP
 
 
         # initial edit state
