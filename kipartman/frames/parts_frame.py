@@ -536,14 +536,24 @@ class PartsFrame(PanelParts):
             category = self.tree_categories_manager.ItemToObject(item)
             if category.category:
                 import_items = importers[filt_idx]().fetch(base, category.category, rest.model)
+        progression_frame = ProgressionFrame(self, "Importing  parts ") ;
+        progression_frame.Show()
 
-        for importItem in import_items:
+        for i, importItem in enumerate(import_items):
+            wx.Yield()
 
             part = rest.model.PartNew()
             # SET imported Parts Fields
             
             part.name = importItem.name
             part.description = importItem.description
+
+            # Update progress indicator
+            progression_frame.SetProgression(part.name, i+1, len(import_items))
+            if progression_frame.Canceled():
+                break
+
+
             if isinstance(importItem.footprint, str) and len(importItem.footprint) == 0:  # Blank Footprint
                 part.footprint = None
             else:  # Determine or Create correct Footprint References
@@ -581,15 +591,37 @@ class PartsFrame(PanelParts):
                 else:  # multiple Footprint items
                     pass  # TODO: handle if multiple Footprint options exist
 
-            part.comment = 'NEW IMPORT Timestamp:{:%y-%m-%d %H:%M:%S.%f}'.format(datetime.datetime.now())
+            part.comment = 'NEW IMPORT Timestamp:{:%y-%m-%d %H:%M:%S.%f}\n'.format(datetime.datetime.now())
             
             # set category
             if category.category:
                 part.category = category.category
             # Update edit_part panel
+            try:
+                #Lookup details in octopart
+                m_octopart = self.import_octopart_lookup(part)
+                assert len(m_octopart.data)==1,\
+                    'Import Octopart Lookup found {} matchs {}'.format(
+                        len(m_octopart.data)
+                    )
+                octopart_extractor = OctopartExtractor(m_octopart.data[0].json)
+                assert part.name == m_octopart.data[0].item().mpn(),\
+                    'Import Octopart Lookup found first part {}'.format(
+                        m_octopart.data[0].item().mpn()
+                    )
+                part.octopart_uid = m_octopart.data[0].item().uid()
+                part.parameters = []
+                part.distributors =[]
+                part.manufacturers =[]
+                self.octopart_to_part(m_octopart.data[0], part)
+                pass
+            except Exception as e:
+                part.comment = 'RESEARCH REQUIRED - FAILED OCTOPART LOOKUP - Timestamp:{:%y-%m-%d %H:%M:%S.%f}\n'.format(datetime.datetime.now()) \
+                                + part.comment
+                pass
+
             self.edit_part(part)
-            # Update progress indicator
-            # TODO: Display a Progress Indicator for this import session
+            self.show_part(part)
 
             try:
                 if self.edit_state=='import':
@@ -598,53 +630,25 @@ class PartsFrame(PanelParts):
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
                 return
-
         self.edit_state = None
         self.show_part(part)
+        progression_frame.Destroy()
+
   
+    def import_octopart_lookup(self, part):
+        df = DummyFrame_import_ocotopart_lookup(None,'Dummy')
+        from frames.select_octopart_frame import SelectOctopartFrame
+        r = SelectOctopartFrame(df, part.name)
+        # print('IMPORT: octopart_lookup:{} found Qty:{}, UID:{}, MPN:{}'.format(
+        #     part.name
+        #     ,len(r.Children[1].Model.data)
+        #     , r.Children[1].Model.data[0].json['item']['uid']
+        #     , r.Children[1].Model.data[0].json['item']['mpn']
+        #     ))
+        df.Destroy()
+        return r.Children[1].Model
 
 
-    def TEST_import_parts(self):
-        importItems = [{'name': 'CARBON RESISTOR, 510KOHM, 500mW, 5%', 'description': 'CARBON RESISTOR, 510KOHM, 500mW, 5%; Product Range:MCRC Series; Resistance:510kohm; Power Rating:500mW; Resistance Tolerance:  5%; Voltage Rating:350V; Resistor Case Style:Axial Leaded; Resistor Eleme 73K0236 ', 'barcode': False, 'display_name': 'CARBON RESISTOR, 510KOHM, 500mW, 5%', 'default_code': 'MCRC1/2G514JT-RH', 'id': 492},
-       {'name': u'SMD Chip Resistor, Ceramic, MCSR 06 Series, 20 kohm, 75 V, 0603 [1608 Metric], 100 mW, 1%', 'description': u'RES, CERAMIC, 20K, 1%, 0.1W, 0603; Product Range:MCSR 06 Series; Resistance:20kohm; Voltage Rating:75V; Resistor Case Style:0603 [1608 Metric]; Power Rating:100mW; Resistance Tolerance: 1%; Packaging:Cut Tape; Resistor ', 'barcode': False, 'display_name': u'SMD Chip Resistor, Ceramic, MCSR 06 Series, 20 kohm, 75 V, 0603 [1608 Metric], 100 mW, 1%', 'default_code': 'MCSR06X2002FTL', 'id': 444}]
-        #importItems = [(1,"TEST1"),(2,"TEST2")]
-        print('DEBUG: ImportItems Count {}'.format(len(importItems)))
-        for importItem in importItems:
-
-            part = rest.model.PartNew()
-            #SET imported Parts Fields
-            
-            part.name = importItem['default_code']
-            part.description = importItem['display_name']
-            part.comment  = 'NEW IMPORT Timestamp:{:%y-%m-%d %H:%M:%S.%f}'.format(datetime.datetime.now())
-            
-            # set category
-            item = self.tree_categories.GetSelection()
-            if item.IsOk():
-                category = self.tree_categories_manager.ItemToObject(item)
-                if category.category:
-                    part.category = category.category
-            #Update edit_part panel
-            self.edit_part(part)
-            #Update progress indicator
-            #TODO: Import Progress Indicator
-
-            try:
-                if self.edit_state=='edit':
-                    # update part on server
-                    part = rest.api.update_part(part.id, part)
-                    self.tree_parts_manager.UpdatePart(part)
-                elif self.edit_state=='import':
-                    
-                    part = rest.api.add_part(part)
-                    self.tree_parts_manager.AppendPart(part)
-            except Exception as e:
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-                return
-
-        self.edit_state = None
-        self.show_part(part)
-        
             
 
     def GetMenus(self):
@@ -1059,7 +1063,7 @@ class PartsFrame(PanelParts):
         if part.description is None:
             part.description = ""
             
-        # set field octopart to indicatethat part was imported from octopart
+        # set field octopart to indicate that part was imported from octopart
         part.octopart = octopart.item().mpn()
         part.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         
@@ -1157,3 +1161,11 @@ class PartsFrame(PanelParts):
             part.manufacturers.append(part_manufacturer)
         except:
             wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+
+class DummyFrame_import_ocotopart_lookup(wx.Frame):
+    def __init__(self, parent, title=""):
+        super(DummyFrame_import_ocotopart_lookup, self).__init__(parent, title=title)
+        # # Set an application icon
+        # self.SetIcon(wx.Icon("appIcon.png"))
+        # Set the panel
+        self.panel = wx.Panel(self)
