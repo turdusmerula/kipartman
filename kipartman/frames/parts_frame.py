@@ -933,37 +933,64 @@ class PartsFrame(PanelParts):
         self.edit_part(obj.part)
 
     def onButtonRemovePartClick( self, event ):
-        item = self.tree_parts.GetSelection()
-        if not item.IsOk():
-            return
-        obj = self.tree_parts_manager.ItemToObject(item)
-        if isinstance(obj, DataModelCategoryPath):
-            return
-        part = obj.part
-        if isinstance(obj.parent, DataModelPart):
-            parent = obj.parent.part
-            res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-            if res==wx.ID_OK:
-                # remove selected part from subparts
-                parent = rest.api.find_part(parent.id, with_childs=True)
-                for child in parent.childs:
-                    if child.id==part.id:
-                        parent.childs.remove(child)
+        items = self.tree_parts.GetSelections()
+        items_count = self.tree_parts.GetSelectedItemsCount()
+        if items_count > 1:
+            multi_res = wx.MessageDialog(self, "Remove Multiple parts Count:{}".format(self.tree_parts.GetSelectedItemsCount())
+                                    , "Remove?"
+                                    , wx.OK | wx.CANCEL).ShowModal()
+            if multi_res == wx.ID_OK:
+                progression_frame = ProgressionFrame(self, "Removing Multiple Parts");
+                progression_frame.Show();
 
-                #parent.childs.remove(part)
-                rest.api.update_part(parent.id, parent)
-                self.tree_parts_manager.DeleteChildPart(parent, part)
-            else:
-                return 
-        else:
-            res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-            if res==wx.ID_OK:
-                # remove part
-                rest.api.delete_part(part.id)
-                self.tree_parts_manager.DeletePart(part)
-            else:
-                return
-        self.show_part(None)
+        if items_count == 1 or multi_res==wx.ID_OK:
+            for i, item in enumerate(items):
+                wx.Yield()
+                if not item.IsOk():
+                    break
+                obj = self.tree_parts_manager.ItemToObject(item)
+                if isinstance(obj, DataModelCategoryPath):
+                    break
+                part = obj.part
+
+                if items_count > 1:
+                    progression_frame.SetProgression(part.name, i, items_count);
+                    if progression_frame.Canceled():
+                        break
+
+                if isinstance(obj.parent, DataModelPart):
+                    parent = obj.parent.part
+                    if items_count>1:
+                        res = wx.ID_OK  # Multi delete would have been selected
+                    else:
+                        res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+
+                    if res==wx.ID_OK:
+                        # remove selected part from subparts
+                        parent = rest.api.find_part(parent.id, with_childs=True)
+                        for child in parent.childs:
+                            if child.id==part.id:
+                                parent.childs.remove(child)
+
+                        #parent.childs.remove(part)
+                        rest.api.update_part(parent.id, parent)
+                        self.tree_parts_manager.DeleteChildPart(parent, part)
+                    else:
+                        break
+                else:
+                    if items_count>1:
+                        res = wx.ID_OK  # Multi delete would have been selected
+                    else:
+                        res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+                    if res==wx.ID_OK:
+                        # remove part
+                        rest.api.delete_part(part.id)
+                        self.tree_parts_manager.DeletePart(part)
+                    else:
+                        break
+                self.show_part(None)
+        if multi_res == wx.ID_OK and progression_frame:
+            progression_frame.Destroy()
 
     def onButtonImportPartsClick( self, event ):
         # TODO: Implement onButtonImportPartsClick
