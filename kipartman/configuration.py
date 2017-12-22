@@ -54,8 +54,6 @@ class Configuration(object):
                 self.kicad_models_path = content['kicad_models_path']
                 self.kicad_3d_models_path = content['kicad_3d_models_path']
                 self.kicad_library_common_path = content['kicad_library_common_path']
-                
-                self.find_kicad()
             except Exception as e:
                 print ("Error: loading kipartman key configuration failed {}:{}".format(type(e),e.message))
             try:
@@ -134,6 +132,6 @@ class Configuration(object):
             if executable:
                 return os.path.dirname(os.path.abspath(executable))
             return None #TODO: this is not an acceptable return on Linux
-        
+
 configuration=Configuration()
 configuration.Load()
