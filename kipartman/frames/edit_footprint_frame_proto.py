@@ -64,8 +64,7 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
         mod = kicad_mod_file.KicadModFile()
         mod.LoadFile(os.path.join(configuration.kicad_library_path, footprint.local_footprint))
         image_file = tempfile.NamedTemporaryFile()
-        print image_file.name
-        mod.Render(image_file.name)
+        mod.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
         img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
         img = img.ConvertToBitmap()
         self.bitmap_edit_footprint.SetBitmap(img)

@@ -72,7 +72,7 @@ class PanelEditFootprintProto ( wx.Panel ):
 		self.button_open_url_snapeda = wx.Button( self.m_panel7, wx.ID_ANY, u"<None>", wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT|wx.NO_BORDER )
 		bSizer172.Add( self.button_open_url_snapeda, 1, wx.ALL|wx.EXPAND, 5 )
 		
-		self.button_remove_url_snapeda = wx.BitmapButton( self.m_panel7, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_remove_url_snapeda = wx.BitmapButton( self.m_panel7, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.SIMPLE_BORDER )
 		bSizer172.Add( self.button_remove_url_snapeda, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -94,17 +94,17 @@ class PanelEditFootprintProto ( wx.Panel ):
 		self.m_panel7.SetSizer( bSizer15 )
 		self.m_panel7.Layout()
 		bSizer15.Fit( self.m_panel7 )
-		self.m_panel8 = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_image_footprint = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.bitmap_edit_footprint = wx.StaticBitmap( self.m_panel8, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.bitmap_edit_footprint = wx.StaticBitmap( self.panel_image_footprint, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer16.Add( self.bitmap_edit_footprint, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
-		self.m_panel8.SetSizer( bSizer16 )
-		self.m_panel8.Layout()
-		bSizer16.Fit( self.m_panel8 )
-		self.m_splitter3.SplitVertically( self.m_panel7, self.m_panel8, 0 )
+		self.panel_image_footprint.SetSizer( bSizer16 )
+		self.panel_image_footprint.Layout()
+		bSizer16.Fit( self.panel_image_footprint )
+		self.m_splitter3.SplitVertically( self.m_panel7, self.panel_image_footprint, 0 )
 		bSizer1.Add( self.m_splitter3, 1, wx.EXPAND, 5 )
 		
 		

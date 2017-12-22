@@ -24,9 +24,10 @@ class KicadResourcePretty(KicadResource):
     # - on_deleted(self, event)
     # - on_modified(self, event)
 
-    def GetLibraries(self):
+    def GetLibraries(self, root_path=None):
         """
         Recurse all folders and return .pretty folders path
+        @param root_path: path from which to start recursing, None starts from root
         """
         basepath = os.path.normpath(os.path.abspath(self.path()))
         to_explore = [basepath]

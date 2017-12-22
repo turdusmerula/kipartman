@@ -207,3 +207,10 @@ class Currency(models.Model):
     ratio = models.IntegerField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
+
+class FileHistory(models.Model):
+    category = models.TextField(blank=False)
+    file_id = models.IntegerField()
+    operation = models.TextField(blank=False)
+    date = models.DateTimeField(null=True, blank=True, default=None)
+    

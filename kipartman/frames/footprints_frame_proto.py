@@ -114,7 +114,7 @@ class DataModelFootprint(helper.tree.TreeItem):
             id = self.footprint.id
         vMap = { 
             0 : str(id),
-            1 : self.footprint.local_footprint,
+            1 : self.footprint.name,
             2 : self.footprint.description,
             3 : self.footprint.comment
         }
@@ -180,6 +180,8 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.panel_edit_footprint.Bind( EVT_EDIT_FOOTPRINT_APPLY_EVENT, self.onEditFootprintApply )
         self.panel_edit_footprint.Bind( EVT_EDIT_FOOTPRINT_CANCEL_EVENT, self.onEditFootprintCancel )
 
+        self.toolbar_footprint.ToggleTool(self.toggle_footprint_path.GetId(), True)
+        
         self.load() 
         
     def load(self):
@@ -212,8 +214,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
         # clear all
         self.tree_footprints_manager.ClearItems()
 
-        
-        # load libraries
+        # load libraries from kicad files
         libraries = self.resource_pretty.GetLibraries()
         
         # load footprints from local folder
@@ -231,7 +232,10 @@ class FootprintsFrameProto(PanelFootprintsProto):
         
         # load footprints from kipartbase
         # TODO
-        
+    
+    def setToolbarFootprintState(self):
+        pass
+    
     def onTreeLibrariesSelChanged( self, event ):
         item = self.tree_libraries.GetSelection()
         if item.IsOk()==False:

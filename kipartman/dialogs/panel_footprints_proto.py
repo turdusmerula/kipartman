@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Nov 13 2017)
+## Python code generated with wxFormBuilder (version Dec 22 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -72,14 +72,34 @@ class PanelFootprintsProto ( wx.Panel ):
 		
 		bSizer10 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_add_footprint = wx.BitmapButton( self.panel_footprints, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer10.Add( self.button_add_footprint, 0, wx.ALL, 5 )
+		self.toolbar_footprint = wx.ToolBar( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.button_add_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
 		
-		self.button_edit_footprint = wx.BitmapButton( self.panel_footprints, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer10.Add( self.button_edit_footprint, 0, wx.ALL, 5 )
+		self.button_edit_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
 		
-		self.button_remove_footprint = wx.BitmapButton( self.panel_footprints, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer10.Add( self.button_remove_footprint, 0, wx.ALL, 5 )
+		self.button_remove_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+		
+		self.toolbar_footprint.AddSeparator()
+		
+		self.toggle_footprint_path = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/tree_mode.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
+		
+		self.toolbar_footprint.AddSeparator()
+		
+		self.button_update_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/update.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+		
+		self.button_commit_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/commit.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+		
+		self.toggle_show_showboth_changes = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/show_both.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
+		
+		self.toggle_show_conflict_changes = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/show_conf.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
+		
+		self.toggle_show_incoming_changes = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/show_in.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
+		
+		self.toggle_show_outgoing_changes = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/show_out.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
+		
+		self.toolbar_footprint.Realize() 
+		
+		bSizer10.Add( self.toolbar_footprint, 1, wx.EXPAND, 5 )
 		
 		
 		bSizer11.Add( bSizer10, 1, wx.EXPAND, 5 )
@@ -129,9 +149,6 @@ class PanelFootprintsProto ( wx.Panel ):
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onButtonRefreshCategoriesClick )
-		self.button_add_footprint.Bind( wx.EVT_BUTTON, self.onButtonAddFootprintClick )
-		self.button_edit_footprint.Bind( wx.EVT_BUTTON, self.onButtonEditFootprintClick )
-		self.button_remove_footprint.Bind( wx.EVT_BUTTON, self.onButtonRemoveFootprintClick )
 		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintsButton )
 		self.search_footprints.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintsTextEnter )
 		self.button_refresh_footprints.Bind( wx.EVT_BUTTON, self.onButtonRefreshFootprintsClick )
@@ -145,15 +162,6 @@ class PanelFootprintsProto ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonRefreshCategoriesClick( self, event ):
-		event.Skip()
-	
-	def onButtonAddFootprintClick( self, event ):
-		event.Skip()
-	
-	def onButtonEditFootprintClick( self, event ):
-		event.Skip()
-	
-	def onButtonRemoveFootprintClick( self, event ):
 		event.Skip()
 	
 	def onSearchFootprintsButton( self, event ):
