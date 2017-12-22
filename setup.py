@@ -54,7 +54,8 @@ setup(
 #         'python_dateutil',
          'django<1.12',
          'django-mptt<0.9',
-
+         'watchdog',
+         
          'setuptools',
     ],
 )
