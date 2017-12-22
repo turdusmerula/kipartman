@@ -16,10 +16,6 @@ import re
 import rest
 from octopart.extractor import OctopartExtractor
 
-from plugins import plugin_loader
-from plugins import export_plugins as export_plugins
-
-
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
 
@@ -59,6 +55,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_manufacturers.SetPart(part)
         self.edit_part_storages.SetPart(part)
         self.edit_part_attachements.SetPart(part)
+        self.edit_part_ecad_data.SetPart(part)
         
     def ShowPart(self, part):
         if part:

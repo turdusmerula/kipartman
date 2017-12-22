@@ -37,6 +37,7 @@ class FootprintNew(object):
         'snapeda': 'str',
         'snapeda_uid': 'str',
         'updated': 'datetime',
+        'local_footprint': 'str',
         'category': 'FootprintCategoryRef',
         'image': 'UploadFileRef',
         'footprint': 'UploadFileRef'
@@ -49,12 +50,13 @@ class FootprintNew(object):
         'snapeda': 'snapeda',
         'snapeda_uid': 'snapeda_uid',
         'updated': 'updated',
+        'local_footprint': 'local_footprint',
         'category': 'category',
         'image': 'image',
         'footprint': 'footprint'
     }
 
-    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, category=None, image=None, footprint=None):
+    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, local_footprint=None, category=None, image=None, footprint=None):
         """
         FootprintNew - a model defined in Swagger
         """
@@ -65,6 +67,7 @@ class FootprintNew(object):
         self._snapeda = None
         self._snapeda_uid = None
         self._updated = None
+        self._local_footprint = None
         self._category = None
         self._image = None
         self._footprint = None
@@ -81,6 +84,8 @@ class FootprintNew(object):
           self.snapeda_uid = snapeda_uid
         if updated is not None:
           self.updated = updated
+        if local_footprint is not None:
+          self.local_footprint = local_footprint
         if category is not None:
           self.category = category
         if image is not None:
@@ -213,6 +218,27 @@ class FootprintNew(object):
         """
 
         self._updated = updated
+
+    @property
+    def local_footprint(self):
+        """
+        Gets the local_footprint of this FootprintNew.
+
+        :return: The local_footprint of this FootprintNew.
+        :rtype: str
+        """
+        return self._local_footprint
+
+    @local_footprint.setter
+    def local_footprint(self, local_footprint):
+        """
+        Sets the local_footprint of this FootprintNew.
+
+        :param local_footprint: The local_footprint of this FootprintNew.
+        :type: str
+        """
+
+        self._local_footprint = local_footprint
 
     @property
     def category(self):

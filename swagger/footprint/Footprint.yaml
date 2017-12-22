@@ -10,9 +10,13 @@ allOf:
       id:
         type: integer
         format: int64
+
+      # TODO: TO BE REMOVED
       category:
         $ref: "./footprint/category/FootprintCategory.yaml"
       image:
         $ref: "./upload/UploadFile.yaml"
+ 
+      # file stored
       footprint:
         $ref: "./upload/UploadFile.yaml"

@@ -13,3 +13,8 @@ properties:
   updated:
     type: string
     format: date-time
+
+  # local footprint path for synchronization with kicad
+  local_footprint:
+    type: string
+  
