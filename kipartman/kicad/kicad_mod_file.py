@@ -34,9 +34,9 @@ class KicadModFile(object):
         if self.onChanged:
             self.onChanged()
 
-    def Render(self, filename):
+    def Render(self, filename, width=256, height=256):
         canvas = Canvas.FootprintCanvas()
-        surface = canvas.Render(self.parent)
+        surface = canvas.Render(self.parent, width, height)
         surface.write_to_png (filename)
         
     def Write(self, obj, level=0):

@@ -253,7 +253,7 @@ class Canvas(object):
             self.font.Apply(self.ctx)
             obj.Render(self.ctx)
                 
-    def Render(self, obj):
+    def Render(self, obj, width, height):
         
         # create drawing
         surface = cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, None)
@@ -263,19 +263,19 @@ class Canvas(object):
         for node in obj.nodes:
             node.Render(self)
 
-        x, y, width, height = surface.ink_extents()
+        s_x, s_y, s_width, s_height = surface.ink_extents()
 
         # create image with whole drawing content
         WIDTH, HEIGHT = 256, 256        
-        img_surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, WIDTH, HEIGHT)
+        img_surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, width, height)
         img_ctx = cairo.Context (img_surface)
         
-        ratio = width
+        ratio = s_width
         decx = 0
-        decy = math.fabs(width-height)/2
-        if height>width:
-            ratio = height
-            decx = math.fabs(width-height)/2
+        decy = math.fabs(s_width-s_height)/2
+        if s_height>s_width:
+            ratio = s_height
+            decx = math.fabs(s_width-s_height)/2
             decy = 0
         if ratio>0:
             img_ctx.scale (WIDTH/ratio, HEIGHT/ratio) # Normalizing the canvas
@@ -285,7 +285,7 @@ class Canvas(object):
         img_ctx.set_source_rgb(self.background.r, self.background.g, self.background.b)
         img_ctx.fill() 
 
-        img_ctx.set_source_surface(surface, -x+decx, -y+decy)
+        img_ctx.set_source_surface(surface, -s_x+decx, -s_y+decy)
         img_ctx.paint()
 
         return img_surface
