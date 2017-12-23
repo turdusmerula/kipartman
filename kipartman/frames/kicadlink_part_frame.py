@@ -99,6 +99,18 @@ class KicadLinkPartFrame(PanelKicadLinkPart):
                         self.kicad_part_SPN.Value = self.compProperties.get_field('SPN')
                         self.kicad_part_SPR.Value = self.compProperties.get_field('SPR')
 
+                        #Reset the new field to prevent erroneous carryover
+                        self.kicad_part_value_new.Value = ''
+                        self.kicad_part_footprint_new.Value = ''
+                        self.kicad_part_model_new.Value = ''
+                        self.kicad_part_SKU_new.Value = ''
+                        self.kicad_part_MPN_new.Value = ''
+                        self.kicad_part_MFR_new.Value = ''
+                        self.kicad_part_SPN_new.Value = ''
+                        self.kicad_part_SPR_new.Value = ''
+
+
+
                         # initiate Search
                         #if self.kicad_autosearch checkbox checked #TODO: implement autosearch control
                         if self.checkBox_search_auto.GetValue():

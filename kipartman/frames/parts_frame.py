@@ -631,7 +631,6 @@ class PartsFrame(PanelParts):
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
                 return
         self.edit_state = None
-        self.show_part(part)
         progression_frame.Destroy()
 
   
