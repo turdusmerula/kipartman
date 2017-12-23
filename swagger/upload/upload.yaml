@@ -1,0 +1,19 @@
+post:
+  description: Upload a file.
+  operationId: addUploadFile
+  consumes:
+    - multipart/form-data
+  parameters:
+    - in: formData
+      name: upfile
+      type: file
+      description: The file to upload.
+  responses:
+    "200":
+      description: Path of updated file
+      schema:
+        $ref: './upload/UploadFile.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

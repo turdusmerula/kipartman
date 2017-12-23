@@ -1,0 +1,39 @@
+get:
+  description: Return all manufacturers
+  operationId: findManufacturers
+  parameters:
+    - name: name
+      in: query
+      description: Search manufacturers matching name
+      type: string      
+  responses:
+    "200":
+      description: List of manufacturers
+      schema:
+        type: array
+        items:
+          $ref: './manufacturer/Manufacturer.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+post:
+  description: Creates a new manufacturer
+  operationId: addManufacturer
+  parameters:
+    - name: manufacturer
+      in: body
+      description: Manufacturer to add
+      required: true
+      schema:
+        $ref: './manufacturer/ManufacturerNew.yaml'
+  responses:
+    "200":
+      description: Created manufacturer
+      schema:
+        $ref: './manufacturer/Manufacturer.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

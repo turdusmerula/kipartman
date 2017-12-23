@@ -1,0 +1,48 @@
+get:
+  description: Return a manufacturer
+  operationId: findManufacturer
+  parameters:
+    - $ref: './types/manufacturer_id.yaml#/manufacturer_id'
+  responses:
+    "200":
+      description: Manufacturer
+      schema:
+        $ref: './manufacturer/Manufacturer.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+put:
+  description: Update a manufacturer
+  operationId: updateManufacturer
+  parameters:
+    - $ref: './types/manufacturer_id.yaml#/manufacturer_id'
+    - name: category
+      in: body
+      description: Manufacturer to update
+      required: true
+      schema:
+        $ref: './manufacturer/ManufacturerNew.yaml'
+  responses:
+    "200":
+      description: Updated manufacturer
+      schema:
+        $ref: './manufacturer/Manufacturer.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+delete:
+  description: Delete manufacturer
+  operationId: deleteManufacturer
+  parameters:
+    - $ref: './types/manufacturer_id.yaml#/manufacturer_id'
+  responses:
+    "200":
+      description: Deleted ok
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

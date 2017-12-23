@@ -1,0 +1,19 @@
+get:
+  description: Return list of units
+  operationId: findUnits
+  parameters:
+    - name: symbol
+      in: query
+      description: Search symbol
+      type: string
+  responses:
+    "200":
+      description: Units
+      schema:
+        type: array
+        items:
+          $ref: './unit/Unit.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

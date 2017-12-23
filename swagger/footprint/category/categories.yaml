@@ -1,0 +1,34 @@
+get:
+  description: Return all categories for footprints
+  operationId: findFootprintsCategories
+  responses:
+    "200":
+      description: List of categories
+      schema:
+        type: array
+        items:
+          $ref: './footprint/category/FootprintCategory.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+post:
+  description: Creates a new footprint category
+  operationId: addFootprintsCategory
+  parameters:
+    - name: category
+      in: body
+      description: Category to add
+      required: true
+      schema:
+        $ref: './footprint/category/FootprintCategoryNew.yaml'
+  responses:
+    "200":
+      description: Created category
+      schema:
+        $ref: './footprint/category/FootprintCategory.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

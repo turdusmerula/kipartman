@@ -1,0 +1,48 @@
+get:
+  description: Return a model
+  operationId: findModel
+  parameters:
+    - $ref: './types/model_id.yaml#/model_id'
+  responses:
+    "200":
+      description: Categories
+      schema:
+        $ref: './model/Model.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+put:
+  description: Update model
+  operationId: updateModel
+  parameters:
+    - $ref: './types/model_id.yaml#/model_id'
+    - name: model
+      in: body
+      description: Model to update
+      required: true
+      schema:
+        $ref: './model/ModelNew.yaml'
+  responses:
+    "200":
+      description: Updated model
+      schema:
+        $ref: './model/Model.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+delete:
+  description: Delete model
+  operationId: deleteModel
+  parameters:
+    - $ref: './types/model_id.yaml#/model_id'
+  responses:
+    "200":
+      description: Deleted ok
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

@@ -1,0 +1,38 @@
+put:
+  description: Update supported currencies
+  operationId: updateCurrencies
+  parameters:
+    - name: currencies
+      in: body
+      description: Currencies to update
+      required: true
+      schema:
+        type: array
+        items:
+          $ref: './currency/Currency.yaml'
+  responses:
+    "200":
+      description: Updated currencies
+      schema:
+        type: array
+        items:
+          $ref: './currency/Currency.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+get:
+  description: Get supported currencies
+  operationId: findCurrencies
+  responses:
+    "200":
+      description: Categories
+      schema:
+        type: array
+        items:
+          $ref: './currency/Currency.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

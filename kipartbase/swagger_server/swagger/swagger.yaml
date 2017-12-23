@@ -58,7 +58,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /parts/categories/{category_id}:
+  /parts/category/{category_id}:
     get:
       description: "Return a part category"
       operationId: "find_parts_category"
@@ -212,7 +212,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /parts/{part_id}:
+  /part/{part_id}:
     get:
       description: "Return a part"
       operationId: "find_part"
@@ -356,7 +356,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /units/{unit_id}:
+  /unit/{unit_id}:
     get:
       description: "Return a unit"
       operationId: "find_unit"
@@ -399,7 +399,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /unitprefixes/{unit_prefix_id}:
+  /unitprefix/{unit_prefix_id}:
     get:
       description: "Return a unit prefixes"
       operationId: "find_unit_prefix"
@@ -457,7 +457,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /footprints/categories/{category_id}:
+  /footprints/category/{category_id}:
     get:
       description: "Return a footprint category"
       operationId: "find_footprints_category"
@@ -570,7 +570,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /footprints/{footprint_id}:
+  /footprint/{footprint_id}:
     get:
       description: "Return a footprint"
       operationId: "find_footprint"
@@ -672,7 +672,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /models/categories/{category_id}:
+  /models/category/{category_id}:
     get:
       description: "Return a model category"
       operationId: "find_models_category"
@@ -785,7 +785,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /models/{model_id}:
+  /model/{model_id}:
     get:
       description: "Return a model"
       operationId: "find_model"
@@ -892,7 +892,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /distributors/{distributor_id}:
+  /distributor/{distributor_id}:
     get:
       description: "Return a distributor"
       operationId: "find_distributor"
@@ -999,7 +999,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /manufacturers/{manufacturer_id}:
+  /manufacturer/{manufacturer_id}:
     get:
       description: "Return a manufacturer"
       operationId: "find_manufacturer"
@@ -1123,7 +1123,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /storages/categories/{category_id}:
+  /storages/category/{category_id}:
     get:
       description: "Return a storage category"
       operationId: "find_storages_category"
@@ -1236,7 +1236,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /storages/{storage_id}:
+  /storage/{storage_id}:
     get:
       description: "Return a storage"
       operationId: "find_storage"

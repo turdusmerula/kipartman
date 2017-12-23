@@ -1270,7 +1270,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/distributors/{distributor_id}', 'DELETE',
+        return self.api_client.call_api('/distributor/{distributor_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1374,7 +1374,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/footprints/{footprint_id}', 'DELETE',
+        return self.api_client.call_api('/footprint/{footprint_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1478,7 +1478,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/footprints/categories/{category_id}', 'DELETE',
+        return self.api_client.call_api('/footprints/category/{category_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1582,7 +1582,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/manufacturers/{manufacturer_id}', 'DELETE',
+        return self.api_client.call_api('/manufacturer/{manufacturer_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1686,7 +1686,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/models/{model_id}', 'DELETE',
+        return self.api_client.call_api('/model/{model_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1790,7 +1790,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/models/categories/{category_id}', 'DELETE',
+        return self.api_client.call_api('/models/category/{category_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1894,7 +1894,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/parts/{part_id}', 'DELETE',
+        return self.api_client.call_api('/part/{part_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -1998,7 +1998,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/parts/categories/{category_id}', 'DELETE',
+        return self.api_client.call_api('/parts/category/{category_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2102,7 +2102,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/storages/{storage_id}', 'DELETE',
+        return self.api_client.call_api('/storage/{storage_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2206,7 +2206,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/storages/categories/{category_id}', 'DELETE',
+        return self.api_client.call_api('/storages/category/{category_id}', 'DELETE',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2406,7 +2406,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/distributors/{distributor_id}', 'GET',
+        return self.api_client.call_api('/distributor/{distributor_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2611,7 +2611,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/footprints/{footprint_id}', 'GET',
+        return self.api_client.call_api('/footprint/{footprint_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -2916,7 +2916,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/footprints/categories/{category_id}', 'GET',
+        return self.api_client.call_api('/footprints/category/{category_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3020,7 +3020,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/manufacturers/{manufacturer_id}', 'GET',
+        return self.api_client.call_api('/manufacturer/{manufacturer_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3225,7 +3225,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/models/{model_id}', 'GET',
+        return self.api_client.call_api('/model/{model_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3530,7 +3530,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/models/categories/{category_id}', 'GET',
+        return self.api_client.call_api('/models/category/{category_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3662,7 +3662,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/parts/{part_id}', 'GET',
+        return self.api_client.call_api('/part/{part_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -3999,7 +3999,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/parts/categories/{category_id}', 'GET',
+        return self.api_client.call_api('/parts/category/{category_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4204,7 +4204,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/storages/{storage_id}', 'GET',
+        return self.api_client.call_api('/storage/{storage_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4509,7 +4509,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/storages/categories/{category_id}', 'GET',
+        return self.api_client.call_api('/storages/category/{category_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4613,7 +4613,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/units/{unit_id}', 'GET',
+        return self.api_client.call_api('/unit/{unit_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -4717,7 +4717,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/unitprefixes/{unit_prefix_id}', 'GET',
+        return self.api_client.call_api('/unitprefix/{unit_prefix_id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5134,7 +5134,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/distributors/{distributor_id}', 'PUT',
+        return self.api_client.call_api('/distributor/{distributor_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5245,7 +5245,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/footprints/{footprint_id}', 'PUT',
+        return self.api_client.call_api('/footprint/{footprint_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5356,7 +5356,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/footprints/categories/{category_id}', 'PUT',
+        return self.api_client.call_api('/footprints/category/{category_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5467,7 +5467,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/manufacturers/{manufacturer_id}', 'PUT',
+        return self.api_client.call_api('/manufacturer/{manufacturer_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5578,7 +5578,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/models/{model_id}', 'PUT',
+        return self.api_client.call_api('/model/{model_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5689,7 +5689,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/models/categories/{category_id}', 'PUT',
+        return self.api_client.call_api('/models/category/{category_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5800,7 +5800,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/parts/{part_id}', 'PUT',
+        return self.api_client.call_api('/part/{part_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -5911,7 +5911,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/parts/categories/{category_id}', 'PUT',
+        return self.api_client.call_api('/parts/category/{category_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -6022,7 +6022,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/storages/{storage_id}', 'PUT',
+        return self.api_client.call_api('/storage/{storage_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -6133,7 +6133,7 @@ class DefaultApi(object):
         # Authentication setting
         auth_settings = []
 
-        return self.api_client.call_api('/storages/categories/{category_id}', 'PUT',
+        return self.api_client.call_api('/storages/category/{category_id}', 'PUT',
                                         path_params,
                                         query_params,
                                         header_params,

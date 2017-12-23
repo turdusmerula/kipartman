@@ -1,0 +1,48 @@
+get:
+  description: Return a footprint
+  operationId: findFootprint
+  parameters:
+    - $ref: './types/footprint_id.yaml#/footprint_id'
+  responses:
+    "200":
+      description: Categories
+      schema:
+        $ref: './footprint/Footprint.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+put:
+  description: Update footprint
+  operationId: updateFootprint
+  parameters:
+    - $ref: './types/footprint_id.yaml#/footprint_id'
+    - name: footprint
+      in: body
+      description: Footprint to update
+      required: true
+      schema:
+        $ref: './footprint/FootprintNew.yaml'
+  responses:
+    "200":
+      description: Updated footprint
+      schema:
+        $ref: './footprint/Footprint.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+delete:
+  description: Delete footprint
+  operationId: deleteFootprint
+  parameters:
+    - $ref: './types/footprint_id.yaml#/footprint_id'
+  responses:
+    "200":
+      description: Deleted ok
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
