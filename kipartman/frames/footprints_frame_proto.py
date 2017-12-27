@@ -5,6 +5,9 @@ from helper.filter import Filter
 import rest
 import helper.tree
 import os
+import wx
+import wx.dataview
+from helper.tree import TreeImageList
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -83,12 +86,20 @@ class TreeManagerLibraries(helper.tree.TreeManager):
 
 
 class DataModelFootprintPath(helper.tree.TreeContainerItem):
+    image_none = None
+    
     def __init__(self, path):
         super(DataModelFootprintPath, self).__init__()
         self.path = path
-    
+        
+        if not DataModelFootprintPath.image_none:
+            DataModelFootprintPath.image_none = wx.Bitmap()
+            DataModelFootprintPath.image_none.FromRGBA(11, 10, red=0, green=0, blue=0, alpha=0)
+        
     def GetValue(self, col):
-        if col==1:
+        if col==0:
+            return DataModelFootprintPath.image_none
+        if col==2:
             return self.path
         return ''
 
@@ -96,28 +107,27 @@ class DataModelFootprintPath(helper.tree.TreeContainerItem):
         return True
 
     def GetAttr(self, col, attr):
-        if col==1:
+        if col==2:
             attr.Bold = True
             return True
         return False
 
 class DataModelFootprint(helper.tree.TreeItem):
-    def __init__(self, path, footprint):
+    def __init__(self, imagelist, footprint):
         super(DataModelFootprint, self).__init__()
-        self.path = path
+        self.imagelist = imagelist
         self.footprint = footprint
 
     def GetValue(self, col):
-        if self.footprint.id==-1:
-            id = ''
-        else:
-            id = self.footprint.id
-        vMap = { 
-            0 : str(id),
-            1 : self.footprint.name,
-            2 : self.footprint.description,
-            3 : self.footprint.comment
+        id = ''
+        if self.footprint.id:
+            id = str(self.footprint.id)
+        vMap = {
+            0 : self.imagelist.GetBitmap(self.footprint.state), 
+            1 : str(id),
+            2 : os.path.basename(self.footprint.source_path),
         }
+#        return wx.dataview.DataViewIconText(vMap[col], None)
         return vMap[col]
 
 #    def GetDragData(self):
@@ -128,7 +138,8 @@ class DataModelFootprint(helper.tree.TreeItem):
 class TreeManagerFootprints(helper.tree.TreeManager):
     def __init__(self, tree_view):
         super(TreeManagerFootprints, self).__init__(tree_view)
-
+        self.imagelist = TreeImageList(11, 10)
+                
     def FindPath(self, path):
         for data in self.data:
             if isinstance(data, DataModelFootprintPath) and data.path==os.path.normpath(path):
@@ -146,7 +157,7 @@ class TreeManagerFootprints(helper.tree.TreeManager):
 
     def AppendFootprint(self, path, footprint):
         pathobj = self.FindPath(path)
-        footprintobj = DataModelFootprint(path, footprint)
+        footprintobj = DataModelFootprint(self.imagelist, footprint)
         self.AppendItem(pathobj, footprintobj)
         return footprintobj
 
@@ -168,11 +179,24 @@ class FootprintsFrameProto(PanelFootprintsProto):
 
         # create footprint list
         self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints)
+        self.tree_footprints_manager.AddBitmapColumn("state")
         self.tree_footprints_manager.AddIntegerColumn("id")
         self.tree_footprints_manager.AddTextColumn("name")
-        self.tree_footprints_manager.AddTextColumn("description")
-        self.tree_footprints_manager.AddIntegerColumn("comment")
         self.tree_footprints_manager.OnSelectionChanged = self.onTreeFootprintsSelChanged
+
+        none = wx.Bitmap()
+        none.FromRGBA(11, 10)
+        self.tree_footprints_manager.imagelist.Add('', none)
+        self.tree_footprints_manager.imagelist.AddFile('conflict_add', 'resources/conflict_add.png')
+        self.tree_footprints_manager.imagelist.AddFile('conflict_change', 'resources/conflict_change.png')
+        self.tree_footprints_manager.imagelist.AddFile('conflict_del', 'resources/conflict_del.png')
+        self.tree_footprints_manager.imagelist.AddFile('income_add', 'resources/income_add.png')
+        self.tree_footprints_manager.imagelist.AddFile('income_change', 'resources/income_change.png')
+        self.tree_footprints_manager.imagelist.AddFile('income_del', 'resources/income_del.png')
+        self.tree_footprints_manager.imagelist.AddFile('outgo_add', 'resources/outgo_add.png')
+        self.tree_footprints_manager.imagelist.AddFile('outgo_change', 'resources/outgo_change.png')
+        self.tree_footprints_manager.imagelist.AddFile('outgo_del', 'resources/outgo_del.png')
+        #self.tree_footprints_manager.imagelist.AddFile('prop_changed', 'resources/prop_changed.png')
 
         # create edit footprint panel
         self.panel_edit_footprint = EditFootprintFrameProto(self.footprint_splitter)
@@ -181,26 +205,29 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.panel_edit_footprint.Bind( EVT_EDIT_FOOTPRINT_CANCEL_EVENT, self.onEditFootprintCancel )
 
         self.toolbar_footprint.ToggleTool(self.toggle_footprint_path.GetId(), True)
+        self.setToolbarFootprintState()
         
         self.load() 
         
     def load(self):
+        self.footprints = self.manager_pretty.files
+        #self.footprints = self.manager_pretty.
+        #self.footprints =  self.resource_pretty.Synchronize()
+        
         self.loadLibraries()
         self.loadFootprints()
-        
+    
     def loadLibraries(self):
         # clear all
         self.tree_libraries_manager.ClearItems()
         
-        # load libraries
-        libraries = self.resource_pretty.GetLibraries()
-
-        # load tree
-        for library in libraries:
+        # load libraries tree
+        for footprint_path in self.footprints:
             # decompose path
             folders = []
-            path = os.path.dirname(library)
-            name = os.path.basename(library)
+            library_path = os.path.dirname(footprint_path)
+            path = os.path.dirname(library_path)
+            library_name = os.path.basename(library_path)
             while path!='':
                 folders.insert(0, path)
                 path = os.path.dirname(path)
@@ -208,27 +235,21 @@ class FootprintsFrameProto(PanelFootprintsProto):
             for folder in folders:
                 self.tree_libraries_manager.AppendPath(folder)
 
-            self.tree_libraries_manager.AppendLibrary(os.path.dirname(library), name)
+            self.tree_libraries_manager.AppendLibrary(os.path.dirname(library_path), library_name)
 
     def loadFootprints(self):
         # clear all
         self.tree_footprints_manager.ClearItems()
 
-        # load libraries from kicad files
-        libraries = self.resource_pretty.GetLibraries()
-        
         # load footprints from local folder
-        for library in libraries:
-            path = library
-            self.tree_footprints_manager.AppendPath(path)
+        for footprint_path in self.footprints:
+            library_path = os.path.dirname(footprint_path)
+            self.tree_footprints_manager.AppendPath(library_path)
 
-            # load footprints
-            footprint_files = self.resource_pretty.GetFootprints(library)
-            for footprint_file in footprint_files:
-                footprint = rest.model.Footprint(id=-1)
-                footprint.name = footprint_file.replace('.kicad_mod', '')
-                footprint.local_footprint = os.path.join(path, footprint_file)
-                self.tree_footprints_manager.AppendFootprint(path, footprint)
+            footprint = self.footprints[footprint_path]
+#            footprint.name = footprint_file.replace('.kicad_mod', '')
+#            footprint.local_footprint = os.path.join(path, footprint_file)
+            self.tree_footprints_manager.AppendFootprint(library_path, footprint)
         
         # load footprints from kipartbase
         # TODO

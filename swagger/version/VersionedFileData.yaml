@@ -1,0 +1,21 @@
+type: object
+properties:
+  source_path:
+    type: string
+  storage_path:
+    type: string
+  md5:
+    type: string
+  version:
+    type: integer
+    format: int64
+  state:
+    # c: created 
+    # m: moved
+    # d: deleted
+    # u: updated
+    type: string
+  updated:
+    type: string
+    format: date-time
+

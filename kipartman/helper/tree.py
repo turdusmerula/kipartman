@@ -255,6 +255,44 @@ def CompareString(item1, item2):
         return 1
     return 0 
 
+class TreeImageList(wx.ImageList):
+    def __init__(self, width, height, mask=True, initialCount=1):
+        super(TreeImageList, self).__init__(width, height, mask, initialCount)
+        self.labels = {}
+    
+    def Add(self, label, *args, **kwargs):
+        self.labels[label] = self.GetImageCount()
+        return super(TreeImageList, self).Add(*args, **kwargs)
+
+    def AddFile(self, label, path):
+        icon = wx.Image(path)
+        return self.Add(label, icon.ConvertToBitmap())
+    
+    def GetBitmap(self, label):
+        index = self.labels[label]
+        return super(TreeImageList, self).GetBitmap(index)
+
+    def GetIcon(self, label):
+        index = self.labels[label]
+        return super(TreeImageList, self).GetIcon(index)
+
+    def GetSize(self, label):
+        index = self.labels[label]
+        return super(TreeImageList, self).GetSize(index)
+
+    def Remove(self, label):
+        index = self.labels[label]
+        self.labels.pop(label)
+        return super(TreeImageList, self).Remove(index)
+
+    def RemoveAll(self, label):
+        self.labels.clear()
+        return super(TreeImageList, self).RemoveAll()
+
+    def Replace(self, label, *args, **kwargs):
+        index = self.labels[label]
+        return super(TreeImageList, self).Replace(index, *args, **kwargs)
+
 class TreeManager(object):
     drag_item = None
     drag_source = None
@@ -454,7 +492,7 @@ class TreeManager(object):
         event.manager = self
         if self.OnItemDropPossible:
             return self.OnItemDropPossible(event) 
-               #return False
+            #return False
         '''
         @TODO: Implement Drag Feedback 
          Ok/Not Ok for drop by event.Allow or event.Skip
@@ -585,6 +623,14 @@ class TreeManager(object):
         column.Reorderable = True
         return column
 
+    def AddBitmapColumn(self, title):
+        column = self.tree_view.AppendBitmapColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
+        self.model.columns_type.append('bitmap')
+        self.model.sort_function.append(None)
+        column.Sortable = True
+        column.Reorderable = True
+        return column
+        
     def RemoveColumn(self, index):
         for column in self.tree_view.GetColumns():
             if column.GetModelColumn()==index:

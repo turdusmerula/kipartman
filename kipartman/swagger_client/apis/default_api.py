@@ -4934,6 +4934,110 @@ class DefaultApi(object):
                                         _request_timeout=params.get('_request_timeout'),
                                         collection_formats=collection_formats)
 
+    def synchronize_versioned_files(self, files, **kwargs):
+        """
+        Get synchronization status of a fileset
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.synchronize_versioned_files(files, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param list[VersionedFile] files: File list to test synchronization (required)
+        :return: list[VersionedFileStatus]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+        kwargs['_return_http_data_only'] = True
+        if kwargs.get('callback'):
+            return self.synchronize_versioned_files_with_http_info(files, **kwargs)
+        else:
+            (data) = self.synchronize_versioned_files_with_http_info(files, **kwargs)
+            return data
+
+    def synchronize_versioned_files_with_http_info(self, files, **kwargs):
+        """
+        Get synchronization status of a fileset
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please define a `callback` function
+        to be invoked when receiving the response.
+        >>> def callback_function(response):
+        >>>     pprint(response)
+        >>>
+        >>> thread = api.synchronize_versioned_files_with_http_info(files, callback=callback_function)
+
+        :param callback function: The callback function
+            for asynchronous request. (optional)
+        :param list[VersionedFile] files: File list to test synchronization (required)
+        :return: list[VersionedFileStatus]
+                 If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        all_params = ['files']
+        all_params.append('callback')
+        all_params.append('_return_http_data_only')
+        all_params.append('_preload_content')
+        all_params.append('_request_timeout')
+
+        params = locals()
+        for key, val in iteritems(params['kwargs']):
+            if key not in all_params:
+                raise TypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method synchronize_versioned_files" % key
+                )
+            params[key] = val
+        del params['kwargs']
+        # verify the required parameter 'files' is set
+        if ('files' not in params) or (params['files'] is None):
+            raise ValueError("Missing the required parameter `files` when calling `synchronize_versioned_files`")
+
+
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        if 'files' in params:
+            body_params = params['files']
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.\
+            select_header_accept(['application/json'])
+
+        # HTTP header `Content-Type`
+        header_params['Content-Type'] = self.api_client.\
+            select_header_content_type(['application/json'])
+
+        # Authentication setting
+        auth_settings = []
+
+        return self.api_client.call_api('/version/synchronize', 'POST',
+                                        path_params,
+                                        query_params,
+                                        header_params,
+                                        body=body_params,
+                                        post_params=form_params,
+                                        files=local_var_files,
+                                        response_type='list[VersionedFileStatus]',
+                                        auth_settings=auth_settings,
+                                        callback=params.get('callback'),
+                                        _return_http_data_only=params.get('_return_http_data_only'),
+                                        _preload_content=params.get('_preload_content', True),
+                                        _request_timeout=params.get('_request_timeout'),
+                                        collection_formats=collection_formats)
+
     def update_currencies(self, currencies, **kwargs):
         """
         Update supported currencies

@@ -161,8 +161,29 @@ class Model(models.Model):
 class File(models.Model):
     source_name = models.TextField()
     storage_path = models.TextField()
+    created = models.DateTimeField(null=True, blank=True, default=None)
     def __unicode__(self):
         return '%d: %s, %s' % (self.id, self.source_name, self.storage_path)
+
+class VersionedFile(models.Model):
+    source_path = models.TextField()
+    storage_path = models.TextField()
+    md5 = models.TextField(null=False, blank=True, default='')
+    version = models.IntegerField()
+    state = models.TextField()
+    updated = models.DateTimeField(null=True, blank=True, default=None)
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.source_path)
+
+class VersionedFileHistory(models.Model):
+    file = models.ForeignKey('VersionedFile', null=False, blank=False, default=None)
+    source_path = models.TextField()
+    storage_path = models.IntegerField()
+    md5 = models.TextField(null=False, blank=True, default='')
+    version = models.IntegerField()
+    state = models.TextField()
+    updated = models.DateTimeField(null=True, blank=True, default=None)
+    operation = models.TextField()
 
 
 class Unit(models.Model):
@@ -207,10 +228,4 @@ class Currency(models.Model):
     ratio = models.IntegerField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
-
-class FileHistory(models.Model):
-    category = models.TextField(blank=False)
-    file_id = models.IntegerField()
-    operation = models.TextField(blank=False)
-    date = models.DateTimeField(null=True, blank=True, default=None)
     

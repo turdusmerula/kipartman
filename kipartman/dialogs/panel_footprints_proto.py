@@ -72,7 +72,10 @@ class PanelFootprintsProto ( wx.Panel ):
 		
 		bSizer10 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.toolbar_footprint = wx.ToolBar( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.toolbar_footprint = wx.ToolBar( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_FLAT|wx.NO_BORDER ) 
+		self.toolbar_footprint.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+		self.toolbar_footprint.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+		
 		self.button_add_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
 		
 		self.button_edit_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
@@ -101,9 +104,6 @@ class PanelFootprintsProto ( wx.Panel ):
 		
 		bSizer10.Add( self.toolbar_footprint, 1, wx.EXPAND, 5 )
 		
-		
-		bSizer11.Add( bSizer10, 1, wx.EXPAND, 5 )
-		
 		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		self.search_footprints = wx.SearchCtrl( self.panel_footprints, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
@@ -117,7 +117,10 @@ class PanelFootprintsProto ( wx.Panel ):
 		bSizer61.Add( self.button_refresh_footprints, 0, wx.ALL, 5 )
 		
 		
-		bSizer11.Add( bSizer61, 0, 0, 5 )
+		bSizer10.Add( bSizer61, 0, 0, 5 )
+		
+		
+		bSizer11.Add( bSizer10, 1, wx.EXPAND, 5 )
 		
 		
 		bSizer7.Add( bSizer11, 0, wx.EXPAND, 5 )

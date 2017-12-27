@@ -1,12 +1,10 @@
 import uuid
 import shutil
 import os
-import ntpath
 import models
 import tempfile
 import hashlib
 
-from django.core.files.storage import Storage, FileSystemStorage
 from django.conf import settings
 
 from os.path import expanduser
@@ -15,7 +13,7 @@ home = expanduser("~")
 options = {'STORAGE_PATH': home+'/.kipartman/storage', 'SUB_LEVELS': 3, 'SUB_LEVEL_SIZE': 2}
 
 
-class FileStorage(Storage):
+class FileStorage(object):
 
     def __init__(self, option=options):
         if not option:
@@ -25,12 +23,6 @@ class FileStorage(Storage):
         self.sub_levels = option['SUB_LEVELS']
         self.sub_level_size = option['SUB_LEVEL_SIZE']
     
-    def _open(self, name, mode='rb'):
-        return super(FileStorage, self)._open(name, mode)
-    
-    def _save(self, name, content):
-        return super(FileStorage, self)._save(name, content)
-
     def get_sublevels(self, id):
         levels = []
         for level in range(self.sub_levels):
