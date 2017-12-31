@@ -165,23 +165,29 @@ class File(models.Model):
     def __unicode__(self):
         return '%d: %s, %s' % (self.id, self.source_name, self.storage_path)
 
+
+class VersionedFileState(object):
+    created = 0
+    modified = 1
+    deleted = 2
+    
 class VersionedFile(models.Model):
     source_path = models.TextField()
-    storage_path = models.TextField()
+    storage_path = models.TextField(default='')
     md5 = models.TextField(null=False, blank=True, default='')
-    version = models.IntegerField()
-    state = models.TextField()
+    version = models.IntegerField(default=0)
+    state = models.IntegerField(default=0)
     updated = models.DateTimeField(null=True, blank=True, default=None)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.source_path)
-
+    
 class VersionedFileHistory(models.Model):
     file = models.ForeignKey('VersionedFile', null=False, blank=False, default=None)
     source_path = models.TextField()
-    storage_path = models.IntegerField()
+    storage_path = models.TextField(default='')
     md5 = models.TextField(null=False, blank=True, default='')
-    version = models.IntegerField()
-    state = models.TextField()
+    version = models.IntegerField(default=0)
+    state = models.IntegerField(default=0)
     updated = models.DateTimeField(null=True, blank=True, default=None)
     operation = models.TextField()
 

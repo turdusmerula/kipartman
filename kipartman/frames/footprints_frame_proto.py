@@ -119,12 +119,12 @@ class DataModelFootprint(helper.tree.TreeItem):
         self.footprint = footprint
 
     def GetValue(self, col):
-        id = ''
-        if self.footprint.id:
-            id = str(self.footprint.id)
+        version = ''
+        if self.footprint.version:
+            version = str(self.footprint.version)
         vMap = {
             0 : self.imagelist.GetBitmap(self.footprint.state), 
-            1 : str(id),
+            1 : str(version),
             2 : os.path.basename(self.footprint.source_path),
         }
 #        return wx.dataview.DataViewIconText(vMap[col], None)
@@ -180,13 +180,11 @@ class FootprintsFrameProto(PanelFootprintsProto):
         # create footprint list
         self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints)
         self.tree_footprints_manager.AddBitmapColumn("state")
-        self.tree_footprints_manager.AddIntegerColumn("id")
+        self.tree_footprints_manager.AddIntegerColumn("version")
         self.tree_footprints_manager.AddTextColumn("name")
         self.tree_footprints_manager.OnSelectionChanged = self.onTreeFootprintsSelChanged
 
-        none = wx.Bitmap()
-        none.FromRGBA(11, 10)
-        self.tree_footprints_manager.imagelist.Add('', none)
+        self.tree_footprints_manager.imagelist.AddFile('', 'resources/none.png')
         self.tree_footprints_manager.imagelist.AddFile('conflict_add', 'resources/conflict_add.png')
         self.tree_footprints_manager.imagelist.AddFile('conflict_change', 'resources/conflict_change.png')
         self.tree_footprints_manager.imagelist.AddFile('conflict_del', 'resources/conflict_del.png')
@@ -207,10 +205,12 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.toolbar_footprint.ToggleTool(self.toggle_footprint_path.GetId(), True)
         self.setToolbarFootprintState()
         
+        self.show_footprint_path = True
+        
         self.load() 
         
     def load(self):
-        self.footprints = self.manager_pretty.files
+        self.footprints = self.manager_pretty.Synchronize()
         #self.footprints = self.manager_pretty.
         #self.footprints =  self.resource_pretty.Synchronize()
         
@@ -244,15 +244,15 @@ class FootprintsFrameProto(PanelFootprintsProto):
         # load footprints from local folder
         for footprint_path in self.footprints:
             library_path = os.path.dirname(footprint_path)
-            self.tree_footprints_manager.AppendPath(library_path)
+            if self.show_footprint_path:
+                self.tree_footprints_manager.AppendPath(library_path)
 
             footprint = self.footprints[footprint_path]
-#            footprint.name = footprint_file.replace('.kicad_mod', '')
-#            footprint.local_footprint = os.path.join(path, footprint_file)
-            self.tree_footprints_manager.AppendFootprint(library_path, footprint)
-        
-        # load footprints from kipartbase
-        # TODO
+
+            if self.show_footprint_path:
+                self.tree_footprints_manager.AppendFootprint(library_path, footprint)
+            else:
+                self.tree_footprints_manager.AppendFootprint(None, footprint)
     
     def setToolbarFootprintState(self):
         pass
@@ -289,3 +289,22 @@ class FootprintsFrameProto(PanelFootprintsProto):
      
     def onEditFootprintCancel( self, event ):
         pass
+
+    def onToggleFootprintPathClicked( self, event ):
+        self.show_footprint_path = self.toolbar_footprint.GetToolState(self.toggle_footprint_path.GetId())
+        self.load()
+
+    def onButtonCommitFootprintClicked( self, event ):
+        files = []
+        for item in self.tree_footprints.GetSelections():
+            obj = self.tree_footprints_manager.ItemToObject(item)
+            if isinstance(obj, DataModelFootprint):
+                files.append(obj.footprint)
+            elif isinstance(obj, DataModelFootprintPath):
+                pass
+        
+        commits = self.manager_pretty.Commit(files) 
+ 
+    def onButtonRefreshFootprintsClick( self, event ):
+        self.load()
+       

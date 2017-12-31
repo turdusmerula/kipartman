@@ -10,12 +10,10 @@ properties:
     type: integer
     format: int64
   state:
-    # c: created 
-    # m: moved
-    # d: deleted
-    # u: updated
     type: string
   updated:
     type: string
     format: date-time
-
+  content:
+    type: string
+  

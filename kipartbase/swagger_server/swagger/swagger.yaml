@@ -1099,13 +1099,73 @@ paths:
           type: "array"
           items:
             $ref: "#/definitions/VersionedFile"
+      - name: "root_path"
+        in: "query"
+        description: "Path from which to synchronize"
+        required: false
+        type: "string"
       responses:
         200:
           description: "Synchronization state"
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/VersionedFileStatus"
+              $ref: "#/definitions/VersionedFile"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /version/commit:
+    post:
+      description: "Commit a fileset"
+      operationId: "commit_versioned_files"
+      parameters:
+      - in: "body"
+        name: "files"
+        description: "File list to commit"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/VersionedFile"
+      - name: "force"
+        in: "query"
+        description: "Force commit"
+        required: false
+        type: "boolean"
+      responses:
+        200:
+          description: "Commit result"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/VersionedFile"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /version/update:
+    post:
+      description: "Update a fileset"
+      operationId: "update_versioned_files"
+      parameters:
+      - in: "body"
+        name: "files"
+        description: "File list to update"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/VersionedFile"
+      responses:
+        200:
+          description: "Update result"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/VersionedFile"
         default:
           description: "unexpected error"
           schema:
@@ -1658,18 +1718,8 @@ definitions:
         id:
           type: "integer"
           format: "int64"
-  VersionedFileStatus:
-    allOf:
-    - $ref: "#/definitions/VersionedFileData"
-    - required:
-      - "id"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        status:
-          type: "integer"
-          format: "int64"
+        folder:
+          type: "boolean"
   StorageCategory:
     allOf:
     - $ref: "#/definitions/StorageCategoryData"
@@ -1960,6 +2010,8 @@ definitions:
       updated:
         type: "string"
         format: "date-time"
+      content:
+        type: "string"
   StorageCategoryData:
     type: "object"
     properties:

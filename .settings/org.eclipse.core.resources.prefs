@@ -8,6 +8,7 @@ encoding//kipartbase/api/migrations/0016_footprint_snapeda.py=utf-8
 encoding//kipartbase/api/migrations/0023_auto_20170710_0935.py=utf-8
 encoding//kipartbase/api/migrations/0041_currency.py=utf-8
 encoding//kipartbase/api/migrations/0042_initial_data.py=utf-8
+encoding//kipartbase/api/migrations/0044_auto_20171227_2112.py=utf-8
 encoding//kipartbase/api/models.py=utf-8
 encoding//kipartbase/api/tests.py=utf-8
 encoding//kipartbase/swagger_server/models/error.py=utf-8

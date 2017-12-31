@@ -37,7 +37,9 @@ class VersionedFile(object):
         'version': 'int',
         'state': 'str',
         'updated': 'datetime',
-        'id': 'int'
+        'content': 'str',
+        'id': 'int',
+        'folder': 'bool'
     }
 
     attribute_map = {
@@ -47,10 +49,12 @@ class VersionedFile(object):
         'version': 'version',
         'state': 'state',
         'updated': 'updated',
-        'id': 'id'
+        'content': 'content',
+        'id': 'id',
+        'folder': 'folder'
     }
 
-    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, id=None):
+    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None, id=None, folder=None):
         """
         VersionedFile - a model defined in Swagger
         """
@@ -61,7 +65,9 @@ class VersionedFile(object):
         self._version = None
         self._state = None
         self._updated = None
+        self._content = None
         self._id = None
+        self._folder = None
 
         if source_path is not None:
           self.source_path = source_path
@@ -75,8 +81,12 @@ class VersionedFile(object):
           self.state = state
         if updated is not None:
           self.updated = updated
+        if content is not None:
+          self.content = content
         if id is not None:
           self.id = id
+        if folder is not None:
+          self.folder = folder
 
     @property
     def source_path(self):
@@ -205,6 +215,27 @@ class VersionedFile(object):
         self._updated = updated
 
     @property
+    def content(self):
+        """
+        Gets the content of this VersionedFile.
+
+        :return: The content of this VersionedFile.
+        :rtype: str
+        """
+        return self._content
+
+    @content.setter
+    def content(self, content):
+        """
+        Sets the content of this VersionedFile.
+
+        :param content: The content of this VersionedFile.
+        :type: str
+        """
+
+        self._content = content
+
+    @property
     def id(self):
         """
         Gets the id of this VersionedFile.
@@ -224,6 +255,27 @@ class VersionedFile(object):
         """
 
         self._id = id
+
+    @property
+    def folder(self):
+        """
+        Gets the folder of this VersionedFile.
+
+        :return: The folder of this VersionedFile.
+        :rtype: bool
+        """
+        return self._folder
+
+    @folder.setter
+    def folder(self, folder):
+        """
+        Sets the folder of this VersionedFile.
+
+        :param folder: The folder of this VersionedFile.
+        :type: bool
+        """
+
+        self._folder = folder
 
     def to_dict(self):
         """

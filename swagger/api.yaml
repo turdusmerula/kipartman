@@ -99,6 +99,12 @@ paths:
   /version/synchronize:
     $ref: './version/synchronize.yaml'
 
+  /version/commit:
+    $ref: './version/commit.yaml'
+
+  /version/update:
+    $ref: './version/update.yaml'
+
 
   /storages/categories:
     $ref: './storage/category/categories.yaml'

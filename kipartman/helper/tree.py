@@ -626,6 +626,7 @@ class TreeManager(object):
     def AddBitmapColumn(self, title):
         column = self.tree_view.AppendBitmapColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
         self.model.columns_type.append('bitmap')
+        # TODO: add support for sorting bitmaps by labels
         self.model.sort_function.append(None)
         column.Sortable = True
         column.Reorderable = True

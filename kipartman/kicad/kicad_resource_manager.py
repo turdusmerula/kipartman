@@ -8,6 +8,8 @@ import rest
 import datetime, time
 import hashlib
 import sync.version_manager
+from pathlib2 import Path
+#import quopri
 
 class KicadResource(FileSystemEventHandler):
     def __init__(self):
@@ -18,7 +20,7 @@ class KicadResourcePretty(KicadResource):
         super(KicadResourcePretty, self).__init__()
         self.files = {}
         
-        self.load()
+        self.Load()
         
     def path(self):
         return configuration.kicad_library_path
@@ -31,7 +33,7 @@ class KicadResourcePretty(KicadResource):
     # - on_deleted(self, event)
     # - on_modified(self, event)
     
-    def load(self):
+    def Load(self):
         """
         fill cache files from disk
         """
@@ -41,7 +43,8 @@ class KicadResourcePretty(KicadResource):
             footprints = self.GetFootprints(library)
             for footprint in footprints:
                 source_path = os.path.join(library, footprint)
-                md5 = hashlib.md5(os.path.join(configuration.kicad_library_path, source_path)).hexdigest()
+                content = Path(os.path.join(configuration.kicad_library_path, source_path)).read_text()
+                md5 = hashlib.md5(content).hexdigest()
 
                 file = rest.model.VersionedFile()
                 file.source_path = source_path
@@ -70,7 +73,7 @@ class KicadResourcePretty(KicadResource):
                             to_explore.append(folder)
     
         return libraries
-    
+
     def GetFootprints(self, library_path):
         """
         Return all footprints in a pretty lib
@@ -84,61 +87,51 @@ class KicadResourcePretty(KicadResource):
                 footprints.append(os.path.basename(kicad_mod))
     
         return footprints
-    
-    def Synchronize(self):
-        """
-        Get synchronization status from server
-        """
-        
-        # get server content
-        remote_footprints = rest.api.synchronize_versioned_files(self.files)
 
+    def Files(self):
+        return self.files
 
-class KicadResourceManager(object):
+class KicadResourceManager(sync.version_manager.VersionManager):
     def __init__(self, resource):
         """
         Init a manager on a kicad resource
         @param resource: Kicad resource to manage (ex. KicadResourcePretty)
         """
+        super(KicadResourceManager, self).__init__(resource.path())        
+
+        # resource to observe
         self.resource = resource
 
+        # observer to trigger event on resource change
         self.observer = Observer()
         self.observer.schedule(resource, resource.path(), recursive=True)
         self.observer.start()
 
+        self.load()
+
+    def load(self):
         # load local files
-        resource.load()
+        self.resource.Load()
 
         # load version configuration state
-        self.version = sync.version_manager.VersionManager(resource.path())        
-        self.version.load()
+        self.LoadState()
 
-        # match
-        self.files = {}
-        self.match_files_version()
+    def Synchronize(self):
+        self.load()
         
-    def match_files_version(self):
-        """
-        Match local files with current stored version state 
-        """
-        for file in self.resource.files:
-            file_version = None
-            file_disk = self.resource.files[file]
-            if self.version.Exist(file):
-                file_version = self.version(file)           
-            if file_version:
-                if file_disk.md5!=file_version.md5:
-                    file_version.state = 'outgo_change'
-            else:
-                file_version = rest.model.VersionedFile()
-                file_version.source_path = file_disk.source_path
-                file_version.state = 'outgo_add'
-            self.files[file] = file_version
+        # refresh local files state before synchronizing
+        self.ClearLocalFiles()
+        files = self.resource.Files()
+        for file in files:
+            self.AddLocalFile(files[file])
+        
+        return super(KicadResourceManager, self).Synchronize()
+
+    def Commit(self, files):
+        # add content
+        for file in files:
+            with open(os.path.join(self.resource.path(), file.source_path)) as f:
+                file.content = f.read()
+        
+        return super(KicadResourceManager, self).Commit(files)
     
-    def _debug(self):
-        for file_path in self.files:
-            file = self.files[file_path]
-            if file.id:
-                print("-- %s: %d '%s'"%(file_path, file.id, file.state)) 
-            else:
-                print("-- %s: None '%s'"%(file_path, file.state)) 

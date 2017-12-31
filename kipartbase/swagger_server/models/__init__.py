@@ -57,4 +57,3 @@ from .upload_file_data import UploadFileData
 from .upload_file_ref import UploadFileRef
 from .versioned_file import VersionedFile
 from .versioned_file_data import VersionedFileData
-from .versioned_file_status import VersionedFileStatus

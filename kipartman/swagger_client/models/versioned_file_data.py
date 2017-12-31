@@ -36,7 +36,8 @@ class VersionedFileData(object):
         'md5': 'str',
         'version': 'int',
         'state': 'str',
-        'updated': 'datetime'
+        'updated': 'datetime',
+        'content': 'str'
     }
 
     attribute_map = {
@@ -45,10 +46,11 @@ class VersionedFileData(object):
         'md5': 'md5',
         'version': 'version',
         'state': 'state',
-        'updated': 'updated'
+        'updated': 'updated',
+        'content': 'content'
     }
 
-    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None):
+    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None):
         """
         VersionedFileData - a model defined in Swagger
         """
@@ -59,6 +61,7 @@ class VersionedFileData(object):
         self._version = None
         self._state = None
         self._updated = None
+        self._content = None
 
         if source_path is not None:
           self.source_path = source_path
@@ -72,6 +75,8 @@ class VersionedFileData(object):
           self.state = state
         if updated is not None:
           self.updated = updated
+        if content is not None:
+          self.content = content
 
     @property
     def source_path(self):
@@ -198,6 +203,27 @@ class VersionedFileData(object):
         """
 
         self._updated = updated
+
+    @property
+    def content(self):
+        """
+        Gets the content of this VersionedFileData.
+
+        :return: The content of this VersionedFileData.
+        :rtype: str
+        """
+        return self._content
+
+    @content.setter
+    def content(self, content):
+        """
+        Sets the content of this VersionedFileData.
+
+        :param content: The content of this VersionedFileData.
+        :type: str
+        """
+
+        self._content = content
 
     def to_dict(self):
         """

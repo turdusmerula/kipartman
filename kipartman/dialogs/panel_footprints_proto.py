@@ -72,7 +72,7 @@ class PanelFootprintsProto ( wx.Panel ):
 		
 		bSizer10 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.toolbar_footprint = wx.ToolBar( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_FLAT|wx.NO_BORDER ) 
+		self.toolbar_footprint = wx.ToolBar( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_FLAT ) 
 		self.toolbar_footprint.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 		self.toolbar_footprint.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 		
@@ -125,7 +125,7 @@ class PanelFootprintsProto ( wx.Panel ):
 		
 		bSizer7.Add( bSizer11, 0, wx.EXPAND, 5 )
 		
-		self.tree_footprints = wx.dataview.DataViewCtrl( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_SINGLE )
+		self.tree_footprints = wx.dataview.DataViewCtrl( self.panel_footprints, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_MULTIPLE )
 		bSizer7.Add( self.tree_footprints, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
@@ -152,6 +152,8 @@ class PanelFootprintsProto ( wx.Panel ):
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onButtonRefreshCategoriesClick )
+		self.Bind( wx.EVT_TOOL, self.onToggleFootprintPathClicked, id = self.toggle_footprint_path.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onButtonCommitFootprintClicked, id = self.button_commit_footprint.GetId() )
 		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintsButton )
 		self.search_footprints.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintsTextEnter )
 		self.button_refresh_footprints.Bind( wx.EVT_BUTTON, self.onButtonRefreshFootprintsClick )
@@ -165,6 +167,12 @@ class PanelFootprintsProto ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonRefreshCategoriesClick( self, event ):
+		event.Skip()
+	
+	def onToggleFootprintPathClicked( self, event ):
+		event.Skip()
+	
+	def onButtonCommitFootprintClicked( self, event ):
 		event.Skip()
 	
 	def onSearchFootprintsButton( self, event ):
