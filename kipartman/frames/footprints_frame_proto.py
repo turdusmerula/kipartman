@@ -305,6 +305,18 @@ class FootprintsFrameProto(PanelFootprintsProto):
         
         commits = self.manager_pretty.Commit(files) 
  
+    def onButtonUpdateFootprintClicked( self, event ):
+        files = []
+        for item in self.tree_footprints.GetSelections():
+            obj = self.tree_footprints_manager.ItemToObject(item)
+            if isinstance(obj, DataModelFootprint):
+                files.append(obj.footprint)
+            elif isinstance(obj, DataModelFootprintPath):
+                pass
+        
+        updates = self.manager_pretty.Update(files) 
+
     def onButtonRefreshFootprintsClick( self, event ):
         self.load()
-       
+        
+    

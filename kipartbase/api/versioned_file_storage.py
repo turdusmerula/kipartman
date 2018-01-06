@@ -85,13 +85,20 @@ class VersionedFileStorage(object):
         print "Add file", version_file.source_path, "as", storage_path
         return file
     
-    def get_file(self, id):
-        levels = self.get_sublevels(id)
+    def get_file(self, md5):
+        levels = self.get_sublevels(md5)
         dir = self.storage_path
         for level in levels:
             dir = dir+"/"+level
-        return dir+"/"+id
+        return dir+"/"+md5
 
+    def get_file_content(self, id):
+        ffile = models.VersionedFile.objects.get(pk=id)
+        file = os.path.join(self.storage_path, ffile.storage_path)
+        with open(file, 'r') as content_file:
+            return content_file.read()
+        return ''
+        
     def get_status(self, file):
         #api.models.VersionedFile.objects.filter()
         # check if file exists in database

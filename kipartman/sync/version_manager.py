@@ -181,13 +181,24 @@ class VersionManager(object):
         updates = rest.api.update_versioned_files(files)
         
         # update state
-        #TODO
-        #for file in updates:
-        #    self.state_files[file.source_path] = file
-            
-        self.SaveState()
-        return updates
+        for file in updates:
+            if file.state=='income_add' or file.state=='income_change':
+                file.state = ''
+                path = os.path.join(self.root_path, file.source_path)
+                if os.path.exists(os.path.dirname(path))==False:
+                    os.makedirs(os.path.dirname(path))
+                with open(path, 'w') as write_file:
+                    write_file.write(file.content)
+                self.local_files[file.source_path] = file
+            elif file.state=='income_del':
+                os.remove(os.path.join(self.root_path, file.source_path))
+                self.local_files.pop(file.source_path)
 
+        print "****", self.local_files
+        
+        self.SaveState()
+        return updates        
+        
     def _debug(self, files):
         for file_path in files:
             file = files[file_path]

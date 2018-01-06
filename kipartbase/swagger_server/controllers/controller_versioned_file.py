@@ -98,7 +98,7 @@ def update_file_state(file):
         if file.md5==ffile.md5:
             file.version = ffile.version
         else:
-            file.state = 'income_change'
+            file.state = 'conflict_add'
             
     if file.state=='outgo_add' and ffile:
         if file.md5==ffile.md5:
@@ -108,13 +108,15 @@ def update_file_state(file):
     
     if file.state=='outgo_change' and ffile and file.version<ffile.version:       
         file.state = 'conflict_change'
-        
+    
     if file.state=='outgo_del' and (
             ( ffile and ffile.state==api.models.VersionedFileState.deleted ) 
             or 
             ( not ffile )):       
         file.state = 'conflict_del'
 
+    print "--", file
+    
 def synchronize_versioned_files(files, root_path=None):
     """
     synchronize_versioned_files
@@ -216,6 +218,10 @@ def commit_versioned_files(files, force=None):
         # modify file to file storage
         storage.add_file(file)
 
+    for file in to_delete:
+        #TODO
+        pass
+    
     return commit_files 
 
 def update_versioned_files(files):
@@ -251,9 +257,15 @@ def update_versioned_files(files):
     # check if given files are allowed to commit 
     for file in files:
         raise_on_error(update_file_state(file))
-        if file.state=='conflict_change' or file.state=='conflict_del' or file.state=='income_add':
+        if file.state=='conflict_change' or file.state=='conflict_del' or file.state=='conflict_add':
             has_conflicts = True
             conflict_files.append(file)
+        if file.state=='income_add':
+            to_add.append(file)
+        elif file.state=='income_change':
+            to_change.append(file)
+        elif file.state=='income_del':
+            to_delete.append(file)
     
     if has_conflicts:
         # in case of a conflict return conflicted files
@@ -261,11 +273,15 @@ def update_versioned_files(files):
     
     storage = api.versioned_file_storage.VersionedFileStorage()
     for file in to_add:
-        # add file to file storage
-        storage.add_file(file)
+        file.content = storage.get_file_content(file.id)
+        update_files.append(file)
 
     for file in to_change:
-        # modify file to file storage
-        storage.add_file(file)
+        file.content = storage.get_file_content(file.id)
+        update_files.append(file)
+    
+    for file in to_delete:
+        update_files.append(file)
 
+    print "----", update_files
     return update_files 

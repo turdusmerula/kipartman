@@ -92,6 +92,8 @@ class PanelFootprintsProto ( wx.Panel ):
 		
 		self.button_commit_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/commit.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
 		
+		self.toolbar_footprint.AddSeparator()
+		
 		self.toggle_show_showboth_changes = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/show_both.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
 		
 		self.toggle_show_conflict_changes = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/show_conf.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
@@ -153,6 +155,7 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onButtonRefreshCategoriesClick )
 		self.Bind( wx.EVT_TOOL, self.onToggleFootprintPathClicked, id = self.toggle_footprint_path.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onButtonUpdateFootprintClicked, id = self.button_update_footprint.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onButtonCommitFootprintClicked, id = self.button_commit_footprint.GetId() )
 		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintsButton )
 		self.search_footprints.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintsTextEnter )
@@ -170,6 +173,9 @@ class PanelFootprintsProto ( wx.Panel ):
 		event.Skip()
 	
 	def onToggleFootprintPathClicked( self, event ):
+		event.Skip()
+	
+	def onButtonUpdateFootprintClicked( self, event ):
 		event.Skip()
 	
 	def onButtonCommitFootprintClicked( self, event ):
