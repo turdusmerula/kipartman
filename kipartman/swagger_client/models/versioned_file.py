@@ -38,6 +38,7 @@ class VersionedFile(object):
         'state': 'str',
         'updated': 'datetime',
         'content': 'str',
+        'metadata': 'dict(str, str)',
         'id': 'int',
         'folder': 'bool'
     }
@@ -50,11 +51,12 @@ class VersionedFile(object):
         'state': 'state',
         'updated': 'updated',
         'content': 'content',
+        'metadata': 'metadata',
         'id': 'id',
         'folder': 'folder'
     }
 
-    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None, id=None, folder=None):
+    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None, metadata=None, id=None, folder=None):
         """
         VersionedFile - a model defined in Swagger
         """
@@ -66,6 +68,7 @@ class VersionedFile(object):
         self._state = None
         self._updated = None
         self._content = None
+        self._metadata = None
         self._id = None
         self._folder = None
 
@@ -83,6 +86,8 @@ class VersionedFile(object):
           self.updated = updated
         if content is not None:
           self.content = content
+        if metadata is not None:
+          self.metadata = metadata
         if id is not None:
           self.id = id
         if folder is not None:
@@ -234,6 +239,27 @@ class VersionedFile(object):
         """
 
         self._content = content
+
+    @property
+    def metadata(self):
+        """
+        Gets the metadata of this VersionedFile.
+
+        :return: The metadata of this VersionedFile.
+        :rtype: dict(str, str)
+        """
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, metadata):
+        """
+        Sets the metadata of this VersionedFile.
+
+        :param metadata: The metadata of this VersionedFile.
+        :type: dict(str, str)
+        """
+
+        self._metadata = metadata
 
     @property
     def id(self):

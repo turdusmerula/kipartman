@@ -23,7 +23,6 @@ from django.db.models import Q
 def serialize_FootprintData(ffootprint, footprint=None):
     if footprint is None:
         footprint = FootprintData()
-    footprint.name = ffootprint.name
     footprint.description = ffootprint.description
     footprint.comment = ffootprint.comment
     if ffootprint.snapeda:
@@ -51,7 +50,6 @@ def serialize_Footprint(ffootprint, footprint=None):
 def deserialize_FootprintData(footprint, ffootprint=None):
     if ffootprint is None:
         ffootprint = api.models.Footprint()
-    ffootprint.name = footprint.name
     ffootprint.description = footprint.description
     ffootprint.comment = footprint.comment
     if footprint.snapeda:

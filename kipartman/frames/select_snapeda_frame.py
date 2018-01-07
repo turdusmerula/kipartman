@@ -1,11 +1,17 @@
 from dialogs.panel_select_snapeda import PanelSelectSnapeda
 from snapeda.queries import PartsQuery
-import wx.dataview
 import wx.lib.newevent
 import helper.tree
+import os
+import tempfile
+import cfscrape
 
 SelectSnapedaOkEvent, EVT_SELECT_SNAPEDA_OK_EVENT = wx.lib.newevent.NewEvent()
 SelectSnapedaCancelEvent, EVT_SELECT_SNAPEDA_APPLY_EVENT = wx.lib.newevent.NewEvent()
+
+scraper = cfscrape.create_scraper()
+
+none_image = os.path.abspath(os.path.join('resources', 'none-128x128.png'))
 
 def NoneValue(value, default):
     if value:
@@ -32,7 +38,7 @@ class DataModelSnapedaPart(helper.tree.TreeItem):
 
             
 class SelectSnapedaFrame(PanelSelectSnapeda):
-    def __init__(self, parent, initial_search=None, filter=None): 
+    def __init__(self, parent, initial_search=None, filter=None, preview='model'): 
         """
         Create a popup window from frame
         :param parent: owner
@@ -42,6 +48,7 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
 
         self.search_snapeda.Value = initial_search
         self.filter = filter 
+        self.preview = preview
         
         # create snapedas list
         self.tree_snapeda_manager = helper.tree.TreeManager(self.tree_snapedas)
@@ -50,6 +57,7 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
         self.tree_snapeda_manager.AddTextColumn("Package Type")
         self.tree_snapeda_manager.AddTextColumn("Description")
         self.tree_snapeda_manager.AddTextColumn("URL")
+        self.tree_snapeda_manager.OnSelectionChanged = self.onTreeSnapedasSelChanged
 
         # set result functions
         self.cancel = None
@@ -78,7 +86,58 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
     
     def onSearchSnapedaEnter( self, event ):
         self.search()
-    
+
+    def onTreeSnapedasSelChanged( self, event ):
+        item = self.tree_snapedas.GetSelection()
+        if item.IsOk()==False:
+            return
+        snapedaobj = self.tree_snapeda_manager.ItemToObject(item)
+        snapeda = snapedaobj.part
+        
+        print("--", snapeda.json)
+        
+        # download image
+        image_url = ""
+        if len(snapeda.models())>0:
+            if self.preview=='footprint' and snapeda.models()[0].package_medium():
+                image_url = snapeda.models()[0].package_medium().url()
+            if self.preview=='model' and snapeda.models()[0].symbol_medium():
+                image_url = snapeda.models()[0].symbol_medium().url()
+            
+        if image_url=="" and len(snapeda.coverart())>0:
+            image_url = snapeda.coverart()[0].url()
+        if image_url!='':
+            try:
+                filename = os.path.join(tempfile.gettempdir(), os.path.basename(image_url))
+                content = scraper.get(image_url).content
+                with open(filename, 'wb') as outfile:
+                    outfile.write(content)
+                outfile.close()
+                 
+                self.SetImage(filename)
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error loading image', wx.OK | wx.ICON_ERROR)
+        else:
+            self.SetImage()
+        
+    def SetImage(self, filename=none_image):
+
+        img = wx.Image(filename, wx.BITMAP_TYPE_ANY)
+        #img = wx.Bitmap(self.file_footprint_image.GetPath(), wx.BITMAP_TYPE_ANY)
+        self.PhotoMaxSize = self.bitmap_preview.GetSize().x
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        img = img.Scale(NewW,NewH)
+        img = img.ConvertToBitmap()
+
+        self.bitmap_preview.SetBitmap(img)
+
     def onButtonCancelClick( self, event ):
         event = SelectSnapedaCancelEvent()
         wx.PostEvent(self, event)

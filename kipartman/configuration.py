@@ -36,7 +36,8 @@ class Configuration(object):
         
     def Load(self):
         if(os.path.isfile(self.filename)==False):
-            return
+            print("Load configuration file failed: %s"%self.filename)
+            return False
         
         with open(self.filename, 'r') as infile:
             try:
@@ -77,7 +78,8 @@ class Configuration(object):
             except Exception as e:
                 print ("Error: configuration of kipartman log failed {}:{}".format(type(e),e.message))
 
-
+        return True
+    
     def Save(self):
         content = {}
         with open(self.filename, 'w') as outfile:

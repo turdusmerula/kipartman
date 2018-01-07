@@ -19,6 +19,7 @@ class KicadResourcePretty(KicadResource):
     def __init__(self):
         super(KicadResourcePretty, self).__init__()
         self.files = {}
+        self.on_change = None
         
         self.Load()
         
@@ -27,7 +28,8 @@ class KicadResourcePretty(KicadResource):
             
     def on_any_event(self, event):
         print("Something happend with %s" % event.src_path)
-        
+        if os.path.basename(event.src_path)!='.kiversion' and self.on_change:
+            self.on_change(event)
     # - on_moved(self, event)
     # - on_created(self, event)
     # - on_deleted(self, event)

@@ -14,10 +14,12 @@ if not os.path.exists('resources'):
 #application = get_wsgi_application()
 
 # configure wxPython
-import wx
-from frames.main_frame import MainFrame
 import sys
+import argparse
+from configuration import configuration
 
+def configure(value):
+    pass
 
 def main(args=None):
     """The main routine."""
@@ -26,8 +28,21 @@ def main(args=None):
 
     # Do argument parsing here (eg. with argparse) and anything else
     # you want your project to do.
+
+    parser = argparse.ArgumentParser(description='Kipartman, the kicad part manager')
+    parser.add_argument('-c', '--config', help='configuration file to use (default: %s)'%configuration.filename)
+    
+    args = parser.parse_args()
+    
+    if args.config:
+        configuration.filename = args.config
+        if not configuration.Load():
+            return 
     
     print("Running kipartman")
+
+    import wx
+    from frames.main_frame import MainFrame
     app = wx.App()
     
     frame = MainFrame(None)

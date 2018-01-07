@@ -37,7 +37,8 @@ class VersionedFileData(object):
         'version': 'int',
         'state': 'str',
         'updated': 'datetime',
-        'content': 'str'
+        'content': 'str',
+        'metadata': 'dict(str, str)'
     }
 
     attribute_map = {
@@ -47,10 +48,11 @@ class VersionedFileData(object):
         'version': 'version',
         'state': 'state',
         'updated': 'updated',
-        'content': 'content'
+        'content': 'content',
+        'metadata': 'metadata'
     }
 
-    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None):
+    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None, metadata=None):
         """
         VersionedFileData - a model defined in Swagger
         """
@@ -62,6 +64,7 @@ class VersionedFileData(object):
         self._state = None
         self._updated = None
         self._content = None
+        self._metadata = None
 
         if source_path is not None:
           self.source_path = source_path
@@ -77,6 +80,8 @@ class VersionedFileData(object):
           self.updated = updated
         if content is not None:
           self.content = content
+        if metadata is not None:
+          self.metadata = metadata
 
     @property
     def source_path(self):
@@ -224,6 +229,27 @@ class VersionedFileData(object):
         """
 
         self._content = content
+
+    @property
+    def metadata(self):
+        """
+        Gets the metadata of this VersionedFileData.
+
+        :return: The metadata of this VersionedFileData.
+        :rtype: dict(str, str)
+        """
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, metadata):
+        """
+        Sets the metadata of this VersionedFileData.
+
+        :param metadata: The metadata of this VersionedFileData.
+        :type: dict(str, str)
+        """
+
+        self._metadata = metadata
 
     def to_dict(self):
         """

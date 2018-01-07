@@ -125,7 +125,7 @@ class DataModelFootprint(helper.tree.TreeItem):
         vMap = {
             0 : self.imagelist.GetBitmap(self.footprint.state), 
             1 : str(version),
-            2 : os.path.basename(self.footprint.source_path),
+            2 : os.path.basename(self.footprint.source_path).replace(".kicad_mod", ""),
         }
 #        return wx.dataview.DataViewIconText(vMap[col], None)
         return vMap[col]
@@ -168,7 +168,8 @@ class FootprintsFrameProto(PanelFootprintsProto):
         
         self.resource_pretty = KicadResourcePretty()
         self.manager_pretty = KicadResourceManager(self.resource_pretty)
-
+        self.resource_pretty.on_change = self.onResourceChanged
+        
         # create libraries data
         self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries)
         self.tree_libraries_manager.AddTextColumn("name")
@@ -179,8 +180,8 @@ class FootprintsFrameProto(PanelFootprintsProto):
 
         # create footprint list
         self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints)
-        self.tree_footprints_manager.AddBitmapColumn("state")
-        self.tree_footprints_manager.AddIntegerColumn("version")
+        self.tree_footprints_manager.AddBitmapColumn("s")
+        self.tree_footprints_manager.AddIntegerColumn("v")
         self.tree_footprints_manager.AddTextColumn("name")
         self.tree_footprints_manager.OnSelectionChanged = self.onTreeFootprintsSelChanged
 
@@ -256,6 +257,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
     
     def setToolbarFootprintState(self):
         pass
+    
+    def onResourceChanged(self, event):
+        self.load()
     
     def onTreeLibrariesSelChanged( self, event ):
         item = self.tree_libraries.GetSelection()

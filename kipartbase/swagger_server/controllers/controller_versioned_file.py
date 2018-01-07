@@ -8,6 +8,7 @@ from datetime import date, datetime
 from typing import List, Dict
 from six import iteritems
 from ..util import deserialize_date, deserialize_datetime
+import json
 
 import api.models
 import api.versioned_file_storage
@@ -24,6 +25,10 @@ def serialize_VersionedFileData(ffile, file=None):
     file.storage_path = ffile.storage_path
     file.md5 = ffile.md5
     file.version = ffile.version
+    if ffile.metadata:
+        file.metadata = json.loads(ffile.metadata)
+    else:
+        file.metadata = None
     #ffile.state is private
     file.updated = ffile.updated
     return file
@@ -42,6 +47,10 @@ def deserialize_VersionedFile(file, ffile=None):
     ffile.storage_path = file.storage_path
     ffile.md5 = file.md5
     ffile.version = file.version
+    if file.metadata:
+        ffile.metadata = json.dumps(file.metadata)
+    else:
+        ffile.metadata = None
     #ffile.state is private
     ffile.updated = file.updated
     return ffile

@@ -150,6 +150,21 @@ class PanelFootprintsProto ( wx.Panel ):
 		
 		self.SetSizer( bSizer1 )
 		self.Layout()
+		self.menu_footprints = wx.Menu()
+		self.menu_footprints_update = wx.Menu()
+		self.menu_footprints.AppendSubMenu( self.menu_footprints_update, u"Update" )
+		
+		self.menu_footprints_force_update = wx.Menu()
+		self.menu_footprints.AppendSubMenu( self.menu_footprints_force_update, u"Force update" )
+		
+		self.menu_footprints_commit = wx.Menu()
+		self.menu_footprints.AppendSubMenu( self.menu_footprints_commit, u"Commit" )
+		
+		self.menu_footprints_force_commit = wx.Menu()
+		self.menu_footprints.AppendSubMenu( self.menu_footprints_force_commit, u"Force commit" )
+		
+		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelFootprintsProtoOnContextMenu ) 
+		
 		
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
@@ -198,4 +213,7 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.footprint_splitter.SetSashPosition( 455 )
 		self.footprint_splitter.Unbind( wx.EVT_IDLE )
 	
+	def PanelFootprintsProtoOnContextMenu( self, event ):
+		self.PopupMenu( self.menu_footprints, event.GetPosition() )
+		
 

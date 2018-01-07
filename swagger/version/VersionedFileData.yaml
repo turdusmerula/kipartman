@@ -16,4 +16,7 @@ properties:
     format: date-time
   content:
     type: string
-  
+  metadata:
+    type: object
+    additionalProperties:
+      type: string    

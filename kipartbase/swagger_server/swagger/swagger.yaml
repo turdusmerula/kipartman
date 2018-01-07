@@ -2012,6 +2012,10 @@ definitions:
         format: "date-time"
       content:
         type: "string"
+      metadata:
+        type: "object"
+        additionalProperties:
+          type: "string"
   StorageCategoryData:
     type: "object"
     properties:
