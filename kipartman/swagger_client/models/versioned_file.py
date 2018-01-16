@@ -38,7 +38,7 @@ class VersionedFile(object):
         'state': 'str',
         'updated': 'datetime',
         'content': 'str',
-        'metadata': 'dict(str, str)',
+        'metadata': 'str',
         'id': 'int',
         'folder': 'bool'
     }
@@ -246,7 +246,7 @@ class VersionedFile(object):
         Gets the metadata of this VersionedFile.
 
         :return: The metadata of this VersionedFile.
-        :rtype: dict(str, str)
+        :rtype: str
         """
         return self._metadata
 
@@ -256,7 +256,7 @@ class VersionedFile(object):
         Sets the metadata of this VersionedFile.
 
         :param metadata: The metadata of this VersionedFile.
-        :type: dict(str, str)
+        :type: str
         """
 
         self._metadata = metadata

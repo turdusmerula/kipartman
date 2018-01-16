@@ -38,7 +38,7 @@ class VersionedFileData(object):
         'state': 'str',
         'updated': 'datetime',
         'content': 'str',
-        'metadata': 'dict(str, str)'
+        'metadata': 'str'
     }
 
     attribute_map = {
@@ -236,7 +236,7 @@ class VersionedFileData(object):
         Gets the metadata of this VersionedFileData.
 
         :return: The metadata of this VersionedFileData.
-        :rtype: dict(str, str)
+        :rtype: str
         """
         return self._metadata
 
@@ -246,7 +246,7 @@ class VersionedFileData(object):
         Sets the metadata of this VersionedFileData.
 
         :param metadata: The metadata of this VersionedFileData.
-        :type: dict(str, str)
+        :type: str
         """
 
         self._metadata = metadata

@@ -6,8 +6,31 @@ import os
 
 def convert_mod_to_pretty(src_libpath, dst_libpath):
 
-    src_type = IO_MGR.GuessPluginTypeFromLibPath( src_libpath );
-    dst_type = IO_MGR.GuessPluginTypeFromLibPath( dst_libpath );
+    src_type = IO_MGR.GuessPluginTypeFromLibPath( src_libpath )
+    dst_type = IO_MGR.GuessPluginTypeFromLibPath( dst_libpath )
+    
+    src_plugin = IO_MGR.PluginFind( src_type )
+    dst_plugin = IO_MGR.PluginFind( dst_type )
+    
+    try:
+        dst_plugin.FootprintLibDelete( dst_libpath )
+    except:
+        None    # ignore, new may not exist if first run
+    
+    dst_plugin.FootprintLibCreate( dst_libpath )
+    
+    list_of_parts = src_plugin.FootprintEnumerate( src_libpath )
+    
+    for part_id in list_of_parts:
+        module = src_plugin.FootprintLoad( src_libpath, part_id )
+        dst_plugin.FootprintSave( dst_libpath, module )
+        
+    return dst_libpath, list_of_parts
+
+def convert_mod_to_pretty_zip(src_libpath, dst_libpath):
+
+    src_type = IO_MGR.GuessPluginTypeFromLibPath( src_libpath )
+    dst_type = IO_MGR.GuessPluginTypeFromLibPath( dst_libpath )
     
     src_plugin = IO_MGR.PluginFind( src_type )
     dst_plugin = IO_MGR.PluginFind( dst_type )

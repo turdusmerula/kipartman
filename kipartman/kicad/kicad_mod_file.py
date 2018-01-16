@@ -29,7 +29,7 @@ class KicadModFile(object):
         self.buff = ''
 
         self.read_blocks(self.parent) 
-        self.Write(self.parent, 0)
+        #self.Write(self.parent, 0)
                     
         if self.onChanged:
             self.onChanged()
@@ -45,13 +45,13 @@ class KicadModFile(object):
             line = line+" "+attr
         
         if len(obj.nodes)>0:
-            print line
+            print(line)
             for node in obj.nodes:
                 self.Write(node, level+1)
-            print "%s)"%tab(level)
+            print("%s)"%tab(level))
         else:
             line = line+")"
-            print line
+            print(line)
     
     def read_blocks(self, parent):
         block_header = self._read_block_header()

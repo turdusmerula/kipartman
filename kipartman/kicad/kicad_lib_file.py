@@ -38,7 +38,7 @@ class KicadLibFile(object):
         self.buff = ''
 
         self.read_lines(self.parent) 
-        self.Write(self.parent, 0)
+        #self.Write(self.parent, 0)
                     
         if self.onChanged:
             self.onChanged()
@@ -53,7 +53,7 @@ class KicadLibFile(object):
         for attr in obj.attributes:
             line = line+" "+attr
         
-        print line, type(obj)
+        print(line, type(obj))
         if len(obj.nodes)>0:
             for node in obj.nodes:
                 self.Write(node, level+1)

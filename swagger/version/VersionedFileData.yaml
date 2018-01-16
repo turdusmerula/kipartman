@@ -17,6 +17,6 @@ properties:
   content:
     type: string
   metadata:
-    type: object
-    additionalProperties:
-      type: string    
+    type: string
+#    additionalProperties:
+#      type: string    

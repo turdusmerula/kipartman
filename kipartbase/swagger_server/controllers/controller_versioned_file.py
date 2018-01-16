@@ -25,10 +25,7 @@ def serialize_VersionedFileData(ffile, file=None):
     file.storage_path = ffile.storage_path
     file.md5 = ffile.md5
     file.version = ffile.version
-    if ffile.metadata:
-        file.metadata = json.loads(ffile.metadata)
-    else:
-        file.metadata = None
+    file.metadata = ffile.metadata
     #ffile.state is private
     file.updated = ffile.updated
     return file
@@ -47,10 +44,7 @@ def deserialize_VersionedFile(file, ffile=None):
     ffile.storage_path = file.storage_path
     ffile.md5 = file.md5
     ffile.version = file.version
-    if file.metadata:
-        ffile.metadata = json.dumps(file.metadata)
-    else:
-        ffile.metadata = None
+    ffile.metadata = file.metadata
     #ffile.state is private
     ffile.updated = file.updated
     return ffile
@@ -71,7 +65,10 @@ def update_file_state(file):
     
     ffile = None
     try:
-        ffile = api.models.VersionedFile.objects.get(source_path=file.source_path)
+        if file.id:
+            ffile = api.models.VersionedFile.objects.get(id=file.id)
+        else:
+            ffile = api.models.VersionedFile.objects.get(source_path=file.source_path)
     except:
         pass
 
@@ -92,13 +89,13 @@ def update_file_state(file):
     if not file.id and ffile:
         file.id = ffile.pk
         
-    if file.state=='':
-        if ffile and file.md5==ffile.md5:
-            file.state = ''
-        if ffile and file.md5!=ffile.md5:
-            file.state = 'outgo_change'
-        if not ffile:
-            file.state = 'outgo_add'
+#    if file.state=='':
+    if ffile and file.md5==ffile.md5:
+        file.state = ''
+    if ffile and ( file.md5!=ffile.md5 or file.source_path!=ffile.source_path):
+        file.state = 'outgo_change'
+    if not ffile:
+        file.state = 'outgo_add'
 
     if ffile and file.version and file.version<ffile.version:
         file.state = 'income_change'
@@ -126,7 +123,7 @@ def update_file_state(file):
 
     print "--", file
     
-def synchronize_versioned_files(files, root_path=None):
+def synchronize_versioned_files(files=None, root_path=None):
     """
     synchronize_versioned_files
     Get synchronization status of a fileset
@@ -142,14 +139,16 @@ def synchronize_versioned_files(files, root_path=None):
     if connexion.request.is_json:
         files = [VersionedFile.from_dict(d) for d in connexion.request.get_json()]
 
+
     exclude_id = []
     # check given files
     for file in files:
-        raise_on_error(update_file_state(file))
-        print "** ", file
-        sync_files.append(file)
-        if file.id:
-            exclude_id.append(file.id)
+        if file.source_path:
+            raise_on_error(update_file_state(file))
+            print "** ", file
+            sync_files.append(file)
+            if file.id:
+                exclude_id.append(file.id)
         
     # check files not in list
     ffile_request = api.models.VersionedFile.objects
@@ -249,8 +248,7 @@ def update_versioned_files(files):
         files = [VersionedFile.from_dict(d) for d in connexion.request.get_json()]
     
 
-    to_add = []
-    to_change = []
+    to_update = []
     to_delete = []
     
     #  conflict_change
@@ -270,9 +268,9 @@ def update_versioned_files(files):
             has_conflicts = True
             conflict_files.append(file)
         if file.state=='income_add':
-            to_add.append(file)
+            to_update.append(file)
         elif file.state=='income_change':
-            to_change.append(file)
+            to_update.append(file)
         elif file.state=='income_del':
             to_delete.append(file)
     
@@ -281,11 +279,9 @@ def update_versioned_files(files):
         return conflict_files, 403
     
     storage = api.versioned_file_storage.VersionedFileStorage()
-    for file in to_add:
-        file.content = storage.get_file_content(file.id)
-        update_files.append(file)
-
-    for file in to_change:
+    for file in to_update:
+        ffile = api.models.VersionedFile.objects.get(id=file.id)
+        file = serialize_VersionedFile(ffile, file)
         file.content = storage.get_file_content(file.id)
         update_files.append(file)
     

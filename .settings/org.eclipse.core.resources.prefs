@@ -58,6 +58,7 @@ encoding//kipartman/swagger_client/models/part_offer.py=utf-8
 encoding//kipartman/swagger_client/models/part_parameter.py=utf-8
 encoding//kipartman/swagger_client/models/unit_prefix.py=utf-8
 encoding//kipartman/swagger_client/models/versioned_file.py=utf-8
+encoding//kipartman/swagger_client/models/versioned_file_data.py=utf-8
 encoding//kipartman/swagger_client/rest.py=utf-8
 encoding//swagger/server/setup.py=utf-8
 encoding//swagger/server/swagger_server/models/footprint.py=utf-8

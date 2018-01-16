@@ -71,6 +71,7 @@ class VersionedFileStorage(object):
             ffile.version = version_file.version+1
             ffile.state = models.VersionedFileState.created
             ffile.updated = version_file.updated
+            ffile.metadata = version_file.metadata
             ffile.save()   
         else:
             # add file to db
@@ -79,7 +80,8 @@ class VersionedFileStorage(object):
                                         md5=md5,
                                         version=1,
                                         state=models.VersionedFileState.created,
-                                        updated=version_file.updated)
+                                        updated=version_file.updated,
+                                        metadata=version_file.metadata)
             ffile.save()
         
         print "Add file", version_file.source_path, "as", storage_path

@@ -32,7 +32,7 @@ class VersionedFile(BaseModel):
         :param content: The content of this VersionedFile.
         :type content: str
         :param metadata: The metadata of this VersionedFile.
-        :type metadata: Dict[str, str]
+        :type metadata: str
         :param id: The id of this VersionedFile.
         :type id: int
         :param folder: The folder of this VersionedFile.
@@ -46,7 +46,7 @@ class VersionedFile(BaseModel):
             'state': str,
             'updated': datetime,
             'content': str,
-            'metadata': Dict[str, str],
+            'metadata': str,
             'id': int,
             'folder': bool
         }
@@ -240,7 +240,7 @@ class VersionedFile(BaseModel):
         Gets the metadata of this VersionedFile.
 
         :return: The metadata of this VersionedFile.
-        :rtype: Dict[str, str]
+        :rtype: str
         """
         return self._metadata
 
@@ -250,7 +250,7 @@ class VersionedFile(BaseModel):
         Sets the metadata of this VersionedFile.
 
         :param metadata: The metadata of this VersionedFile.
-        :type metadata: Dict[str, str]
+        :type metadata: str
         """
 
         self._metadata = metadata

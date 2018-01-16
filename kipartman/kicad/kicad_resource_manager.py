@@ -19,7 +19,9 @@ class KicadResourcePretty(KicadResource):
     def __init__(self):
         super(KicadResourcePretty, self).__init__()
         self.files = {}
+        self.folders = []
         self.on_change = None
+        self.enabled = True
         
         self.Load()
         
@@ -28,19 +30,22 @@ class KicadResourcePretty(KicadResource):
             
     def on_any_event(self, event):
         print("Something happend with %s" % event.src_path)
-        if os.path.basename(event.src_path)!='.kiversion' and self.on_change:
+        if os.path.basename(event.src_path)!='.kiversion' and self.on_change and self.enabled:
             self.on_change(event)
     # - on_moved(self, event)
     # - on_created(self, event)
     # - on_deleted(self, event)
     # - on_modified(self, event)
     
+    def Enabled(self, enabled=True):
+        self.enabled = enabled
+        
     def Load(self):
         """
         fill cache files from disk
         """
         self.files = {}
-        libraries = self.GetLibraries()
+        libraries, self.folders = self.GetLibraries()
         for library in libraries:
             footprints = self.GetFootprints(library)
             for footprint in footprints:
@@ -62,19 +67,21 @@ class KicadResourcePretty(KicadResource):
         basepath = os.path.normpath(os.path.abspath(self.path()))
         to_explore = [basepath]
         libraries = []
+        folders = []
         
         while len(to_explore)>0:
             path = to_explore.pop()
             if os.path.exists(path):
                 for folder in glob(os.path.join(path, "*/")):
                     if folder!='/':
+                        folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         if re.compile("^.*\.pretty$").match(os.path.normpath(os.path.abspath(folder))):
                             print("=>", folder)
                             libraries.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         elif os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             to_explore.append(folder)
     
-        return libraries
+        return libraries, folders
 
     def GetFootprints(self, library_path):
         """
@@ -132,8 +139,9 @@ class KicadResourceManager(sync.version_manager.VersionManager):
     def Commit(self, files):
         # add content
         for file in files:
-            with open(os.path.join(self.resource.path(), file.source_path)) as f:
-                file.content = f.read()
+            if file.state!='income_add' and file.state!='income_change' and file.state!='income_del':
+                with open(os.path.join(self.resource.path(), file.source_path)) as f:
+                    file.content = f.read()
         
         return super(KicadResourceManager, self).Commit(files)
     

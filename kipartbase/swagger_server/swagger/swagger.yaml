@@ -2013,9 +2013,7 @@ definitions:
       content:
         type: "string"
       metadata:
-        type: "object"
-        additionalProperties:
-          type: "string"
+        type: "string"
   StorageCategoryData:
     type: "object"
     properties:

@@ -31,7 +31,7 @@ class VersionedFileData(BaseModel):
         :param content: The content of this VersionedFileData.
         :type content: str
         :param metadata: The metadata of this VersionedFileData.
-        :type metadata: Dict[str, str]
+        :type metadata: str
         """
         self.swagger_types = {
             'source_path': str,
@@ -41,7 +41,7 @@ class VersionedFileData(BaseModel):
             'state': str,
             'updated': datetime,
             'content': str,
-            'metadata': Dict[str, str]
+            'metadata': str
         }
 
         self.attribute_map = {
@@ -229,7 +229,7 @@ class VersionedFileData(BaseModel):
         Gets the metadata of this VersionedFileData.
 
         :return: The metadata of this VersionedFileData.
-        :rtype: Dict[str, str]
+        :rtype: str
         """
         return self._metadata
 
@@ -239,7 +239,7 @@ class VersionedFileData(BaseModel):
         Sets the metadata of this VersionedFileData.
 
         :param metadata: The metadata of this VersionedFileData.
-        :type metadata: Dict[str, str]
+        :type metadata: str
         """
 
         self._metadata = metadata

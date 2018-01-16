@@ -297,7 +297,7 @@ class TreeManager(object):
     drag_item = None
     drag_source = None
     
-    def __init__(self, tree_view, model=None):
+    def __init__(self, tree_view, model=None, context_menu=None):
         #TODO ISSUE#8 Debug assist to Try various options
         self.onItemDropPossible_returnResult = 1
         self.onItemDropPossible_eventAction = 1
@@ -310,6 +310,8 @@ class TreeManager(object):
             self.model = model
         self.tree_view.AssociateModel(self.model)
 
+        self.context_menu = context_menu
+        
         # create drag and drop targets
         self.drop_targets = []
         self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
@@ -318,6 +320,7 @@ class TreeManager(object):
 
         # data elements
         self.data = []
+        self.data_state = []
         
         self.OnColumnHeaderClick = None
         self.OnColumnHeaderRightClick = None
@@ -356,6 +359,7 @@ class TreeManager(object):
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_START_EDITING, self._onItemStartEditing, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self._onItemValueChanged, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self._onSelectionChanged, id = wx.ID_ANY )
+        
 
     def _onColumnHeaderClick( self, event ):
         event.manager = self
@@ -437,6 +441,9 @@ class TreeManager(object):
     
     def _onItemContextMenu( self, event ):
         event.manager = self
+        if self.context_menu:
+            pos = event.GetPosition()
+            self.tree_view.PopupMenu(self.context_menu, pos)
         if self.OnItemContextMenu:
             return self.OnItemContextMenu(event)
         event.Skip()
@@ -589,6 +596,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
+        column.SortOrder = True
         return column
     
     def AddFloatColumn(self, title):
@@ -712,3 +720,35 @@ class TreeManager(object):
 
     def DropAccept(self, type, trigger):
         self.drop_targets.append({'type': type.__name__, 'trigger': trigger})
+
+
+    def SaveState(self):
+        """
+        Backup objects state 
+        """
+        self.data_state = []
+        for obj in self.data:
+            self.data_state.append(obj)
+    
+    def DropStateObject(self, obj):
+        if self.data_state.count(obj)>0:
+            self.data_state.remove(obj)
+            self.UpdateItem(obj)
+            return True
+        return False
+    
+    def PurgeState(self, remove_empty_parent=True):
+        """
+        Remove from data every elements from state
+        """
+
+        while len(self.data_state)>0:
+            obj = self.data_state[0]
+            self.DeleteItem(obj.parent, obj)
+            self.data_state.remove(obj)
+
+            # remove parents if they are empty
+            if remove_empty_parent:
+                while isinstance(obj, TreeContainerItem) or isinstance(obj, TreeContainerLazyItem) and len(obj.childs)==0:
+                    self.DeleteItem(obj.parent, obj)
+                    obj = obj.parent

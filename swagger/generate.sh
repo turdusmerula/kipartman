@@ -7,6 +7,7 @@ if [ ! -f /tmp/swagger-codegen-cli.jar ]
 then
 #	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.2/swagger-codegen-cli-2.2.2.jar -O /tmp/swagger-codegen-cli.jar
 	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar -O /tmp/swagger-codegen-cli.jar
+#	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.3.0/swagger-codegen-cli-2.3.0.jar -O /tmp/swagger-codegen-cli.jar
 fi
 
 # generate client

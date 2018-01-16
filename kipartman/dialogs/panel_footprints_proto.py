@@ -26,24 +26,39 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.m_splitter2.Bind( wx.EVT_IDLE, self.m_splitter2OnIdle )
 		self.m_splitter2.SetMinimumPaneSize( 300 )
 		
-		self.panel_category = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_path = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.button_refresh_categories = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_refresh_categories = wx.BitmapButton( self.panel_path, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer4.Add( self.button_refresh_categories, 0, wx.ALL|wx.ALIGN_BOTTOM, 5 )
 		
 		
 		bSizer2.Add( bSizer4, 0, wx.ALIGN_RIGHT, 5 )
 		
-		self.tree_libraries = wx.dataview.DataViewCtrl( self.panel_category, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_SINGLE )
+		self.tree_libraries = wx.dataview.DataViewCtrl( self.panel_path, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_SINGLE )
 		bSizer2.Add( self.tree_libraries, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
-		self.panel_category.SetSizer( bSizer2 )
-		self.panel_category.Layout()
-		bSizer2.Fit( self.panel_category )
+		self.panel_path.SetSizer( bSizer2 )
+		self.panel_path.Layout()
+		bSizer2.Fit( self.panel_path )
+		self.menu_libraries = wx.Menu()
+		self.menu_libraries_add_folder = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Add folder", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries.Append( self.menu_libraries_add_folder )
+		
+		self.menu_libraries_add_library = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Add library", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries.Append( self.menu_libraries_add_library )
+		
+		self.menu_libraries_rename = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Rename", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries.Append( self.menu_libraries_rename )
+		
+		self.menu_libraries_remove = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Remove", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries.Append( self.menu_libraries_remove )
+		
+		self.panel_path.Bind( wx.EVT_RIGHT_DOWN, self.panel_pathOnContextMenu ) 
+		
 		self.m_panel3 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -144,7 +159,7 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.m_panel3.SetSizer( bSizer3 )
 		self.m_panel3.Layout()
 		bSizer3.Fit( self.m_panel3 )
-		self.m_splitter2.SplitVertically( self.panel_category, self.m_panel3, 294 )
+		self.m_splitter2.SplitVertically( self.panel_path, self.m_panel3, 294 )
 		bSizer1.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
 		
 		
@@ -169,6 +184,13 @@ class PanelFootprintsProto ( wx.Panel ):
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onButtonRefreshCategoriesClick )
+		self.Bind( wx.EVT_MENU, self.onMenuLibrariesAddFolder, id = self.menu_libraries_add_folder.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuLibrariesAddLibrary, id = self.menu_libraries_add_library.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuLibrariesRename, id = self.menu_libraries_rename.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuLibrariesRemove, id = self.menu_libraries_remove.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onButtonAddFootprintClicked, id = self.button_add_footprint.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onButtonEditFootprintClicked, id = self.button_edit_footprint.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onButtonRemoveFootprintClicked, id = self.button_remove_footprint.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onToggleFootprintPathClicked, id = self.toggle_footprint_path.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onButtonUpdateFootprintClicked, id = self.button_update_footprint.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onButtonCommitFootprintClicked, id = self.button_commit_footprint.GetId() )
@@ -185,6 +207,27 @@ class PanelFootprintsProto ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonRefreshCategoriesClick( self, event ):
+		event.Skip()
+	
+	def onMenuLibrariesAddFolder( self, event ):
+		event.Skip()
+	
+	def onMenuLibrariesAddLibrary( self, event ):
+		event.Skip()
+	
+	def onMenuLibrariesRename( self, event ):
+		event.Skip()
+	
+	def onMenuLibrariesRemove( self, event ):
+		event.Skip()
+	
+	def onButtonAddFootprintClicked( self, event ):
+		event.Skip()
+	
+	def onButtonEditFootprintClicked( self, event ):
+		event.Skip()
+	
+	def onButtonRemoveFootprintClicked( self, event ):
 		event.Skip()
 	
 	def onToggleFootprintPathClicked( self, event ):
@@ -209,6 +252,9 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.m_splitter2.SetSashPosition( 294 )
 		self.m_splitter2.Unbind( wx.EVT_IDLE )
 	
+	def panel_pathOnContextMenu( self, event ):
+		self.panel_path.PopupMenu( self.menu_libraries, event.GetPosition() )
+		
 	def footprint_splitterOnIdle( self, event ):
 		self.footprint_splitter.SetSashPosition( 455 )
 		self.footprint_splitter.Unbind( wx.EVT_IDLE )

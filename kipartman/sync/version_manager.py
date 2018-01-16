@@ -3,6 +3,10 @@ import json
 import rest
 import re
 
+class VersionManagerException(Exception):
+    def __init__(self, error):
+        self.error = error
+
 class VersionManager(object):
     def __init__(self, root_path):
         self.root_path = root_path
@@ -12,7 +16,7 @@ class VersionManager(object):
         self.local_files = {}
 
         self.LoadState()
-        
+    
     def LoadState(self):
         state_files = {}
         
@@ -36,6 +40,8 @@ class VersionManager(object):
             file.storage_path = json['storage_path']
         if json.has_key('md5'):
             file.md5 = json['md5']
+        if json.has_key('metadata'):
+            file.metadata = unicode(json['metadata'])
         if json.has_key('version'):
             file.version = int(json['version'])
         if json.has_key('updated'):
@@ -59,6 +65,8 @@ class VersionManager(object):
             res['source_path'] = unicode(file.source_path)
         if file.storage_path:
             res['storage_path'] = unicode(file.storage_path)
+        if file.metadata:
+            res['metadata'] = unicode(file.metadata)
         if file.md5:
             res['md5'] = unicode(file.md5)
         if file.version:
@@ -88,7 +96,7 @@ class VersionManager(object):
         for file in self.local_files:
             file_version = None
             file_disk = self.local_files[file]
-            
+    
             # check if file exist in state
             if state_files.has_key(file):
                 file_version = state_files[file]
@@ -118,21 +126,21 @@ class VersionManager(object):
             # check if file exist in state
             if self.local_files.has_key(file):
                 file_disk = self.local_files[file]
-            else:          
+            else:
                 # file not referenced in version state
-                file_disk = rest.model.VersionedFile()
-                file_disk.id = file_version.id 
-                file_disk.source_path = file_version.source_path
-                file_disk.md5 = file_version.md5
-                file_disk.version = file_version.version
-                file_disk.updated = file_version.updated
-                if file_disk.state=="":
-                    file_disk.state = 'outgo_del'
+                if os.path.exists(os.path.join(self.root_path, file))==True:    
+                    file_disk = rest.model.VersionedFile()
+                    file_disk.id = file_version.id 
+                    file_disk.source_path = file_version.source_path
+                    file_disk.md5 = file_version.md5
+                    file_disk.version = file_version.version
+                    file_disk.updated = file_version.updated
+                    file_disk.metadata = file_version.metadata
+                    if file_disk.state=="":
+                        file_disk.state = 'outgo_del'
 
-            # update local file state 
-            self.local_files[file] = file_disk
-
-        print "----", self.local_files
+                    # update local file state 
+                    self.local_files[file] = file_disk
         
         self.SaveState()
         
@@ -152,7 +160,11 @@ class VersionManager(object):
         files = []
         for file in self.local_files:
             files.append(self.local_files[file])
-            
+
+        if len(files)==0:
+            # add dummy element, bug in swagger if list is empty it is handled as None
+            files.append(rest.model.VersionedFile())
+    
         # get synchronization state from server
         sync_files = {} 
         for file in rest.api.synchronize_versioned_files(files):
@@ -166,6 +178,22 @@ class VersionManager(object):
         # match files between self.local_files and self.remote_files
         return sync_files
 
+    def MoveFootprint(self, source, dest):
+        if self.local_files.has_key(source)==False:
+            raise VersionManagerException('Footprint %s does not exists'%source)
+        file = self.local_files.pop(source)
+        os.rename(os.path.join(self.root_path, source), os.path.join(self.root_path, dest))
+        file.source_path = dest
+        if file.version is None:
+            file.state = 'outgo_add'
+        else:
+            file.state = 'outgo_change'
+        self.local_files[dest] = file
+
+        self.SaveState()
+        
+        return file
+    
     def Commit(self, files):
         commits = rest.api.commit_versioned_files(files)
         
@@ -189,7 +217,19 @@ class VersionManager(object):
                     os.makedirs(os.path.dirname(path))
                 with open(path, 'w') as write_file:
                     write_file.write(file.content)
+                
+                # check if file should be renamed
+                local_file = None
+                for local_file_name in self.local_files:
+                    local_file = self.local_files[local_file_name]
+                    if local_file.id==file.id:
+                        break
+                if local_file and local_file.source_path!=file.source_path:
+                    self.Move(local_file.source_path, file.source_path)
+                
+                print "%%%", file
                 self.local_files[file.source_path] = file
+                
             elif file.state=='income_del':
                 os.remove(os.path.join(self.root_path, file.source_path))
                 self.local_files.pop(file.source_path)
@@ -198,7 +238,31 @@ class VersionManager(object):
         
         self.SaveState()
         return updates        
-        
+    
+    def AddFolder(self, path):
+        abspath = os.path.join(self.root_path, path)
+        if not os.path.exists(abspath):
+            os.makedirs(abspath)
+    
+    def RenameFolder(self, path, newname):
+        pass
+    
+    def RenameLibrary(self, path, newname):
+        pass
+    
+    
+    def DeleteFolder(self, path):
+        pass
+    
+    def DeleteLibrary(self, path):
+        pass
+    
+    def UpdateMetadata(self, path, metadata):
+        if self.local_files.has_key(path):
+            print "*****", path, metadata
+            self.local_files[path].metadata = metadata
+            self.SaveState()
+                  
     def _debug(self, files):
         for file_path in files:
             file = files[file_path]
