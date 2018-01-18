@@ -1159,6 +1159,11 @@ paths:
           type: "array"
           items:
             $ref: "#/definitions/VersionedFile"
+      - name: "force"
+        in: "query"
+        description: "Force update"
+        required: false
+        type: "boolean"
       responses:
         200:
           description: "Update result"

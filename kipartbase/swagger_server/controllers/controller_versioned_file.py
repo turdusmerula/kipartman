@@ -89,13 +89,22 @@ def update_file_state(file):
     if not file.id and ffile:
         file.id = ffile.pk
         
-#    if file.state=='':
-    if ffile and file.md5==ffile.md5:
-        file.state = ''
-    if ffile and ( file.md5!=ffile.md5 or file.source_path!=ffile.source_path):
-        file.state = 'outgo_change'
-    if not ffile:
-        file.state = 'outgo_add'
+    if file.state=='':
+        if ffile and file.md5==ffile.md5:
+            file.state = ''
+        if ffile and ( file.md5!=ffile.md5 or file.source_path!=ffile.source_path or file.metadata!=ffile.metadata):
+            file.state = 'outgo_change'
+        if not ffile:
+            file.state = 'outgo_add'
+
+    if file.state=='income_add' or file.state=='income_change' or file.state=='income_del':
+        pass
+    
+    if file.state=='outgo_add' or file.state=='outgo_change' or file.state=='outgo_del':
+        if ffile and ( file.md5!=ffile.md5 or file.source_path!=ffile.source_path):
+            file.state = 'outgo_change'
+        if not ffile:
+            file.state = 'outgo_add'
 
     if ffile and file.version and file.version<ffile.version:
         file.state = 'income_change'
@@ -185,6 +194,8 @@ def commit_versioned_files(files, force=None):
     if connexion.request.is_json:
         files = [VersionedFile.from_dict(d) for d in connexion.request.get_json()]
     
+    if force is None:
+        force = False
 
     to_add = []
     to_change = []
@@ -203,28 +214,28 @@ def commit_versioned_files(files, force=None):
     # check if given files are allowed to commit 
     for file in files:
         raise_on_error(update_file_state(file))
-        if file.state=='conflict_change' or file.state=='conflict_del' or file.state=='income_add':
+        if force==False and ( file.state=='conflict_change' or file.state=='conflict_del' or file.state=='conflict_add' ):
             has_conflicts = True
             conflict_files.append(file)
-        if file.state=='outgo_add':
+        elif file.state=='outgo_add' or file.state=='conflict_add':
             to_add.append(file)
-        elif file.state=='outgo_change':
+        elif file.state=='outgo_change' or file.state=='conflict_change':
             to_change.append(file)
-        elif file.state=='outgo_del':
+        elif file.state=='outgo_del' or file.state=='conflict_del':
             to_delete.append(file)
     
-    if has_conflicts:
+    if has_conflicts and force==False:
         # in case of a conflict return conflicted files
         return conflict_files, 403
     
     storage = api.versioned_file_storage.VersionedFileStorage()
     for file in to_add:
         # add file to file storage
-        storage.add_file(file)
+        commit_files.append(storage.add_file(file))
 
     for file in to_change:
         # modify file to file storage
-        storage.add_file(file)
+        commit_files.append(storage.add_file(file))
 
     for file in to_delete:
         #TODO
@@ -232,7 +243,7 @@ def commit_versioned_files(files, force=None):
     
     return commit_files 
 
-def update_versioned_files(files):
+def update_versioned_files(files, force=None):
     """
     update_versioned_files
     Update a fileset
@@ -247,6 +258,8 @@ def update_versioned_files(files):
     if connexion.request.is_json:
         files = [VersionedFile.from_dict(d) for d in connexion.request.get_json()]
     
+    if force is None:
+        force = False
 
     to_update = []
     to_delete = []
@@ -264,17 +277,26 @@ def update_versioned_files(files):
     # check if given files are allowed to commit 
     for file in files:
         raise_on_error(update_file_state(file))
-        if file.state=='conflict_change' or file.state=='conflict_del' or file.state=='conflict_add':
+        if force==False and ( file.state=='conflict_change' or file.state=='conflict_del' or file.state=='conflict_add' ):
             has_conflicts = True
             conflict_files.append(file)
-        if file.state=='income_add':
+        elif file.state=='conflict_add' or file.state=='outgo_add':
+            file.state = 'income_add'
+            to_update.append(file)
+        elif file.state=='conflict_change' or file.state=='outgo_change':
+            file.state = 'income_change'
+            to_update.append(file)
+        elif file.state=='conflict_del' or file.state=='outgo_del':
+            file.state = 'income_del'
+            to_update.append(file)
+        elif file.state=='income_add':
             to_update.append(file)
         elif file.state=='income_change':
             to_update.append(file)
         elif file.state=='income_del':
             to_delete.append(file)
     
-    if has_conflicts:
+    if has_conflicts and force==False:
         # in case of a conflict return conflicted files
         return conflict_files, 403
     

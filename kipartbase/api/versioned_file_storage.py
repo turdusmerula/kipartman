@@ -68,7 +68,7 @@ class VersionedFileStorage(object):
             ffile.source_path = version_file.source_path
             ffile.storage_path = storage_path.replace('\\','/')
             ffile.md5 = md5
-            ffile.version = version_file.version+1
+            ffile.version = ffile.version+1                
             ffile.state = models.VersionedFileState.created
             ffile.updated = version_file.updated
             ffile.metadata = version_file.metadata
@@ -84,8 +84,14 @@ class VersionedFileStorage(object):
                                         metadata=version_file.metadata)
             ffile.save()
         
+        version_file.id = ffile.id
+        version_file.storage_path = ffile.storage_path
+        version_file.md5 = md5
+        version_file.version = ffile.version
+        version_file.state = ''
+        
         print "Add file", version_file.source_path, "as", storage_path
-        return file
+        return version_file
     
     def get_file(self, md5):
         levels = self.get_sublevels(md5)

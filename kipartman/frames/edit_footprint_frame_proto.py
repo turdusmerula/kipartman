@@ -64,7 +64,7 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
              
             self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
             
-            if NoneValue(footprint.source_path, '')!='':
+            if NoneValue(footprint.source_path, '')!='' and os.path.exists(footprint.source_path):
                 mod = kicad_mod_file.KicadModFile()
                 mod.LoadFile(os.path.join(configuration.kicad_library_path, footprint.source_path))
                 image_file = tempfile.NamedTemporaryFile()

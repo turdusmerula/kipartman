@@ -135,13 +135,3 @@ class KicadResourceManager(sync.version_manager.VersionManager):
             self.AddLocalFile(files[file])
         
         return super(KicadResourceManager, self).Synchronize()
-
-    def Commit(self, files):
-        # add content
-        for file in files:
-            if file.state!='income_add' and file.state!='income_change' and file.state!='income_del':
-                with open(os.path.join(self.resource.path(), file.source_path)) as f:
-                    file.content = f.read()
-        
-        return super(KicadResourceManager, self).Commit(files)
-    

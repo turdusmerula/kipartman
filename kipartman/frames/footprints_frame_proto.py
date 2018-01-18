@@ -138,8 +138,8 @@ class DataModelFootprint(helper.tree.TreeItem):
 #        return None
 
 class TreeManagerFootprints(helper.tree.TreeManager):
-    def __init__(self, tree_view):
-        super(TreeManagerFootprints, self).__init__(tree_view)
+    def __init__(self, tree_view, *args, **kwargs):
+        super(TreeManagerFootprints, self).__init__(tree_view, *args, **kwargs)
         self.imagelist = TreeImageList(11, 10)
                 
     def FindPath(self, path):
@@ -192,13 +192,14 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.footprints_filter = Filter(self.filters_panel, self.onButtonRemoveFilterClick)
 
         # create footprint list
-        self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints)
+        self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints, context_menu=self.menu_footprints)
         self.tree_footprints_manager.AddBitmapColumn("s")
         self.tree_footprints_manager.AddIntegerColumn("v")
         self.tree_footprints_manager.AddTextColumn("name")
         self.tree_footprints_manager.OnSelectionChanged = self.onTreeFootprintsSelChanged
 
         self.tree_footprints_manager.imagelist.AddFile('', 'resources/none.png')
+        self.tree_footprints_manager.imagelist.AddFile(None, 'resources/none.png')
         self.tree_footprints_manager.imagelist.AddFile('conflict_add', 'resources/conflict_add.png')
         self.tree_footprints_manager.imagelist.AddFile('conflict_change', 'resources/conflict_change.png')
         self.tree_footprints_manager.imagelist.AddFile('conflict_del', 'resources/conflict_del.png')
@@ -249,7 +250,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
             library_path = os.path.dirname(footprint_path)
             path = os.path.dirname(library_path)
             library_name = os.path.basename(library_path)
-            while path!='':
+            while path!='' and path!='/':
                 folders.insert(0, path)
                 path = os.path.dirname(path)
             
@@ -380,53 +381,47 @@ class FootprintsFrameProto(PanelFootprintsProto):
     def onEditFootprintApply( self, event ):
         footprint = event.data
         footprint_name = event.footprint_name
-        try:
             
-            if self.edit_state=='add':
-                # get library path
-                library_path = configuration.kicad_library_path
-                item = self.tree_libraries.GetSelection()
-                if item.IsOk():
-                    itemobj = self.tree_libraries_manager.ItemToObject(item)
-                    library_path = os.path.join(library_path, itemobj.path)
-                footprint_path = os.path.normpath(os.path.join(library_path, footprint_name))
-                if os.path.exists(footprint_path):
-                    wx.MessageBox('%s: file already exists'%footprint_path, 'Error', wx.OK | wx.ICON_ERROR)
-                    return   
-                
-            elif self.edit_state=='edit':
-                # change library name if changed on disk
-                library_path = os.path.join(configuration.kicad_library_path, os.path.dirname(footprint.source_path))
-                footprint_path = os.path.normpath(os.path.join(library_path, footprint_name))
-                if os.path.exists(footprint_path) and os.path.normpath(os.path.join(configuration.kicad_library_path, footprint.source_path))!=footprint_path:
-                    wx.MessageBox('%s: file already exists'%footprint_path, 'Error', wx.OK | wx.ICON_ERROR)
-                    return
-                elif os.path.normpath(os.path.join(library_path, footprint.source_path))!=footprint_path:
-                    if self.tree_footprints.GetSelection().IsOk():
-                        footprintobj = self.tree_footprints_manager.ItemToObject(self.tree_footprints.GetSelection())
-                        try:
-                            footprintobj.footprint = self.manager_pretty.MoveFootprint(footprint.source_path, os.path.join(os.path.dirname(footprint.source_path), footprint_name))
-                        except Exception as e:
-                            wx.MessageBox("Error renaming footprint: %s"%format(e), 'Error', wx.OK | wx.ICON_ERROR)                                    
-                            return
-            else:
+        if self.edit_state=='add':
+            # get library path
+            library_path = ''
+            item = self.tree_libraries.GetSelection()
+            if item.IsOk():
+                itemobj = self.tree_libraries_manager.ItemToObject(item)
+                library_path = os.path.join(library_path, itemobj.path)
+            footprint_path = os.path.join(library_path, footprint_name)
+            try:
+                self.manager_pretty.CreateFile(footprint_path, footprint.content)
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error creating footprint', wx.OK | wx.ICON_ERROR)                                    
                 return
             
-            # create file
-            self.resource_pretty.Enabled(False)
-            if footprint.content:
-                with open(footprint_path, 'w') as content_file:
-                    content_file.write(footprint.content)
-                content_file.close() 
+        elif self.edit_state=='edit':
+            # change library name if changed on disk
+            library_path = os.path.dirname(footprint.source_path)
+            footprint_path = os.path.normpath(os.path.join(library_path, footprint_name))
             
-            self.manager_pretty.UpdateMetadata(footprint.source_path, footprint.metadata)
+            if os.path.normpath(os.path.join(library_path, footprint.source_path))!=footprint_path:
+                # file was renamed
+                if self.tree_footprints.GetSelection().IsOk():
+                    footprintobj = self.tree_footprints_manager.ItemToObject(self.tree_footprints.GetSelection())
+                    try:
+                        footprintobj.footprint = self.manager_pretty.MoveFile(footprint.source_path, os.path.join(os.path.dirname(footprint.source_path), footprint_name))
+                    except Exception as e:
+                        wx.MessageBox(format(e), 'Error renaming footprint', wx.OK | wx.ICON_ERROR)                                    
+                        return
+            try:
+                if footprint.content:
+                    self.manager_pretty.EditFile(footprint_path, footprint.content)
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error renaming footprint', wx.OK | wx.ICON_ERROR)                                    
+                return
             
-            self.resource_pretty.Enabled()
-        
-        except Exception as e:
-            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+        else:
             return
-
+        
+        self.manager_pretty.EditMetadata(footprint_path, footprint.metadata)
+        
         self.edit_state = None
         self.show_footprint(footprint)
 
@@ -457,7 +452,20 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.edit_footprint(footprintobj.footprint)
     
     def onButtonRemoveFootprintClicked( self, event ):
-        event.Skip()
+        files = []
+        for item in self.tree_footprints.GetSelections():
+            obj = self.tree_footprints_manager.ItemToObject(item)
+            if isinstance(obj, DataModelFootprint):
+                files.append(obj.footprint)
+            elif isinstance(obj, DataModelFootprintPath):
+                pass
+        
+        try:
+            for file in files:
+                self.manager_pretty.DeleteFile(file.source_path) 
+            self.load()
+        except Exception as e:
+            wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
 
     def onToggleFootprintPathClicked( self, event ):
         self.show_footprint_path = self.toolbar_footprint.GetToolState(self.toggle_footprint_path.GetId())
@@ -472,9 +480,12 @@ class FootprintsFrameProto(PanelFootprintsProto):
             elif isinstance(obj, DataModelFootprintPath):
                 pass
         
-        commits = self.manager_pretty.Commit(files) 
+        try:
+            self.manager_pretty.Commit(files) 
+            self.load()
+        except Exception as e:
+            wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
 
-        self.load()
 
     def onButtonUpdateFootprintClicked( self, event ):
         files = []
@@ -485,9 +496,11 @@ class FootprintsFrameProto(PanelFootprintsProto):
             elif isinstance(obj, DataModelFootprintPath):
                 pass
         
-        updates = self.manager_pretty.Update(files) 
-        
-        self.load()
+        try:
+            self.manager_pretty.Update(files) 
+            self.load()
+        except Exception as e:
+            wx.MessageBox(format(e), 'Upload failed', wx.OK | wx.ICON_ERROR)
         
     def onButtonRefreshFootprintsClick( self, event ):
         self.load()
@@ -506,9 +519,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
         if dlg.ShowModal() == wx.ID_OK:
             name = dlg.GetValue()
             try:
-                self.manager_pretty.AddFolder(os.path.join(path, name))
+                self.manager_pretty.CreateFolder(os.path.join(path, name))
             except Exception as e:
-                wx.MessageBox("Error creating folder: %s"%format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                wx.MessageBox(format(e), 'Error creating folder', wx.OK | wx.ICON_ERROR)
         dlg.Destroy()
         self.load()
         
@@ -525,9 +538,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
         if dlg.ShowModal() == wx.ID_OK:
             name = dlg.GetValue()
             try:
-                self.manager_pretty.AddFolder(os.path.join(path, name+".pretty"))
+                self.manager_pretty.CreateFolder(os.path.join(path, name+".pretty"))
             except Exception as e:
-                wx.MessageBox("Error creating library: %s"%format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                wx.MessageBox(format(e), 'Error creating library', wx.OK | wx.ICON_ERROR)
         dlg.Destroy()
         self.load()
 
@@ -545,7 +558,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
                 try:
                     self.manager_pretty.RenameFolder(path, name)
                 except Exception as e:
-                    wx.MessageBox("Error renaming folder: %s"%format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                    wx.MessageBox(format(e), 'Error renaming folder', wx.OK | wx.ICON_ERROR)
             dlg.Destroy()
         elif isinstance(obj, DataModelLibrary):
             dlg = wx.TextEntryDialog(self, 'Enter new library name', 'Rename library')
@@ -554,10 +567,73 @@ class FootprintsFrameProto(PanelFootprintsProto):
                 try:
                     self.manager_pretty.RenameLibrary(path, name+".pretty")
                 except Exception as e:
-                    wx.MessageBox("Error renaming library: %s"%format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                    wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
             dlg.Destroy()
         
         self.load()
 
     def onMenuLibrariesRemove( self, event ):
         event.Skip()
+
+
+    def onMenuFootprintsUpdate( self, event ):
+        files = []
+        for item in self.tree_footprints.GetSelections():
+            obj = self.tree_footprints_manager.ItemToObject(item)
+            if isinstance(obj, DataModelFootprint):
+                files.append(obj.footprint)
+            elif isinstance(obj, DataModelFootprintPath):
+                pass
+        
+        try:
+            self.manager_pretty.Update(files) 
+            self.load()
+        except Exception as e:
+            wx.MessageBox(format(e), 'Upload failed', wx.OK | wx.ICON_ERROR)
+    
+    def onMenuFootprintsForceUpdate( self, event ):
+        files = []
+        for item in self.tree_footprints.GetSelections():
+            obj = self.tree_footprints_manager.ItemToObject(item)
+            if isinstance(obj, DataModelFootprint):
+                files.append(obj.footprint)
+            elif isinstance(obj, DataModelFootprintPath):
+                pass
+        
+        try:
+            self.manager_pretty.Update(files, force=True) 
+            self.load()
+        except Exception as e:
+            wx.MessageBox(format(e), 'Upload failed', wx.OK | wx.ICON_ERROR)
+    
+    def onMenuFootprintsCommit( self, event ):
+        files = []
+        for item in self.tree_footprints.GetSelections():
+            obj = self.tree_footprints_manager.ItemToObject(item)
+            if isinstance(obj, DataModelFootprint):
+                files.append(obj.footprint)
+            elif isinstance(obj, DataModelFootprintPath):
+                pass
+        
+        try:
+            self.manager_pretty.Commit(files) 
+            self.load()
+        except Exception as e:
+            wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
+            
+    
+    def onMenuFootprintsForceCommit( self, event ):
+        files = []
+        for item in self.tree_footprints.GetSelections():
+            obj = self.tree_footprints_manager.ItemToObject(item)
+            if isinstance(obj, DataModelFootprint):
+                files.append(obj.footprint)
+            elif isinstance(obj, DataModelFootprintPath):
+                pass
+        
+        try:
+            self.manager_pretty.Commit(files, force=True) 
+            self.load()
+        except Exception as e:
+            wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
+

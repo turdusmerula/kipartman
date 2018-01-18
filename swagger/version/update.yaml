@@ -10,6 +10,10 @@ post:
         type: array
         items:
           $ref: './version/VersionedFile.yaml'
+    - name: force
+      in: query
+      description: Force update
+      type: boolean
   responses:
     "200":
       description: Update result

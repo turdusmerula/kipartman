@@ -166,17 +166,21 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.SetSizer( bSizer1 )
 		self.Layout()
 		self.menu_footprints = wx.Menu()
-		self.menu_footprints_update = wx.Menu()
-		self.menu_footprints.AppendSubMenu( self.menu_footprints_update, u"Update" )
+		self.menu_footprints_update = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Update", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprints_update.SetBitmap( wx.Bitmap( u"resources/update.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_footprints.Append( self.menu_footprints_update )
 		
-		self.menu_footprints_force_update = wx.Menu()
-		self.menu_footprints.AppendSubMenu( self.menu_footprints_force_update, u"Force update" )
+		self.menu_footprints_force_update = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Force update", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprints_force_update.SetBitmap( wx.Bitmap( u"resources/update.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_footprints.Append( self.menu_footprints_force_update )
 		
-		self.menu_footprints_commit = wx.Menu()
-		self.menu_footprints.AppendSubMenu( self.menu_footprints_commit, u"Commit" )
+		self.menu_footprints_commit = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Commit", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprints_commit.SetBitmap( wx.Bitmap( u"resources/commit.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_footprints.Append( self.menu_footprints_commit )
 		
-		self.menu_footprints_force_commit = wx.Menu()
-		self.menu_footprints.AppendSubMenu( self.menu_footprints_force_commit, u"Force commit" )
+		self.menu_footprints_force_commit = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Force commit", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprints_force_commit.SetBitmap( wx.Bitmap( u"resources/commit.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_footprints.Append( self.menu_footprints_force_commit )
 		
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelFootprintsProtoOnContextMenu ) 
 		
@@ -197,6 +201,10 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintsButton )
 		self.search_footprints.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintsTextEnter )
 		self.button_refresh_footprints.Bind( wx.EVT_BUTTON, self.onButtonRefreshFootprintsClick )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintsUpdate, id = self.menu_footprints_update.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintsForceUpdate, id = self.menu_footprints_force_update.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintsCommit, id = self.menu_footprints_commit.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintsForceCommit, id = self.menu_footprints_force_commit.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -246,6 +254,18 @@ class PanelFootprintsProto ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonRefreshFootprintsClick( self, event ):
+		event.Skip()
+	
+	def onMenuFootprintsUpdate( self, event ):
+		event.Skip()
+	
+	def onMenuFootprintsForceUpdate( self, event ):
+		event.Skip()
+	
+	def onMenuFootprintsCommit( self, event ):
+		event.Skip()
+	
+	def onMenuFootprintsForceCommit( self, event ):
 		event.Skip()
 	
 	def m_splitter2OnIdle( self, event ):
