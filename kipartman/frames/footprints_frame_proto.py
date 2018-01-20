@@ -1,14 +1,16 @@
 from dialogs.panel_footprints_proto import PanelFootprintsProto
 from frames.edit_footprint_frame_proto import EditFootprintFrameProto, EVT_EDIT_FOOTPRINT_APPLY_EVENT, EVT_EDIT_FOOTPRINT_CANCEL_EVENT
-from kicad.kicad_resource_manager import KicadResourceManager, KicadResourcePretty
+from kicad.kicad_file_manager import KicadFileManagerPretty
 from helper.filter import Filter
 import rest
 import helper.tree
 import os
 from helper.tree import TreeImageList
+from helper.exception import print_stack
 from configuration import configuration
 import wx
 import re
+import sync
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -179,9 +181,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
     def __init__(self, parent):
         super(FootprintsFrameProto, self).__init__(parent)
         
-        self.resource_pretty = KicadResourcePretty()
-        self.manager_pretty = KicadResourceManager(self.resource_pretty)
-        self.resource_pretty.on_change = self.onResourceChanged
+        self.file_manager_pretty = KicadFileManagerPretty()
+        self.manager_pretty = sync.version_manager.VersionManager(self.file_manager_pretty)
+        self.file_manager_pretty.AddChangeHook(self.onFilePrettyChanged)
         
         # create libraries data
         self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries)
@@ -229,7 +231,12 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.load() 
         
     def load(self):
-        self.footprints = self.manager_pretty.Synchronize()
+        try:
+            self.footprints = self.manager_pretty.Synchronize()
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Synchronization with kipartbase failed, check your connection and try again', wx.OK | wx.ICON_ERROR)                                    
+            
         #self.footprints = self.manager_pretty.
         #self.footprints =  self.resource_pretty.Synchronize()
         
@@ -265,7 +272,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
                 self.tree_libraries_manager.AppendLibrary(path, library_name)
 
         # add folders with no library inside
-        for folder in self.resource_pretty.folders:
+        for folder in self.file_manager_pretty.folders:
             if re.compile("^.*\.pretty$").match(os.path.normpath(os.path.abspath(folder))):
                 path = os.path.dirname(folder)
                 library_name = os.path.basename(folder)
@@ -338,12 +345,13 @@ class FootprintsFrameProto(PanelFootprintsProto):
                 wx.MessageBox("Select a library first", 'Error', wx.OK | wx.ICON_ERROR)
                 return
         else:
+            print_stack()
             wx.MessageBox("Select a library first", 'Error', wx.OK | wx.ICON_ERROR)
             return
             
         self.edit_footprint(footprint)
 
-    def onResourceChanged(self, event):
+    def onFilePrettyChanged(self, event):
         # do a synchronize when a file change on disk
         #self.load()
         pass
@@ -393,6 +401,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
             try:
                 self.manager_pretty.CreateFile(footprint_path, footprint.content)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error creating footprint', wx.OK | wx.ICON_ERROR)                                    
                 return
             
@@ -401,19 +410,21 @@ class FootprintsFrameProto(PanelFootprintsProto):
             library_path = os.path.dirname(footprint.source_path)
             footprint_path = os.path.normpath(os.path.join(library_path, footprint_name))
             
-            if os.path.normpath(os.path.join(library_path, footprint.source_path))!=footprint_path:
+            if os.path.normpath(footprint.source_path)!=footprint_path:
                 # file was renamed
                 if self.tree_footprints.GetSelection().IsOk():
                     footprintobj = self.tree_footprints_manager.ItemToObject(self.tree_footprints.GetSelection())
                     try:
-                        footprintobj.footprint = self.manager_pretty.MoveFile(footprint.source_path, os.path.join(os.path.dirname(footprint.source_path), footprint_name))
+                        footprintobj.footprint = self.manager_pretty.MoveFile(footprint.source_path, os.path.join(library_path, footprint_name))
                     except Exception as e:
+                        print_stack()
                         wx.MessageBox(format(e), 'Error renaming footprint', wx.OK | wx.ICON_ERROR)                                    
                         return
             try:
                 if footprint.content:
                     self.manager_pretty.EditFile(footprint_path, footprint.content)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error renaming footprint', wx.OK | wx.ICON_ERROR)                                    
                 return
             
@@ -465,6 +476,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
                 self.manager_pretty.DeleteFile(file.source_path) 
             self.load()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
 
     def onToggleFootprintPathClicked( self, event ):
@@ -484,6 +496,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
             self.manager_pretty.Commit(files) 
             self.load()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
 
 
@@ -500,6 +513,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
             self.manager_pretty.Update(files) 
             self.load()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Upload failed', wx.OK | wx.ICON_ERROR)
         
     def onButtonRefreshFootprintsClick( self, event ):
@@ -521,6 +535,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
             try:
                 self.manager_pretty.CreateFolder(os.path.join(path, name))
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error creating folder', wx.OK | wx.ICON_ERROR)
         dlg.Destroy()
         self.load()
@@ -540,6 +555,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
             try:
                 self.manager_pretty.CreateFolder(os.path.join(path, name+".pretty"))
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error creating library', wx.OK | wx.ICON_ERROR)
         dlg.Destroy()
         self.load()
@@ -556,8 +572,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
             if dlg.ShowModal() == wx.ID_OK:
                 name = dlg.GetValue()
                 try:
-                    self.manager_pretty.RenameFolder(path, name)
+                    self.manager_pretty.MoveFolder(path, name)
                 except Exception as e:
+                    print_stack()
                     wx.MessageBox(format(e), 'Error renaming folder', wx.OK | wx.ICON_ERROR)
             dlg.Destroy()
         elif isinstance(obj, DataModelLibrary):
@@ -567,6 +584,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
                 try:
                     self.manager_pretty.RenameLibrary(path, name+".pretty")
                 except Exception as e:
+                    print_stack()
                     wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
             dlg.Destroy()
         
@@ -589,6 +607,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
             self.manager_pretty.Update(files) 
             self.load()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Upload failed', wx.OK | wx.ICON_ERROR)
     
     def onMenuFootprintsForceUpdate( self, event ):
@@ -604,6 +623,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
             self.manager_pretty.Update(files, force=True) 
             self.load()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Upload failed', wx.OK | wx.ICON_ERROR)
     
     def onMenuFootprintsCommit( self, event ):
@@ -619,6 +639,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
             self.manager_pretty.Commit(files) 
             self.load()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
             
     
@@ -635,5 +656,6 @@ class FootprintsFrameProto(PanelFootprintsProto):
             self.manager_pretty.Commit(files, force=True) 
             self.load()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
 

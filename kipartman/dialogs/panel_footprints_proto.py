@@ -57,6 +57,11 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.menu_libraries_remove = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Remove", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_libraries.Append( self.menu_libraries_remove )
 		
+		self.menu_libraries.AppendSeparator()
+		
+		self.menu_libraries_add_footprint = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Add footprint", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries.Append( self.menu_libraries_add_footprint )
+		
 		self.panel_path.Bind( wx.EVT_RIGHT_DOWN, self.panel_pathOnContextMenu ) 
 		
 		self.m_panel3 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -174,6 +179,8 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.menu_footprints_force_update.SetBitmap( wx.Bitmap( u"resources/update.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_footprints.Append( self.menu_footprints_force_update )
 		
+		self.menu_footprints.AppendSeparator()
+		
 		self.menu_footprints_commit = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Commit", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_footprints_commit.SetBitmap( wx.Bitmap( u"resources/commit.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_footprints.Append( self.menu_footprints_commit )
@@ -181,6 +188,17 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.menu_footprints_force_commit = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Force commit", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_footprints_force_commit.SetBitmap( wx.Bitmap( u"resources/commit.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_footprints.Append( self.menu_footprints_force_commit )
+		
+		self.menu_footprints.AppendSeparator()
+		
+		self.menu_footprints_add = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Add footprint", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprints.Append( self.menu_footprints_add )
+		
+		self.menu_footprints_edit = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Edit footprint", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprints.Append( self.menu_footprints_edit )
+		
+		self.menu_footprints_delete = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Delete footprint", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprints.Append( self.menu_footprints_delete )
 		
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelFootprintsProtoOnContextMenu ) 
 		
@@ -192,6 +210,7 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesAddLibrary, id = self.menu_libraries_add_library.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesRename, id = self.menu_libraries_rename.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesRemove, id = self.menu_libraries_remove.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuLibrariesAddFootprint, id = self.menu_libraries_add_footprint.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onButtonAddFootprintClicked, id = self.button_add_footprint.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onButtonEditFootprintClicked, id = self.button_edit_footprint.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onButtonRemoveFootprintClicked, id = self.button_remove_footprint.GetId() )
@@ -205,6 +224,9 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuFootprintsForceUpdate, id = self.menu_footprints_force_update.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuFootprintsCommit, id = self.menu_footprints_commit.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuFootprintsForceCommit, id = self.menu_footprints_force_commit.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintsAdd, id = self.menu_footprints_add.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintsEdit, id = self.menu_footprints_edit.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintsDelete, id = self.menu_footprints_delete.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -227,6 +249,9 @@ class PanelFootprintsProto ( wx.Panel ):
 		event.Skip()
 	
 	def onMenuLibrariesRemove( self, event ):
+		event.Skip()
+	
+	def onMenuLibrariesAddFootprint( self, event ):
 		event.Skip()
 	
 	def onButtonAddFootprintClicked( self, event ):
@@ -266,6 +291,15 @@ class PanelFootprintsProto ( wx.Panel ):
 		event.Skip()
 	
 	def onMenuFootprintsForceCommit( self, event ):
+		event.Skip()
+	
+	def onMenuFootprintsAdd( self, event ):
+		event.Skip()
+	
+	def onMenuFootprintsEdit( self, event ):
+		event.Skip()
+	
+	def onMenuFootprintsDelete( self, event ):
 		event.Skip()
 	
 	def m_splitter2OnIdle( self, event ):

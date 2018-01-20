@@ -72,10 +72,6 @@ def update_file_state(file):
     except:
         pass
 
-    print "== ", file
-    if ffile:
-        print "++ ", serialize_VersionedFile(ffile)
-    
     if file.state is None or file.state=='conflict_add' or file.state=='conflict_change' or file.state=='conflict_del':
         file.state = ''
         
@@ -86,6 +82,9 @@ def update_file_state(file):
     if ffile and file.version and file.version>ffile.version:
         return Error(code=1000, message='Inconsistent version for file %s'%file.source_path)
     
+    if ffile and ffile.state==api.models.VersionedFileState.deleted:
+        ffile = None
+
     if not file.id and ffile:
         file.id = ffile.pk
         
@@ -115,6 +114,10 @@ def update_file_state(file):
         else:
             file.state = 'conflict_add'
             
+    if file.state=='outgo_add':
+        file.id = None
+        file.version = None
+
     if file.state=='outgo_add' and ffile:
         if file.md5==ffile.md5:
             file.state = ''
@@ -129,8 +132,6 @@ def update_file_state(file):
             or 
             ( not ffile )):       
         file.state = 'conflict_del'
-
-    print "--", file
     
 def synchronize_versioned_files(files=None, root_path=None):
     """
@@ -154,7 +155,6 @@ def synchronize_versioned_files(files=None, root_path=None):
     for file in files:
         if file.source_path:
             raise_on_error(update_file_state(file))
-            print "** ", file
             sync_files.append(file)
             if file.id:
                 exclude_id.append(file.id)
@@ -193,7 +193,7 @@ def commit_versioned_files(files, force=None):
     
     if connexion.request.is_json:
         files = [VersionedFile.from_dict(d) for d in connexion.request.get_json()]
-    
+    print "---", files
     if force is None:
         force = False
 
@@ -231,15 +231,21 @@ def commit_versioned_files(files, force=None):
     storage = api.versioned_file_storage.VersionedFileStorage()
     for file in to_add:
         # add file to file storage
-        commit_files.append(storage.add_file(file))
+        if not file.content is None:
+            commit_files.append(storage.add_file(file))
+        else:
+            return [file], 403
 
     for file in to_change:
         # modify file to file storage
-        commit_files.append(storage.add_file(file))
-
+        if not file.content is None:
+            commit_files.append(storage.add_file(file))
+        else:
+            return [file], 403
+        
     for file in to_delete:
-        #TODO
-        pass
+        # delete file to file storage
+        commit_files.append(storage.delete_file(file))
     
     return commit_files 
 

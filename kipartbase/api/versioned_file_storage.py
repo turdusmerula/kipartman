@@ -33,35 +33,31 @@ class VersionedFileStorage(object):
             levels.append(id[start:stop])
         return levels
 
-    def add_file(self, version_file):
-        # get content
-        file = tempfile.NamedTemporaryFile(delete=False)
-        file.write(version_file.content)
-        file.flush()
-        file.close()
-        
-        # get md5
+    def get_storage_path(self, version_file):
         md5 = hashlib.md5(version_file.content).hexdigest()
         levels = self.get_sublevels(md5)
         
         # get current sublevel
         storage_path = ''
-        
+
         # create sublevels
-        dir = self.storage_path
         for level in levels:
-            dir = os.path.join(dir, level)
             storage_path = os.path.join(storage_path, level)
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-        dir = os.path.join(dir, md5)
-        storage_path = os.path.join(storage_path, md5)
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-        storage_path = os.path.join(storage_path, os.path.basename(version_file.source_path))
-        # copy file
-        shutil.copyfile(file.name, os.path.join(dir, os.path.basename(version_file.source_path)))
-        #TODO: Delete file.name from temp storage
+        storage_path = os.path.join(storage_path, md5, os.path.basename(version_file.source_path))
+
+        return storage_path
+    
+    def add_file(self, version_file):
+        storage_path = self.get_storage_path(version_file)
+
+        if not os.path.exists(os.path.dirname(storage_path)):
+            os.makedirs(os.path.dirname(storage_path))
+        
+        # create file
+        md5 = hashlib.md5(version_file.content).hexdigest()
+        with open(os.path.join(self.storage_path, storage_path), 'wb') as outfile:
+            outfile.write(version_file.content)
+            outfile.close()
 
         if version_file.id:
             ffile = models.VersionedFile.objects.get(pk=version_file.id)
@@ -93,13 +89,20 @@ class VersionedFileStorage(object):
         print "Add file", version_file.source_path, "as", storage_path
         return version_file
     
-    def get_file(self, md5):
-        levels = self.get_sublevels(md5)
-        dir = self.storage_path
-        for level in levels:
-            dir = dir+"/"+level
-        return dir+"/"+md5
+    def delete_file(self, version_file):
+        #storage_path = os.path.join(self.storage_path, version_file.storage_path)
 
+        ffile = models.VersionedFile.objects.get(pk=version_file.id)
+        ffile.state = models.VersionedFileState.deleted
+        ffile.updated = version_file.updated
+        ffile.save()   
+        
+        version_file.storage_path = None
+        version_file.state = ''
+        
+        print "Delete file", version_file.source_path
+        return version_file
+        
     def get_file_content(self, id):
         ffile = models.VersionedFile.objects.get(pk=id)
         file = os.path.join(self.storage_path, ffile.storage_path)
@@ -107,14 +110,3 @@ class VersionedFileStorage(object):
             return content_file.read()
         return ''
         
-    def get_status(self, file):
-        #api.models.VersionedFile.objects.filter()
-        # check if file exists in database
-        pass
-        
-    def move_file(self, source_path, dest_path):
-        pass
-    
-    def delete_file(self, file_path):
-        pass
-    

@@ -742,13 +742,38 @@ class TreeManager(object):
         Remove from data every elements from state
         """
 
-        while len(self.data_state)>0:
-            obj = self.data_state[0]
+        # split list in container and non container elements
+        non_container = []
+        container = []
+        for data in self.data_state:
+            if isinstance(data, TreeContainerItem) or isinstance(data, TreeContainerLazyItem):
+                container.append(data)
+            else:
+                non_container.append(data)
+        
+        # remove non container elements first to avoid removing parent before its childs
+        while len(non_container)>0:
+            obj = non_container[0]
             self.DeleteItem(obj.parent, obj)
-            self.data_state.remove(obj)
+            non_container.remove(obj)
 
+        while len(container)>0:
+            # only remove container with empty childs
+            for obj in container:
+                if len(obj.childs)==0:
+                    break
+            if len(obj.childs)>0:
+                break # this is an error, we should never get there
+            self.DeleteItem(obj.parent, obj)
+            container.remove(obj)
+
+        self.data_state = []
             # remove parents if they are empty
-            if remove_empty_parent:
-                while isinstance(obj, TreeContainerItem) or isinstance(obj, TreeContainerLazyItem) and len(obj.childs)==0:
-                    self.DeleteItem(obj.parent, obj)
-                    obj = obj.parent
+#             if remove_empty_parent:
+#                 while obj and ( isinstance(obj, TreeContainerItem) or isinstance(obj, TreeContainerLazyItem) ) and len(obj.childs)==0:
+#                     try:
+#                         self.DeleteItem(obj.parent, obj)
+#                         self.data_state.remove(obj)
+#                     except:
+#                         pass
+#                     obj = obj.parent

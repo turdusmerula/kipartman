@@ -23,6 +23,8 @@ class Configuration(object):
         self.LOGFILE   = 'stream://sys.stderr'
         self.LOGFORMAT = '%(asctime)-15s %(levelname)-5s [%(module)s] %(message)s'
         
+        self.debug = False
+        
         # if kicad_path is not given then assume that kicad is in system path
         if os.path.exists(expanduser("~")+'/.kipartman/library')==False:
             os.mkdir(expanduser("~")+'/.kipartman/library')
@@ -55,14 +57,18 @@ class Configuration(object):
                 self.kicad_models_path = content['kicad_models_path']
                 self.kicad_3d_models_path = content['kicad_3d_models_path']
                 self.kicad_library_common_path = content['kicad_library_common_path']
+            
+                self.debug = content['debug']
             except Exception as e:
                 print ("Error: loading kipartman key configuration failed {}:{}".format(type(e),e.message))
+            
             try:
                 self.LOGLEVEL  = int(content['loglevelnumber'])
                 self.LOGFILE   = content['logfile']
                 self.LOGFORMAT = content['logformat']
             except Exception as e:
                 print ("(USING DEFAULTS): loading kipartman log configuration failed  {}:{}".format(type(e),e.message))
+            
             try:
 
                 # initialise logging
@@ -100,6 +106,8 @@ class Configuration(object):
             content['kicad_3d_models_path'] = unicode(self.kicad_3d_models_path)
             content['kicad_library_common_path'] = self.kicad_library_common_path
 
+            content['debug'] = self.debug
+            
             json.dump(content, outfile, sort_keys=True, indent=4, separators=(',', ': '))
 #        print "Save configuration:", content
 

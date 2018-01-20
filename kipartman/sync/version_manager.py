@@ -4,34 +4,23 @@ import rest
 import re
 import datetime
 import hashlib
+from helper.exception import print_stack
 
 class VersionManagerException(Exception):
     def __init__(self, error):
         super(VersionManagerException, self).__init__(error)
 
 class VersionManager(object):
-    def __init__(self, root_path):
-        self.root_path = root_path
-        self.config = os.path.join(root_path, '.kiversion')
+    def __init__(self, file_manager):
+        self.root_path = file_manager.root_path()
+        self.file_manager = file_manager
+        self.config = os.path.join(self.root_path, '.kiversion')
         
         # files from hard drive
         self.local_files = {}
-
+        
         self.LoadState()
-    
-    def LoadState(self):
-        state_files = {}
-        
-        if os.path.exists(self.config)==False:
-            self.SaveState()
-    
-        content = json.load(open(self.config))
-        for data in content:
-            file = self.deserialize_file(data)
-            state_files[file.source_path] = file
-    
-        self.SynchronizeState(state_files)
-        
+            
     def deserialize_file(self, json):
         file = rest.model.VersionedFile()
         if json.has_key('id'):
@@ -89,19 +78,46 @@ class VersionManager(object):
             json.dump(content, outfile, sort_keys=True, indent=2, separators=(',', ': '))
             outfile.close()
     
-    def SynchronizeState(self, state_files):
+    def LoadState(self):
         """
         Synchronize local files with state
         """
+        state_files = {}
         
+        if os.path.exists(self.config)==False:
+            self.SaveState()
+    
+        # load state from .kiversion state file
+        content = json.load(open(self.config))
+        for data in content:
+            file = self.deserialize_file(data)
+            state_files[file.source_path] = file
+
+        # load files from disk
+        self.file_manager.Load()
+        for filepath in self.file_manager.files:
+            if self.local_files.has_key(filepath)==False:
+                file = self.file_manager.files[filepath]
+                file.state = 'outgo_add'
+                self.local_files[filepath] = file
+        
+        # check if file exists on disk
+        pop_list = []
+        for filepath in self.local_files:
+            file_disk = self.local_files[filepath]
+            if self.file_manager.Exists(filepath)==False and file_disk.state!='outgo_del':
+                pop_list.append(filepath)
+        for filepath in pop_list:
+            self.local_files.pop(filepath)
+
         # Match local_files with current stored version state
-        for file in self.local_files:
+        for filepath in self.local_files:
             file_version = None
-            file_disk = self.local_files[file]
+            file_disk = self.local_files[filepath]
     
             # check if file exist in state
-            if state_files.has_key(file):
-                file_version = state_files[file]
+            if state_files.has_key(filepath):
+                file_version = state_files[filepath]
             else:          
                 # file not referenced in version state
                 file_version = rest.model.VersionedFile()
@@ -119,42 +135,21 @@ class VersionManager(object):
                 file_version.state = 'outgo_change'
 
             # update local file state 
-            self.local_files[file] = file_version
+            self.local_files[filepath] = file_version
         
-        print "%%%", self.local_files
         # Match stored version state with local files to detect removed files
-        for file in state_files:
-            file_version = state_files[file]
+        for filepath in state_files:
+            file_version = state_files[filepath]
             file_disk = None
             
             # check if file exist in state
-            if self.local_files.has_key(file):
-                file_disk = self.local_files[file]
+            if self.local_files.has_key(filepath):
+                file_disk = self.local_files[filepath]
             else:
-                # file not referenced in version state
-                if os.path.exists(os.path.join(self.root_path, file))==True:    
-                    file_disk = rest.model.VersionedFile()
-                    file_disk.id = file_version.id 
-                    file_disk.source_path = file_version.source_path
-                    file_disk.md5 = file_version.md5
-                    file_disk.version = file_version.version
-                    file_disk.updated = file_version.updated
-                    file_disk.metadata = file_version.metadata
-                    if file_disk.state=="":
-                        file_disk.state = 'outgo_del'
-
+                if file_version.state=='outgo_del':
                     # update local file state 
-                    self.local_files[file] = file_disk
-        print "___", self.local_files
-        
-        self.SaveState()
-        
-    def ClearLocalFiles(self):
-        self.local_files.clear()
-        
-    def AddLocalFile(self, file):
-        self.local_files[file.source_path] = file
-    
+                    self.local_files[filepath] = file_version
+            
     def Synchronize(self):
         """
         Return synchronization state from server
@@ -186,7 +181,6 @@ class VersionManager(object):
 
     def EditMetadata(self, path, metadata):
         if self.local_files.has_key(path):
-            print "*****", path, metadata
             self.local_files[path].updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
             self.local_files[path].metadata = metadata
             self.SaveState()
@@ -194,90 +188,66 @@ class VersionManager(object):
             raise VersionManagerException('Updating metadata failed for file %s'%path)
                  
 
-    def CreateFile(self, filename, content):
-        if self.local_files.has_key(filename):
-            raise VersionManagerException('File %s already exists'%filename)
-        file = rest.model.VersionedFile()
-        file.source_path = filename
-        file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-
-        with open(os.path.join(self.root_path, filename), 'w') as content_file:
-            if content:
-                content_file.write(content)
-            else:
-                content_file.write('')
-        content_file.close() 
-
-        file.md5 = hashlib.md5(content).hexdigest()
-        
-        self.local_files[filename] = file
+    def CreateFile(self, path, content):
+        file = self.file_manager.CreateFile(path, content)
+        file.status = 'outgo_add'
+        self.local_files[path] = file
 
         self.SaveState()
         
         return file
 
-    def EditFile(self, filename, content):
-        if self.local_files.has_key(filename)==False:
-            raise VersionManagerException('File %s does not exists'%filename)
-        file = self.local_files[filename]
-        file.source_path = filename
-        file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-
-        with open(os.path.join(self.root_path, filename), 'w') as content_file:
-            content_file.write(content)
-        content_file.close() 
-
-        file.md5 = hashlib.md5(content).hexdigest()
-
-        self.local_files[filename] = file
+    def EditFile(self, path, content):
+        if self.local_files.has_key(path)==False:
+            raise VersionManagerException('File %s does not exists'%path)
+        file = self.local_files[path]
+        file, changed = self.file_manager.EditFile(file, content)
+        if changed:
+            file.status = 'outgo_change'
 
         self.SaveState()
         
         return file
 
-    def MoveFile(self, source, dest):
-        if self.local_files.has_key(source)==False:
-            raise VersionManagerException('File %s does not exists'%source)
-        if os.path.exists(dest):
-            raise VersionManagerException('File %s already exists'%dest)
-            
-        file = self.local_files.pop(source)
-        os.rename(os.path.join(self.root_path, source), os.path.join(self.root_path, dest))
-        file.source_path = dest
+    def MoveFile(self, source_path, dest_path):
+        if self.local_files.has_key(source_path)==False:
+            raise VersionManagerException('File %s does not exists'%source_path)
+        file = self.local_files[source_path]
+        file = self.file_manager.MoveFile(file, dest_path)
+
+        self.local_files.pop(source_path)
+        self.local_files[dest_path] = file
+        
         if file.version is None:
             file.state = 'outgo_add'
         else:
             file.state = 'outgo_change'
-        file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        
-        self.local_files[dest] = file
 
         self.SaveState()
         
         return file
 
-    def DeleteFile(self, filename):
-        if self.local_files.has_key(filename)==False:
-            raise VersionManagerException('File %s does not exists'%filename)
+    def DeleteFile(self, path):
+        if self.local_files.has_key(path)==False:
+            raise VersionManagerException('File %s does not exists'%path)
             
-        file = self.local_files[filename]
-        os.remove(os.path.join(self.root_path, filename))
-        file.state = 'outgo_del'
-        file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        file = self.local_files[path]
+        file = self.file_manager.DeleteFile(file)
+        
+        if file.id==None:
+            self.local_files.pop(file.source_path)
+        else:
+            file.state = 'outgo_del'
 
         self.SaveState()
-        
+
         return file
 
 
     def CreateFolder(self, path):
-        abspath = os.path.join(self.root_path, path)
-        if os.path.exists(abspath):
-            raise VersionManagerException('Folder %s already exists'%path)
-        else:
-            os.makedirs(abspath)
-    
-    def MoveFolder(self, path, newname):
+        self.file_manager.CreateFolder(path)
+            
+    def MoveFolder(self, source_path, dest_path):
         pass
     
     def DeleteFolder(self, path):
@@ -287,9 +257,8 @@ class VersionManager(object):
     def Commit(self, files, force=False):
         # add content
         for file in files:
-            if file.state!='income_add' and file.state!='income_change' and file.state!='income_del':
-                with open(os.path.join(self.resource.path(), file.source_path)) as f:
-                    file.content = f.read()
+            if file.state=='outgo_add' or file.state=='outgo_change':
+                self.file_manager.LoadContent(file)
 
         commits = []
         try:
@@ -303,8 +272,12 @@ class VersionManager(object):
             
         # update state
         for file in commits:
-            print "++++", file
-            self.local_files[file.source_path] = file
+            if file.storage_path:
+                self.local_files[file.source_path] = file
+            else:
+                # file was deleted
+                if self.local_files.has_key(file.source_path):
+                    self.local_files.pop(file.source_path)
             
         self.SaveState()
         return commits
@@ -321,22 +294,17 @@ class VersionManager(object):
                     raise VersionManagerException('Update failed due to unresolved conflict')
             raise VersionManagerException('Update failed: %s'%format(e))
         
-        print "%%%%", updates
+        print "---", updates
         # update state
         for file in updates:
-            if file.state=='income_add' or file.state=='income_change':
-                file.state = ''
-                file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 
-                path = os.path.join(self.root_path, file.source_path)
-                if os.path.exists(os.path.dirname(path))==False:
-                    os.makedirs(os.path.dirname(path))
-                with open(path, 'w') as write_file:
-                    if file.content:
-                        write_file.write(file.content)
-                    else:
-                        write_file.write('')                        
-                write_file.close()
+            if file.state=='income_add':
+                newfile = self.file_manager.CreateFile(file.source_path, file.content)
+                newfile.metadata = file.metadata
+                self.local_files[file.source_path] = newfile
+                file = newfile             
+            elif file.state=='income_change':
+                file, changed = self.file_manager.EditFile(file, file.content)
                 
                 # check if file should be renamed
                 local_file = None
@@ -347,15 +315,13 @@ class VersionManager(object):
                 if local_file and local_file.source_path!=file.source_path:
                     self.MoveFile(local_file.source_path, file.source_path)
                 
-                print "%%%", file
                 self.local_files[file.source_path] = file
                 
             elif file.state=='income_del':
-                os.remove(os.path.join(self.root_path, file.source_path))
+                self.DeleteFile(file)
                 self.local_files.pop(file.source_path)
-
-        print "****", self.local_files
         
+            file.state = ''
         self.SaveState()
         return updates        
     
