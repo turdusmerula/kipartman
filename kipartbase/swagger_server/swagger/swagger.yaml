@@ -1432,6 +1432,22 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /date:
+    get:
+      description: "Get server current datetime"
+      operationId: "get_date"
+      parameters: []
+      responses:
+        200:
+          description: "Current datetime"
+          schema:
+            type: "string"
+            format: "date-time"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
 definitions:
   PartCategory:
     allOf:

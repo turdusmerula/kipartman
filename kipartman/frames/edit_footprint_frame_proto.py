@@ -40,6 +40,7 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
     def __init__(self, parent):
         super(EditFootprintFrameProto, self).__init__(parent)
         self.snapeda_uid = ''
+        self.footprint_path = ''
         
     def SetFootprint(self, footprint):
         self.footprint = footprint
@@ -55,16 +56,26 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
                 metadata = json.loads(footprint.metadata)
             else:
                 metadata = json.loads('{}')
-            
+
             self.edit_footprint_name.Value = ''
+            self.footprint_path = ''
+            
             if NoneValue(footprint.source_path, '')!='':
-                self.edit_footprint_name.Value = os.path.basename(NoneValue(footprint.source_path, '')).replace(".kicad_mod", "")
+                name = os.path.basename(NoneValue(footprint.source_path, ''))
+                if name.rfind('.kicad_mod')!=-1:
+                    # path is a footprint
+                    self.edit_footprint_name.Value = name.replace(".kicad_mod", "")
+                    self.footprint_path = os.path.dirname(NoneValue(footprint.source_path, ''))
+                elif name.rfind('.pretty')!=-1:
+                    # path is a lib
+                    self.footprint_path = name
+                    
             self.edit_footprint_description.Value = MetadataValue(metadata, 'description', '')
             self.edit_footprint_comment.Value = MetadataValue(metadata, 'comment', '')
              
             self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
             
-            if NoneValue(footprint.source_path, '')!='' and os.path.exists(footprint.source_path):
+            if self.edit_footprint_name.Value!='' and os.path.exists(os.path.join(configuration.kicad_library_path, footprint.source_path)):
                 mod = kicad_mod_file.KicadModFile()
                 mod.LoadFile(os.path.join(configuration.kicad_library_path, footprint.source_path))
                 image_file = tempfile.NamedTemporaryFile()
@@ -92,6 +103,7 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
 
         
     def enable(self, enabled=True):
+        print "----", enabled
         self.edit_footprint_name.Enabled = enabled
         self.edit_footprint_description.Enabled = enabled
         self.edit_footprint_comment.Enabled = enabled
@@ -165,6 +177,16 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
                 if kicad_file!='':
                     with open(kicad_file, 'r') as content_file:
                         self.footprint.content = content_file.read()
+                        print "--", self.footprint.content
+                    
+                    mod = kicad_mod_file.KicadModFile()
+                    mod.LoadFile(kicad_file)
+                    image_file = tempfile.NamedTemporaryFile()
+                    mod.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
+                    img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
+                    image_file.close()
+                    img = img.ConvertToBitmap()
+                    self.bitmap_edit_footprint.SetBitmap(img)
             
             self.footprint.md5 = hashlib.md5(self.footprint.content).hexdigest()
 

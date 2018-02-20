@@ -70,9 +70,12 @@ class VersionManager(object):
         return res 
         
     def SaveState(self):
+        print "SaveState----"
         content = []
         for file in self.local_files:
+            print "+++", file, self.local_files[file]
             content.append(self.serialize_file(self.local_files[file]))
+        print "-------------"
 
         with open(self.config, 'wb') as outfile:
             json.dump(content, outfile, sort_keys=True, indent=2, separators=(',', ': '))
@@ -151,6 +154,10 @@ class VersionManager(object):
                     self.local_files[filepath] = file_version
             
     def Synchronize(self):
+        self.LoadState()
+        return self.local_files
+    
+    def Synchronize_(self):
         """
         Return synchronization state from server
         """
@@ -190,7 +197,7 @@ class VersionManager(object):
 
     def CreateFile(self, path, content):
         file = self.file_manager.CreateFile(path, content)
-        file.status = 'outgo_add'
+        file.state = 'outgo_add'
         self.local_files[path] = file
 
         self.SaveState()
@@ -227,11 +234,10 @@ class VersionManager(object):
         
         return file
 
-    def DeleteFile(self, path):
-        if self.local_files.has_key(path)==False:
-            raise VersionManagerException('File %s does not exists'%path)
+    def DeleteFile(self, file):
+        if self.local_files.has_key(file.source_path)==False:
+            raise VersionManagerException('File %s does not exists'%file.source_path)
             
-        file = self.local_files[path]
         file = self.file_manager.DeleteFile(file)
         
         if file.id==None:
@@ -299,12 +305,14 @@ class VersionManager(object):
         for file in updates:
 
             if file.state=='income_add':
-                newfile = self.file_manager.CreateFile(file.source_path, file.content)
+                newfile = self.file_manager.CreateFile(file.source_path, file.content, overwrite=force)
                 newfile.metadata = file.metadata
+                newfile.id = file.id
+                newfile.version = file.version
                 self.local_files[file.source_path] = newfile
                 file = newfile             
             elif file.state=='income_change':
-                file, changed = self.file_manager.EditFile(file, file.content)
+                file, changed = self.file_manager.EditFile(file, file.content, create=force)
                 
                 # check if file should be renamed
                 local_file = None
@@ -319,7 +327,6 @@ class VersionManager(object):
                 
             elif file.state=='income_del':
                 self.DeleteFile(file)
-                self.local_files.pop(file.source_path)
         
             file.state = ''
         self.SaveState()

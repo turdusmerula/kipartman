@@ -121,3 +121,7 @@ paths:
 
   /currencies:
     $ref: './currency/currencies.yaml'
+
+  /date:
+    $ref: './date/date.yaml'
+    

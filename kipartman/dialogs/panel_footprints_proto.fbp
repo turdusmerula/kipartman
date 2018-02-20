@@ -1038,72 +1038,6 @@
                                                                                         <event name="OnSize"></event>
                                                                                         <event name="OnUpdateUI"></event>
                                                                                         <object class="tool" expanded="0">
-                                                                                            <property name="bitmap">Load From File; resources/add.png</property>
-                                                                                            <property name="context_menu">0</property>
-                                                                                            <property name="id">wxID_ANY</property>
-                                                                                            <property name="kind">wxITEM_NORMAL</property>
-                                                                                            <property name="label">tool</property>
-                                                                                            <property name="name">button_add_footprint</property>
-                                                                                            <property name="permission">protected</property>
-                                                                                            <property name="statusbar"></property>
-                                                                                            <property name="tooltip"></property>
-                                                                                            <event name="OnAuiToolBarBeginDrag"></event>
-                                                                                            <event name="OnAuiToolBarMiddleClick"></event>
-                                                                                            <event name="OnAuiToolBarOverflowClick"></event>
-                                                                                            <event name="OnAuiToolBarRightClick"></event>
-                                                                                            <event name="OnAuiToolBarToolDropDown"></event>
-                                                                                            <event name="OnMenuSelection"></event>
-                                                                                            <event name="OnToolClicked">onButtonAddFootprintClicked</event>
-                                                                                            <event name="OnToolEnter"></event>
-                                                                                            <event name="OnToolRClicked"></event>
-                                                                                            <event name="OnUpdateUI"></event>
-                                                                                        </object>
-                                                                                        <object class="tool" expanded="0">
-                                                                                            <property name="bitmap">Load From File; resources/edit.png</property>
-                                                                                            <property name="context_menu">0</property>
-                                                                                            <property name="id">wxID_ANY</property>
-                                                                                            <property name="kind">wxITEM_NORMAL</property>
-                                                                                            <property name="label">tool</property>
-                                                                                            <property name="name">button_edit_footprint</property>
-                                                                                            <property name="permission">protected</property>
-                                                                                            <property name="statusbar"></property>
-                                                                                            <property name="tooltip"></property>
-                                                                                            <event name="OnAuiToolBarBeginDrag"></event>
-                                                                                            <event name="OnAuiToolBarMiddleClick"></event>
-                                                                                            <event name="OnAuiToolBarOverflowClick"></event>
-                                                                                            <event name="OnAuiToolBarRightClick"></event>
-                                                                                            <event name="OnAuiToolBarToolDropDown"></event>
-                                                                                            <event name="OnMenuSelection"></event>
-                                                                                            <event name="OnToolClicked">onButtonEditFootprintClicked</event>
-                                                                                            <event name="OnToolEnter"></event>
-                                                                                            <event name="OnToolRClicked"></event>
-                                                                                            <event name="OnUpdateUI"></event>
-                                                                                        </object>
-                                                                                        <object class="tool" expanded="0">
-                                                                                            <property name="bitmap">Load From File; resources/remove.png</property>
-                                                                                            <property name="context_menu">0</property>
-                                                                                            <property name="id">wxID_ANY</property>
-                                                                                            <property name="kind">wxITEM_NORMAL</property>
-                                                                                            <property name="label">tool</property>
-                                                                                            <property name="name">button_remove_footprint</property>
-                                                                                            <property name="permission">protected</property>
-                                                                                            <property name="statusbar"></property>
-                                                                                            <property name="tooltip"></property>
-                                                                                            <event name="OnAuiToolBarBeginDrag"></event>
-                                                                                            <event name="OnAuiToolBarMiddleClick"></event>
-                                                                                            <event name="OnAuiToolBarOverflowClick"></event>
-                                                                                            <event name="OnAuiToolBarRightClick"></event>
-                                                                                            <event name="OnAuiToolBarToolDropDown"></event>
-                                                                                            <event name="OnMenuSelection"></event>
-                                                                                            <event name="OnToolClicked">onButtonRemoveFootprintClicked</event>
-                                                                                            <event name="OnToolEnter"></event>
-                                                                                            <event name="OnToolRClicked"></event>
-                                                                                            <event name="OnUpdateUI"></event>
-                                                                                        </object>
-                                                                                        <object class="toolSeparator" expanded="0">
-                                                                                            <property name="permission">protected</property>
-                                                                                        </object>
-                                                                                        <object class="tool" expanded="0">
                                                                                             <property name="bitmap">Load From File; resources/tree_mode.png</property>
                                                                                             <property name="context_menu">0</property>
                                                                                             <property name="id">wxID_ANY</property>
@@ -1120,51 +1054,6 @@
                                                                                             <event name="OnAuiToolBarToolDropDown"></event>
                                                                                             <event name="OnMenuSelection"></event>
                                                                                             <event name="OnToolClicked">onToggleFootprintPathClicked</event>
-                                                                                            <event name="OnToolEnter"></event>
-                                                                                            <event name="OnToolRClicked"></event>
-                                                                                            <event name="OnUpdateUI"></event>
-                                                                                        </object>
-                                                                                        <object class="toolSeparator" expanded="0">
-                                                                                            <property name="permission">protected</property>
-                                                                                        </object>
-                                                                                        <object class="tool" expanded="0">
-                                                                                            <property name="bitmap">Load From File; resources/update.png</property>
-                                                                                            <property name="context_menu">0</property>
-                                                                                            <property name="id">wxID_ANY</property>
-                                                                                            <property name="kind">wxITEM_NORMAL</property>
-                                                                                            <property name="label">tool</property>
-                                                                                            <property name="name">button_update_footprint</property>
-                                                                                            <property name="permission">protected</property>
-                                                                                            <property name="statusbar"></property>
-                                                                                            <property name="tooltip"></property>
-                                                                                            <event name="OnAuiToolBarBeginDrag"></event>
-                                                                                            <event name="OnAuiToolBarMiddleClick"></event>
-                                                                                            <event name="OnAuiToolBarOverflowClick"></event>
-                                                                                            <event name="OnAuiToolBarRightClick"></event>
-                                                                                            <event name="OnAuiToolBarToolDropDown"></event>
-                                                                                            <event name="OnMenuSelection"></event>
-                                                                                            <event name="OnToolClicked">onButtonUpdateFootprintClicked</event>
-                                                                                            <event name="OnToolEnter"></event>
-                                                                                            <event name="OnToolRClicked"></event>
-                                                                                            <event name="OnUpdateUI"></event>
-                                                                                        </object>
-                                                                                        <object class="tool" expanded="0">
-                                                                                            <property name="bitmap">Load From File; resources/commit.png</property>
-                                                                                            <property name="context_menu">0</property>
-                                                                                            <property name="id">wxID_ANY</property>
-                                                                                            <property name="kind">wxITEM_NORMAL</property>
-                                                                                            <property name="label">tool</property>
-                                                                                            <property name="name">button_commit_footprint</property>
-                                                                                            <property name="permission">protected</property>
-                                                                                            <property name="statusbar"></property>
-                                                                                            <property name="tooltip"></property>
-                                                                                            <event name="OnAuiToolBarBeginDrag"></event>
-                                                                                            <event name="OnAuiToolBarMiddleClick"></event>
-                                                                                            <event name="OnAuiToolBarOverflowClick"></event>
-                                                                                            <event name="OnAuiToolBarRightClick"></event>
-                                                                                            <event name="OnAuiToolBarToolDropDown"></event>
-                                                                                            <event name="OnMenuSelection"></event>
-                                                                                            <event name="OnToolClicked">onButtonCommitFootprintClicked</event>
                                                                                             <event name="OnToolEnter"></event>
                                                                                             <event name="OnToolRClicked"></event>
                                                                                             <event name="OnUpdateUI"></event>

@@ -38,7 +38,7 @@ class VersionedFileStorage(object):
         levels = self.get_sublevels(md5)
         
         # get current sublevel
-        storage_path = ''
+        storage_path = self.storage_path
 
         # create sublevels
         for level in levels:

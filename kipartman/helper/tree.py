@@ -330,6 +330,7 @@ class TreeManager(object):
         self.OnItemBeginDrag = None
         self.OnItemCollapsed = None
         self.OnItemCollapsing = None
+        self.OnItemBeforeContextMenu = None
         self.OnItemContextMenu = None
         self.OnItemDrop = None
         self.OnItemDropPossible = None
@@ -441,6 +442,9 @@ class TreeManager(object):
     
     def _onItemContextMenu( self, event ):
         event.manager = self
+        
+        if self.OnItemBeforeContextMenu:
+            self.OnItemBeforeContextMenu(event)
         if self.context_menu:
             pos = event.GetPosition()
             self.tree_view.PopupMenu(self.context_menu, pos)

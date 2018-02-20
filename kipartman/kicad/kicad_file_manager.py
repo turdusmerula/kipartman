@@ -11,6 +11,8 @@ import sync.version_manager
 from pathlib2 import Path
 from helper.exception import print_stack
 
+import rest
+
 class KicadFileManagerException(Exception):
     def __init__(self, error):
         super(KicadFileManagerException, self).__init__(error)
@@ -73,6 +75,7 @@ class KicadFileManagerPretty(KicadFileManager):
                 file = rest.model.VersionedFile()
                 file.source_path = source_path
                 file.md5 = md5
+                # TODO: convert date to server date
                 file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(configuration.kicad_library_path, source_path))).strftime("%Y-%m-%dT%H:%M:%SZ")
                 self.files[source_path] = file
 
@@ -118,8 +121,8 @@ class KicadFileManagerPretty(KicadFileManager):
     def Exists(self, path):
         return os.path.exists(os.path.join(self.root_path(), path))
 
-    def CreateFile(self, path, content):
-        if self.Exists(path):
+    def CreateFile(self, path, content, overwrite=False):
+        if self.Exists(path) and overwrite==False:
             raise KicadFileManagerException('File %s already exists'%path)
 
         fullpath = os.path.join(self.root_path(), path)
@@ -136,12 +139,13 @@ class KicadFileManagerPretty(KicadFileManager):
         file = rest.model.VersionedFile()
         file.source_path = path
         file.md5 = hashlib.md5(content).hexdigest()
-        file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        #file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        file.updated = rest.api.get_date()
         
         return file
     
-    def EditFile(self, file, content):
-        if self.Exists(file.source_path)==False:
+    def EditFile(self, file, content, create=False):
+        if self.Exists(file.source_path)==False and create==False:
             raise KicadFileManagerException('File %s does not exists'%file.source_path)
     
         md5 = hashlib.md5(content).hexdigest()
@@ -157,7 +161,8 @@ class KicadFileManagerPretty(KicadFileManager):
         content_file.close() 
  
         file.md5 = hashlib.md5(content).hexdigest()
-        file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        #file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        file.updated = rest.api.get_date()
            
         return file, True
     
@@ -171,8 +176,9 @@ class KicadFileManagerPretty(KicadFileManager):
                          os.path.join(self.root_path(), dest_path))
 
         file.source_path = dest_path
-        fullpath = os.path.join(self.root_path(), file.source_path)
-        file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        #fullpath = os.path.join(self.root_path(), file.source_path)
+        #file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        file.updated = rest.api.get_date()
         
         return file
 
@@ -182,7 +188,8 @@ class KicadFileManagerPretty(KicadFileManager):
         
         fullpath = os.path.join(self.root_path(), file.source_path)
         os.remove(fullpath)
-        file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        #file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        file.updated = rest.api.get_date()
     
         return file
     

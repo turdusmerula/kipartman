@@ -189,6 +189,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries)
         self.tree_libraries_manager.AddTextColumn("name")
         self.tree_libraries_manager.OnSelectionChanged = self.onTreeLibrariesSelChanged
+        self.tree_libraries_manager.OnItemBeforeContextMenu = self.onTreeLibrariesBeforeContextMenu
 
         # footprints filters
         self.footprints_filter = Filter(self.filters_panel, self.onButtonRemoveFilterClick)
@@ -199,6 +200,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.tree_footprints_manager.AddIntegerColumn("v")
         self.tree_footprints_manager.AddTextColumn("name")
         self.tree_footprints_manager.OnSelectionChanged = self.onTreeFootprintsSelChanged
+        self.tree_footprints_manager.OnItemBeforeContextMenu = self.onTreeFootprintsBeforeContextMenu
 
         self.tree_footprints_manager.imagelist.AddFile('', 'resources/none.png')
         self.tree_footprints_manager.imagelist.AddFile(None, 'resources/none.png')
@@ -220,7 +222,6 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.panel_edit_footprint.Bind( EVT_EDIT_FOOTPRINT_CANCEL_EVENT, self.onEditFootprintCancel )
 
         self.toolbar_footprint.ToggleTool(self.toggle_footprint_path.GetId(), True)
-        self.setToolbarFootprintState()
         
         self.show_footprint_path = True
     
@@ -314,9 +315,6 @@ class FootprintsFrameProto(PanelFootprintsProto):
     
         self.tree_footprints_manager.PurgeState()
 
-    def setToolbarFootprintState(self):
-        pass
-
     def show_footprint(self, footprint):
         # disable editing
         self.panel_edit_footprint.enable(False)
@@ -334,21 +332,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.panel_path.Enabled = False
         self.panel_footprints.Enabled = False
         
-    def new_footprint(self):
+    def new_footprint(self, path):
         footprint = rest.model.VersionedFile()
-        
-        # select library
-        item = self.tree_libraries.GetSelection()
-        if item.IsOk():
-            obj = self.tree_libraries_manager.ItemToObject(item)
-            if isinstance(obj, DataModelLibrary)==False:
-                wx.MessageBox("Select a library first", 'Error', wx.OK | wx.ICON_ERROR)
-                return
-        else:
-            print_stack()
-            wx.MessageBox("Select a library first", 'Error', wx.OK | wx.ICON_ERROR)
-            return
-            
+        footprint.source_path = path         
         self.edit_footprint(footprint)
 
     def onFilePrettyChanged(self, event):
@@ -368,6 +354,22 @@ class FootprintsFrameProto(PanelFootprintsProto):
         # apply new filter and reload
         self.loadFootprints()
 
+    def onTreeLibrariesBeforeContextMenu( self, event ):
+        item = self.tree_libraries.GetSelection()
+        if item.IsOk()==False:
+            return    
+        obj = self.tree_libraries_manager.ItemToObject(item)
+
+        self.menu_libraries_add_folder.Enable(True)
+        self.menu_libraries_add_library.Enable(True)
+        self.menu_libraries_add_footprint.Enable(True)
+        if isinstance(obj, DataModelLibrary):
+            self.menu_libraries_add_folder.Enable(False)
+            self.menu_libraries_add_library.Enable(False)
+        else:
+            self.menu_libraries_add_footprint.Enable(False)
+
+
     def onButtonRemoveFilterClick( self, event ):
         button = event.GetEventObject()
         self.footprints_filter.remove(button.GetName())
@@ -375,6 +377,8 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.loadFootprints()
 
     def onTreeFootprintsSelChanged( self, event ):
+        if self.edit_state:
+            return
         item = self.tree_footprints.GetSelection()
         if item.IsOk()==False:
             return
@@ -386,6 +390,22 @@ class FootprintsFrameProto(PanelFootprintsProto):
 
         self.show_footprint(footprintobj.footprint)
 
+    def onTreeFootprintsBeforeContextMenu( self, event ):
+        item = self.tree_footprints.GetSelection()
+        if item.IsOk()==False:
+            return    
+        obj = self.tree_footprints_manager.ItemToObject(item)
+
+        self.menu_footprints_add.Enable(True)
+        self.menu_footprints_delete.Enable(True)
+        self.menu_footprints_edit.Enable(True)
+        if isinstance(obj, DataModelFootprint):
+            self.menu_footprints_add.Enable(False)
+        else:
+            self.menu_footprints_delete.Enable(False)
+            self.menu_footprints_edit.Enable(False)
+
+
     def onEditFootprintApply( self, event ):
         footprint = event.data
         footprint_name = event.footprint_name
@@ -393,11 +413,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
         if self.edit_state=='add':
             # get library path
             library_path = ''
-            item = self.tree_libraries.GetSelection()
-            if item.IsOk():
-                itemobj = self.tree_libraries_manager.ItemToObject(item)
-                library_path = os.path.join(library_path, itemobj.path)
-            footprint_path = os.path.join(library_path, footprint_name)
+            footprint_path = os.path.join(footprint.source_path, footprint_name)
             try:
                 self.manager_pretty.CreateFile(footprint_path, footprint.content)
             except Exception as e:
@@ -442,79 +458,15 @@ class FootprintsFrameProto(PanelFootprintsProto):
         footprint = None
         item = self.tree_footprints.GetSelection()
         if item.IsOk():
-            footprintobj = self.tree_footprints_manager.ItemToObject(item)
-            footprint = footprintobj.footprint
-        self.edit_state = None
-        self.show_footprint(footprint)
-
-    def onButtonAddFootprintClicked( self, event ):
-        self.edit_state = 'add'
-        self.new_footprint()
-    
-    def onButtonEditFootprintClicked( self, event ):
-        item = self.tree_footprints.GetSelection()
-        if item.IsOk()==False:
-            return
-        footprintobj = self.tree_footprints_manager.ItemToObject(item)
-        if isinstance(footprintobj, DataModelFootprint)==False:
-            return
-        self.edit_state = 'edit'
-    
-        self.edit_footprint(footprintobj.footprint)
-    
-    def onButtonRemoveFootprintClicked( self, event ):
-        files = []
-        for item in self.tree_footprints.GetSelections():
             obj = self.tree_footprints_manager.ItemToObject(item)
             if isinstance(obj, DataModelFootprint):
-                files.append(obj.footprint)
-            elif isinstance(obj, DataModelFootprintPath):
-                pass
-        
-        try:
-            for file in files:
-                self.manager_pretty.DeleteFile(file.source_path) 
-            self.load()
-        except Exception as e:
-            print_stack()
-            wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
-
+                footprint = obj.footprint                
+        self.edit_state = None
+        self.show_footprint(footprint)
+    
     def onToggleFootprintPathClicked( self, event ):
         self.show_footprint_path = self.toolbar_footprint.GetToolState(self.toggle_footprint_path.GetId())
         self.load()
-
-    def onButtonCommitFootprintClicked( self, event ):
-        files = []
-        for item in self.tree_footprints.GetSelections():
-            obj = self.tree_footprints_manager.ItemToObject(item)
-            if isinstance(obj, DataModelFootprint):
-                files.append(obj.footprint)
-            elif isinstance(obj, DataModelFootprintPath):
-                pass
-        
-        try:
-            self.manager_pretty.Commit(files) 
-            self.load()
-        except Exception as e:
-            print_stack()
-            wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
-
-
-    def onButtonUpdateFootprintClicked( self, event ):
-        files = []
-        for item in self.tree_footprints.GetSelections():
-            obj = self.tree_footprints_manager.ItemToObject(item)
-            if isinstance(obj, DataModelFootprint):
-                files.append(obj.footprint)
-            elif isinstance(obj, DataModelFootprintPath):
-                pass
-        
-        try:
-            self.manager_pretty.Update(files) 
-            self.load()
-        except Exception as e:
-            print_stack()
-            wx.MessageBox(format(e), 'Upload failed', wx.OK | wx.ICON_ERROR)
         
     def onButtonRefreshFootprintsClick( self, event ):
         self.load()
@@ -593,6 +545,17 @@ class FootprintsFrameProto(PanelFootprintsProto):
     def onMenuLibrariesRemove( self, event ):
         event.Skip()
 
+    def onMenuLibrariesAddFootprint( self, event ):
+        item = self.tree_libraries.GetSelection()
+        if item.IsOk()==False:
+            return
+        obj = self.tree_libraries_manager.ItemToObject(item)
+        if isinstance(obj, DataModelLibrary)==False:
+            return
+
+        self.edit_state = 'add'
+        self.new_footprint(obj.path)
+
 
     def onMenuFootprintsUpdate( self, event ):
         files = []
@@ -633,9 +596,12 @@ class FootprintsFrameProto(PanelFootprintsProto):
             if isinstance(obj, DataModelFootprint):
                 files.append(obj.footprint)
             elif isinstance(obj, DataModelFootprintPath):
-                pass
+                for child in obj.childs:
+                    if isinstance(child, DataModelFootprint):
+                        files.append(child.footprint)
         
         try:
+            print "-----", files
             self.manager_pretty.Commit(files) 
             self.load()
         except Exception as e:
@@ -659,3 +625,46 @@ class FootprintsFrameProto(PanelFootprintsProto):
             print_stack()
             wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
 
+    def onMenuFootprintsAdd( self, event ):
+        item = self.tree_footprints.GetSelection()
+        if item.IsOk()==False:
+            return
+        obj = self.tree_footprints_manager.ItemToObject(item)
+        if isinstance(obj, DataModelFootprintPath)==False:
+            return
+
+        self.edit_state = 'add'
+        self.new_footprint(obj.path)
+    
+    def onMenuFootprintsEdit( self, event ):
+        item = self.tree_footprints.GetSelection()
+        if item.IsOk()==False:
+            return
+        footprintobj = self.tree_footprints_manager.ItemToObject(item)
+        if isinstance(footprintobj, DataModelFootprint)==False:
+            return
+        state = footprintobj.footprint.state
+        if state.rfind('income')!=-1 or state.rfind('conflict')!=-1:
+            wx.MessageBox("Item should be updated prior to beeing edited", 'Can not edit', wx.OK | wx.ICON_ERROR)
+            return
+        
+        self.edit_state = 'edit'
+    
+        self.edit_footprint(footprintobj.footprint)
+    
+    def onMenuFootprintsDelete( self, event ):
+        files = []
+        for item in self.tree_footprints.GetSelections():
+            obj = self.tree_footprints_manager.ItemToObject(item)
+            if isinstance(obj, DataModelFootprint):
+                files.append(obj.footprint)
+            elif isinstance(obj, DataModelFootprintPath):
+                pass
+        
+        try:
+            for file in files:
+                self.manager_pretty.DeleteFile(file) 
+            self.load()
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Delete failed', wx.OK | wx.ICON_ERROR)

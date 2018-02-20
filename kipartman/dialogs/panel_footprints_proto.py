@@ -96,21 +96,7 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.toolbar_footprint.SetForegroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 		self.toolbar_footprint.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 		
-		self.button_add_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
-		
-		self.button_edit_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
-		
-		self.button_remove_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
-		
-		self.toolbar_footprint.AddSeparator()
-		
 		self.toggle_footprint_path = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/tree_mode.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
-		
-		self.toolbar_footprint.AddSeparator()
-		
-		self.button_update_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/update.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
-		
-		self.button_commit_footprint = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/commit.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
 		
 		self.toolbar_footprint.AddSeparator()
 		
@@ -211,12 +197,7 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesRename, id = self.menu_libraries_rename.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesRemove, id = self.menu_libraries_remove.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesAddFootprint, id = self.menu_libraries_add_footprint.GetId() )
-		self.Bind( wx.EVT_TOOL, self.onButtonAddFootprintClicked, id = self.button_add_footprint.GetId() )
-		self.Bind( wx.EVT_TOOL, self.onButtonEditFootprintClicked, id = self.button_edit_footprint.GetId() )
-		self.Bind( wx.EVT_TOOL, self.onButtonRemoveFootprintClicked, id = self.button_remove_footprint.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onToggleFootprintPathClicked, id = self.toggle_footprint_path.GetId() )
-		self.Bind( wx.EVT_TOOL, self.onButtonUpdateFootprintClicked, id = self.button_update_footprint.GetId() )
-		self.Bind( wx.EVT_TOOL, self.onButtonCommitFootprintClicked, id = self.button_commit_footprint.GetId() )
 		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintsButton )
 		self.search_footprints.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintsTextEnter )
 		self.button_refresh_footprints.Bind( wx.EVT_BUTTON, self.onButtonRefreshFootprintsClick )
@@ -254,22 +235,7 @@ class PanelFootprintsProto ( wx.Panel ):
 	def onMenuLibrariesAddFootprint( self, event ):
 		event.Skip()
 	
-	def onButtonAddFootprintClicked( self, event ):
-		event.Skip()
-	
-	def onButtonEditFootprintClicked( self, event ):
-		event.Skip()
-	
-	def onButtonRemoveFootprintClicked( self, event ):
-		event.Skip()
-	
 	def onToggleFootprintPathClicked( self, event ):
-		event.Skip()
-	
-	def onButtonUpdateFootprintClicked( self, event ):
-		event.Skip()
-	
-	def onButtonCommitFootprintClicked( self, event ):
 		event.Skip()
 	
 	def onSearchFootprintsButton( self, event ):
