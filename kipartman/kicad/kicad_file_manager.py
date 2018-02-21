@@ -150,11 +150,13 @@ class KicadFileManagerPretty(KicadFileManager):
         if self.Exists(file.source_path)==False and create==False:
             raise KicadFileManagerException('File %s does not exists'%file.source_path)
     
-        md5 = hashlib.md5(content).hexdigest()
-        if md5==file.md5:
-            return file, False
-        
         fullpath = os.path.join(self.root_path(), file.source_path)
+        if self.Exists(file.source_path)==True:
+            md5file = hashlib.md5(Path(fullpath).read_text()).hexdigest()
+            md5 = hashlib.md5(content).hexdigest()
+            if md5==md5file:
+                return file, False
+            
         with open(fullpath, 'w') as content_file:
             if content:
                 content_file.write(content)
@@ -163,7 +165,6 @@ class KicadFileManagerPretty(KicadFileManager):
         content_file.close() 
  
         file.md5 = hashlib.md5(content).hexdigest()
-        #file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
         file.updated = rest.api.get_date()
            
         return file, True

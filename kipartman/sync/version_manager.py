@@ -206,11 +206,12 @@ class VersionManager(object):
         
         return file
 
-    def EditFile(self, path, content):
-        if self.local_files.has_key(path)==False:
+    def EditFile(self, path, content, create=False):
+        if self.local_files.has_key(path)==False and create==False:
             raise VersionManagerException('File %s does not exists'%path)
+        
         file = self.local_files[path]
-        file, changed = self.file_manager.EditFile(file, content)
+        file, changed = self.file_manager.EditFile(file, content, create)
         if changed:
             file.status = 'outgo_change'
 
@@ -316,8 +317,8 @@ class VersionManager(object):
                 self.local_files[file.source_path] = newfile
                 file = newfile             
             elif file.state=='income_change':
-                file, changed = self.file_manager.EditFile(file, file.content, create=force)
-                
+                file, changed = self.file_manager.EditFile(file, file.content, create=True)
+                    
                 # check if file should be renamed
                 local_file = None
                 for local_file_name in self.local_files:
@@ -325,7 +326,8 @@ class VersionManager(object):
                         local_file = self.local_files[local_file_name]
                         break
                 if local_file and local_file.source_path!=file.source_path:
-                    self.MoveFile(local_file.source_path, file.source_path)
+                    self.file_manager.DeleteFile(local_file)
+                    #self.(local_file.source_path, file.source_path)
                 
                 self.local_files[file.source_path] = file
                 

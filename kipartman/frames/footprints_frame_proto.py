@@ -409,7 +409,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
     def onEditFootprintApply( self, event ):
         footprint = event.data
         footprint_name = event.footprint_name
-            
+                
         if self.edit_state=='add':
             # get library path
             library_path = ''
@@ -438,10 +438,11 @@ class FootprintsFrameProto(PanelFootprintsProto):
                         return
             try:
                 if footprint.content:
-                    self.manager_pretty.EditFile(footprint_path, footprint.content)
+                    print "$$$$$$$$", footprint_path, footprint.content
+                    self.manager_pretty.EditFile(footprint_path, footprint.content, create=True)
             except Exception as e:
                 print_stack()
-                wx.MessageBox(format(e), 'Error renaming footprint', wx.OK | wx.ICON_ERROR)                                    
+                wx.MessageBox(format(e), 'Error editing footprint', wx.OK | wx.ICON_ERROR)                                    
                 return
             
         else:
