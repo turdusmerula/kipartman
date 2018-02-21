@@ -75,8 +75,7 @@ class KicadFileManagerPretty(KicadFileManager):
                 file = rest.model.VersionedFile()
                 file.source_path = source_path
                 file.md5 = md5
-                # TODO: convert date to server date
-                file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(configuration.kicad_library_path, source_path))).strftime("%Y-%m-%dT%H:%M:%SZ")
+
                 self.files[source_path] = file
 
 

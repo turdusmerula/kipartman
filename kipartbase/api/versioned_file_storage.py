@@ -6,6 +6,7 @@ import os
 import shutil
 import models
 from pathlib import Path
+import datetime
 
 import api.models
 
@@ -66,7 +67,7 @@ class VersionedFileStorage(object):
             ffile.md5 = md5
             ffile.version = ffile.version+1                
             ffile.state = models.VersionedFileState.created
-            ffile.updated = version_file.updated
+            ffile.updated = datetime.datetime.now()
             ffile.metadata = version_file.metadata
             ffile.save()   
         else:
@@ -76,7 +77,7 @@ class VersionedFileStorage(object):
                                         md5=md5,
                                         version=1,
                                         state=models.VersionedFileState.created,
-                                        updated=version_file.updated,
+                                        updated=datetime.datetime.now(),
                                         metadata=version_file.metadata)
             ffile.save()
         
@@ -84,6 +85,7 @@ class VersionedFileStorage(object):
         version_file.storage_path = ffile.storage_path
         version_file.md5 = md5
         version_file.version = ffile.version
+        version_file.updated = ffile.updated 
         version_file.state = ''
         
         print "Add file", version_file.source_path, "as", storage_path

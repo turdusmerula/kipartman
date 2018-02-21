@@ -52,97 +52,12 @@ def deserialize_VersionedFile(file, ffile=None):
 def file_changed(file, ffile):
     return file.md5!=ffile.md5 or \
         file.source_path!=ffile.source_path or \
-        file.metadata!=ffile.metadata
-    
-def update_file_state_(file):
-    # possibles states:
-    #  conflict_add
-    #  conflict_change
-    #  conflict_del
-    #  income_add
-    #  income_change
-    #  income_del
-    #  outgo_add
-    #  outgo_change
-    #  outgo_del
-    #  error
-    
-    ffile = None
-    try:
-        if file.id:
-            ffile = api.models.VersionedFile.objects.filter(id=file.id).latest('id')
-#        else:
-#            ffile = api.models.VersionedFile.objects.filter(state=api.models.VersionedFileState.created).get(source_path=file.source_path)
-#            ffile = api.models.VersionedFile.objects.filter(state=api.models.VersionedFileState.created).get(source_path=file.source_path)
-    except Exception as e:
-        print "Error: %s"%format(e)
+        file.metadata!=ffile.metadata         
 
-    if file.state is None or file.state=='conflict_add' or file.state=='conflict_change' or file.state=='conflict_del':
-        file.state = ''
-    
-    if ffile:
-        # file exists in database
-        if file.version and file.version>ffile.version:
-            # TODO error
-            pass
-
-        if ffile.state==api.models.VersionedFileState.deleted:
-            if file_changed(file, ffile):
-                file.state = 'conflict_change'
-            else:
-                file.state = 'income_del'
-        else:
-            if file_changed(file, ffile) and file.updated>ffile.updated:
-                file.state = 'outgo_change'
-            elif file_changed(file, ffile) and file.updated<=ffile.updated:
-                file.state = 'income_change'
-            elif file.version<ffile.version:
-                file.state = 'income_change'
-    
-        if file.version is None:
-            file.state = 'conflict_add'
-                    
-        if file.state=='outgo_add':
-            file.state = 'conflict_add'
-        elif file.state=='outgo_change':
-            if file.version is None or file.version<ffile.version:
-                file.state = 'conflict_change'
-        elif file.state=='outgo_del':
-            if ffile.state==api.models.VersionedFileState.deleted:
-                if file.version is None or file.version<ffile.version:
-                    file.state = 'conflict_del'
-            else:
-                if file.version is None or file.version<ffile.version:
-                    file.state = 'conflict_change'
-        return
-
-    # file not found by id in database, check if it can be found by path 
-    try:
-        ffile = api.models.VersionedFile.objects.filter(source_path=file.source_path).latest('id')
-    except Exception as e:
-        print "Error: %s"%format(e)
-    
-    if ffile:
-        # file exists in database
-        if file.version:
-            # TODO error
-            pass
-        
-        file.id = ffile.id
-        
-        if ffile.state==api.models.VersionedFileState.deleted:
-            file.state = 'outgo_add'
-        else:
-            file.state = 'conflict_add'
-        return
-    
-    # file not found at all
-    if file.state=='':
-        file.state = 'outgo_add'    
-    else:
-        # TODO: error
-        pass
-        
+def file_updated(file, ffile):
+    if file.updated:
+        return file.updated>ffile.updated
+    return False
 
 def update_file_state(file):
     # possibles states:
@@ -167,34 +82,68 @@ def update_file_state(file):
     except Exception as e:
         print "Error: %s"%format(e)
 
-    if file.state is None or file.state=='conflict_add' or file.state=='conflict_change' or file.state=='conflict_del':
+    if file.state is None:
         file.state = ''
+    
+    if file.state=='conflict_add':
+        file.state = 'outgo_add'
+    
+    if file.state=='conflict_change':
+        file.state = 'outgo_change'
+    
+    if file.state=='conflict_del':
+        file.state = 'outgo_del'
     
     if ffile:
         if file.id is None:
             # file is new
-            if ffile.state!=api.models.VersionedFileState.deleted:
-                file.state = 'conflict_add'
+            if ffile.state==api.models.VersionedFileState.deleted:
+                file.state = 'outgo_add'
             else:
-                ffile.state = 'outgo_add'
+                file.state = 'conflict_add'
         else:
             # file exists in database
             if file.version and file.version>ffile.version:
                 # TODO error
                 pass
-
-            if ffile.state==api.models.VersionedFileState.deleted:
-                if file_changed(file, ffile):
-                    file.state=='conflict_change'
-                elif file.state=='outgo_del':
-                    file.state=='conflict_del'
+                
+            if file.state=='' and file_changed(file, ffile):
+                if ffile.state==api.models.VersionedFileState.deleted:
+                    file.state = 'outgo_add'
                 else:
-                    pass    
-            else:
-                pass
-
+                    file.state = 'outgo_change'
+                    
+            if file.version and file.version<ffile.version:
+                # if version  in database is greater it means that something was commited meanwhile
+                if file_updated(file, ffile):
+                    if ffile.state==api.models.VersionedFileState.deleted:
+                        file.state = 'conflict_del'
+                    else:
+                        file.state = 'conflict_change'
+                else:
+                    if ffile.state==api.models.VersionedFileState.deleted:
+                        file.state = 'income_del'
+                    else:
+                        file.state = 'income_change'
+            elif file.version and file.version==ffile.version:
+                if ffile.state==api.models.VersionedFileState.deleted:
+                    if file.state=='outgo_del':
+                        file.state = 'conflict_del'
+                    else:
+                        file.state = 'income_del'
+                elif file_changed(file, ffile):
+                    if file_updated(file, ffile):
+                        file.state = 'outgo_change'
+                    else:
+                        file.state = 'income_change'
+            elif not file.version:
+                if ffile.state==api.models.VersionedFileState.deleted:
+                    file.state = 'outgo_add'
+                else:
+                    file.state = 'conflict_change'
+                
     else:
-        pass
+        file.state = 'outgo_add'
 
 def synchronize_versioned_files(files=None, root_path=None):
     """
@@ -244,7 +193,9 @@ def synchronize_versioned_files(files=None, root_path=None):
     for ffile in ffile_request.all():
         file = serialize_VersionedFile(ffile)
         file.id = ffile.id
-        file.version = None
+        file.version = ffile.version
+        #file.id = None
+        #file.version = None
         file.state = 'income_add'
         sync_files.append(file)
     
@@ -288,15 +239,31 @@ def commit_versioned_files(files, force=None):
     # check if given files are allowed to commit 
     for file in files:
         raise_on_error(update_file_state(file))
-        if force==False and ( file.state=='conflict_change' or file.state=='conflict_del' or file.state=='conflict_add' ):
-            has_conflicts = True
-            conflict_files.append(file)
-        elif file.state=='outgo_add' or file.state=='conflict_add':
-            to_add.append(file)
-        elif file.state=='outgo_change' or file.state=='conflict_change':
-            to_change.append(file)
-        elif file.state=='outgo_del' or file.state=='conflict_del':
-            to_delete.append(file)
+        if force==True:
+            if file.state=='outgo_add':
+                to_add.append(file)
+            elif file.state=='outgo_change':
+                to_change.append(file)
+            elif file.state=='outgo_del':
+                to_delete.append(file)
+            elif file.state=='conflict_add':
+                to_change.append(file)
+            elif file.state=='conflict_change':
+                to_change.append(file)
+            elif file.state=='conflict_del':
+                to_delete.append(file)
+            elif file.state=='income_add' or file.state=='income_change' or file.state=='income_del':
+                to_change.append(file)
+        else:  
+            if file.state=='conflict_change' or file.state=='conflict_del' or file.state=='conflict_add':
+                has_conflicts = True
+                conflict_files.append(file)
+            elif file.state=='outgo_add':
+                to_add.append(file)
+            elif file.state=='outgo_change':
+                to_change.append(file)
+            elif file.state=='outgo_del':
+                to_delete.append(file)
     
     if has_conflicts and force==False:
         # in case of a conflict return conflicted files
@@ -367,7 +334,7 @@ def update_versioned_files(files, force=None):
                 file.state = 'income_change'
                 to_update.append(file)
             elif file.state=='conflict_del' or file.state=='outgo_del':
-                file.state = 'income_del'
+                file.state = 'income_add'
                 to_update.append(file)
             elif file.state=='income_add':
                 to_update.append(file)

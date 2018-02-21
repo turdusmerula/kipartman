@@ -153,11 +153,11 @@ class VersionManager(object):
                     # update local file state 
                     self.local_files[filepath] = file_version
             
-    def Synchronize(self):
+    def Synchronize_(self):
         self.LoadState()
         return self.local_files
     
-    def Synchronize_(self):
+    def Synchronize(self):
         """
         Return synchronization state from server
         """
@@ -190,6 +190,8 @@ class VersionManager(object):
         if self.local_files.has_key(path):
             self.local_files[path].updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
             self.local_files[path].metadata = metadata
+            # TODO: check if metadata really changed
+            self.local_files[path].status = 'outgo_change'
             self.SaveState()
         else:
             raise VersionManagerException('Updating metadata failed for file %s'%path)
@@ -244,7 +246,9 @@ class VersionManager(object):
             self.local_files.pop(file.source_path)
         else:
             file.state = 'outgo_del'
+            self.local_files[file.source_path] = file
 
+        print "****", self.local_files
         self.SaveState()
 
         return file
@@ -263,7 +267,7 @@ class VersionManager(object):
     def Commit(self, files, force=False):
         # add content
         for file in files:
-            if file.state=='outgo_add' or file.state=='outgo_change':
+            if force or (file.state=='outgo_add' or file.state=='outgo_change'):
                 self.file_manager.LoadContent(file)
 
         commits = []

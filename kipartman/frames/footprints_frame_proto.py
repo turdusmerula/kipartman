@@ -564,7 +564,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
             if isinstance(obj, DataModelFootprint):
                 files.append(obj.footprint)
             elif isinstance(obj, DataModelFootprintPath):
-                pass
+                for child in obj.childs:
+                    if isinstance(child, DataModelFootprint):
+                        files.append(child.footprint)
         
         try:
             self.manager_pretty.Update(files) 
@@ -580,7 +582,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
             if isinstance(obj, DataModelFootprint):
                 files.append(obj.footprint)
             elif isinstance(obj, DataModelFootprintPath):
-                pass
+                for child in obj.childs:
+                    if isinstance(child, DataModelFootprint):
+                        files.append(child.footprint)
         
         try:
             self.manager_pretty.Update(files, force=True) 
@@ -616,7 +620,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
             if isinstance(obj, DataModelFootprint):
                 files.append(obj.footprint)
             elif isinstance(obj, DataModelFootprintPath):
-                pass
+                for child in obj.childs:
+                    if isinstance(child, DataModelFootprint):
+                        files.append(child.footprint)
         
         try:
             self.manager_pretty.Commit(files, force=True) 
