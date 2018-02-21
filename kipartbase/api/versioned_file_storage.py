@@ -96,7 +96,8 @@ class VersionedFileStorage(object):
 
         ffile = models.VersionedFile.objects.get(pk=version_file.id)
         ffile.state = models.VersionedFileState.deleted
-        ffile.updated = version_file.updated
+        ffile.updated = datetime.datetime.now()
+        ffile.version = ffile.version+1                
         ffile.save()   
         
         version_file.storage_path = None

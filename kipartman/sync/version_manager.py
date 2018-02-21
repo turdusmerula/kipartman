@@ -70,16 +70,16 @@ class VersionManager(object):
         return res 
         
     def SaveState(self):
-        print "SaveState----"
+        print "===> SaveState----"
         content = []
         for file in self.local_files:
-            print "+++", file, self.local_files[file]
+            print "+", file, self.local_files[file]
             content.append(self.serialize_file(self.local_files[file]))
-        print "-------------"
 
         with open(self.config, 'wb') as outfile:
             json.dump(content, outfile, sort_keys=True, indent=2, separators=(',', ': '))
             outfile.close()
+        print "------------------"
     
     def LoadState(self):
         """
@@ -248,7 +248,6 @@ class VersionManager(object):
             file.state = 'outgo_del'
             self.local_files[file.source_path] = file
 
-        print "****", self.local_files
         self.SaveState()
 
         return file
@@ -268,7 +267,8 @@ class VersionManager(object):
         # add content
         for file in files:
             if force or (file.state=='outgo_add' or file.state=='outgo_change'):
-                self.file_manager.LoadContent(file)
+                if self.file_manager.Exists(file.source_path):
+                    self.file_manager.LoadContent(file)
 
         commits = []
         try:
@@ -304,15 +304,15 @@ class VersionManager(object):
                     raise VersionManagerException('Update failed due to unresolved conflict')
             raise VersionManagerException('Update failed: %s'%format(e))
         
-        print "---", updates
         # update state
         for file in updates:
-
+            print "----", file
             if file.state=='income_add':
                 newfile = self.file_manager.CreateFile(file.source_path, file.content, overwrite=force)
                 newfile.metadata = file.metadata
                 newfile.id = file.id
                 newfile.version = file.version
+                newfile.state = ''
                 self.local_files[file.source_path] = newfile
                 file = newfile             
             elif file.state=='income_change':

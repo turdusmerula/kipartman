@@ -84,11 +84,12 @@ class KicadFileManagerPretty(KicadFileManager):
         Recurse all folders and return .pretty folders path
         @param root_path: path from which to start recursing, None starts from root
         """
+        print "===> GetLibraries----"
         basepath = os.path.normpath(os.path.abspath(self.root_path()))
         to_explore = [basepath]
         libraries = []
         folders = []
-         
+        
         while len(to_explore)>0:
             path = to_explore.pop()
             if os.path.exists(path):
@@ -96,10 +97,11 @@ class KicadFileManagerPretty(KicadFileManager):
                     if folder!='/':
                         folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         if re.compile("^.*\.pretty$").match(os.path.normpath(os.path.abspath(folder))):
-                            print("=>", folder)
+                            print "=>", folder 
                             libraries.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         elif os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             to_explore.append(folder)
+        print "---------------------"
      
         return libraries, folders
 
@@ -107,13 +109,15 @@ class KicadFileManagerPretty(KicadFileManager):
         """
         Return all footprints in a pretty lib
         """
+        print "===> GetFootprints----"
         footprints = []
  
         path = os.path.join(self.root_path(), library_path)        
         if os.path.exists(path):
             for kicad_mod in glob(os.path.join(path, "*.kicad_mod")):
-                print("==>", kicad_mod)
+                print "==>", kicad_mod 
                 footprints.append(os.path.basename(kicad_mod))
+        print "----------------------"
      
         return footprints
  
@@ -138,7 +142,6 @@ class KicadFileManagerPretty(KicadFileManager):
         file = rest.model.VersionedFile()
         file.source_path = path
         file.md5 = hashlib.md5(content).hexdigest()
-        #file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
         file.updated = rest.api.get_date()
         
         return file

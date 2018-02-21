@@ -156,6 +156,7 @@ def synchronize_versioned_files(files=None, root_path=None):
 
     :rtype: List[VersionedFile]
     """
+    print "===> synchronize_versioned_files----"
     sync_files = []
 
     if connexion.request.is_json:
@@ -175,7 +176,8 @@ def synchronize_versioned_files(files=None, root_path=None):
                 exclude_id.append(file.id)
             else:
                 exclude_path.append(file.source_path)
-        
+     
+    print "*",   exclude_id,  exclude_path
     # check files not in list
     ffile_request = api.models.VersionedFile.objects
     # limit to root_path
@@ -200,6 +202,7 @@ def synchronize_versioned_files(files=None, root_path=None):
         sync_files.append(file)
     
     print "%%%", sync_files
+    print "------------------------------------"
     return sync_files
 
 def commit_versioned_files(files, force=None):
@@ -288,6 +291,7 @@ def commit_versioned_files(files, force=None):
         # delete file to file storage
         commit_files.append(storage.delete_file(file))
     
+    print "****", commit_files
     return commit_files 
 
 def update_versioned_files(files, force=None):
@@ -333,7 +337,10 @@ def update_versioned_files(files, force=None):
             elif file.state=='conflict_change' or file.state=='outgo_change':
                 file.state = 'income_change'
                 to_update.append(file)
-            elif file.state=='conflict_del' or file.state=='outgo_del':
+            elif file.state=='conflict_del':
+                file.state = 'income_del'
+                to_delete.append(file)
+            elif file.state=='outgo_del':
                 file.state = 'income_add'
                 to_update.append(file)
             elif file.state=='income_add':
@@ -368,6 +375,7 @@ def update_versioned_files(files, force=None):
         update_files.append(file)
     
     for file in to_delete:
+        file.storage_path = None
         update_files.append(file)
 
     print "----", update_files
