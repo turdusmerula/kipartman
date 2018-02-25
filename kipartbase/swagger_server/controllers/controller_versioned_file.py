@@ -56,7 +56,7 @@ def file_changed(file, ffile):
 
 def file_updated(file, ffile):
     if file.updated:
-        return file.updated>ffile.updated
+        return file.updated<ffile.updated
     return False
 
 def update_file_state(file):
@@ -124,6 +124,7 @@ def update_file_state(file):
                     if ffile.state==api.models.VersionedFileState.deleted:
                         file.state = 'income_del'
                     else:
+                        print "++++++++++++++++++++++", file.updated, ffile.updated
                         file.state = 'income_change'
             elif file.version and file.version==ffile.version:
                 if ffile.state==api.models.VersionedFileState.deleted:
@@ -366,7 +367,10 @@ def update_versioned_files(files, force=None):
     
     storage = api.versioned_file_storage.VersionedFileStorage()
     for file in to_update:
-        ffile = api.models.VersionedFile.objects.filter(id=file.id).latest('id')
+        if file.id:
+            ffile = api.models.VersionedFile.objects.filter(id=file.id).latest('id')
+        else:
+            ffile = api.models.VersionedFile.objects.filter(source_path=file.source_path).latest('id')            
         file = serialize_VersionedFile(ffile, file)
         file.content = storage.get_file_content(file.id)
         file.id = ffile.id

@@ -764,9 +764,9 @@ class TreeManager(object):
         while len(container)>0:
             # only remove container with empty childs
             for obj in container:
-                if len(obj.childs)==0:
+                if obj.childs is None or len(obj.childs)==0:
                     break
-            if len(obj.childs)>0:
+            if obj.childs and len(obj.childs)>0:
                 break # this is an error, we should never get there
             self.DeleteItem(obj.parent, obj)
             container.remove(obj)

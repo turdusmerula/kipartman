@@ -83,7 +83,6 @@ class TreeManagerLibraries(helper.tree.TreeManager):
         if libraryobj:
             return libraryobj
         pathobj = self.FindPath(path)
-        print "++", path
         libraryobj = DataModelLibrary(path, name)
         self.AppendItem(pathobj, libraryobj)
 
@@ -248,9 +247,6 @@ class FootprintsFrameProto(PanelFootprintsProto):
         
         self.tree_libraries_manager.SaveState()
         
-        # clear all
-        #self.tree_libraries_manager.ClearItems()
-        
         # load libraries tree
         for footprint_path in self.footprints:
             # decompose path
@@ -339,9 +335,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
 
     def onFilePrettyChanged(self, event):
         # do a synchronize when a file change on disk
-        #self.load()
+#        self.load()
         pass
-    
+       
     def onTreeLibrariesSelChanged( self, event ):
         item = self.tree_libraries.GetSelection()
         if item.IsOk()==False:
@@ -438,7 +434,6 @@ class FootprintsFrameProto(PanelFootprintsProto):
                         return
             try:
                 if footprint.content:
-                    print "$$$$$$$$", footprint_path, footprint.content
                     self.manager_pretty.EditFile(footprint_path, footprint.content, create=True)
             except Exception as e:
                 print_stack()
@@ -525,7 +520,8 @@ class FootprintsFrameProto(PanelFootprintsProto):
             if dlg.ShowModal() == wx.ID_OK:
                 name = dlg.GetValue()
                 try:
-                    self.manager_pretty.MoveFolder(path, name)
+                    newpath = os.path.join(os.path.dirname(path), name)
+                    self.manager_pretty.MoveFolder(path, newpath)
                 except Exception as e:
                     print_stack()
                     wx.MessageBox(format(e), 'Error renaming folder', wx.OK | wx.ICON_ERROR)
@@ -535,16 +531,29 @@ class FootprintsFrameProto(PanelFootprintsProto):
             if dlg.ShowModal() == wx.ID_OK:
                 name = dlg.GetValue()
                 try:
-                    self.manager_pretty.RenameLibrary(path, name+".pretty")
+                    self.manager_pretty.MoveFolder(path, name+".pretty")
                 except Exception as e:
                     print_stack()
                     wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
             dlg.Destroy()
         
+        print "****", self.manager_pretty.local_files
         self.load()
+        print "++++", self.manager_pretty.local_files
 
     def onMenuLibrariesRemove( self, event ):
-        event.Skip()
+        item = self.tree_libraries.GetSelection()
+        if item.IsOk()==False:
+            return
+        obj = self.tree_libraries_manager.ItemToObject(item)
+        path = obj.path
+        try:
+            self.manager_pretty.DeleteFolder(path)
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
+        self.load()
+        
 
     def onMenuLibrariesAddFootprint( self, event ):
         item = self.tree_libraries.GetSelection()
@@ -606,7 +615,6 @@ class FootprintsFrameProto(PanelFootprintsProto):
                         files.append(child.footprint)
         
         try:
-            print "-----", files
             self.manager_pretty.Commit(files) 
             self.load()
         except Exception as e:

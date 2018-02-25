@@ -10,6 +10,7 @@ import hashlib
 import sync.version_manager
 from pathlib2 import Path
 from helper.exception import print_stack
+import shutil
 
 import rest
 
@@ -149,14 +150,16 @@ class KicadFileManagerPretty(KicadFileManager):
     def EditFile(self, file, content, create=False):
         if self.Exists(file.source_path)==False and create==False:
             raise KicadFileManagerException('File %s does not exists'%file.source_path)
-    
+
         fullpath = os.path.join(self.root_path(), file.source_path)
         if self.Exists(file.source_path)==True:
             md5file = hashlib.md5(Path(fullpath).read_text()).hexdigest()
             md5 = hashlib.md5(content).hexdigest()
             if md5==md5file:
                 return file, False
-            
+        
+        if os.path.exists(os.path.dirname(fullpath))==False:
+            os.makedirs(os.path.dirname(fullpath))
         with open(fullpath, 'w') as content_file:
             if content:
                 content_file.write(content)
@@ -169,10 +172,10 @@ class KicadFileManagerPretty(KicadFileManager):
            
         return file, True
     
-    def MoveFile(self, file, dest_path):
-        if self.Exists(file.source_path)==False:
+    def MoveFile(self, file, dest_path, force=False):
+        if self.Exists(file.source_path)==False and force==False:
             raise KicadFileManagerException('File %s does not exists'%file.source_path)
-        if self.Exists(dest_path):
+        if self.Exists(dest_path) and force==False:
             raise KicadFileManagerException('File %s already exists'%dest_path)
         
         os.rename(os.path.join(self.root_path(), file.source_path), 
@@ -185,12 +188,13 @@ class KicadFileManagerPretty(KicadFileManager):
         
         return file
 
-    def DeleteFile(self, file):
-        if self.Exists(file.source_path)==False:
+    def DeleteFile(self, file, force=False):
+        if self.Exists(file.source_path)==False and force==False:
             raise KicadFileManagerException('File %s does not exists'%file.source_path)
         
         fullpath = os.path.join(self.root_path(), file.source_path)
-        os.remove(fullpath)
+        if os.path.exists(fullpath):
+            os.remove(fullpath)
         #file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         file.updated = rest.api.get_date()
     
@@ -213,8 +217,15 @@ class KicadFileManagerPretty(KicadFileManager):
             os.makedirs(abspath)
     
     def MoveFolder(self, source_path, dest_path):
-        pass
+        abs_source_path = os.path.join(self.root_path(), source_path)
+        abs_dest_path = os.path.join(self.root_path(), dest_path)
+        if os.path.exists(abs_source_path)==False:
+            raise KicadFileManagerException('Folder %s does not exists'%abs_source_path)
+        if os.path.exists(abs_dest_path):
+            raise KicadFileManagerException('Folder %s already exists'%abs_dest_path)
+        shutil.move(abs_source_path, abs_dest_path)
     
     def DeleteFolder(self, path):
-        pass
+        abspath = os.path.join(self.root_path(), path)
+        shutil.rmtree(abspath)
       

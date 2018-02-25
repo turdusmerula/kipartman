@@ -237,7 +237,7 @@ class VersionManager(object):
         
         return file
 
-    def DeleteFile(self, file):
+    def delete_file(self, file):
         if self.local_files.has_key(file.source_path)==False:
             raise VersionManagerException('File %s does not exists'%file.source_path)
             
@@ -248,9 +248,11 @@ class VersionManager(object):
         else:
             file.state = 'outgo_del'
             self.local_files[file.source_path] = file
-
+        return file
+    
+    def DeleteFile(self, file):
+        file = self.delete_file(file)
         self.SaveState()
-
         return file
 
 
@@ -258,11 +260,41 @@ class VersionManager(object):
         self.file_manager.CreateFolder(path)
             
     def MoveFolder(self, source_path, dest_path):
-        pass
+        to_move = []
+        for filename in self.local_files:
+            file = self.local_files[filename]
+            if file.source_path.startswith(source_path):
+                to_move.append(file)
+        
+        self.file_manager.MoveFolder(source_path, dest_path)
+
+        for file in to_move:
+            print "****", file, source_path, dest_path
+            self.local_files.pop(file.source_path)
+            file.source_path = file.source_path.replace(source_path, dest_path, 1)
+            file.updated = rest.api.get_date()
+            self.local_files[file.source_path] = file
+            print "++++", file
+            
+            if file.version is None:
+                file.state = 'outgo_add'
+            else:
+                file.state = 'outgo_change'
+
+        self.SaveState()
     
     def DeleteFolder(self, path):
-        pass
+        to_delete = []
+        for filename in self.local_files:
+            file = self.local_files[filename]
+            if file.source_path.startswith(path):
+                to_delete.append(file)
+        
+        for file in to_delete:
+            self.delete_file(file)
 
+        self.file_manager.DeleteFolder(path)
+        self.SaveState()
 
     def Commit(self, files, force=False):
         # add content
@@ -307,7 +339,6 @@ class VersionManager(object):
         
         # update state
         for file in updates:
-            print "----", file
             if file.state=='income_add':
                 newfile = self.file_manager.CreateFile(file.source_path, file.content, overwrite=force)
                 newfile.metadata = file.metadata
@@ -326,7 +357,7 @@ class VersionManager(object):
                         local_file = self.local_files[local_file_name]
                         break
                 if local_file and local_file.source_path!=file.source_path:
-                    self.file_manager.DeleteFile(local_file)
+                    self.file_manager.DeleteFile(local_file, True)
                     #self.(local_file.source_path, file.source_path)
                 
                 self.local_files[file.source_path] = file
