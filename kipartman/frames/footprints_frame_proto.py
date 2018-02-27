@@ -11,6 +11,7 @@ from configuration import configuration
 import wx
 import re
 import sync
+import json
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -187,6 +188,48 @@ class TreeManagerFootprints(helper.tree.TreeManager):
         footprintobj = DataModelFootprint(self.imagelist, path, footprint)
         self.DeleteItem(pathobj, footprintobj)
 
+class FootprintsFrameFilter(Filter):
+    def __init__(self, filters_panel, onRemove):
+        super(FootprintsFrameFilter, self).__init__(filters_panel, onRemove)
+
+    def footprint_search(self, footprint, value):
+        if footprint.source_path.rfind(value)>-1:
+            return True
+        if footprint.metadata and footprint.metadata.rfind(value)>-1:
+            metadata = json.loads(footprint.metadata)
+            for name in metadata:
+                value = metadata[name]
+                if value.rfind(value)>-1:
+                    return True
+        return False
+    
+    def FilterPath(self, path):
+        if len(self.filters)==0:
+            return False
+        
+        for filter_name in self.filters:
+            filter = self.filters[filter_name]
+            
+            if filter['name']=='path' and path.startswith(filter['value']+os.path.sep):
+                return False
+                
+        return True
+
+    def FilterFootprint(self, footprint):
+        if len(self.filters)==0:
+            return False
+
+        for filter_name in self.filters:
+            filter = self.filters[filter_name]
+            
+            if filter['name']=='path' and footprint.source_path.startswith(filter['value']+os.path.sep):
+                return False
+
+            if filter['name']=='search' and self.footprint_search(footprint, filter['value']):
+                return False
+
+        return True
+
 class FootprintsFrameProto(PanelFootprintsProto): 
     def __init__(self, parent):
         super(FootprintsFrameProto, self).__init__(parent)
@@ -202,7 +245,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.tree_libraries_manager.OnItemBeforeContextMenu = self.onTreeLibrariesBeforeContextMenu
 
         # footprints filters
-        self.footprints_filter = Filter(self.filters_panel, self.onButtonRemoveFilterClick)
+        self.footprints_filter = FootprintsFrameFilter(self.filters_panel, self.onButtonRemoveFilterClick)
 
         # create footprint list
         self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints, context_menu=self.menu_footprints)
@@ -314,8 +357,9 @@ class FootprintsFrameProto(PanelFootprintsProto):
             library_path = os.path.dirname(footprint_path)
             if self.show_footprint_path==True:
                 pathobj = self.tree_footprints_manager.FindPath(library_path)
-                if self.tree_footprints_manager.DropStateObject(pathobj)==False:
-                    self.tree_footprints_manager.AppendPath(library_path)
+                if self.footprints_filter.FilterPath(library_path)==False:
+                    if self.tree_footprints_manager.DropStateObject(pathobj)==False:
+                        self.tree_footprints_manager.AppendPath(library_path)
 
             footprint = self.footprints[footprint_path]
             parent = library_path
@@ -337,11 +381,12 @@ class FootprintsFrameProto(PanelFootprintsProto):
 
             libraryobj = self.tree_footprints_manager.FindFootprint(parent, footprint)
             if show==True:
-                if self.tree_footprints_manager.DropStateObject(libraryobj)==False:
-                    if self.show_footprint_path==True:
-                        self.tree_footprints_manager.AppendFootprint(parent, footprint, flat=False)
-                    else:
-                        self.tree_footprints_manager.AppendFootprint(parent, footprint, flat=True)
+                if self.footprints_filter.FilterFootprint(footprint)==False:
+                    if self.tree_footprints_manager.DropStateObject(libraryobj)==False:
+                        if self.show_footprint_path==True:
+                            self.tree_footprints_manager.AppendFootprint(parent, footprint, flat=False)
+                        else:
+                            self.tree_footprints_manager.AppendFootprint(parent, footprint, flat=True)
                 
         self.tree_footprints_manager.PurgeState()
 
@@ -735,3 +780,14 @@ class FootprintsFrameProto(PanelFootprintsProto):
         except Exception as e:
             print_stack()
             wx.MessageBox(format(e), 'Delete failed', wx.OK | wx.ICON_ERROR)
+
+    def onSearchFootprintsButton( self, event ):
+        return self.onSearchFootprintsTextEnter(event)
+    
+    def onSearchFootprintsTextEnter( self, event ):
+        # set search filter
+        self.footprints_filter.remove('search')
+        if self.search_footprints.Value!='':
+            self.footprints_filter.add('search', self.search_footprints.Value)
+        # apply new filter and reload
+        self.loadFootprints()
