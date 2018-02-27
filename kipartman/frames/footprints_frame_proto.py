@@ -125,10 +125,14 @@ class DataModelFootprint(helper.tree.TreeItem):
         version = ''
         if self.footprint.version:
             version = str(self.footprint.version)
+        if self.parent:
+            name = os.path.basename(self.footprint.source_path).replace(".kicad_mod", "")
+        else:
+            name = os.path.join(self.path, os.path.basename(self.footprint.source_path).replace(".kicad_mod", ""))
         vMap = {
             0 : self.imagelist.GetBitmap(self.footprint.state), 
             1 : str(version),
-            2 : os.path.basename(self.footprint.source_path).replace(".kicad_mod", ""),
+            2 : name,
         }
 #        return wx.dataview.DataViewIconText(vMap[col], None)
         return vMap[col]
@@ -164,8 +168,10 @@ class TreeManagerFootprints(helper.tree.TreeManager):
         self.AppendItem(parentpath, pathobj)
         return pathobj
 
-    def AppendFootprint(self, path, footprint):
-        pathobj = self.FindPath(path)
+    def AppendFootprint(self, path, footprint, flat=False):
+        pathobj = None
+        if flat==False:
+            pathobj = self.FindPath(path)
         footprintobj = DataModelFootprint(self.imagelist, path, footprint)
         self.AppendItem(pathobj, footprintobj)
         return footprintobj
@@ -175,6 +181,11 @@ class TreeManagerFootprints(helper.tree.TreeManager):
         if footprintobj:
             self.UpdateItem(footprintobj)
         return footprintobj
+
+    def DeleteFootprint(self, path, footprint):
+        pathobj = self.FindPath(path)
+        footprintobj = DataModelFootprint(self.imagelist, path, footprint)
+        self.DeleteItem(pathobj, footprintobj)
 
 class FootprintsFrameProto(PanelFootprintsProto): 
     def __init__(self, parent):
@@ -222,7 +233,13 @@ class FootprintsFrameProto(PanelFootprintsProto):
 
         self.toolbar_footprint.ToggleTool(self.toggle_footprint_path.GetId(), True)
         
-        self.show_footprint_path = True
+        self.show_footprint_path = self.toolbar_footprint.GetToolState(self.toggle_footprint_path.GetId())
+        self.previous_show_footprint_path = self. show_footprint_path
+        
+        self.show_both_changes = self.toolbar_footprint.GetToolState(self.toggle_show_both_changes.GetId())
+        self.show_conflict_changes = self.toolbar_footprint.GetToolState(self.toggle_show_conflict_changes.GetId())
+        self.show_incoming_changes = self.toolbar_footprint.GetToolState(self.toggle_show_incoming_changes.GetId())
+        self.show_outgoing_changes = self.toolbar_footprint.GetToolState(self.toggle_show_outgoing_changes.GetId())
     
         # initial edit state
         self.show_footprint(None)
@@ -284,31 +301,48 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.tree_libraries_manager.PurgeState()
 
     def loadFootprints(self):
-        
+            
+        if self.previous_show_footprint_path!=self.show_footprint_path:
+            # in case switch from tree to flat view 
+            self.tree_footprints_manager.ClearItems()
+            self.previous_show_footprint_path = self.show_footprint_path
+            
         self.tree_footprints_manager.SaveState()
         
-        # clear all
-        #self.tree_footprints_manager.ClearItems()
-
         # load footprints from local folder
         for footprint_path in self.footprints:
             library_path = os.path.dirname(footprint_path)
-            if self.show_footprint_path:
+            if self.show_footprint_path==True:
                 pathobj = self.tree_footprints_manager.FindPath(library_path)
                 if self.tree_footprints_manager.DropStateObject(pathobj)==False:
                     self.tree_footprints_manager.AppendPath(library_path)
 
             footprint = self.footprints[footprint_path]
+            parent = library_path
 
-            if self.show_footprint_path:
-                parent = library_path
+            if self.show_both_changes==False and self.show_conflict_changes==False and self.show_incoming_changes==False and self.show_outgoing_changes==False:
+                show = True
             else:
-                parent = None
-            
+                show = False
+            if self.show_both_changes==True and footprint.state.rfind('outgo_')!=-1:
+                show = True
+            if self.show_both_changes==True and footprint.state.rfind('income_')!=-1:
+                show = True
+            if self.show_conflict_changes==True and footprint.state.rfind('conflict_')!=-1:
+                show = True
+            if self.show_incoming_changes==True and footprint.state.rfind('income_')!=-1:
+                show = True
+            if self.show_outgoing_changes==True and footprint.state.rfind('outgo_')!=-1:
+                show = True
+
             libraryobj = self.tree_footprints_manager.FindFootprint(parent, footprint)
-            if self.tree_footprints_manager.DropStateObject(libraryobj)==False:
-                self.tree_footprints_manager.AppendFootprint(parent, footprint)
-    
+            if show==True:
+                if self.tree_footprints_manager.DropStateObject(libraryobj)==False:
+                    if self.show_footprint_path==True:
+                        self.tree_footprints_manager.AppendFootprint(parent, footprint, flat=False)
+                    else:
+                        self.tree_footprints_manager.AppendFootprint(parent, footprint, flat=True)
+                
         self.tree_footprints_manager.PurgeState()
 
     def show_footprint(self, footprint):
@@ -335,8 +369,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
 
     def onFilePrettyChanged(self, event):
         # do a synchronize when a file change on disk
-#        self.load()
-        pass
+        self.load()
        
     def onTreeLibrariesSelChanged( self, event ):
         item = self.tree_libraries.GetSelection()
@@ -464,6 +497,22 @@ class FootprintsFrameProto(PanelFootprintsProto):
         self.show_footprint_path = self.toolbar_footprint.GetToolState(self.toggle_footprint_path.GetId())
         self.load()
         
+    def onToggleShowBothChangesClicked( self, event ):
+        self.show_both_changes = self.toolbar_footprint.GetToolState(self.toggle_show_both_changes.GetId())
+        self.load()
+    
+    def onToggleShowConflictChangesClicked( self, event ):
+        self.show_conflict_changes = self.toolbar_footprint.GetToolState(self.toggle_show_conflict_changes.GetId())
+        self.load()
+    
+    def onToggleShowIncomingChangesClicked( self, event ):
+        self.show_incoming_changes = self.toolbar_footprint.GetToolState(self.toggle_show_incoming_changes.GetId())
+        self.load()
+    
+    def onToggleShowOutgoingChangesClicked( self, event ):
+        self.show_outgoing_changes = self.toolbar_footprint.GetToolState(self.toggle_show_outgoing_changes.GetId())
+        self.load()
+
     def onButtonRefreshFootprintsClick( self, event ):
         self.load()
         
@@ -531,7 +580,8 @@ class FootprintsFrameProto(PanelFootprintsProto):
             if dlg.ShowModal() == wx.ID_OK:
                 name = dlg.GetValue()
                 try:
-                    self.manager_pretty.MoveFolder(path, name+".pretty")
+                    newpath = os.path.join(os.path.dirname(path), name+".pretty")
+                    self.manager_pretty.MoveFolder(path, newpath)
                 except Exception as e:
                     print_stack()
                     wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
@@ -592,12 +642,14 @@ class FootprintsFrameProto(PanelFootprintsProto):
             if isinstance(obj, DataModelFootprint):
                 files.append(obj.footprint)
             elif isinstance(obj, DataModelFootprintPath):
-                for child in obj.childs:
-                    if isinstance(child, DataModelFootprint):
-                        files.append(child.footprint)
+                if obj.childs:
+                    for child in obj.childs:
+                        if isinstance(child, DataModelFootprint):
+                            files.append(child.footprint)
         
         try:
-            self.manager_pretty.Update(files, force=True) 
+            if len(files)>0:
+                self.manager_pretty.Update(files, force=True) 
             self.load()
         except Exception as e:
             print_stack()

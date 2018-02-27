@@ -26,17 +26,16 @@ class KicadFileManagerPretty(KicadFileManager):
     def __init__(self):
         super(KicadFileManagerPretty, self).__init__()
         self.on_change_hooks = []
-        self.enabled = True
 
         self.files = {}
         self.folders = []
         
         # observer to trigger event on resource change
+        self.enabled = True
         self.observer = Observer()
-        self.observer.schedule(self, self.root_path(), recursive=True)
+        self.watch = self.observer.schedule(self, self.root_path(), recursive=True)
         self.observer.start()
 
-      
     def root_path(self):
         return configuration.kicad_library_path
             
@@ -44,17 +43,27 @@ class KicadFileManagerPretty(KicadFileManager):
         if self.enabled==False:
             return 
         
+        self.enabled = False
+        
         if os.path.basename(event.src_path)!='.kiversion':
             print("Something happend with %s" % event.src_path)
             for hook in self.on_change_hooks:
                 hook(event)
+        
+        self.enabled = True
     # - on_moved(self, event)
     # - on_created(self, event)
     # - on_deleted(self, event)
     # - on_modified(self, event)
     
     def Enabled(self, enabled=True):
-        self.enabled = enabled
+        if enabled:
+            if self.watch is None:
+                self.watch = self.observer.schedule(self, self.root_path(), recursive=True)
+        else:
+            if self.watch:
+                self.observer.unschedule(self.watch)
+            self.watch = None
 
     def AddChangeHook(self, hook):
         self.on_change_hooks.append(hook)

@@ -1067,7 +1067,7 @@
                                                                                             <property name="id">wxID_ANY</property>
                                                                                             <property name="kind">wxITEM_CHECK</property>
                                                                                             <property name="label">tool</property>
-                                                                                            <property name="name">toggle_show_showboth_changes</property>
+                                                                                            <property name="name">toggle_show_both_changes</property>
                                                                                             <property name="permission">protected</property>
                                                                                             <property name="statusbar"></property>
                                                                                             <property name="tooltip"></property>
@@ -1077,7 +1077,7 @@
                                                                                             <event name="OnAuiToolBarRightClick"></event>
                                                                                             <event name="OnAuiToolBarToolDropDown"></event>
                                                                                             <event name="OnMenuSelection"></event>
-                                                                                            <event name="OnToolClicked"></event>
+                                                                                            <event name="OnToolClicked">onToggleShowBothChangesClicked</event>
                                                                                             <event name="OnToolEnter"></event>
                                                                                             <event name="OnToolRClicked"></event>
                                                                                             <event name="OnUpdateUI"></event>
@@ -1098,7 +1098,7 @@
                                                                                             <event name="OnAuiToolBarRightClick"></event>
                                                                                             <event name="OnAuiToolBarToolDropDown"></event>
                                                                                             <event name="OnMenuSelection"></event>
-                                                                                            <event name="OnToolClicked"></event>
+                                                                                            <event name="OnToolClicked">onToggleShowConflictChangesClicked</event>
                                                                                             <event name="OnToolEnter"></event>
                                                                                             <event name="OnToolRClicked"></event>
                                                                                             <event name="OnUpdateUI"></event>
@@ -1119,7 +1119,7 @@
                                                                                             <event name="OnAuiToolBarRightClick"></event>
                                                                                             <event name="OnAuiToolBarToolDropDown"></event>
                                                                                             <event name="OnMenuSelection"></event>
-                                                                                            <event name="OnToolClicked"></event>
+                                                                                            <event name="OnToolClicked">onToggleShowIncomingChangesClicked</event>
                                                                                             <event name="OnToolEnter"></event>
                                                                                             <event name="OnToolRClicked"></event>
                                                                                             <event name="OnUpdateUI"></event>
@@ -1140,7 +1140,7 @@
                                                                                             <event name="OnAuiToolBarRightClick"></event>
                                                                                             <event name="OnAuiToolBarToolDropDown"></event>
                                                                                             <event name="OnMenuSelection"></event>
-                                                                                            <event name="OnToolClicked"></event>
+                                                                                            <event name="OnToolClicked">onToggleShowOutgoingChangesClicked</event>
                                                                                             <event name="OnToolEnter"></event>
                                                                                             <event name="OnToolRClicked"></event>
                                                                                             <event name="OnUpdateUI"></event>

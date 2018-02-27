@@ -100,7 +100,7 @@ class PanelFootprintsProto ( wx.Panel ):
 		
 		self.toolbar_footprint.AddSeparator()
 		
-		self.toggle_show_showboth_changes = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/show_both.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
+		self.toggle_show_both_changes = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/show_both.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
 		
 		self.toggle_show_conflict_changes = self.toolbar_footprint.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/show_conf.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
 		
@@ -198,6 +198,10 @@ class PanelFootprintsProto ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesRemove, id = self.menu_libraries_remove.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesAddFootprint, id = self.menu_libraries_add_footprint.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onToggleFootprintPathClicked, id = self.toggle_footprint_path.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToggleShowBothChangesClicked, id = self.toggle_show_both_changes.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToggleShowConflictChangesClicked, id = self.toggle_show_conflict_changes.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToggleShowIncomingChangesClicked, id = self.toggle_show_incoming_changes.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToggleShowOutgoingChangesClicked, id = self.toggle_show_outgoing_changes.GetId() )
 		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintsButton )
 		self.search_footprints.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintsTextEnter )
 		self.button_refresh_footprints.Bind( wx.EVT_BUTTON, self.onButtonRefreshFootprintsClick )
@@ -236,6 +240,18 @@ class PanelFootprintsProto ( wx.Panel ):
 		event.Skip()
 	
 	def onToggleFootprintPathClicked( self, event ):
+		event.Skip()
+	
+	def onToggleShowBothChangesClicked( self, event ):
+		event.Skip()
+	
+	def onToggleShowConflictChangesClicked( self, event ):
+		event.Skip()
+	
+	def onToggleShowIncomingChangesClicked( self, event ):
+		event.Skip()
+	
+	def onToggleShowOutgoingChangesClicked( self, event ):
 		event.Skip()
 	
 	def onSearchFootprintsButton( self, event ):
