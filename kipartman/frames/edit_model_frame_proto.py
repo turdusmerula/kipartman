@@ -1,8 +1,7 @@
-from dialogs.panel_edit_footprint_proto import PanelEditFootprintProto
+from dialogs.panel_edit_model_proto import PanelEditModelProto
 from frames.select_snapeda_frame import SelectSnapedaFrame, EVT_SELECT_SNAPEDA_OK_EVENT
 from frames.dropdown_dialog import DropdownDialog
-from kicad import kicad_mod_file
-from kicad import lib_convert
+from kicad import kicad_lib_file
 import wx.lib.newevent
 import tempfile
 import os.path
@@ -16,9 +15,10 @@ import glob
 import datetime
 import hashlib
 import json
+from kicad.kicad_file_manager import KicadFileManagerLib
 
-EditFootprintApplyEvent, EVT_EDIT_FOOTPRINT_APPLY_EVENT = wx.lib.newevent.NewEvent()
-EditFootprintCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewEvent()
+EditModelApplyEvent, EVT_EDIT_FOOTPRINT_APPLY_EVENT = wx.lib.newevent.NewEvent()
+EditModelCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewEvent()
 
 scraper = cfscrape.create_scraper()
 
@@ -36,50 +36,49 @@ def MetadataValue(metadata, value, default):
         return metadata[value]
     return default
 
-class EditFootprintFrameProto(PanelEditFootprintProto): 
+class EditModelFrameProto(PanelEditModelProto): 
     def __init__(self, parent):
-        super(EditFootprintFrameProto, self).__init__(parent)
+        super(EditModelFrameProto, self).__init__(parent)
         self.snapeda_uid = ''
-        self.footprint_path = ''
+        self.model_path = ''
+        self.lib_cache = KicadFileManagerLib()
         
-    def SetFootprint(self, footprint):
-        self.footprint = footprint
-        self.ShowFootprint(footprint)
+    def SetModel(self, model):
+        self.model = model
+        self.ShowModel(model)
 
-    def ShowFootprint(self, footprint):
+    def ShowModel(self, model):
         configuration = Configuration()
         
         # enable everything else
-        if footprint:
+        if model:
             
-            if footprint.metadata:
-                metadata = json.loads(footprint.metadata)
+            if model.metadata:
+                metadata = json.loads(model.metadata)
             else:
                 metadata = json.loads('{}')
 
-            self.edit_footprint_name.Value = ''
-            self.footprint_path = ''
+            self.edit_model_name.Value = ''
+            self.model_path = ''
             
-            if NoneValue(footprint.source_path, '')!='':
-                name = os.path.basename(footprint.source_path)
-                if name.rfind('.kicad_mod')!=-1:
-                    # path is a footprint
-                    self.edit_footprint_name.Value = name.replace(".kicad_mod", "")
-                    self.footprint_path = os.path.dirname(NoneValue(footprint.source_path, ''))
-                elif name.rfind('.pretty')!=-1:
-                    # path is a lib
-                    self.footprint_path = name
+            if NoneValue(model.source_path, '')!='':
+                name = os.path.basename(NoneValue(model.source_path, ''))
+                if name.endswith('.mod')!=-1:
+                    # path is a model
+                    self.edit_model_name.Value = name.replace(".mod", "")
+                    self.model_path = os.path.dirname(model.source_path)
                     
-            self.edit_footprint_description.Value = MetadataValue(metadata, 'description', '')
-            self.edit_footprint_comment.Value = MetadataValue(metadata, 'comment', '')
+            self.edit_model_description.Value = MetadataValue(metadata, 'description', '')
+            self.edit_model_comment.Value = MetadataValue(metadata, 'comment', '')
              
             self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
             
-            if self.edit_footprint_name.Value!='' and os.path.exists(os.path.join(configuration.kicad_library_path, footprint.source_path)):
-                mod = kicad_mod_file.KicadModFile()
-                mod.LoadFile(os.path.join(configuration.kicad_library_path, footprint.source_path))
+            if self.edit_model_name.Value!='' and self.lib_cache.Exists(model.source_path) and model.content:
+                self.lib_cache.LoadContent(model)
+                lib = kicad_lib_file.KicadLibFile()
+                lib.Load(model.content)
                 image_file = tempfile.NamedTemporaryFile()
-                mod.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
+                lib.Render(image_file.name, self.panel_image_model.GetRect().width, self.panel_image_model.GetRect().height)
                 img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
                 image_file.close()
             else:
@@ -87,34 +86,34 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
                 img.Create(1, 1)
 
             img = img.ConvertToBitmap()
-            self.bitmap_edit_footprint.SetBitmap(img)
+            self.bitmap_edit_model.SetBitmap(img)
                 
         else:
-            self.edit_footprint_name.Value = ''
-            self.edit_footprint_description.Value = ''
-            self.edit_footprint_comment.Value = ''
+            self.edit_model_name.Value = ''
+            self.edit_model_description.Value = ''
+            self.edit_model_comment.Value = ''
             self.button_open_url_snapeda.Label = "<None>"
 
             img = wx.Image()
             img.Create(1, 1)
             img = img.ConvertToBitmap()
-            self.bitmap_edit_footprint.SetBitmap(img)
+            self.bitmap_edit_model.SetBitmap(img)
 
 
         
     def enable(self, enabled=True):
-        self.edit_footprint_name.Enabled = enabled
-        self.edit_footprint_description.Enabled = enabled
-        self.edit_footprint_comment.Enabled = enabled
+        self.edit_model_name.Enabled = enabled
+        self.edit_model_description.Enabled = enabled
+        self.edit_model_comment.Enabled = enabled
         self.button_remove_url_snapeda.Enabled = enabled
-        self.button_footprint_editApply.Enabled = enabled
-        self.button_footprint_editCancel.Enabled = enabled
+        self.button_model_editApply.Enabled = enabled
+        self.button_model_editCancel.Enabled = enabled
         self.button_snapeda.Enabled = enabled
         
     def onButtonSnapedaClick( self, event ):
         # create a snapeda frame
         # dropdown frame
-        dropdown = DropdownDialog(self.button_snapeda, SelectSnapedaFrame, initial_search=self.edit_footprint_name.Value, preview='footprint')
+        dropdown = DropdownDialog(self.button_snapeda, SelectSnapedaFrame, initial_search=self.edit_model_name.Value, preview='model')
         dropdown.panel.Bind( EVT_SELECT_SNAPEDA_OK_EVENT, self.onSelectSnapedaFrameOk )
         dropdown.Dropdown()
 
@@ -124,8 +123,8 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
             return
         print snapeda.json
         
-        self.edit_footprint_name.Value = snapeda.part_number()
-        self.edit_footprint_description.Value = snapeda.short_description()
+        self.edit_model_name.Value = snapeda.part_number()
+        self.edit_model_description.Value = snapeda.short_description()
         self.snapeda_uid = snapeda.uniqueid()
         
         try:
@@ -134,9 +133,9 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
                                manufacturer=snapeda.manufacturer(),
                                uniqueid=snapeda.uniqueid(),
                                has_symbol=snapeda.has_symbol(),
-                               has_footprint=snapeda.has_footprint())
+                               has_model=snapeda.has_model())
             if download.error():
-                wx.MessageBox(download.error(), 'Error downloading footprint', wx.OK | wx.ICON_ERROR)
+                wx.MessageBox(download.error(), 'Error downloading model', wx.OK | wx.ICON_ERROR)
                 
         except:
             DialogSnapedaError(self).ShowModal()
@@ -144,7 +143,7 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
         
         self.button_open_url_snapeda.Label = "https://www.snapeda.com"+snapeda._links().self().href()
 
-        # download footprint
+        # download model
         if download.url() and download.url()!='':
             try:
                 filename = os.path.join(tempfile.gettempdir(), os.path.basename(download.url()))
@@ -153,7 +152,7 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
                     outfile.write(content)
                 outfile.close()
             except :
-                wx.MessageBox(download.url(), 'Error loading footprint', wx.OK | wx.ICON_ERROR)
+                wx.MessageBox(download.url(), 'Error loading model', wx.OK | wx.ICON_ERROR)
                 return
                 
             # unzip file
@@ -162,32 +161,25 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
                 zip_ref.extractall(filename+".tmp")
                 zip_ref.close()
             except Exception as e:
-                wx.MessageBox(format(e), 'Error unziping footprint', wx.OK | wx.ICON_ERROR)
+                wx.MessageBox(format(e), 'Error unziping model', wx.OK | wx.ICON_ERROR)
 
             for file in glob.glob(filename+".tmp/*"):
                 kicad_file = ''
-                if file.endswith(".mod"):
-                    dst_libpath, list_of_parts = lib_convert.convert_mod_to_pretty(file, file.replace('.mod', '.pretty'))
-                    if len(list_of_parts)>0:
-                        kicad_file = os.path.join(dst_libpath, list_of_parts[0]+".kicad_mod")
-                elif file.endswith(".kicad_mod"):
-                    kicad_file = file
-
-                if kicad_file!='':
+                if file.endswith(".lib"):
                     with open(kicad_file, 'r') as content_file:
-                        self.footprint.content = content_file.read()
-                        print "--", self.footprint.content
+                        self.model.content = content_file.read()
+                        print "--", self.model.content
                     
-                    mod = kicad_mod_file.KicadModFile()
+                    mod = kicad_lib_file.KicadLibFile()
                     mod.LoadFile(kicad_file)
                     image_file = tempfile.NamedTemporaryFile()
-                    mod.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
+                    mod.Render(image_file.name, self.panel_image_model.GetRect().width, self.panel_image_model.GetRect().height)
                     img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
                     image_file.close()
                     img = img.ConvertToBitmap()
-                    self.bitmap_edit_footprint.SetBitmap(img)
+                    self.bitmap_edit_model.SetBitmap(img)
             
-            self.footprint.md5 = hashlib.md5(self.footprint.content).hexdigest()
+            self.model.md5 = hashlib.md5(self.model.content).hexdigest()
 
         # download 3D model
         #TODO
@@ -200,15 +192,15 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
         self.button_open_url_snapeda.Label = "<None>"
         self.button_open_url_snapeda = ''
 
-    def onButtonFootprintEditApply( self, event ):
-        footprint = self.footprint
+    def onButtonModelEditApply( self, event ):
+        model = self.model
         
-        if footprint.metadata:
-            metadata = json.loads(footprint.metadata)
+        if model.metadata:
+            metadata = json.loads(model.metadata)
         else:
             metadata = json.loads('{}')
-        metadata['description'] = self.edit_footprint_description.Value
-        metadata['comment'] = self.edit_footprint_comment.Value
+        metadata['description'] = self.edit_model_description.Value
+        metadata['comment'] = self.edit_model_comment.Value
         
         if self.button_open_url_snapeda.Label!="<None>":
             metadata['snapeda'] = self.button_open_url_snapeda.Label
@@ -219,20 +211,20 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
             metadata.pop('snapeda_uid', '')
             metadata.pop('updated', '')
         
-        footprint.metadata = json.dumps(metadata)
-        if not footprint.content:
-            footprint.content = ''
-            footprint.md5 = hashlib.md5(footprint.content).hexdigest()
+        model.metadata = json.dumps(metadata)
+        if not model.content:
+            model.content = ''
+            model.md5 = hashlib.md5(model.content).hexdigest()
             
         # send result event
-        event = EditFootprintApplyEvent(
-            data=footprint,
-            # source_path is not changed in the footprint as we only have the filename here, not the full path
+        event = EditModelApplyEvent(
+            data=model,
+            # source_path is not changed in the model as we only have the filename here, not the full path
             # the full path should be reconstructed by caller
-            footprint_name=self.edit_footprint_name.Value+".kicad_mod"
+            model_name=self.edit_model_name.Value+".mod"
             )
         wx.PostEvent(self, event)
     
-    def onButtonFootprintEditCancel( self, event ):
-        event = EditFootprintCancelEvent()
+    def onButtonModelEditCancel( self, event ):
+        event = EditModelCancelEvent()
         wx.PostEvent(self, event)

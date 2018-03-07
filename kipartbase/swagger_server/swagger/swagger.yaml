@@ -1104,6 +1104,11 @@ paths:
         description: "Path from which to synchronize"
         required: false
         type: "string"
+      - name: "category"
+        in: "query"
+        description: "Category of files to see"
+        required: false
+        type: "string"
       responses:
         200:
           description: "Synchronization state"
@@ -2032,6 +2037,8 @@ definitions:
         type: "string"
         format: "date-time"
       content:
+        type: "string"
+      category:
         type: "string"
       metadata:
         type: "string"

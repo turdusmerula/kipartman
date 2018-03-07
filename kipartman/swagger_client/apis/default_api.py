@@ -5153,6 +5153,7 @@ class DefaultApi(object):
             for asynchronous request. (optional)
         :param list[VersionedFile] files: File list to test synchronization (required)
         :param str root_path: Path from which to synchronize
+        :param str category: Category of files to see
         :return: list[VersionedFile]
                  If the method is called asynchronously,
                  returns the request thread.
@@ -5179,12 +5180,13 @@ class DefaultApi(object):
             for asynchronous request. (optional)
         :param list[VersionedFile] files: File list to test synchronization (required)
         :param str root_path: Path from which to synchronize
+        :param str category: Category of files to see
         :return: list[VersionedFile]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['files', 'root_path']
+        all_params = ['files', 'root_path', 'category']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -5211,6 +5213,8 @@ class DefaultApi(object):
         query_params = []
         if 'root_path' in params:
             query_params.append(('root_path', params['root_path']))
+        if 'category' in params:
+            query_params.append(('category', params['category']))
 
         header_params = {}
 

@@ -4,6 +4,7 @@ from kicad_object import KicadObject
 import Canvas
 import re 
 import math
+import tempfile
 
 def tab(level):
     res = ''
@@ -43,9 +44,27 @@ class KicadLibFile(object):
         if self.onChanged:
             self.onChanged()
    
-    def Render(self, filename):
+    def Load(self, content):
+        """
+        Load from string
+        """
+        self.file = tempfile.NamedTemporaryFile()
+        self.file.write(content)
+        self.file.seek(0)
+
+        self.filename = self.file.name
+        self.line = ''
+        self.buff = ''
+
+        self.read_lines(self.parent) 
+        #self.Write(self.parent, 0)
+                    
+        if self.onChanged:
+            self.onChanged()
+        
+    def Render(self, filename, width=256, height=256):
         canvas = Canvas.LibraryCanvas()
-        surface = canvas.Render(self.parent)
+        surface = canvas.Render(self.parent, width, height)
         surface.write_to_png (filename)
         
     def Write(self, obj, level=0):
@@ -172,6 +191,9 @@ class KicadF(KicadLibObject):
         KicadObject._register(self.header, KicadF)
 
     def Render(self, canvas, obj):
+        if len(self.attributes)<5:
+            return 
+
         font = Canvas.Font(Canvas.Point(float(self.Attribute(3)), float(self.Attribute(3))), canvas.to_view_width(2))
         text = Canvas.Text(self.Attribute(0))
         if self.Attribute(4)=='V':
@@ -196,6 +218,9 @@ class KicadC(KicadLibObject):
         KicadObject._register(self.header, KicadC)
 
     def Render(self, canvas, obj):
+        if len(self.attributes)<3:
+            return 
+
         canvas.SelectLayer("Drawing")
         start = Canvas.Point(float(self.Attribute(0)), -float(self.Attribute(1)))
         end = Canvas.Point(float(self.Attribute(0))+float(self.Attribute(2)), -float(self.Attribute(1)))
@@ -217,6 +242,8 @@ class KicadT(KicadLibObject):
         KicadObject._register(self.header, KicadT)
 
     def Render(self, canvas, obj):
+        if len(self.attributes)<4:
+            return
         font = Canvas.Font(Canvas.Point(float(self.Attribute(3)), float(self.Attribute(3))), canvas.to_view_width(2))
         text = Canvas.Text(self.Attribute(7))
         if int(self.Attribute(0))>0:
@@ -236,6 +263,9 @@ class KicadP(KicadLibObject):
         KicadObject._register(self.header, KicadP)
 
     def Render(self, canvas, obj):
+        if len(self.attributes)<4:
+            return 
+
         num = int(self.Attribute(0))
         points = []
         for p in range(0, num*2, 2):
@@ -258,6 +288,9 @@ class KicadX(KicadLibObject):
         KicadObject._register(self.header, KicadX)
 
     def Render(self, canvas, obj):
+        if len(self.attributes)<6:
+            return 
+
         canvas.SelectLayer("Drawing")
         width = canvas.to_view_width(2)
         length = float(self.Attribute(4))
@@ -305,6 +338,8 @@ class KicadS(KicadLibObject):
         KicadObject._register(self.header, KicadS)
 
     def Render(self, canvas, obj):
+        if len(self.attributes)<4:
+            return
         canvas.SelectLayer("Drawing")
         start = Canvas.Point(float(self.Attribute(0)), -float(self.Attribute(1)))
         end = Canvas.Point(float(self.Attribute(2)), -float(self.Attribute(3)))

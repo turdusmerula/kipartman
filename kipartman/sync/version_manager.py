@@ -31,7 +31,7 @@ class VersionManager(object):
     def __init__(self, file_manager):
         self.root_path = file_manager.root_path()
         self.file_manager = file_manager
-        self.config = os.path.join(self.root_path, '.kiversion')
+        self.config = os.path.join(self.root_path, file_manager.version_file())
         
         # files from hard drive
         self.local_files = {}
@@ -52,6 +52,8 @@ class VersionManager(object):
             file.metadata = unicode(json['metadata'])
         if json.has_key('version'):
             file.version = int(json['version'])
+        if json.has_key('category'):
+            file.category = unicode(json['category'])
         if json.has_key('updated'):
             # fix wrong date format on reading
             updated = re.sub(
@@ -82,6 +84,9 @@ class VersionManager(object):
         if file.updated:
             # TODO: handle correctly timezone
             res['updated'] = unicode(file.updated)
+        if file.category:
+            # TODO: handle correctly timezone
+            res['category'] = unicode(file.category)
         if file.state:
             res['state'] = file.state
         return res 
@@ -149,6 +154,7 @@ class VersionManager(object):
                     file_version.version = None
                     file_version.updated = file_disk.updated
                     file_version.state = file_disk.state
+                    file_version.category = self.file_manager.category()
                     if file_version.state=="":
                         file_version.state = 'outgo_add'
                     
@@ -195,7 +201,7 @@ class VersionManager(object):
         
             # get synchronization state from server
             sync_files = {} 
-            for file in rest.api.synchronize_versioned_files(files):
+            for file in rest.api.synchronize_versioned_files(files, category=self.file_manager.category()):
                 sync_files[file.source_path] = file
                 
                 if file.state!='income_add' and file.state!='income_change' and file.state!='income_del' and file.state!='conflict_add' and file.state!='conflict_change' and file.state!='conflict_del': 
@@ -331,7 +337,7 @@ class VersionManager(object):
                 if force or (file.state=='outgo_add' or file.state=='outgo_change'):
                     if self.file_manager.Exists(file.source_path):
                         self.file_manager.LoadContent(file)
-    
+            
             commits = []
             try:
                 commits = rest.api.commit_versioned_files(files, force=force)

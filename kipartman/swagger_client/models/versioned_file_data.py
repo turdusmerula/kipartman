@@ -38,6 +38,7 @@ class VersionedFileData(object):
         'state': 'str',
         'updated': 'datetime',
         'content': 'str',
+        'category': 'str',
         'metadata': 'str'
     }
 
@@ -49,10 +50,11 @@ class VersionedFileData(object):
         'state': 'state',
         'updated': 'updated',
         'content': 'content',
+        'category': 'category',
         'metadata': 'metadata'
     }
 
-    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None, metadata=None):
+    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None, category=None, metadata=None):
         """
         VersionedFileData - a model defined in Swagger
         """
@@ -64,6 +66,7 @@ class VersionedFileData(object):
         self._state = None
         self._updated = None
         self._content = None
+        self._category = None
         self._metadata = None
 
         if source_path is not None:
@@ -80,6 +83,8 @@ class VersionedFileData(object):
           self.updated = updated
         if content is not None:
           self.content = content
+        if category is not None:
+          self.category = category
         if metadata is not None:
           self.metadata = metadata
 
@@ -229,6 +234,27 @@ class VersionedFileData(object):
         """
 
         self._content = content
+
+    @property
+    def category(self):
+        """
+        Gets the category of this VersionedFileData.
+
+        :return: The category of this VersionedFileData.
+        :rtype: str
+        """
+        return self._category
+
+    @category.setter
+    def category(self, category):
+        """
+        Sets the category of this VersionedFileData.
+
+        :param category: The category of this VersionedFileData.
+        :type: str
+        """
+
+        self._category = category
 
     @property
     def metadata(self):

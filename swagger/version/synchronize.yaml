@@ -14,6 +14,10 @@ post:
       in: query
       description: Path from which to synchronize
       type: string
+    - name: category
+      in: query
+      description: Category of files to see
+      type: string
   responses:
     "200":
       description: Synchronization state

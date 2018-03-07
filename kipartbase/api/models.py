@@ -178,6 +178,7 @@ class VersionedFile(models.Model):
     version = models.IntegerField(default=0)
     state = models.IntegerField(default=0)
     metadata = models.TextField(null=True, blank=True, default='')
+    category = models.TextField(null=True, blank=True, default='')
     updated = models.DateTimeField(null=True, blank=True, default=None)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.source_path)

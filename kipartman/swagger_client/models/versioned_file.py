@@ -38,6 +38,7 @@ class VersionedFile(object):
         'state': 'str',
         'updated': 'datetime',
         'content': 'str',
+        'category': 'str',
         'metadata': 'str',
         'id': 'int',
         'folder': 'bool'
@@ -51,12 +52,13 @@ class VersionedFile(object):
         'state': 'state',
         'updated': 'updated',
         'content': 'content',
+        'category': 'category',
         'metadata': 'metadata',
         'id': 'id',
         'folder': 'folder'
     }
 
-    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None, metadata=None, id=None, folder=None):
+    def __init__(self, source_path=None, storage_path=None, md5=None, version=None, state=None, updated=None, content=None, category=None, metadata=None, id=None, folder=None):
         """
         VersionedFile - a model defined in Swagger
         """
@@ -68,6 +70,7 @@ class VersionedFile(object):
         self._state = None
         self._updated = None
         self._content = None
+        self._category = None
         self._metadata = None
         self._id = None
         self._folder = None
@@ -86,6 +89,8 @@ class VersionedFile(object):
           self.updated = updated
         if content is not None:
           self.content = content
+        if category is not None:
+          self.category = category
         if metadata is not None:
           self.metadata = metadata
         if id is not None:
@@ -239,6 +244,27 @@ class VersionedFile(object):
         """
 
         self._content = content
+
+    @property
+    def category(self):
+        """
+        Gets the category of this VersionedFile.
+
+        :return: The category of this VersionedFile.
+        :rtype: str
+        """
+        return self._category
+
+    @category.setter
+    def category(self, category):
+        """
+        Sets the category of this VersionedFile.
+
+        :param category: The category of this VersionedFile.
+        :type: str
+        """
+
+        self._category = category
 
     @property
     def metadata(self):

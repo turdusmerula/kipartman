@@ -26,6 +26,7 @@ def serialize_VersionedFileData(ffile, file=None):
     file.md5 = ffile.md5
     file.version = ffile.version
     file.metadata = ffile.metadata
+    file.category = ffile.category
     #ffile.state is private
     file.updated = ffile.updated
     return file
@@ -45,6 +46,7 @@ def deserialize_VersionedFile(file, ffile=None):
     ffile.md5 = file.md5
     ffile.version = file.version
     ffile.metadata = file.metadata
+    ffile.category = file.category
     #ffile.state is private
     ffile.updated = file.updated
     return ffile
@@ -81,7 +83,8 @@ def update_file_state(file):
             ffile = api.models.VersionedFile.objects.filter(source_path=file.source_path).latest('id')
     except Exception as e:
         print "Error: %s"%format(e)
-
+        pass
+    
     if file.state is None:
         file.state = ''
     
@@ -145,7 +148,7 @@ def update_file_state(file):
     else:
         file.state = 'outgo_add'
 
-def synchronize_versioned_files(files=None, root_path=None):
+def synchronize_versioned_files(files, root_path=None, category=None):
     """
     synchronize_versioned_files
     Get synchronization status of a fileset
@@ -153,10 +156,12 @@ def synchronize_versioned_files(files=None, root_path=None):
     :type files: list | bytes
     :param root_path: Path from which to synchronize
     :type root_path: str
+    :param category: Category of files to see
+    :type category: str
 
     :rtype: List[VersionedFile]
     """
-    print "===> synchronize_versioned_files----"
+    #print "===> synchronize_versioned_files----"
     sync_files = []
 
     if connexion.request.is_json:
@@ -168,18 +173,21 @@ def synchronize_versioned_files(files=None, root_path=None):
     # check given files
     for file in files:
         if file.source_path:
-            print "---", file
+            #print "---", file
             raise_on_error(update_file_state(file))
-            print "+++", file
+            #print "+++", file
             sync_files.append(file)
             if file.id:
                 exclude_id.append(file.id)
             else:
                 exclude_path.append(file.source_path)
      
-    print "*",   exclude_id,  exclude_path
+    #print "*",   exclude_id,  exclude_path
     # check files not in list
     ffile_request = api.models.VersionedFile.objects
+    # limit to category
+    if category:
+        ffile_request = ffile_request.filter(category=category)
     # limit to root_path
     if root_path:
         ffile_request = ffile_request.filter(source_path__startswith=root_path)
@@ -201,8 +209,8 @@ def synchronize_versioned_files(files=None, root_path=None):
         file.state = 'income_add'
         sync_files.append(file)
     
-    print "%%%", sync_files
-    print "------------------------------------"
+    #print "%%%", sync_files
+    #print "------------------------------------"
     return sync_files
 
 def commit_versioned_files(files, force=None):
@@ -216,12 +224,13 @@ def commit_versioned_files(files, force=None):
 
     :rtype: List[VersionedFileStatus]
     """
+    #print "===> commit_versioned_files----"
     commit_files = []
     conflict_files = []
     
     if connexion.request.is_json:
         files = [VersionedFile.from_dict(d) for d in connexion.request.get_json()]
-    print "---", files
+    #print "---", files
     if force is None:
         force = False
 
@@ -291,7 +300,8 @@ def commit_versioned_files(files, force=None):
         # delete file to file storage
         commit_files.append(storage.delete_file(file))
     
-    print "****", commit_files
+    #print "****", commit_files
+    #print "------------------------------------"
     return commit_files 
 
 def update_versioned_files(files, force=None):
@@ -327,9 +337,9 @@ def update_versioned_files(files, force=None):
     has_conflicts = False
     # check if given files are allowed to commit 
     for file in files:
-        print "*", file
+        #print "*", file
         raise_on_error(update_file_state(file))
-        print "**", file
+        #print "**", file
         if force:
             if file.state=='conflict_add' or file.state=='outgo_add':
                 file.state = 'income_add'
@@ -381,5 +391,5 @@ def update_versioned_files(files, force=None):
         file.storage_path = None
         update_files.append(file)
 
-    print "----", update_files
+    #print "----", update_files
     return update_files 
