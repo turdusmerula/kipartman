@@ -49,7 +49,7 @@ class EditModelFrameProto(PanelEditModelProto):
 
     def ShowModel(self, model):
         configuration = Configuration()
-        
+            
         # enable everything else
         if model:
             
@@ -63,7 +63,7 @@ class EditModelFrameProto(PanelEditModelProto):
             
             if NoneValue(model.source_path, '')!='':
                 name = os.path.basename(NoneValue(model.source_path, ''))
-                if name.endswith('.mod')!=-1:
+                if name.endswith('.lib')==False:
                     # path is a model
                     self.edit_model_name.Value = name.replace(".mod", "")
                     self.model_path = os.path.dirname(model.source_path)
@@ -73,7 +73,7 @@ class EditModelFrameProto(PanelEditModelProto):
              
             self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
             
-            if self.edit_model_name.Value!='' and self.lib_cache.Exists(model.source_path) and model.content:
+            if self.edit_model_name.Value!='' and self.lib_cache.Exists(model.source_path):
                 self.lib_cache.LoadContent(model)
                 lib = kicad_lib_file.KicadLibFile()
                 lib.Load(model.content)

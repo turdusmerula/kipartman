@@ -62,11 +62,11 @@ class EditFootprintFrameProto(PanelEditFootprintProto):
             
             if NoneValue(footprint.source_path, '')!='':
                 name = os.path.basename(footprint.source_path)
-                if name.rfind('.kicad_mod')!=-1:
+                if name.endswith('.kicad_mod')==True:
                     # path is a footprint
                     self.edit_footprint_name.Value = name.replace(".kicad_mod", "")
                     self.footprint_path = os.path.dirname(NoneValue(footprint.source_path, ''))
-                elif name.rfind('.pretty')!=-1:
+                elif name.endswith('.pretty')==True:
                     # path is a lib
                     self.footprint_path = name
                     

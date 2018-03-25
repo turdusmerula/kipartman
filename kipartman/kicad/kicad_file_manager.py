@@ -325,8 +325,16 @@ class KicadLibCache(object):
         metadata = {}
         
         
-    def Clear(self):
-        self.libs = {}
+    def Clear(self, path=None):
+        if path:
+            if path.endswith('.lib'):
+                self.libs.pop(path)
+            elif path.endswith('.mod'):
+                library = re.sub(r"\.lib.*\.mod$", ".lib", path)
+                model = re.sub(r"^.*\.lib.", "", path)
+                self.libs[library].pop(model)
+        else:
+            self.libs = {}
         
     def GetModel(self, model_path):
         library = re.sub(r"\.lib.*\.mod$", ".lib", model_path)
@@ -374,9 +382,9 @@ class KicadLibCache(object):
                 if new_content!='':
                     new_content = new_content+'\n'
                 new_content = new_content+line
-        content = "#\n"+content    
-        content = "# "+name+'\n'+content    
-        content = "#\n"+content    
+#        content = "#\n"+content    
+#        content = "# "+name+'\n'+content    
+#        content = "#\n"+content    
 
         if has_def==False:
             content = content+"DEF "+name+" RF 0 40 Y N 1 F N\n"
@@ -392,6 +400,8 @@ class KicadLibCache(object):
         model_name = re.sub(r".mod$", "", os.path.basename(path))
         
         content = self.update_content(model_name, content)
+        if self.libs.has_key(library)==False:
+            self.libs[library] = {}
         self.libs[library][model] = content
         
     def Exists(self, path):
@@ -467,6 +477,7 @@ class KicadFileManagerLib(KicadFileManager):
                         if os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             to_explore.append(folder)
         
+        folders.append('')
         # search for libs in folders
         for folder in folders:
             for lib in glob(os.path.join(basepath, folder, "*.lib")):
@@ -501,14 +512,14 @@ class KicadFileManagerLib(KicadFileManager):
     def write_library(self, library, models):
         print "****", library
         with open(os.path.join(self.root_path(), library), 'w') as file:
-            file.write('EESchema-LIBRARY Version 2.3')
-            file.write('#encoding utf-8')
+            file.write('EESchema-LIBRARY Version 2.3\n')
+            file.write('#encoding utf-8\n')
 
             for model in models:
                 file.write(models[model])
             
-            file.write('#')
-            file.write('# End Library')
+            file.write('#\n')
+            file.write('# End Library\n')
     
     def CreateFile(self, path, content, overwrite=False):
         if self.Exists(path) and overwrite==False:
@@ -517,6 +528,8 @@ class KicadFileManagerLib(KicadFileManager):
         library = re.sub(r"\.lib.*\.mod$", ".lib", path)
         model = re.sub(r"^.*\.lib.", "", path)
         library_path = os.path.dirname(library)
+        
+        print "$$$$", library, model, library_path
         
         fullpath = os.path.join(self.root_path(), library_path)
         if not os.path.exists(os.path.dirname(fullpath)):
@@ -574,43 +587,51 @@ class KicadFileManagerLib(KicadFileManager):
 #         file.updated = rest.api.get_date()
 #         
 #         return file
-# 
-#     def DeleteFile(self, file, force=False):
-#         if self.Exists(file.source_path)==False and force==False:
-#             raise KicadFileManagerException('File %s does not exists'%file.source_path)
-#         
-#         fullpath = os.path.join(self.root_path(), file.source_path)
-#         if os.path.exists(fullpath):
-#             os.remove(fullpath)
-#         #file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-#         file.updated = rest.api.get_date()
-#     
-#         return file
-#     
+ 
+    def DeleteFile(self, file, force=False):
+        if self.Exists(file.source_path)==False and force==False:
+            raise KicadFileManagerException('File %s does not exists'%file.source_path)
+        
+        library = re.sub(r"\.lib.*\.mod$", ".lib", file.source_path)
+
+        self.lib_cache.Clear(file.source_path)
+        self.write_library(library, self.lib_cache.GetModels(library))
+        
+        file.updated = rest.api.get_date()
+     
+        return file
+     
     def LoadContent(self, file):
         if self.Exists(file.source_path)==False:
             raise KicadFileManagerException('File %s does not exists'%file.source_path)
         
         file.content = self.lib_cache.GetModel(file.source_path)
-# 
-#             
-#     def CreateFolder(self, path):
-#         abspath = os.path.join(self.root_path(), path)
-#         if os.path.exists(abspath):
-#             raise KicadFileManagerException('Folder %s already exists'%path)
-#         else:
-#             os.makedirs(abspath)
-#     
-#     def MoveFolder(self, source_path, dest_path):
-#         abs_source_path = os.path.join(self.root_path(), source_path)
-#         abs_dest_path = os.path.join(self.root_path(), dest_path)
-#         if os.path.exists(abs_source_path)==False:
-#             raise KicadFileManagerException('Folder %s does not exists'%abs_source_path)
-#         if os.path.exists(abs_dest_path):
-#             raise KicadFileManagerException('Folder %s already exists'%abs_dest_path)
-#         shutil.move(abs_source_path, abs_dest_path)
-#     
-#     def DeleteFolder(self, path):
-#         abspath = os.path.join(self.root_path(), path)
-#         shutil.rmtree(abspath)
+ 
+             
+    def CreateFolder(self, path):
+        abspath = os.path.join(self.root_path(), path)
+        if os.path.exists(abspath):
+            raise KicadFileManagerException('Folder %s already exists'%path)
+        if path.endswith('.lib'):
+            self.write_library(abspath, [])
+        else:
+            os.makedirs(abspath)
+     
+    def MoveFolder(self, source_path, dest_path):
+        abs_source_path = os.path.join(self.root_path(), source_path)
+        abs_dest_path = os.path.join(self.root_path(), dest_path)
+        if os.path.exists(abs_source_path)==False:
+            raise KicadFileManagerException('Folder %s does not exists'%abs_source_path)
+        if os.path.exists(abs_dest_path):
+            raise KicadFileManagerException('Folder %s already exists'%abs_dest_path)
+        if source_path.endswith('.lib'):
+            self.lib_cache.Clear(source_path)
+        shutil.move(abs_source_path, abs_dest_path)
+     
+    def DeleteFolder(self, path):
+        abspath = os.path.join(self.root_path(), path)
+        if path.endswith('.lib'):
+            os.remove(abspath)
+        else:
+            shutil.rmtree(abspath)
  

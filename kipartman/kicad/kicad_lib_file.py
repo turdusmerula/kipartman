@@ -48,6 +48,9 @@ class KicadLibFile(object):
         """
         Load from string
         """
+        if content is None:
+            content = ''
+
         self.file = tempfile.NamedTemporaryFile()
         self.file.write(content)
         self.file.seek(0)

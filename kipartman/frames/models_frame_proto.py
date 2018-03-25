@@ -720,6 +720,7 @@ class ModelsFrameProto(PanelModelsProto):
                         files.append(child.model)
         
         try:
+            print "*****", files
             self.manager_lib.Commit(files) 
             self.load()
         except Exception as e:

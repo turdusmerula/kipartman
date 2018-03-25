@@ -161,7 +161,8 @@ def synchronize_versioned_files(files, root_path=None, category=None):
 
     :rtype: List[VersionedFile]
     """
-    #print "===> synchronize_versioned_files----"
+    print "===> synchronize_versioned_files----"
+    print "*", files
     sync_files = []
 
     if connexion.request.is_json:
@@ -234,6 +235,8 @@ def commit_versioned_files(files, force=None):
     if force is None:
         force = False
 
+    print "***", files
+    
     to_add = []
     to_change = []
     to_delete = []

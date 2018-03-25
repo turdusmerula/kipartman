@@ -108,6 +108,11 @@ class VersionManager(object):
         """
         Synchronize local files with state
         """
+        
+        #if len(self.local_files)>0:
+            # state already loaded
+        #    return
+        
         with VersionManagerEnabler(self) as f:
             state_files = {}
             
@@ -125,45 +130,39 @@ class VersionManager(object):
             for filepath in self.file_manager.files:
                 if self.local_files.has_key(filepath)==False:
                     file = self.file_manager.files[filepath]
-                    file.state = 'outgo_add'
+                    file.state = ''
                     self.local_files[filepath] = file
-            
+
+            print "%***", self.local_files
+            # Match local_files with current stored version state
+            for filepath in state_files:
+                state_file = state_files[filepath]
+                
+                if self.local_files.has_key(filepath):
+                    file_disk = self.local_files[filepath]
+
+                    file_disk.id = state_file.id 
+                    file_disk.version = state_file.version
+                    # check if local file changed toward state
+                    if file_disk.md5!=state_file.md5 and (state_file.state=="" or state_file.state is None):
+                        file_disk.state = 'outgo_change'
+                        file_disk.updated = rest.api.get_date()
+                    else:
+                        file_disk.state = state_file.state
+                        file_disk.updated = state_file.updated
+                    state_file.category = self.file_manager.category()
+
             # check if file exists on disk
             pop_list = []
             for filepath in self.local_files:
                 file_disk = self.local_files[filepath]
                 if self.file_manager.Exists(filepath)==False and file_disk.state!='outgo_del':
                     pop_list.append(filepath)
+            # remove non versioned missing files 
             for filepath in pop_list:
                 self.local_files.pop(filepath)
-    
-            # Match local_files with current stored version state
-            for filepath in self.local_files:
-                file_version = None
-                file_disk = self.local_files[filepath]
-        
-                # check if file exist in state
-                if state_files.has_key(filepath):
-                    file_version = state_files[filepath]
-                else:          
-                    # file not referenced in version state
-                    file_version = rest.model.VersionedFile()
-                    file_version.id = None 
-                    file_version.source_path = file_disk.source_path
-                    file_version.md5 = file_disk.md5
-                    file_version.version = None
-                    file_version.updated = file_disk.updated
-                    file_version.state = file_disk.state
-                    file_version.category = self.file_manager.category()
-                    if file_version.state=="":
-                        file_version.state = 'outgo_add'
                     
-                # check if local file changed toward state
-                if file_disk.md5!=file_version.md5 and file_version.state=="":
-                    file_version.state = 'outgo_change'
-    
-                # update local file state 
-                self.local_files[filepath] = file_version
+            print "%%**", self.local_files
             
             # Match stored version state with local files to detect removed files
             for filepath in state_files:
@@ -171,12 +170,9 @@ class VersionManager(object):
                 file_disk = None
                 
                 # check if file exist in state
-                if self.local_files.has_key(filepath):
-                    file_disk = self.local_files[filepath]
-                else:
-                    if file_version.state=='outgo_del':
-                        # update local file state 
-                        self.local_files[filepath] = file_version
+                if self.local_files.has_key(filepath)==False and file_version.state=='outgo_del':
+                    # update local file state 
+                    self.local_files[filepath] = file_version
                 
     def Synchronize_(self):
         with VersionManagerEnabler(self) as f:
@@ -275,7 +271,7 @@ class VersionManager(object):
                 
             file = self.file_manager.DeleteFile(file)
             
-            if file.id==None:
+            if file.id is None:
                 self.local_files.pop(file.source_path)
             else:
                 file.state = 'outgo_del'
@@ -284,10 +280,11 @@ class VersionManager(object):
     
     def DeleteFile(self, file):
         with VersionManagerEnabler(self) as f:
+            if file.state=='outgo_del':
+                return 
             file = self.delete_file(file)
             self.SaveState()
             return file
-
 
     def CreateFolder(self, path):
         with VersionManagerEnabler(self) as f:
