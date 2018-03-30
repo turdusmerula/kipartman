@@ -133,7 +133,6 @@ class VersionManager(object):
                     file.state = ''
                     self.local_files[filepath] = file
 
-            print "%***", self.local_files
             # Match local_files with current stored version state
             for filepath in state_files:
                 state_file = state_files[filepath]
@@ -143,14 +142,32 @@ class VersionManager(object):
 
                     file_disk.id = state_file.id 
                     file_disk.version = state_file.version
+                    
+                    # retrieve metadata from local_file if exists
+                    metadata_changed = False
+                    if file_disk.metadata:
+                        if not state_file.metadata:
+                            state_file.metadata = '{}'
+                        src_metadata = json.loads(file_disk.metadata)
+                        dst_metadata = json.loads(state_file.metadata)
+                        for meta in src_metadata:
+                            dst_metadata[meta] = src_metadata[meta]
+                        new_metadata = json.dumps(dst_metadata)
+                        if new_metadata!=state_file.metadata:
+                            state_file.metadata = new_metadata
+                            metadata_changed = True
+
                     # check if local file changed toward state
-                    if file_disk.md5!=state_file.md5 and (state_file.state=="" or state_file.state is None):
+                    if ( file_disk.md5!=state_file.md5 or metadata_changed) and (state_file.state=="" or state_file.state is None):
                         file_disk.state = 'outgo_change'
                         file_disk.updated = rest.api.get_date()
                     else:
                         file_disk.state = state_file.state
                         file_disk.updated = state_file.updated
-                    state_file.category = self.file_manager.category()
+                    file_disk.category = self.file_manager.category()
+                                                
+                    print '$$$$', state_file.metadata
+                    file_disk.metadata = state_file.metadata
 
             # check if file exists on disk
             pop_list = []
@@ -162,8 +179,6 @@ class VersionManager(object):
             for filepath in pop_list:
                 self.local_files.pop(filepath)
                     
-            print "%%**", self.local_files
-            
             # Match stored version state with local files to detect removed files
             for filepath in state_files:
                 file_version = state_files[filepath]
@@ -211,6 +226,8 @@ class VersionManager(object):
 
     def EditMetadata(self, path, metadata):
         with VersionManagerEnabler(self) as f:
+            metadata = self.file_manager.EditMetadata(path, metadata)
+            
             if self.local_files.has_key(path):
                 self.local_files[path].updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
                 self.local_files[path].metadata = metadata
@@ -219,7 +236,6 @@ class VersionManager(object):
                 self.SaveState()
             else:
                 raise VersionManagerException('Updating metadata failed for file %s'%path)
-                 
 
     def CreateFile(self, path, content):
         with VersionManagerEnabler(self) as f:
@@ -322,7 +338,8 @@ class VersionManager(object):
                     to_delete.append(file)
             
             for file in to_delete:
-                self.delete_file(file)
+                if file.state.endswith('_del')==False:
+                    self.delete_file(file)
     
             self.file_manager.DeleteFolder(path)
             self.SaveState()
@@ -386,6 +403,7 @@ class VersionManager(object):
                     # check if file should be renamed
                     local_file = None
                     for local_file_name in self.local_files:
+                        print "****", self.local_files[local_file_name], "###", file
                         if self.local_files[local_file_name].id==file.id:
                             local_file = self.local_files[local_file_name]
                             break

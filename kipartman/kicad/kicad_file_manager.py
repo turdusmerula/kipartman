@@ -12,6 +12,7 @@ from pathlib2 import Path
 from helper.exception import print_stack
 import shutil
 from kicad import kicad_lib_file
+import json
 
 import rest
 
@@ -26,6 +27,9 @@ class KicadFileManager(FileSystemEventHandler):
         self.files = {}
         self.folders = []
         
+        if os.path.exists(self.root_path())==False:
+            os.makedirs(self.root_path())
+
         # observer to trigger event on resource change
         self.enabled = True
         self.observer = Observer()
@@ -96,6 +100,12 @@ class KicadFileManager(FileSystemEventHandler):
 
     def LoadContent(self, file):
         pass
+
+    def LoadMetadata(self, file):
+        return {}
+
+    def EditMetadata(self, path, metadata):
+        return metadata
 
 class KicadFileManagerPretty(KicadFileManager):
     def __init__(self):
@@ -260,7 +270,6 @@ class KicadFileManagerPretty(KicadFileManager):
         with open(fullpath) as f:
             file.content = f.read()
 
-            
     def CreateFolder(self, path):
         abspath = os.path.join(self.root_path(), path)
         if os.path.exists(abspath):
@@ -286,6 +295,19 @@ def replace_last(source_string, replace_what, replace_with):
     head, _sep, tail = source_string.rpartition(replace_what)
     return head + replace_with + tail
 
+class KicadLibCacheElement(object):
+    def __init__(self, content='', metadata={}):
+        self.content = content
+        self.metadata = metadata
+
+    def text_metadata(self):
+        res = ''
+        for metadata in self.metadata:
+            if res!='':
+                res = res+'\n'
+            res = res+metadata+' '+self.metadata[metadata]
+        return res
+    
 class KicadLibCache(object):
     def __init__(self, root_path):
         self.libs = {}
@@ -298,7 +320,7 @@ class KicadLibCache(object):
         
         if(os.path.isfile(lib_path)==False):
             return None
-        print "+++ read_lib_file"
+
         content = ''
         name = ''
         for line in open(lib_path, 'r'):
@@ -308,7 +330,8 @@ class KicadLibCache(object):
             elif line.startswith("#encoding"):
                 pass
             elif line.startswith("#"):
-                content = content+line
+                pass
+                #content = content+line
             elif line.startswith("DEF"):
                 content = content+line
                 name = line.split(' ')[1]+'.mod'
@@ -324,46 +347,81 @@ class KicadLibCache(object):
     def read_metadata_file(self, lib):
         metadata = {}
         
+        dcm = re.sub(r"\.lib$", ".dcm", lib)
+        dcm_path = os.path.join(self.root_path, dcm)
+        
+        if(os.path.isfile(dcm_path)==False):
+            return None
+
+        name = ''
+        for line in open(dcm_path, 'r'):
+            line = line.replace('\n', '')
+            if line.startswith("EESchema-DOCLIB"):
+                pass
+            elif line.startswith("#"):
+                pass
+            elif line.startswith("$CMP"):
+                name = line.split(' ')[1]+'.mod'
+                metadata[name] = {}
+            elif line.startswith("$ENDCMP"):
+                name = ''
+            elif name!='':
+                label = line.split(' ')[0]
+                value = " ".join(line.split(' ')[1:])
+                metadata[name][label] = value
+        
+        return metadata
         
     def Clear(self, path=None):
         if path:
             if path.endswith('.lib'):
-                self.libs.pop(path)
+                if self.libs.has_key(path):
+                    self.libs.pop(path)
             elif path.endswith('.mod'):
                 library = re.sub(r"\.lib.*\.mod$", ".lib", path)
                 model = re.sub(r"^.*\.lib.", "", path)
-                self.libs[library].pop(model)
+                if self.libs.has_key(library) and self.libs[library].has_key(model):
+                    self.libs[library].pop(model)
         else:
             self.libs = {}
         
     def GetModel(self, model_path):
         library = re.sub(r"\.lib.*\.mod$", ".lib", model_path)
         model = re.sub(r"^.*\.lib.", "", model_path)
-        print "****", library, model
+
         if self.libs.has_key(library) and self.libs[library].has_key(model):
             return self.libs[library][model]
         else:
             models = self.read_lib_file(library)
-            if models:
-                self.libs[library] = models
-        
+            metadata = self.read_metadata_file(library)
+            self.libs[library] = {}
+            for model in models:
+                if metadata.has_key(model):
+                    meta = metadata[model]
+                print "%$$$", meta
+                self.libs[library][model] = KicadLibCacheElement(content=models[model], metadata=meta)
+
         if self.libs.has_key(library) and self.libs[library].has_key(model):
             return self.libs[library][model]
-        else:
-            return None
-    
+        return None
+        
     def GetModels(self, lib_path):
         if self.libs.has_key(lib_path):
             return self.libs[lib_path]
         else:
             models = self.read_lib_file(lib_path)
-            if models:
-                self.libs[lib_path] = models
+            metadata = self.read_metadata_file(lib_path)
+            self.libs[lib_path] = {}
+            for model in models:
+                meta = {}
+                if metadata.has_key(model):
+                    meta = metadata[model]
+                print "%$$$", model, meta
+                self.libs[lib_path][model] = KicadLibCacheElement(content=models[model], metadata=meta)
         
         if self.libs.has_key(lib_path):
             return self.libs[lib_path]
-        else:
-            return {}
+        return {}
     
     def update_content(self, name, content):
         new_content = ''
@@ -387,14 +445,14 @@ class KicadLibCache(object):
 #        content = "#\n"+content    
 
         if has_def==False:
-            content = content+"DEF "+name+" RF 0 40 Y N 1 F N\n"
-            content = content+"DRAW\n"
-            content = content+"ENDDRAW\n"
-            content = content+"ENDDEF\n"
+            new_content = new_content+"DEF "+name+" RF 0 40 Y N 1 F N\n"
+            new_content = new_content+"DRAW\n"
+            new_content = new_content+"ENDDRAW\n"
+            new_content = new_content+"ENDDEF\n"
             
-        return content
+        return new_content
     
-    def AddModel(self, path, content):
+    def AddModel(self, path, content, metadata):
         library = re.sub(r"\.lib.*\.mod$", ".lib", path)
         model = re.sub(r"^.*\.lib.", "", path)
         model_name = re.sub(r".mod$", "", os.path.basename(path))
@@ -402,7 +460,7 @@ class KicadLibCache(object):
         content = self.update_content(model_name, content)
         if self.libs.has_key(library)==False:
             self.libs[library] = {}
-        self.libs[library][model] = content
+        self.libs[library][model] = KicadLibCacheElement(content, metadata)
         
     def Exists(self, path):
         if path.endswith('.mod'):
@@ -452,9 +510,10 @@ class KicadFileManagerLib(KicadFileManager):
                 self.LoadContent(file)
                 file.md5 = hashlib.md5(file.content).hexdigest()
                 file.category = self.category()
+                file.metadata = self.LoadMetadata(model)
                 
                 self.files[file.source_path] = file
-
+    
     def GetLibraries(self, root_path=None):
         """
         Recurse all folders and return .lib files path
@@ -485,7 +544,7 @@ class KicadFileManagerLib(KicadFileManager):
                 print "=>", lib 
                 folders.append(rel_folder)
                 libraries.append(rel_folder)
-
+        folders.remove('')
         print "---------------------"
         
         return libraries, folders
@@ -499,7 +558,7 @@ class KicadFileManagerLib(KicadFileManager):
  
         path = os.path.join(self.root_path(), library_path)        
         if os.path.exists(path):
-            lib_models = self.lib_cache.GetModels(path)
+            lib_models = self.lib_cache.GetModels(library_path)
             for model in lib_models:
                 models.append(os.path.join(library_path, model))
         print "----------------------"
@@ -510,17 +569,28 @@ class KicadFileManagerLib(KicadFileManager):
         return self.lib_cache.Exists(path)
 
     def write_library(self, library, models):
-        print "****", library
         with open(os.path.join(self.root_path(), library), 'w') as file:
             file.write('EESchema-LIBRARY Version 2.3\n')
             file.write('#encoding utf-8\n')
 
             for model in models:
-                file.write(models[model])
+                file.write(models[model].content)
             
             file.write('#\n')
             file.write('# End Library\n')
     
+        dcm = re.sub(r"\.lib$", ".dcm", library)
+        with open(os.path.join(self.root_path(), dcm), 'w') as file:
+            file.write('EESchema-DOCLIB  Version 2.0\n')
+
+            for model in models:
+                file.write('$CMP '+model.replace('.mod', '')+'\n')
+                file.write(models[model].text_metadata())
+                file.write('\n')
+                
+            file.write('#\n')
+            file.write('#End Doc Library\n')
+
     def CreateFile(self, path, content, overwrite=False):
         if self.Exists(path) and overwrite==False:
             raise KicadFileManagerException('File %s already exists'%path)
@@ -529,11 +599,9 @@ class KicadFileManagerLib(KicadFileManager):
         model = re.sub(r"^.*\.lib.", "", path)
         library_path = os.path.dirname(library)
         
-        print "$$$$", library, model, library_path
-        
         fullpath = os.path.join(self.root_path(), library_path)
-        if not os.path.exists(os.path.dirname(fullpath)):
-            os.makedirs(os.path.dirname(fullpath))
+        if os.path.exists(fullpath)==False:
+            os.makedirs(fullpath)
         
         file = rest.model.VersionedFile()
         file.source_path = path
@@ -546,47 +614,46 @@ class KicadFileManagerLib(KicadFileManager):
         self.write_library(library, models)
         
         return file
-#     
-#     def EditFile(self, file, content, create=False):
-#         if self.Exists(file.source_path)==False and create==False:
-#             raise KicadFileManagerException('File %s does not exists'%file.source_path)
-# 
-#         fullpath = os.path.join(self.root_path(), file.source_path)
-#         if self.Exists(file.source_path)==True:
-#             md5file = hashlib.md5(Path(fullpath).read_text()).hexdigest()
-#             md5 = hashlib.md5(content).hexdigest()
-#             if md5==md5file:
-#                 return file, False
-#         
-#         if os.path.exists(os.path.dirname(fullpath))==False:
-#             os.makedirs(os.path.dirname(fullpath))
-#         with open(fullpath, 'w') as content_file:
-#             if content:
-#                 content_file.write(content)
-#             else:
-#                 content_file.write('')
-#         content_file.close() 
-#  
-#         file.md5 = hashlib.md5(content).hexdigest()
-#         file.updated = rest.api.get_date()
-#            
-#         return file, True
-#     
-#     def MoveFile(self, file, dest_path, force=False):
-#         if self.Exists(file.source_path)==False and force==False:
-#             raise KicadFileManagerException('File %s does not exists'%file.source_path)
-#         if self.Exists(dest_path) and force==False:
-#             raise KicadFileManagerException('File %s already exists'%dest_path)
-#         
-#         os.rename(os.path.join(self.root_path(), file.source_path), 
-#                          os.path.join(self.root_path(), dest_path))
-# 
-#         file.source_path = dest_path
-#         #fullpath = os.path.join(self.root_path(), file.source_path)
-#         #file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
-#         file.updated = rest.api.get_date()
-#         
-#         return file
+     
+    def EditFile(self, file, content, create=False):
+        if self.Exists(file.source_path)==False and create==False:
+            raise KicadFileManagerException('File %s does not exists'%file.source_path)
+ 
+        library = re.sub(r"\.lib.*\.mod$", ".lib", file.source_path)
+        library_path = os.path.dirname(library)
+
+        if self.Exists(file.source_path)==True:
+            md5file = hashlib.md5(self.lib_cache.GetModel(file.source_path).content).hexdigest()
+            md5 = hashlib.md5(content).hexdigest()
+            if md5==md5file:
+                return file, False
+        else:
+            self.lib_cache.AddModel(file.source_path, content)  
+            self.write_library(library, self.lib_cache.GetModels(library))
+
+        file.md5 = hashlib.md5(content).hexdigest()
+        file.updated = rest.api.get_date()
+            
+        return file, True
+     
+    def MoveFile(self, file, dest_path, force=False):
+        if self.Exists(file.source_path)==False and force==False:
+            raise KicadFileManagerException('File %s does not exists'%file.source_path)
+        if self.Exists(dest_path) and force==False:
+            raise KicadFileManagerException('File %s already exists'%dest_path)
+        
+        library = re.sub(r"\.lib.*\.mod$", ".lib", file.source_path)
+        library_path = os.path.dirname(library)
+
+        content = self.lib_cache.GetModel(file.source_path)
+        self.lib_cache.Clear(file.source_path)
+        self.lib_cache.AddModel(dest_path, content)
+        self.write_library(library, self.lib_cache.GetModels(library))
+         
+        file.source_path = dest_path
+        file.updated = rest.api.get_date()
+         
+        return file
  
     def DeleteFile(self, file, force=False):
         if self.Exists(file.source_path)==False and force==False:
@@ -605,9 +672,8 @@ class KicadFileManagerLib(KicadFileManager):
         if self.Exists(file.source_path)==False:
             raise KicadFileManagerException('File %s does not exists'%file.source_path)
         
-        file.content = self.lib_cache.GetModel(file.source_path)
+        file.content = self.lib_cache.GetModel(file.source_path).content
  
-             
     def CreateFolder(self, path):
         abspath = os.path.join(self.root_path(), path)
         if os.path.exists(abspath):
@@ -634,4 +700,30 @@ class KicadFileManagerLib(KicadFileManager):
             os.remove(abspath)
         else:
             shutil.rmtree(abspath)
- 
+
+    def LoadMetadata(self, file):
+        model = self.lib_cache.GetModel(file)
+        metadata = json.loads('{}')
+        if model:
+            for meta in model.metadata:
+                if meta=='D':
+                    metadata['description'] = model.metadata[meta]
+        return json.dumps(metadata)
+         
+    def EditMetadata(self, path, metadata):
+        model = self.lib_cache.GetModel(path)
+        dst_metadata = {}
+        if model.metadata:
+            dst_metadata = model.metadata
+        src_metadata = json.loads(metadata)
+        for meta in src_metadata:
+            if meta=='description':
+                dst_metadata['D'] = src_metadata[meta]
+        if len(dst_metadata)>0:
+            model.metadata = dst_metadata
+        
+        library = re.sub(r"\.lib.*\.mod$", ".lib", path)
+        self.write_library(library, self.lib_cache.GetModels(library))
+        
+        return metadata
+
