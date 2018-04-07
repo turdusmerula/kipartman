@@ -4,28 +4,26 @@ from configuration import configuration
 from glob import glob
 import os
 import re
-import rest
-import datetime, time
 import hashlib
-import sync.version_manager
 from pathlib2 import Path
-from helper.exception import print_stack
 import shutil
-from kicad import kicad_lib_file
 import json
-
 import rest
+import wx
 
 class KicadFileManagerException(Exception):
     def __init__(self, error):
         super(KicadFileManagerException, self).__init__(error)
 
 class KicadFileManager(FileSystemEventHandler):
+    id = 0
     def __init__(self):
         self.on_change_hooks = []
-
+        self._id = self.id+1
+        
         self.files = {}
         self.folders = []
+        self.extensions = []
         
         if os.path.exists(self.root_path())==False:
             os.makedirs(self.root_path())
@@ -47,11 +45,20 @@ class KicadFileManager(FileSystemEventHandler):
             return 
         
         self.enabled = False
-        
-        if os.path.basename(event.src_path).startswith('.')==False:
-            print("Something happend with %s" % event.src_path)
-            for hook in self.on_change_hooks:
-                hook(event)
+        for extension in self.extensions:
+            print "-- ", extension
+            if hasattr(event, 'dest_path') and os.path.isfile(event.dest_path) and os.path.basename(event.dest_path).startswith('.')==False and event.dest_path.endswith('.'+extension):
+                print("%d: Something happend with %s" % (self._id, event.dest_path))
+                print self.on_change_hooks
+                for hook in self.on_change_hooks:
+                    print "---"
+                    wx.CallAfter(hook, event)
+            elif hasattr(event, 'src_path') and os.path.isfile(event.src_path) and os.path.basename(event.src_path).startswith('.')==False and event.src_path.endswith('.'+extension):
+                print("%d: Something happend with %s" % (self._id, event.src_path))
+                print self.on_change_hooks
+                for hook in self.on_change_hooks:
+                    print "---"
+                    wx.CallAfter(hook, event)
         
         self.enabled = True
     # - on_moved(self, event)
@@ -111,8 +118,10 @@ class KicadFileManagerPretty(KicadFileManager):
     def __init__(self):
         super(KicadFileManagerPretty, self).__init__()
 
+        self.extensions = ['kicad_mod']
+        
     def root_path(self):
-        return configuration.kicad_library_path
+        return configuration.kicad_models_path
 
     def version_file(self):
         return '.kiversion_mod'
@@ -485,12 +494,13 @@ class KicadFileManagerLib(KicadFileManager):
     def __init__(self):
         super(KicadFileManagerLib, self).__init__()
         self.lib_cache = KicadLibCache(self.root_path())
-        
+        self.extensions = ['lib', 'dcm']
+       
     def version_file(self):
         return '.kiversion_lib'
 
     def root_path(self):
-        return configuration.kicad_models_path
+        return configuration.kicad_library_path
 
     def category(self):
         return 'lib'
@@ -501,6 +511,7 @@ class KicadFileManagerLib(KicadFileManager):
         """
         self.files = {}
         libraries, self.folders = self.GetLibraries()
+        self.lib_cache.Clear()
         
         for library in libraries:
             models = self.GetModels(library)
@@ -608,8 +619,11 @@ class KicadFileManagerLib(KicadFileManager):
         file.md5 = hashlib.md5(content).hexdigest()
         file.updated = rest.api.get_date()
         file.category = self.category()
-
-        self.lib_cache.AddModel(path, content)
+        
+        metadata = {}
+        if file.metadata:
+            metadata = json.loads(file.metadata)
+        self.lib_cache.AddModel(path, content, metadata)
         models = self.lib_cache.GetModels(library)
         self.write_library(library, models)
         
@@ -708,6 +722,8 @@ class KicadFileManagerLib(KicadFileManager):
             for meta in model.metadata:
                 if meta=='D':
                     metadata['description'] = model.metadata[meta]
+                else:
+                    metadata[meta] = model.metadata[meta]
         return json.dumps(metadata)
          
     def EditMetadata(self, path, metadata):
@@ -719,6 +735,8 @@ class KicadFileManagerLib(KicadFileManager):
         for meta in src_metadata:
             if meta=='description':
                 dst_metadata['D'] = src_metadata[meta]
+            else:
+                dst_metadata[meta] = src_metadata[meta]                
         if len(dst_metadata)>0:
             model.metadata = dst_metadata
         

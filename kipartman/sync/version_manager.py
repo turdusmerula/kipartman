@@ -5,6 +5,8 @@ import re
 import datetime
 import hashlib
 from helper.exception import print_stack
+import wx
+import wx.lib.newevent
 
 class VersionManagerException(Exception):
     def __init__(self, error):
@@ -17,7 +19,7 @@ class VersionManagerEnabler(object):
 
         if self.manager_stack.has_key(self.manager)==False:
             self.manager_stack[self.manager] = []
-         
+
     def __enter__(self):
         self.manager_stack[self.manager].append(False)
         self.manager.file_manager.Enabled(False)
@@ -29,6 +31,8 @@ class VersionManagerEnabler(object):
 
 class VersionManager(object):
     def __init__(self, file_manager):
+        super(VersionManager, self).__init__()
+        
         self.root_path = file_manager.root_path()
         self.file_manager = file_manager
         self.config = os.path.join(self.root_path, file_manager.version_file())
@@ -37,7 +41,7 @@ class VersionManager(object):
         self.local_files = {}
         
         self.LoadState()
-            
+        
     def deserialize_file(self, json):
         file = rest.model.VersionedFile()
         if json.has_key('id'):

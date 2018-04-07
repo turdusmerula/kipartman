@@ -7,10 +7,9 @@ import helper.tree
 import os
 from helper.tree import TreeImageList
 from helper.exception import print_stack
-from configuration import configuration
 import wx
 import re
-import sync
+import sync.version_manager
 import json
 
 # help pages:
@@ -414,6 +413,7 @@ class FootprintsFrameProto(PanelFootprintsProto):
 
     def onFilePrettyChanged(self, event):
         # do a synchronize when a file change on disk
+        print "-------------------------------------------------------------------------------------"
         self.load()
        
     def onTreeLibrariesSelChanged( self, event ):

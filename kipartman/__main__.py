@@ -45,27 +45,8 @@ def main(args=None):
     from frames.main_frame import MainFrame
     app = wx.App()
     
-    frame = MainFrame(None)
-    
+    frame = MainFrame(None)    
     frame.Show()
-
-    ############
-    from kicad.kicad_mod_file import KicadModFile
-    f = KicadModFile()
-    #f.LoadFile("/home/seb/bike-alarm/bikealarm-hardware/library/TSSOP.pretty/TSSOP-8.kicad_mod")
-    #f.LoadFile("/home/seb/bike-alarm/bikealarm-hardware/library/LED.pretty/LED_0603.kicad_mod")
-#    f.LoadFile("/home/seb/bike-alarm/bikealarm-hardware/library/Connector.pretty/Pin_Header_Angled_1x02_Pitch2.54mm.kicad_mod")
-    #f.LoadFile("/home/seb/bike-alarm/bikealarm-hardware/library/Switch.pretty/SPST_B3U-1000P-B.kicad_mod")
-    #f.Render("/tmp/a.png")
-    ############
-    
-    ############
-    from kicad.kicad_lib_file import KicadLibFile
-    f = KicadLibFile()
-    #f.LoadFile("/home/seb/git/kipartman/a.lib")
-    #f.LoadFile(b"C:\TEST\BSFE17W44-BoostPSU-MIC2875\BSFE17W44-BoostPSU-MIC2875-cache.lib")
-    #f.Render("/tmp/b.png")
-    ############
 
     app.MainLoop()
 

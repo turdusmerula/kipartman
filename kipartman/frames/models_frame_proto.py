@@ -247,7 +247,7 @@ class ModelsFrameProto(PanelModelsProto):
         
         self.file_manager_lib = KicadFileManagerLib()
         self.manager_lib = sync.version_manager.VersionManager(self.file_manager_lib)
-        self.file_manager_lib.AddChangeHook(self.onFilePrettyChanged)
+        self.file_manager_lib.AddChangeHook(self.onFileLibChanged)
         
         # create libraries data
         self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries)
@@ -420,8 +420,9 @@ class ModelsFrameProto(PanelModelsProto):
         model.source_path = path         
         self.edit_model(model)
 
-    def onFilePrettyChanged(self, event):
+    def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
+        print "-------------------------------------------------------------------------------------"
         self.load()
        
     def onTreeLibrariesSelChanged( self, event ):
