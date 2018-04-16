@@ -1,27 +1,21 @@
 from dialogs.panel_edit_model import PanelEditModel
-from frames.select_snapeda_frame import EVT_SELECT_SNAPEDA_OK_EVENT
-from frames.select_snapeda_model_frame import SelectSnapedaModelFrame
+from frames.select_snapeda_frame import SelectSnapedaFrame, EVT_SELECT_SNAPEDA_OK_EVENT
 from frames.dropdown_dialog import DropdownDialog
+from kicad import kicad_lib_file
 import wx.lib.newevent
-import urllib2
 import tempfile
 import os.path
 import webbrowser
 import cfscrape
-import rest
 from configuration import Configuration
 from dialogs.dialog_snapeda_error import DialogSnapedaError
-from snapeda.connection import snapeda_connection
 from snapeda.queries import DownloadQuery
 import zipfile
-import glob, os
+import glob
 import datetime
-try:
-    import kicad.lib_convert
-except ImportError:
-    print(' Kicad PCBNEW library not available')
-else:
-    pass
+import hashlib
+import json
+from kicad.kicad_file_manager import KicadFileManagerLib
 
 EditModelApplyEvent, EVT_EDIT_FOOTPRINT_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditModelCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -35,9 +29,19 @@ def NoneValue(value, default):
         return value
     return default
 
+def MetadataValue(metadata, value, default):
+    if metadata is None:
+        return default
+    if metadata.has_key(value):
+        return metadata[value]
+    return default
+
 class EditModelFrame(PanelEditModel): 
     def __init__(self, parent):
         super(EditModelFrame, self).__init__(parent)
+        self.snapeda_uid = ''
+        self.model_path = ''
+        self.lib_cache = KicadFileManagerLib()
         
     def SetModel(self, model):
         self.model = model
@@ -45,91 +49,71 @@ class EditModelFrame(PanelEditModel):
 
     def ShowModel(self, model):
         configuration = Configuration()
-        
-        # set local files to be added
-        self.local_file_image = None
-        self.local_file_model = None
-        
-        # enable evrything else
-        if model:
-            self.edit_model_name.Value = NoneValue(model.name, '')
-            self.edit_model_description.Value = NoneValue(model.description, '')
-            self.edit_model_comment.Value = NoneValue(model.comment, '')
-
-            try:
-                self.button_open_file_image.Label = model.image.source_name
-                try:
-                    url = os.path.join(configuration.kipartbase, 'file', self.model.image.storage_path)
-                    url = url.replace('\\','/') #Work around for running on Windows                    
-                    self.SetImage(url)
-                except Exception as e:
-                    wx.MessageBox(format(e), "Error, failed to load '%s'" % (configuration.kipartbase+model.image.storage_path), wx.OK | wx.ICON_ERROR)
-            except:
-                self.button_open_file_image.Label = "<None>"
-                self.SetImage()
             
-            try:
-                self.button_open_file_model.Label = model.model.source_name
-            except:
-                self.button_open_file_model.Label = "<None>"
-
-            if model.snapeda:
-                self.button_open_url_snapeda.Label = NoneValue(model.snapeda, '')
+        # enable everything else
+        if model:
+            
+            if model.metadata:
+                metadata = json.loads(model.metadata)
             else:
-                self.button_open_url_snapeda.Label = "<None>"
+                metadata = json.loads('{}')
+
+            self.edit_model_name.Value = ''
+            self.model_path = ''
+            
+            if NoneValue(model.source_path, '')!='':
+                name = os.path.basename(NoneValue(model.source_path, ''))
+                if name.endswith('.lib')==False:
+                    # path is a model
+                    self.edit_model_name.Value = name.replace(".mod", "")
+                    self.model_path = os.path.dirname(model.source_path)
+                    
+            self.edit_model_description.Value = MetadataValue(metadata, 'description', '')
+            self.edit_model_comment.Value = MetadataValue(metadata, 'comment', '')
+             
+            self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
+            
+            if self.edit_model_name.Value!='' and self.lib_cache.Exists(model.source_path):
+                self.lib_cache.LoadContent(model)
+                lib = kicad_lib_file.KicadLibFile()
+                lib.Load(model.content)
+                image_file = tempfile.NamedTemporaryFile()
+                lib.Render(image_file.name, self.panel_image_model.GetRect().width, self.panel_image_model.GetRect().height)
+                img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
+                image_file.close()
+            else:
+                img = wx.Image()
+                img.Create(1, 1)
+
+            img = img.ConvertToBitmap()
+            self.bitmap_edit_model.SetBitmap(img)
+                
         else:
             self.edit_model_name.Value = ''
             self.edit_model_description.Value = ''
             self.edit_model_comment.Value = ''
-            self.button_open_file_image.Label = "<None>"
-            self.button_open_file_model.Label = "<None>"
             self.button_open_url_snapeda.Label = "<None>"
 
+            img = wx.Image()
+            img.Create(1, 1)
+            img = img.ConvertToBitmap()
+            self.bitmap_edit_model.SetBitmap(img)
+
+
+        
     def enable(self, enabled=True):
         self.edit_model_name.Enabled = enabled
         self.edit_model_description.Enabled = enabled
         self.edit_model_comment.Enabled = enabled
         self.button_remove_url_snapeda.Enabled = enabled
-        self.button_add_file_model.Enabled = enabled
-        self.button_add_file_image.Enabled = enabled
         self.button_model_editApply.Enabled = enabled
         self.button_model_editCancel.Enabled = enabled
-        self.button_remove_file_model.Enabled = enabled
-        self.button_remove_file_image.Enabled = enabled
         self.button_snapeda.Enabled = enabled
         
-    def SetImage(self, filename=none_image):
-        try:
-            data = urllib2.urlopen(filename)
-            print "Load url:", filename
-            f = os.path.join(tempfile.gettempdir(), os.path.basename(filename))
-            with open(f, 'wb') as outfile:
-                outfile.write(data.read())
-            outfile.close()
-        except:  # invalid URL, this is a file
-            print "Load file:", filename
-            f = filename
-         
-        img = wx.Image(f, wx.BITMAP_TYPE_ANY)
-        #img = wx.Bitmap(self.file_model_image.GetPath(), wx.BITMAP_TYPE_ANY)
-        self.PhotoMaxSize = self.bitmap_edit_model.GetSize().x
-        W = img.GetWidth()
-        H = img.GetHeight()
-        if W > H:
-            NewW = self.PhotoMaxSize
-            NewH = self.PhotoMaxSize * H / W
-        else:
-            NewH = self.PhotoMaxSize
-            NewW = self.PhotoMaxSize * W / H
-        img = img.Scale(NewW,NewH)
-        img = img.ConvertToBitmap()
-
-        self.bitmap_edit_model.SetBitmap(img)
-
     def onButtonSnapedaClick( self, event ):
         # create a snapeda frame
         # dropdown frame
-        dropdown = DropdownDialog(self.button_snapeda, SelectSnapedaModelFrame, self.edit_model_name.Value)
+        dropdown = DropdownDialog(self.button_snapeda, SelectSnapedaFrame, initial_search=self.edit_model_name.Value, preview='model')
         dropdown.panel.Bind( EVT_SELECT_SNAPEDA_OK_EVENT, self.onSelectSnapedaFrameOk )
         dropdown.Dropdown()
 
@@ -137,7 +121,7 @@ class EditModelFrame(PanelEditModel):
         snapeda = event.data
         if not snapeda:
             return
-        print "snapeda:", snapeda.json
+        print snapeda.json
         
         self.edit_model_name.Value = snapeda.part_number()
         self.edit_model_description.Value = snapeda.short_description()
@@ -149,7 +133,7 @@ class EditModelFrame(PanelEditModel):
                                manufacturer=snapeda.manufacturer(),
                                uniqueid=snapeda.uniqueid(),
                                has_symbol=snapeda.has_symbol(),
-                               has_footprint=snapeda.has_footprint())
+                               has_model=snapeda.has_model())
             if download.error():
                 wx.MessageBox(download.error(), 'Error downloading model', wx.OK | wx.ICON_ERROR)
                 
@@ -158,27 +142,6 @@ class EditModelFrame(PanelEditModel):
             return
         
         self.button_open_url_snapeda.Label = "https://www.snapeda.com"+snapeda._links().self().href()
-
-        # download image
-        image_url = ""
-        if len(snapeda.models())>0:
-            if snapeda.models()[0].symbol_medium():
-                image_url = snapeda.models()[0].symbol_medium().url()
-        if image_url=="" and len(snapeda.coverart())>0:
-            image_url = snapeda.coverart()[0].url()
-        if image_url!="":
-            try:
-                filename = os.path.join(tempfile.gettempdir(), os.path.basename(image_url))
-                content = scraper.get(image_url).content
-                with open(filename, 'wb') as outfile:
-                    outfile.write(content)
-                outfile.close()
-                 
-                self.button_open_file_image.Label = os.path.basename(filename)
-                self.local_file_image = filename
-                self.SetImage(filename)
-            except Exception as e:
-                wx.MessageBox(format(e), 'Error loading image', wx.OK | wx.ICON_ERROR)
 
         # download model
         if download.url() and download.url()!='':
@@ -201,126 +164,26 @@ class EditModelFrame(PanelEditModel):
                 wx.MessageBox(format(e), 'Error unziping model', wx.OK | wx.ICON_ERROR)
 
             for file in glob.glob(filename+".tmp/*"):
-                if file.endswith(".mod"):
-                    # convert mod 
-                    try:
-                        self.local_file_model = kicad.lib_convert.convert_mod_to_pretty(file, file[:-4]+".pretty")
-                    except Exception as e:
-                        wx.MessageBox(format(e), 'Error converting mod to pretty', wx.OK | wx.ICON_ERROR)
-                        return
-                    self.button_open_file_model.Label = os.path.basename(self.local_file_model)
-                elif file.endswith(".kicad_mod"):
-                    self.button_open_file_model.Label = os.path.basename(file)
-                    self.local_file_model = file
-
-    def onButtonOpenFileImageClick( self, event ):
-        url = None
-        configuration = Configuration()
-        if self.local_file_image:
-            url = self.local_file_image
-        elif self.button_open_file_image.Label!="<None>":
-            url = os.path.join(configuration.kipartbase, 'file', self.model.image.storage_path)
-            url = url.replace('\\','/') #Work around for running on Windows
-        if url:    
-            webbrowser.open(url)
-
-    def onButtonAddFileImageClick( self, event ):
-        dlg = wx.FileDialog(
-            self, message="Choose an image file",
-            defaultDir=os.getcwd(),
-            defaultFile="",
-            wildcard="Bitmap (*.bmp)|*.bmp|PNG (*.png)|*.png|JPEG (*.jpg)|*.jpg|GIF (*.gif)|*.gif",
-                style=wx.FD_OPEN |
-                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
-                wx.FD_PREVIEW
-        )
-        dlg.SetFilterIndex(0)
-
-        # Show the dialog and retrieve the user response. If it is the OK response,
-        # process the data.
-        if dlg.ShowModal() == wx.ID_OK:
-            self.button_open_file_image.Label = os.path.basename(dlg.GetPath())
-            self.local_file_image = os.path.basename(dlg.GetPath())
-            self.SetImage(dlg.GetPath())
-
+                kicad_file = ''
+                if file.endswith(".lib"):
+                    with open(kicad_file, 'r') as content_file:
+                        self.model.content = content_file.read()
+                        print "--", self.model.content
+                    
+                    mod = kicad_lib_file.KicadLibFile()
+                    mod.LoadFile(kicad_file)
+                    image_file = tempfile.NamedTemporaryFile()
+                    mod.Render(image_file.name, self.panel_image_model.GetRect().width, self.panel_image_model.GetRect().height)
+                    img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
+                    image_file.close()
+                    img = img.ConvertToBitmap()
+                    self.bitmap_edit_model.SetBitmap(img)
             
-    def onButtonRemoveFileImageClick( self, event ):
-        self.button_open_file_image.Label = "<None>"
-        self.local_file_image = ''
-        self.SetImage()
+            self.model.md5 = hashlib.md5(self.model.content).hexdigest()
 
-
-    def onButtonOpenFileModelClick( self, event ):
-        url = None
-        configuration = Configuration()
-        if self.local_file_model:
-            url = self.local_file_model
-        elif self.button_open_file_model.Label!="<None>":
-            url = os.path.join(configuration.kipartbase, 'file', self.model.model.storage_path)
-            url = url.replace('\\','/') #Work around for running on Windows
-        if url:    
-            webbrowser.open(url)
-    
-    def onButtonAddFileModelClick( self, event ):
-        dlg = wx.FileDialog(
-            self, message="Choose a model file",
-            defaultDir=os.getcwd(),
-            defaultFile="",
-            wildcard="Model (*.kicad_mod)|*.kicad_mod",
-                style=wx.FD_OPEN |
-                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
-                wx.FD_PREVIEW
-        )
-        dlg.SetFilterIndex(0)
-
-        # Show the dialog and retrieve the user response. If it is the OK response,
-        # process the data.
-        if dlg.ShowModal() == wx.ID_OK:
-            self.button_open_file_model.Label = os.path.basename(dlg.GetPath())
-            self.local_file_model = os.path.basename(dlg.GetPath())
-    
-    def onButtonRemoveFileModelClick( self, event ):
-        self.button_open_file_model.Label = "<None>"
-        self.local_file_model = ''
-
-    def onButtonModelEditApply( self, event ):
-        model = self.model
-        
-
-        model.name = self.edit_model_name.Value
-        model.description = self.edit_model_description.Value
-        model.comment = self.edit_model_comment.Value
-        
-        try:
-            if self.local_file_image=='':
-                model.image = None
-            elif self.local_file_image:
-                model.image = rest.api.add_upload_file(upfile=self.local_file_image)
-        except Exception as e:
-            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-            return
-        
-        try:
-            if self.local_file_model=='':
-                model.model = None
-            elif self.local_file_model:
-                model.model = rest.api.add_upload_file(upfile=self.local_file_model)
-        except Exception as e:
-            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-            return
-        
-        model.snapeda = self.button_open_url_snapeda.Label
-        model.snapeda_uid = self.snapeda_uid
-        model.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        
-        # send result event
-        event = EditModelApplyEvent(data=model)
-        wx.PostEvent(self, event)
-    
-    def onButtonModelEditCancel( self, event ):
-        event = EditModelCancelEvent()
-        wx.PostEvent(self, event)
-
+        # download 3D model
+        #TODO
+                        
     def onButtonOpenUrlSnapedaClick( self, event ):
         if self.button_open_url_snapeda.Label!="<None>":
             webbrowser.open(self.button_open_url_snapeda.Label)
@@ -328,3 +191,40 @@ class EditModelFrame(PanelEditModel):
     def onButtonRemoveUrlSnapedaClick( self, event ):
         self.button_open_url_snapeda.Label = "<None>"
         self.button_open_url_snapeda = ''
+
+    def onButtonModelEditApply( self, event ):
+        model = self.model
+        
+        if model.metadata:
+            metadata = json.loads(model.metadata)
+        else:
+            metadata = json.loads('{}')
+        metadata['description'] = self.edit_model_description.Value
+        metadata['comment'] = self.edit_model_comment.Value
+        
+        if self.button_open_url_snapeda.Label!="<None>":
+            metadata['snapeda'] = self.button_open_url_snapeda.Label
+            metadata['snapeda_uid'] = self.snapeda_uid
+            metadata['updated'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        else:
+            metadata.pop('snapeda', '')
+            metadata.pop('snapeda_uid', '')
+            metadata.pop('updated', '')
+        
+        model.metadata = json.dumps(metadata)
+        if not model.content:
+            model.content = ''
+            model.md5 = hashlib.md5(model.content).hexdigest()
+            
+        # send result event
+        event = EditModelApplyEvent(
+            data=model,
+            # source_path is not changed in the model as we only have the filename here, not the full path
+            # the full path should be reconstructed by caller
+            model_name=self.edit_model_name.Value+".mod"
+            )
+        wx.PostEvent(self, event)
+    
+    def onButtonModelEditCancel( self, event ):
+        event = EditModelCancelEvent()
+        wx.PostEvent(self, event)

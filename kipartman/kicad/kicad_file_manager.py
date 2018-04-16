@@ -659,9 +659,9 @@ class KicadFileManagerLib(KicadFileManager):
         library = re.sub(r"\.lib.*\.mod$", ".lib", file.source_path)
         library_path = os.path.dirname(library)
 
-        content = self.lib_cache.GetModel(file.source_path)
+        model = self.lib_cache.GetModel(file.source_path)
         self.lib_cache.Clear(file.source_path)
-        self.lib_cache.AddModel(dest_path, content)
+        self.lib_cache.AddModel(dest_path, model.content, model.metadata)
         self.write_library(library, self.lib_cache.GetModels(library))
          
         file.source_path = dest_path
