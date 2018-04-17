@@ -23,7 +23,7 @@ from swagger_server.controllers.controller_part_offer import deserialize_PartOff
 from django.db.models import Q
 import api.models
 from swagger_server.controllers.controller_footprint import find_footprint
-from swagger_server.controllers.controller_model import find_model
+from swagger_server.controllers.controller_symbol import find_symbol
 from swagger_server.controllers.controller_part_manufacturer import find_part_manufacturers
 from swagger_server.controllers.controller_part_storage import find_part_storages
 from swagger_server.controllers.controller_upload_file import find_upload_file
@@ -54,8 +54,8 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
         part.category = raise_on_error(find_parts_category(fpart.category.id))
     if fpart.footprint:
         part.footprint = raise_on_error(find_footprint(fpart.footprint.id))
-    if fpart.model:
-        part.model = raise_on_error(find_model(fpart.model.id))
+    if fpart.symbol:
+        part.symbol = raise_on_error(find_symbol(fpart.symbol.id))
     # extract childs
     if with_childs:
         part.childs = []
@@ -119,13 +119,13 @@ def deserialize_PartNew(part, fpart=None):
     else:
         fpart.footprint = None
 
-    if part.model:
+    if part.symbol:
         try:
-            fpart.model = api.models.Model.objects.get(pk=part.model.id)
+            fpart.symbol = api.models.Symbol.objects.get(pk=part.symbol.id)
         except:
-            raise_on_error(Error(code=1000, message='Model %d does not exists'%part.model.id))
+            raise_on_error(Error(code=1000, message='Symbol %d does not exists'%part.symbol.id))
     else:
-        fpart.model = None
+        fpart.symbol = None
 
     if not part.childs is None:
         fchilds = []

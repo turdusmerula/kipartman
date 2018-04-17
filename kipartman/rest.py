@@ -16,8 +16,8 @@ def reload():
     global api
     global model
     
-    unauthenticated_client = swagger_client.ApiClient(base_url)
-    client = swagger_client.ApiClient(base_url)
+    unauthenticated_client = swagger_client.ApiClient()
+    client = swagger_client.ApiClient()
     api = swagger_client.DefaultApi(client)
     model = swagger_client
 

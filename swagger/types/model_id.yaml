@@ -1,7 +1,0 @@
-model_id:
-  name: model_id
-  in: path
-  description: Footprint id
-  required: true
-  type: integer
-  format: int64

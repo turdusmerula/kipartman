@@ -1,0 +1,48 @@
+get:
+  description: Return a symbol category
+  operationId: findSymbolsCategory
+  parameters:
+    - $ref: './types/category_id.yaml#/category_id'
+  responses:
+    "200":
+      description: Categories
+      schema:
+        $ref: './symbol/category/SymbolCategory.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+put:
+  description: Update symbol category
+  operationId: updateSymbolsCategory
+  parameters:
+    - $ref: './types/category_id.yaml#/category_id'
+    - name: category
+      in: body
+      description: Category to update
+      required: true
+      schema:
+        $ref: './symbol/category/SymbolCategoryNew.yaml'
+  responses:
+    "200":
+      description: Updated pärt category
+      schema:
+        $ref: './symbol/category/SymbolCategory.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+delete:
+  description: Delete symbol category
+  operationId: deleteSymbolsCategory
+  parameters:
+    - $ref: './types/category_id.yaml#/category_id'
+  responses:
+    "200":
+      description: Deleted ok
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

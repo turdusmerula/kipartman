@@ -1,0 +1,19 @@
+type: object
+allOf:
+  - $ref: './symbol/category/SymbolCategoryData.yaml'
+  - required:
+      - id
+      - name
+      - description
+    properties:
+      id:
+        type: integer
+        format: int64
+      parent:
+        $ref: "./symbol/category/SymbolCategoryRef.yaml"
+      childs:
+        type: "array"
+        items: 
+          $ref: "./symbol/category/SymbolCategory.yaml"
+      path:
+        type: string

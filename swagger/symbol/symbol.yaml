@@ -1,0 +1,48 @@
+get:
+  description: Return a symbol
+  operationId: findSymbol
+  parameters:
+    - $ref: './types/symbol_id.yaml#/symbol_id'
+  responses:
+    "200":
+      description: Categories
+      schema:
+        $ref: './symbol/Symbol.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+put:
+  description: Update symbol
+  operationId: updateSymbol
+  parameters:
+    - $ref: './types/symbol_id.yaml#/symbol_id'
+    - name: symbol
+      in: body
+      description: Symbol to update
+      required: true
+      schema:
+        $ref: './symbol/SymbolNew.yaml'
+  responses:
+    "200":
+      description: Updated symbol
+      schema:
+        $ref: './symbol/Symbol.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+delete:
+  description: Delete symbol
+  operationId: deleteSymbol
+  parameters:
+    - $ref: './types/symbol_id.yaml#/symbol_id'
+  responses:
+    "200":
+      description: Deleted ok
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

@@ -53,7 +53,7 @@ class PanelPartEcadData ( wx.Panel ):
 		
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_staticText12 = wx.StaticText( self, wx.ID_ANY, u"3D MODEL", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTRE|wx.ST_ELLIPSIZE_MIDDLE )
+		self.m_staticText12 = wx.StaticText( self, wx.ID_ANY, u"3D Footprint", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTRE|wx.ST_ELLIPSIZE_MIDDLE )
 		self.m_staticText12.Wrap( -1 )
 		bSizer6.Add( self.m_staticText12, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND, 5 )
 		

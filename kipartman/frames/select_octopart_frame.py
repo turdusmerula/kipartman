@@ -90,8 +90,8 @@ class SelectOctopartFrame(PanelSelectOctopart):
         self.search_octopart.Value = initial_search
     
         # create octoparts list
-        self.octoparts_model = OctopartDataModel(initial_search)
-        self.tree_octoparts.AssociateModel(self.octoparts_model)
+        self.octoparts_symbol = OctopartDataModel(initial_search)
+        self.tree_octoparts.AssociateSymbol(self.octoparts_symbol)
         # add default columns
         self.tree_octoparts.AppendTextColumn("Manufacturer", 0, width=wx.COL_WIDTH_AUTOSIZE)
         self.tree_octoparts.AppendTextColumn("Description", 1, width=wx.COL_WIDTH_AUTOSIZE)
@@ -113,9 +113,9 @@ class SelectOctopartFrame(PanelSelectOctopart):
     
     def _search(self):
         # apply new filter and reload
-        self.octoparts_model.Cleared()
-        self.octoparts_model = OctopartDataModel(self.search_octopart.Value)
-        self.tree_octoparts.AssociateModel(self.octoparts_model)
+        self.octoparts_symbol.Cleared()
+        self.octoparts_symbol = OctopartDataModel(self.search_octopart.Value)
+        self.tree_octoparts.AssociateSymbol(self.octoparts_symbol)
 
    # Virtual event handlers, overide them in your derived class
     def onSearchOctopartButton( self, event ):
@@ -134,7 +134,7 @@ class SelectOctopartFrame(PanelSelectOctopart):
         sel = self.tree_octoparts.GetSelection()
         if not sel:
             return
-        octopart = self.octoparts_model.ItemToObject(self.tree_octoparts.GetSelection())
+        octopart = self.octoparts_symbol.ItemToObject(self.tree_octoparts.GetSelection())
         
         # trigger result event
         event = SelectOctopartOkEvent(data=octopart)

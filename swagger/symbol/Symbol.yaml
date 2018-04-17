@@ -1,0 +1,18 @@
+type: object
+allOf:
+  - $ref: './symbol/SymbolData.yaml'
+  - required:
+      - id
+      - name
+      - description
+      - comment
+    properties:
+      id:
+        type: integer
+        format: int64
+      category:
+        $ref: "./symbol/category/SymbolCategory.yaml"
+      image:
+        $ref: "./upload/UploadFile.yaml"
+      symbol:
+        $ref: "./upload/UploadFile.yaml"

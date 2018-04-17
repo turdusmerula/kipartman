@@ -75,6 +75,7 @@ class EditFootprintFrame(PanelEditFootprint):
              
             self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
             
+            print "----", os.path.join(configuration.kicad_library_path, footprint.source_path)
             if self.edit_footprint_name.Value!='' and os.path.exists(os.path.join(configuration.kicad_library_path, footprint.source_path)):
                 mod = kicad_mod_file.KicadModFile()
                 mod.LoadFile(os.path.join(configuration.kicad_library_path, footprint.source_path))
@@ -189,7 +190,7 @@ class EditFootprintFrame(PanelEditFootprint):
             
             self.footprint.md5 = hashlib.md5(self.footprint.content).hexdigest()
 
-        # download 3D model
+        # download 3D symbol
         #TODO
                         
     def onButtonOpenUrlSnapedaClick( self, event ):

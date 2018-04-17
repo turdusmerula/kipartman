@@ -7,7 +7,8 @@ if [ ! -f /tmp/swagger-codegen-cli.jar ]
 then
 #	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.2/swagger-codegen-cli-2.2.2.jar -O /tmp/swagger-codegen-cli.jar
 	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar -O /tmp/swagger-codegen-cli.jar
-#	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.3.0/swagger-codegen-cli-2.3.0.jar -O /tmp/swagger-codegen-cli.jar
+#	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.3.1/swagger-codegen-cli-2.3.1.jar -O /tmp/swagger-codegen-cli.jar
+#	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/3.0.0-rc0/swagger-codegen-cli-3.0.0-rc0.jar -O /tmp/swagger-codegen-cli.jar
 fi
 
 # generate client
@@ -16,6 +17,13 @@ java -jar /tmp/swagger-codegen-cli.jar generate \
   -i api.yaml \
   -l python \
   -o client/
+
+# patch py files to remove wrong recursive imports
+sed -i -e "s/from swagger_client.models.footprint_category import FootprintCategory//g" client/swagger_client/models/footprint_category.py
+sed -i -e "s/from swagger_client.models.part import Part//g" client/swagger_client/models/part.py
+sed -i -e "s/from swagger_client.models.part_category import PartCategory//g" client/swagger_client/models/part_category.py
+sed -i -e "s/from swagger_client.models.symbol_category import SymbolCategory//g" client/swagger_client/models/symbol_category.py
+sed -i -e "s/from swagger_client.models.storage_category import StorageCategory//g" client/swagger_client/models/storage_category.py
 
 # copy client inside kipartman
 cd client
@@ -40,12 +48,12 @@ java -jar /tmp/swagger-codegen-cli.jar generate \
 sed -i -e "s/from swagger_server.models.part_category import PartCategory//g" server/swagger_server/models/part_category.py
 sed -i -e "s/from swagger_server.models.part import Part//g" server/swagger_server/models/part.py
 sed -i -e "s/from swagger_server.models.footprint_category import FootprintCategory//g" server/swagger_server/models/footprint_category.py
-sed -i -e "s/from swagger_server.models.model_category import ModelCategory//g" server/swagger_server/models/model_category.py
+sed -i -e "s/from swagger_server.models.symbol_category import SymbolCategory//g" server/swagger_server/models/symbol_category.py
 sed -i -e "s/from swagger_server.models.storage_category import StorageCategory//g" server/swagger_server/models/storage_category.py
 
 # patch py files to allow usage of name Model
-find server/swagger_server -name "*.py" -exec sed -i -e "s#from .base_model_ import Model#from .base_model_ import Model as BaseModel#g" {} \;
-find server/swagger_server -name "*.py" -exec sed -i -e "s#(Model)#(BaseModel)#g" {} \;
+#find server/swagger_server -name "*.py" -exec sed -i -e "s#from .base_model_ import Model#from .base_model_ import Model as BaseModel#g" {} \;
+#find server/swagger_server -name "*.py" -exec sed -i -e "s#(Model)#(BaseModel)#g" {} \;
 
 # copy server inside kipartbase
 cd server

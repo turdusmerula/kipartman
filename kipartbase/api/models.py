@@ -21,7 +21,7 @@ class Part(models.Model):
     comment = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('Footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    model = models.ForeignKey('Model', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    symbol = models.ForeignKey('Symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     childs = models.ManyToManyField('Part', blank=True)
     #parameters is defined inside PartParameter by ForeignKey part
     #offers is defined inside PartOffer by ForeignKey part
@@ -136,25 +136,25 @@ class Footprint(models.Model):
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
-class ModelCategory(MPTTModel):
-    parent = TreeForeignKey('ModelCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+class SymbolCategory(MPTTModel):
+    parent = TreeForeignKey('SymbolCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     name = models.TextField()
     description = models.TextField(blank=True, default='')
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
 
-class Model(models.Model):
-    category = models.ForeignKey('ModelCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+class Symbol(models.Model):
+    category = models.ForeignKey('SymbolCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     name = models.TextField()
     description = models.TextField(blank=True, default='')
     comment = models.TextField(blank=True, default='')
     image = models.ForeignKey('File', related_name='model_image', on_delete=models.DO_NOTHING, null=True, default=None)
-    model = models.ForeignKey('File', related_name='model_file', on_delete=models.DO_NOTHING, null=True, default=None)
+    symbol = models.ForeignKey('File', related_name='model_file', on_delete=models.DO_NOTHING, null=True, default=None)
     snapeda = models.TextField(null=True, blank=True)
     snapeda_uid = models.TextField(null=True, blank=True, default=None)
     updated = models.DateTimeField(null=True, blank=True, default=None)
-    childs = models.ManyToManyField('Model', related_name='model_childs', blank=True)
+    childs = models.ManyToManyField('Symbol', related_name='symbol_childs', blank=True)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 

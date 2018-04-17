@@ -64,17 +64,17 @@ paths:
 
 
 
-  /models/categories:
-    $ref: './model/category/categories.yaml'
+  /symbols/categories:
+    $ref: './symbol/category/categories.yaml'
     
-  /models/category/{category_id}:
-    $ref: './model/category/category.yaml'
+  /symbols/category/{category_id}:
+    $ref: './symbol/category/category.yaml'
 
-  /models:
-    $ref: './model/models.yaml'
+  /symbols:
+    $ref: './symbol/symbols.yaml'
 
-  /model/{model_id}:
-    $ref: './model/model.yaml'
+  /symbol/{symbol_id}:
+    $ref: './symbol/symbol.yaml'
 
 
 

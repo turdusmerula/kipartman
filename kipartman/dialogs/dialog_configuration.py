@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Nov 13 2017)
+## Python code generated with wxFormBuilder (version Dec 22 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -138,19 +138,19 @@ class DialogConfiguration ( wx.Dialog ):
 		
 		fgSizer21.Add( bSizer4, 1, wx.EXPAND, 5 )
 		
-		self.m_staticText31 = wx.StaticText( sbSizer21.GetStaticBox(), wx.ID_ANY, u"Libraries path", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText31 = wx.StaticText( sbSizer21.GetStaticBox(), wx.ID_ANY, u"Footprints path", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText31.Wrap( -1 )
 		fgSizer21.Add( self.m_staticText31, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.dir_libraries_path = wx.DirPickerCtrl( sbSizer21.GetStaticBox(), wx.ID_ANY, wx.EmptyString, u"Select a folder", wx.DefaultPosition, wx.DefaultSize, wx.DIRP_DEFAULT_STYLE )
-		fgSizer21.Add( self.dir_libraries_path, 0, wx.ALL|wx.EXPAND, 5 )
+		self.dir_footprints_path = wx.DirPickerCtrl( sbSizer21.GetStaticBox(), wx.ID_ANY, wx.EmptyString, u"Select a folder", wx.DefaultPosition, wx.DefaultSize, wx.DIRP_DEFAULT_STYLE )
+		fgSizer21.Add( self.dir_footprints_path, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		self.m_staticText311 = wx.StaticText( sbSizer21.GetStaticBox(), wx.ID_ANY, u"Models path", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText311 = wx.StaticText( sbSizer21.GetStaticBox(), wx.ID_ANY, u"Symbols path", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText311.Wrap( -1 )
 		fgSizer21.Add( self.m_staticText311, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.dir_models_path = wx.DirPickerCtrl( sbSizer21.GetStaticBox(), wx.ID_ANY, wx.EmptyString, u"Select a folder", wx.DefaultPosition, wx.DefaultSize, wx.DIRP_DEFAULT_STYLE )
-		fgSizer21.Add( self.dir_models_path, 0, wx.ALL|wx.EXPAND, 5 )
+		self.dir_symbols_path = wx.DirPickerCtrl( sbSizer21.GetStaticBox(), wx.ID_ANY, wx.EmptyString, u"Select a folder", wx.DefaultPosition, wx.DefaultSize, wx.DIRP_DEFAULT_STYLE )
+		fgSizer21.Add( self.dir_symbols_path, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		self.m_staticText312 = wx.StaticText( sbSizer21.GetStaticBox(), wx.ID_ANY, u"3D models path", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText312.Wrap( -1 )

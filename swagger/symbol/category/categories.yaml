@@ -1,0 +1,34 @@
+get:
+  description: Return all categories for symbols
+  operationId: findSymbolsCategories
+  responses:
+    "200":
+      description: List of categories
+      schema:
+        type: array
+        items:
+          $ref: './symbol/category/SymbolCategory.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+post:
+  description: Creates a new symbol category
+  operationId: addSymbolsCategory
+  parameters:
+    - name: category
+      in: body
+      description: Category to add
+      required: true
+      schema:
+        $ref: './symbol/category/SymbolCategoryNew.yaml'
+  responses:
+    "200":
+      description: Created category
+      schema:
+        $ref: './symbol/category/SymbolCategory.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

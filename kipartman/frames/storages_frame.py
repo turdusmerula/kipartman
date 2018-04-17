@@ -201,7 +201,7 @@ class StoragesFrame(PanelStorages):
             id_category_map[category.id] = DataModelCategory(category)
             to_add.pop(0)
             
-            # add to model
+            # add to symbol
             if category.parent:
                 self.tree_categories_manager.AppendItem(id_category_map[category.parent.id], id_category_map[category.id])
             else:
@@ -362,7 +362,7 @@ class StoragesFrame(PanelStorages):
             # update on server
             category = rest.api.update_storages_category(source_category.id, source_category)
 
-            # update tree model
+            # update tree symbol
             if source_categoryobj:
                 self.tree_categories_manager.MoveItem(source_categoryobj.parent, dest_categoryobj, source_categoryobj)
         except Exception as e:
@@ -390,7 +390,7 @@ class StoragesFrame(PanelStorages):
             # update on server
             storage = rest.api.update_storage(source_storage.id, source_storage)
             
-            # update tree model
+            # update tree symbol
             self.tree_storages_manager.DeleteStorage(source_storage)
             self.tree_storages_manager.AppendStorage(storage)
         except Exception as e:

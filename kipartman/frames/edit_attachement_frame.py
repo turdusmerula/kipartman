@@ -46,7 +46,7 @@ class EditAttachementFrame(DialogEditAttachement):
             self, message="Choose a file",
             defaultDir=os.getcwd(),
             defaultFile="",
-            wildcard="Model (*)|*",
+            wildcard="Symbol (*)|*",
                 style=wx.FD_OPEN |
                 wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
                 wx.FD_PREVIEW

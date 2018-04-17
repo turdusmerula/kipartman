@@ -38,7 +38,7 @@ class DataModelSnapedaPart(helper.tree.TreeItem):
 
             
 class SelectSnapedaFrame(PanelSelectSnapeda):
-    def __init__(self, parent, initial_search=None, filter=None, preview='model'): 
+    def __init__(self, parent, initial_search=None, filter=None, preview='symbol'): 
         """
         Create a popup window from frame
         :param parent: owner
@@ -98,11 +98,11 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
         
         # download image
         image_url = ""
-        if len(snapeda.models())>0:
-            if self.preview=='footprint' and snapeda.models()[0].package_medium():
-                image_url = snapeda.models()[0].package_medium().url()
-            if self.preview=='model' and snapeda.models()[0].symbol_medium():
-                image_url = snapeda.models()[0].symbol_medium().url()
+        if len(snapeda.symbols())>0:
+            if self.preview=='footprint' and snapeda.symbols()[0].package_medium():
+                image_url = snapeda.symbols()[0].package_medium().url()
+            if self.preview=='symbol' and snapeda.symbols()[0].symbol_medium():
+                image_url = snapeda.symbols()[0].symbol_medium().url()
             
         if image_url=="" and len(snapeda.coverart())>0:
             image_url = snapeda.coverart()[0].url()

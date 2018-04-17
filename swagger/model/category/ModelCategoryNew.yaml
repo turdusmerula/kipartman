@@ -1,8 +1,0 @@
-type: object
-allOf:
-  - $ref: './model/category/ModelCategoryData.yaml'
-  - required:
-      - name
-    properties:
-      parent:
-        $ref: "./model/category/ModelCategoryRef.yaml"

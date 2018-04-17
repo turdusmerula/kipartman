@@ -121,7 +121,7 @@ class KicadFileManagerPretty(KicadFileManager):
         self.extensions = ['kicad_mod']
         
     def root_path(self):
-        return configuration.kicad_models_path
+        return configuration.kicad_footprints_path
 
     def version_file(self):
         return '.kiversion_mod'
@@ -323,12 +323,12 @@ class KicadLibCache(object):
         self.root_path = root_path
         
     def read_lib_file(self, lib):
-        models = {}
+        symbols = {}
 
         lib_path = os.path.join(self.root_path, lib)
         
         if(os.path.isfile(lib_path)==False):
-            return None
+            return []
 
         content = ''
         name = ''
@@ -346,12 +346,12 @@ class KicadLibCache(object):
                 name = line.split(' ')[1]+'.mod'
             elif line.startswith("ENDDEF"):
                 content = content+line
-                models[name] = content
+                symbols[name] = content
                 content = ''
             else:
                 content = content+line
                 
-        return models
+        return symbols
 
     def read_metadata_file(self, lib):
         metadata = {}
@@ -388,45 +388,45 @@ class KicadLibCache(object):
                     self.libs.pop(path)
             elif path.endswith('.mod'):
                 library = re.sub(r"\.lib.*\.mod$", ".lib", path)
-                model = re.sub(r"^.*\.lib.", "", path)
-                if self.libs.has_key(library) and self.libs[library].has_key(model):
-                    self.libs[library].pop(model)
+                symbol = re.sub(r"^.*\.lib.", "", path)
+                if self.libs.has_key(library) and self.libs[library].has_key(symbol):
+                    self.libs[library].pop(symbol)
         else:
             self.libs = {}
         
-    def GetModel(self, model_path):
-        library = re.sub(r"\.lib.*\.mod$", ".lib", model_path)
-        model = re.sub(r"^.*\.lib.", "", model_path)
+    def GetSymbol(self, symbol_path):
+        library = re.sub(r"\.lib.*\.mod$", ".lib", symbol_path)
+        symbol = re.sub(r"^.*\.lib.", "", symbol_path)
 
-        if self.libs.has_key(library) and self.libs[library].has_key(model):
-            return self.libs[library][model]
+        if self.libs.has_key(library) and self.libs[library].has_key(symbol):
+            return self.libs[library][symbol]
         else:
-            models = self.read_lib_file(library)
+            symbols = self.read_lib_file(library)
             metadata = self.read_metadata_file(library)
             self.libs[library] = {}
-            for model in models:
-                if metadata.has_key(model):
-                    meta = metadata[model]
+            for symbol in symbols:
+                if metadata.has_key(symbol):
+                    meta = metadata[symbol]
                 print "%$$$", meta
-                self.libs[library][model] = KicadLibCacheElement(content=models[model], metadata=meta)
+                self.libs[library][symbol] = KicadLibCacheElement(content=symbols[symbol], metadata=meta)
 
-        if self.libs.has_key(library) and self.libs[library].has_key(model):
-            return self.libs[library][model]
+        if self.libs.has_key(library) and self.libs[library].has_key(symbol):
+            return self.libs[library][symbol]
         return None
         
-    def GetModels(self, lib_path):
+    def GetSymbols(self, lib_path):
         if self.libs.has_key(lib_path):
             return self.libs[lib_path]
         else:
-            models = self.read_lib_file(lib_path)
+            symbols = self.read_lib_file(lib_path)
             metadata = self.read_metadata_file(lib_path)
             self.libs[lib_path] = {}
-            for model in models:
+            for symbol in symbols:
                 meta = {}
-                if metadata.has_key(model):
-                    meta = metadata[model]
-                print "%$$$", model, meta
-                self.libs[lib_path][model] = KicadLibCacheElement(content=models[model], metadata=meta)
+                if metadata.has_key(symbol):
+                    meta = metadata[symbol]
+                print "%$$$", symbol, meta
+                self.libs[lib_path][symbol] = KicadLibCacheElement(content=symbols[symbol], metadata=meta)
         
         if self.libs.has_key(lib_path):
             return self.libs[lib_path]
@@ -461,27 +461,27 @@ class KicadLibCache(object):
             
         return new_content
     
-    def AddModel(self, path, content, metadata):
+    def AddSymbol(self, path, content, metadata):
         library = re.sub(r"\.lib.*\.mod$", ".lib", path)
-        model = re.sub(r"^.*\.lib.", "", path)
-        model_name = re.sub(r".mod$", "", os.path.basename(path))
+        symbol = re.sub(r"^.*\.lib.", "", path)
+        symbol_name = re.sub(r".mod$", "", os.path.basename(path))
         
-        content = self.update_content(model_name, content)
+        content = self.update_content(symbol_name, content)
         if self.libs.has_key(library)==False:
             self.libs[library] = {}
-        self.libs[library][model] = KicadLibCacheElement(content, metadata)
+        self.libs[library][symbol] = KicadLibCacheElement(content, metadata)
         
     def Exists(self, path):
         if path.endswith('.mod'):
             library = re.sub(r"\.lib.*\.mod$", ".lib", path)
-            model = re.sub(r"^.*\.lib.", "", path)
+            symbol = re.sub(r"^.*\.lib.", "", path)
             
-            models = self.GetModels(library)
-            if models and models.has_key(model):
+            symbols = self.GetSymbols(library)
+            if symbols and symbols.has_key(symbol):
                 return True
             return False
         elif path.endswith('.lib'):
-            if self.GetModels(path):
+            if self.GetSymbols(path):
                 return True
             return False
         else:
@@ -500,7 +500,7 @@ class KicadFileManagerLib(KicadFileManager):
         return '.kiversion_lib'
 
     def root_path(self):
-        return configuration.kicad_library_path
+        return configuration.kicad_symbols_path
 
     def category(self):
         return 'lib'
@@ -514,14 +514,14 @@ class KicadFileManagerLib(KicadFileManager):
         self.lib_cache.Clear()
         
         for library in libraries:
-            models = self.GetModels(library)
-            for model in models:
+            symbols = self.GetSymbols(library)
+            for symbol in symbols:
                 file = rest.model.VersionedFile()
-                file.source_path = model
+                file.source_path = symbol
                 self.LoadContent(file)
                 file.md5 = hashlib.md5(file.content).hexdigest()
                 file.category = self.category()
-                file.metadata = self.LoadMetadata(model)
+                file.metadata = self.LoadMetadata(symbol)
                 
                 self.files[file.source_path] = file
     
@@ -560,32 +560,32 @@ class KicadFileManagerLib(KicadFileManager):
         
         return libraries, folders
     
-    def GetModels(self, library_path):
+    def GetSymbols(self, library_path):
         """
-        Return all models in a lib file
+        Return all symbols in a lib file
         """
-        print "===> GetModels----"
-        models = []
+        print "===> GetSymbols----"
+        symbols = []
  
         path = os.path.join(self.root_path(), library_path)        
         if os.path.exists(path):
-            lib_models = self.lib_cache.GetModels(library_path)
-            for model in lib_models:
-                models.append(os.path.join(library_path, model))
+            lib_symbols = self.lib_cache.GetSymbols(library_path)
+            for symbol in lib_symbols:
+                symbols.append(os.path.join(library_path, symbol))
         print "----------------------"
      
-        return models
+        return symbols
  
     def Exists(self, path):
         return self.lib_cache.Exists(path)
 
-    def write_library(self, library, models):
+    def write_library(self, library, symbols):
         with open(os.path.join(self.root_path(), library), 'w') as file:
             file.write('EESchema-LIBRARY Version 2.3\n')
             file.write('#encoding utf-8\n')
 
-            for model in models:
-                file.write(models[model].content)
+            for symbol in symbols:
+                file.write(symbols[symbol].content)
             
             file.write('#\n')
             file.write('# End Library\n')
@@ -594,9 +594,9 @@ class KicadFileManagerLib(KicadFileManager):
         with open(os.path.join(self.root_path(), dcm), 'w') as file:
             file.write('EESchema-DOCLIB  Version 2.0\n')
 
-            for model in models:
-                file.write('$CMP '+model.replace('.mod', '')+'\n')
-                file.write(models[model].text_metadata())
+            for symbol in symbols:
+                file.write('$CMP '+symbol.replace('.mod', '')+'\n')
+                file.write(symbols[symbol].text_metadata())
                 file.write('\n')
                 
             file.write('#\n')
@@ -607,7 +607,7 @@ class KicadFileManagerLib(KicadFileManager):
             raise KicadFileManagerException('File %s already exists'%path)
 
         library = re.sub(r"\.lib.*\.mod$", ".lib", path)
-        model = re.sub(r"^.*\.lib.", "", path)
+        symbol = re.sub(r"^.*\.lib.", "", path)
         library_path = os.path.dirname(library)
         
         fullpath = os.path.join(self.root_path(), library_path)
@@ -623,9 +623,9 @@ class KicadFileManagerLib(KicadFileManager):
         metadata = {}
         if file.metadata:
             metadata = json.loads(file.metadata)
-        self.lib_cache.AddModel(path, content, metadata)
-        models = self.lib_cache.GetModels(library)
-        self.write_library(library, models)
+        self.lib_cache.AddSymbol(path, content, metadata)
+        symbols = self.lib_cache.GetSymbols(library)
+        self.write_library(library, symbols)
         
         return file
      
@@ -637,13 +637,13 @@ class KicadFileManagerLib(KicadFileManager):
         library_path = os.path.dirname(library)
 
         if self.Exists(file.source_path)==True:
-            md5file = hashlib.md5(self.lib_cache.GetModel(file.source_path).content).hexdigest()
+            md5file = hashlib.md5(self.lib_cache.GetSymbol(file.source_path).content).hexdigest()
             md5 = hashlib.md5(content).hexdigest()
             if md5==md5file:
                 return file, False
         else:
-            self.lib_cache.AddModel(file.source_path, content)  
-            self.write_library(library, self.lib_cache.GetModels(library))
+            self.lib_cache.AddSymbol(file.source_path, content)  
+            self.write_library(library, self.lib_cache.GetSymbols(library))
 
         file.md5 = hashlib.md5(content).hexdigest()
         file.updated = rest.api.get_date()
@@ -659,10 +659,10 @@ class KicadFileManagerLib(KicadFileManager):
         library = re.sub(r"\.lib.*\.mod$", ".lib", file.source_path)
         library_path = os.path.dirname(library)
 
-        model = self.lib_cache.GetModel(file.source_path)
+        symbol = self.lib_cache.GetSymbol(file.source_path)
         self.lib_cache.Clear(file.source_path)
-        self.lib_cache.AddModel(dest_path, model.content, model.metadata)
-        self.write_library(library, self.lib_cache.GetModels(library))
+        self.lib_cache.AddSymbol(dest_path, symbol.content, symbol.metadata)
+        self.write_library(library, self.lib_cache.GetSymbols(library))
          
         file.source_path = dest_path
         file.updated = rest.api.get_date()
@@ -676,7 +676,7 @@ class KicadFileManagerLib(KicadFileManager):
         library = re.sub(r"\.lib.*\.mod$", ".lib", file.source_path)
 
         self.lib_cache.Clear(file.source_path)
-        self.write_library(library, self.lib_cache.GetModels(library))
+        self.write_library(library, self.lib_cache.GetSymbols(library))
         
         file.updated = rest.api.get_date()
      
@@ -686,7 +686,7 @@ class KicadFileManagerLib(KicadFileManager):
         if self.Exists(file.source_path)==False:
             raise KicadFileManagerException('File %s does not exists'%file.source_path)
         
-        file.content = self.lib_cache.GetModel(file.source_path).content
+        file.content = self.lib_cache.GetSymbol(file.source_path).content
  
     def CreateFolder(self, path):
         abspath = os.path.join(self.root_path(), path)
@@ -716,21 +716,21 @@ class KicadFileManagerLib(KicadFileManager):
             shutil.rmtree(abspath)
 
     def LoadMetadata(self, file):
-        model = self.lib_cache.GetModel(file)
+        symbol = self.lib_cache.GetSymbol(file)
         metadata = json.loads('{}')
-        if model:
-            for meta in model.metadata:
+        if symbol:
+            for meta in symbol.metadata:
                 if meta=='D':
-                    metadata['description'] = model.metadata[meta]
+                    metadata['description'] = symbol.metadata[meta]
                 else:
-                    metadata[meta] = model.metadata[meta]
+                    metadata[meta] = symbol.metadata[meta]
         return json.dumps(metadata)
          
     def EditMetadata(self, path, metadata):
-        model = self.lib_cache.GetModel(path)
+        symbol = self.lib_cache.GetSymbol(path)
         dst_metadata = {}
-        if model.metadata:
-            dst_metadata = model.metadata
+        if symbol.metadata:
+            dst_metadata = symbol.metadata
         src_metadata = json.loads(metadata)
         for meta in src_metadata:
             if meta=='description':
@@ -738,10 +738,10 @@ class KicadFileManagerLib(KicadFileManager):
             else:
                 dst_metadata[meta] = src_metadata[meta]                
         if len(dst_metadata)>0:
-            model.metadata = dst_metadata
+            symbol.metadata = dst_metadata
         
         library = re.sub(r"\.lib.*\.mod$", ".lib", path)
-        self.write_library(library, self.lib_cache.GetModels(library))
+        self.write_library(library, self.lib_cache.GetSymbols(library))
         
         return metadata
 

@@ -29,9 +29,9 @@ class Configuration(object):
         if os.path.exists(expanduser("~")+'/.kipartman/library')==False:
             os.mkdir(expanduser("~")+'/.kipartman/library')
         self.kicad_path = ''
-        self.kicad_library_path = expanduser("~")+'/.kipartman/library'
-        self.kicad_models_path = expanduser("~")+'/.kipartman/library'
-        self.kicad_3d_models_path = expanduser("~")+'/.kipartman/library'
+        self.kicad_footprints_path = expanduser("~")+'/.kipartman/footprints'
+        self.kicad_symbols_path = expanduser("~")+'/.kipartman/symbols'
+        self.kicad_3d_models_path = expanduser("~")+'/.kipartman/3d_models'
         self.kicad_library_common_path = True
         
         self.Load()
@@ -53,8 +53,8 @@ class Configuration(object):
                 self.base_currency = content['base_currency']
                 
                 self.kicad_path = content['kicad_path']
-                self.kicad_library_path = content['kicad_library_path']
-                self.kicad_models_path = content['kicad_models_path']
+                self.kicad_footprints_path = content['kicad_footprints_path']
+                self.kicad_symbols_path = content['kicad_symbols_path']
                 self.kicad_3d_models_path = content['kicad_3d_models_path']
                 self.kicad_library_common_path = content['kicad_library_common_path']
             
@@ -101,8 +101,8 @@ class Configuration(object):
             content['logformat'] = self.LOGFORMAT
 
             content['kicad_path'] = unicode(self.kicad_path)
-            content['kicad_library_path'] = unicode(self.kicad_library_path)
-            content['kicad_models_path'] = unicode(self.kicad_models_path)
+            content['kicad_symbols_path'] = unicode(self.kicad_symbols_path)
+            content['kicad_footprints_path'] = unicode(self.kicad_footprints_path)
             content['kicad_3d_models_path'] = unicode(self.kicad_3d_models_path)
             content['kicad_library_common_path'] = self.kicad_library_common_path
 

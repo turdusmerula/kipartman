@@ -124,9 +124,9 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
 
     def GetValue(self, col):
         if col<6:
-            model = ''
-            if self.part.model:
-                model = self.part.model.name
+            symbol = ''
+            if self.part.symbol:
+                symbol = self.part.symbol.name
             footprint = ''
             if self.part.footprint:
                 footprint = self.part.footprint.name
@@ -136,7 +136,7 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
                 1 : self.part.name,
                 2 : self.part.description,
                 3 : self.part.comment,
-                4 : model,
+                4 : symbol,
                 5 : footprint
             }
             return vMap[col]
@@ -288,26 +288,26 @@ class TreeManagerParts(helper.tree.TreeManager):
     
     def AppendPart(self, part):
         categoryobj = self.AppendCategoryPath(part.category)
-        partobj = DataModelPart(part, self.model.columns)
+        partobj = DataModelPart(part, self.symbol.columns)
         self.AppendItem(categoryobj, partobj)
         self.Expand(categoryobj)
         return partobj
     
     def AppendChildPart(self, parent_part, part):
         parentobj = self.FindPart(parent_part.id)
-        partobj = DataModelPart(part, self.model.columns)
+        partobj = DataModelPart(part, self.symbol.columns)
         self.AppendItem(parentobj, partobj)
         self.Expand(parentobj)
         return partobj
 
     def AddParameterColumn(self, parameter_name):
         column = self.AddCustomColumn(parameter_name, 'parameter', None)
-        self.model.columns[column.GetModelColumn()] = DataColumnParameter(parameter_name)
+        self.symbol.columns[column.GetSymbolColumn()] = DataColumnParameter(parameter_name)
         
     def RemoveParameterColumn(self, index):
-        if self.model.columns.has_key(index)==False:
+        if self.symbol.columns.has_key(index)==False:
             return
-        self.model.columns.pop(index)
+        self.symbol.columns.pop(index)
         self.RemoveColumn(index)
 
 class PartsFrame(PanelParts): 
@@ -330,7 +330,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
         self.tree_parts_manager.AddIntegerColumn("comment")
-        self.tree_parts_manager.AddTextColumn("model")
+        self.tree_parts_manager.AddTextColumn("symbol")
         self.tree_parts_manager.AddTextColumn("footprint")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
         self.tree_parts_manager.OnColumnHeaderRightClick = self.onTreePartsColumnHeaderRightClick
@@ -367,7 +367,7 @@ class PartsFrame(PanelParts):
             id_category_map[category.id] = DataModelCategory(category)
             to_add.pop(0)
             
-            # add to model
+            # add to symbol
             if category.parent:
                 self.tree_categories_manager.AppendItem(id_category_map[category.parent.id], id_category_map[category.id])
             else:
@@ -607,12 +607,12 @@ class PartsFrame(PanelParts):
         r = SelectOctopartFrame(df, part.name)
         # print('IMPORT: octopart_lookup:{} found Qty:{}, UID:{}, MPN:{}'.format(
         #     part.name
-        #     ,len(r.Children[1].Model.data)
-        #     , r.Children[1].Model.data[0].json['item']['uid']
-        #     , r.Children[1].Model.data[0].json['item']['mpn']
+        #     ,len(r.Children[1].Symbol.data)
+        #     , r.Children[1].Symbol.data[0].json['item']['uid']
+        #     , r.Children[1].Symbol.data[0].json['item']['mpn']
         #     ))
         df.Destroy()
-        return r.Children[1].Model
+        return r.Children[1].Symbol
 
 
             
@@ -720,7 +720,7 @@ class PartsFrame(PanelParts):
             # update on server
             category = rest.api.update_parts_category(source_category.id, source_category)
 
-            # update tree model
+            # update tree symbol
             if source_categoryobj:
                 self.tree_categories_manager.MoveItem(source_categoryobj.parent, dest_categoryobj, source_categoryobj)
         except Exception as e:
@@ -748,7 +748,7 @@ class PartsFrame(PanelParts):
             # update on server
             part = rest.api.update_part(source_part.id, source_part)
             
-            # update tree model
+            # update tree symbol
             self.tree_parts_manager.DeletePart(source_part)
             self.tree_parts_manager.AppendPart(part)
         except Exception as e:
@@ -812,7 +812,7 @@ class PartsFrame(PanelParts):
                     # update on server
                     part = rest.api.update_part(source_part.id, source_part)
                     
-                    # update tree model
+                    # update tree symbol
                     self.tree_parts_manager.DeletePart(source_part)
                     self.tree_parts_manager.AppendPart(part)
                 except Exception as e:
@@ -837,7 +837,7 @@ class PartsFrame(PanelParts):
                 dest_part.childs.append(source_partobj.part)
                 rest.api.update_part(dest_part.id, dest_part)
 
-                # update tree model
+                # update tree symbol
                 self.tree_parts_manager.AppendChildPart(dest_part, source_partobj.part)
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
@@ -854,7 +854,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddParameterColumn(parameter.name)
         
     def onMenuParametersRemoveSelection( self, event ):
-        self.tree_parts_manager.RemoveParameterColumn(self.menu_parameters.Column.GetModelColumn())
+        self.tree_parts_manager.RemoveParameterColumn(self.menu_parameters.Column.GetSymbolColumn())
             
     def onEditPartApply( self, event ):
         part = event.data

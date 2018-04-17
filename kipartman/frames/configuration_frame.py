@@ -22,12 +22,12 @@ class ConfigurationFrame(DialogConfiguration):
             self.dir_kicad_path.SetPath(configuration.kicad_path)
         
         self.check_common_path.SetValue(configuration.kicad_library_common_path)
-        self.dir_libraries_path.SetPath(configuration.kicad_library_path)
+        self.dir_footprints_path.SetPath(configuration.kicad_footprints_path)
         if configuration.kicad_library_common_path:
-            self.dir_models_path.SetPath(configuration.kicad_library_path)
-            self.dir_3d_models_path.SetPath(configuration.kicad_library_path)
+            self.dir_symbols_path.SetPath(configuration.kicad_footprints_path)
+            self.dir_3d_models_path.SetPath(configuration.kicad_footprints_path)
         else:
-            self.dir_models_path.SetPath(configuration.kicad_models_path)
+            self.dir_symbols_path.SetPath(configuration.kicad_symbols_path)
             self.dir_3d_models_path.SetPath(configuration.kicad_3d_models_path)
         self.onCheckCommonPath(None)
         
@@ -59,12 +59,12 @@ class ConfigurationFrame(DialogConfiguration):
         configuration.base_currency = self.choice_user_currency.GetString(self.choice_user_currency.GetSelection())
         
         configuration.kicad_path = self.dir_kicad_path.GetPath()
-        configuration.kicad_library_path = self.dir_libraries_path.GetPath()
+        configuration.kicad_footprints_path = self.dir_footprints_path.GetPath()
         if self.check_common_path.Value:
-            configuration.kicad_models_path = self.dir_libraries_path.GetPath()
-            configuration.kicad_3d_models_path = self.dir_libraries_path.GetPath()
+            configuration.kicad_symbols_path = self.dir_footprints_path.GetPath()
+            configuration.kicad_3d_models_path = self.dir_footprints_path.GetPath()
         else:
-            configuration.kicad_models_path = self.dir_models_path.GetPath()
+            configuration.kicad_symbols_path = self.dir_symbols_path.GetPath()
             configuration.kicad_3d_models_path = self.dir_3d_models_path.GetPath()
         configuration.kicad_library_common_path = self.check_common_path.Value
         
@@ -122,9 +122,9 @@ class ConfigurationFrame(DialogConfiguration):
     def onCheckCommonPath( self, event ):
         if self.check_common_path.Value:
             self.dir_3d_models_path.Enabled = False
-            self.dir_models_path.Enabled = False
+            self.dir_symbols_path.Enabled = False
         else:
             self.dir_3d_models_path.Enabled = True
-            self.dir_models_path.Enabled = True
+            self.dir_symbols_path.Enabled = True
             
     

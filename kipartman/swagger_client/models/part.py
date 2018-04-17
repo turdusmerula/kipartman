@@ -42,7 +42,7 @@ class Part(object):
         'has_childs': 'int',
         'childs': 'list[Part]',
         'footprint': 'Footprint',
-        'model': 'Model',
+        'symbol': 'Symbol',
         'parameters': 'list[PartParameter]',
         'distributors': 'list[PartDistributor]',
         'manufacturers': 'list[PartManufacturer]',
@@ -62,7 +62,7 @@ class Part(object):
         'has_childs': 'has_childs',
         'childs': 'childs',
         'footprint': 'footprint',
-        'model': 'model',
+        'symbol': 'symbol',
         'parameters': 'parameters',
         'distributors': 'distributors',
         'manufacturers': 'manufacturers',
@@ -70,7 +70,7 @@ class Part(object):
         'attachements': 'attachements'
     }
 
-    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, id=None, category=None, has_childs=None, childs=None, footprint=None, model=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
+    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, id=None, category=None, has_childs=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
         """
         Part - a model defined in Swagger
         """
@@ -86,7 +86,7 @@ class Part(object):
         self._has_childs = None
         self._childs = None
         self._footprint = None
-        self._model = None
+        self._symbol = None
         self._parameters = None
         self._distributors = None
         self._manufacturers = None
@@ -114,8 +114,8 @@ class Part(object):
           self.childs = childs
         if footprint is not None:
           self.footprint = footprint
-        if model is not None:
-          self.model = model
+        if symbol is not None:
+          self.symbol = symbol
         if parameters is not None:
           self.parameters = parameters
         if distributors is not None:
@@ -361,25 +361,25 @@ class Part(object):
         self._footprint = footprint
 
     @property
-    def model(self):
+    def symbol(self):
         """
-        Gets the model of this Part.
+        Gets the symbol of this Part.
 
-        :return: The model of this Part.
-        :rtype: Model
+        :return: The symbol of this Part.
+        :rtype: Symbol
         """
-        return self._model
+        return self._symbol
 
-    @model.setter
-    def model(self, model):
+    @symbol.setter
+    def symbol(self, symbol):
         """
-        Sets the model of this Part.
+        Sets the symbol of this Part.
 
-        :param model: The model of this Part.
-        :type: Model
+        :param symbol: The symbol of this Part.
+        :type: Symbol
         """
 
-        self._model = model
+        self._symbol = symbol
 
     @property
     def parameters(self):

@@ -52,6 +52,7 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    import cProfile
-    cProfile.run("main()")
+    #import cProfile
+    #cProfile.run("main()")
+    main()
 

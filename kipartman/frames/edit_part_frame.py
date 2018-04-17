@@ -1,6 +1,6 @@
 from dialogs.panel_edit_part import PanelEditPart
 from frames.select_footprint_frame import SelectFootprintFrame
-from frames.select_model_frame import SelectModelFrame
+from frames.select_symbol_frame import SelectSymbolFrame
 from frames.part_parameters_frame import PartParametersFrame
 from frames.part_distributors_frame import PartDistributorsFrame
 from frames.part_manufacturers_frame import PartManufacturersFrame
@@ -65,10 +65,10 @@ class EditPartFrame(PanelEditPart):
                 self.button_part_footprint.Label = NoneValue(part.footprint.name, "")
             else:
                 self.button_part_footprint.Label = "<none>"
-            if part.model:
-                self.button_part_model.Label = NoneValue(part.model.name, "")
+            if part.symbol:
+                self.button_part_symbol.Label = NoneValue(part.symbol.name, "")
             else:
-                self.button_part_model.Label = "<none>"
+                self.button_part_symbol.Label = "<none>"
         else:
             self.edit_part_name.Value = ''
             self.edit_part_description.Value = ''
@@ -80,7 +80,7 @@ class EditPartFrame(PanelEditPart):
         self.button_octopart.Enabled = enabled
         self.edit_part_description.Enabled = enabled
         self.button_part_footprint.Enabled = enabled
-        self.button_part_model.Enabled = enabled
+        self.button_part_symbol.Enabled = enabled
         self.edit_part_comment.Enabled = enabled
         self.button_part_editApply.Enabled = enabled
         self.button_part_editCancel.Enabled = enabled
@@ -102,17 +102,17 @@ class EditPartFrame(PanelEditPart):
             self.button_part_footprint.Label = "<none>"
         self.part.footprint = footprint
         
-    def onButtonPartModelClick( self, event ):
-        model = self.part.model
-        frame = DropdownFrame(self.button_part_footprint, SelectModelFrame, model)
-        frame.Dropdown(self.onSetModelCallback)
+    def onButtonPartSymbolClick( self, event ):
+        symbol = self.part.symbol
+        frame = DropdownFrame(self.button_part_footprint, SelectSymbolFrame, symbol)
+        frame.Dropdown(self.onSetSymbolCallback)
     
-    def onSetModelCallback(self, model):
-        if model:
-            self.button_part_model.Label = model.name
+    def onSetSymbolCallback(self, symbol):
+        if symbol:
+            self.button_part_symbol.Label = symbol.name
         else:
-            self.button_part_model.Label = "<none>"
-        self.part.model = model
+            self.button_part_symbol.Label = "<none>"
+        self.part.symbol = symbol
 
     def onButtonPartEditApply( self, event ):
         part = self.part

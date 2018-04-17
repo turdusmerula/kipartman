@@ -16,12 +16,12 @@ class PartEcadDataFrame(PanelPartEcadData):
         self.showData()
 
     def showData(self):
-        self.showModel()
+        self.showSymbol()
     
-    def showModel(self):
-        # download model
-        if self.part and self.part.model:
-            print "model", self.part.model
-            url = os.path.join(configuration.kipartbase, 'file', self.part.model.storage_path)
+    def showSymbol(self):
+        # download symbol
+        if self.part and self.part.symbol:
+            print "symbol", self.part.symbol
+            url = os.path.join(configuration.kipartbase, 'file', self.part.symbol.storage_path)
             url = url.replace('\\','/') #Work around for running on Windows
             print "url", url
