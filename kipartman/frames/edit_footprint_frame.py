@@ -148,6 +148,7 @@ class EditFootprintFrame(PanelEditFootprint):
         # download footprint
         if download.url() and download.url()!='':
             try:
+                print "Download from:", download.url()
                 filename = os.path.join(tempfile.gettempdir(), os.path.basename(download.url()))
                 content = scraper.get(download.url()).content
                 with open(filename, 'wb') as outfile:
@@ -174,10 +175,11 @@ class EditFootprintFrame(PanelEditFootprint):
                 elif file.endswith(".kicad_mod"):
                     kicad_file = file
 
+                self.footprint.content = ''
                 if kicad_file!='':
                     with open(kicad_file, 'r') as content_file:
                         self.footprint.content = content_file.read()
-                        print "--", self.footprint.content
+                        print "****", self.footprint.content
                     
                     mod = kicad_mod_file.KicadModFile()
                     mod.LoadFile(kicad_file)

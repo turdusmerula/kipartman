@@ -113,16 +113,13 @@ class VersionManager(object):
             print "------------------"
     
     def on_file_changed(self, path):
-        print "#####################################"
         # integrate changes
         self.file_manager.Load()
         for filepath in self.file_manager.files:
             file = self.file_manager.files[filepath]
             if filepath.startswith(filepath) and self.local_files.has_key(filepath):
                 localfile = self.local_files[filepath]
-                print "{{{{", filepath, file.metadata, localfile.metadata
                 if file.md5!=localfile.md5 or file.metadata!=localfile.metadata:
-                    print "{{}}", filepath, file.metadata, localfile.metadata
                     localfile.state = 'outgo_change'
                     localfile.updated = rest.api.get_date()
                     localfile.md5 = file.md5

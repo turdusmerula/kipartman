@@ -15,7 +15,7 @@ import glob
 import datetime
 import hashlib
 import json
-from kicad.kicad_file_manager import KicadFileManagerLib
+from kicad.kicad_file_manager import KicadLibCache, KicadFileManagerLib
 
 EditSymbolApplyEvent, EVT_EDIT_SYMBOL_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditSymbolCancelEvent, EVT_EDIT_SYMBOL_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -132,8 +132,8 @@ class EditSymbolFrame(PanelEditSymbol):
             download.get(part_number=snapeda.part_number(), 
                                manufacturer=snapeda.manufacturer(),
                                uniqueid=snapeda.uniqueid(),
-                               has_symbol=snapeda.has_symbol(),
-                               has_footprint=snapeda.has_footprint())
+                               has_symbol='True',
+                               has_footprint='False')
             if download.error():
                 wx.MessageBox(download.error(), 'Error downloading symbol', wx.OK | wx.ICON_ERROR)
                 
@@ -147,6 +147,7 @@ class EditSymbolFrame(PanelEditSymbol):
         if download.url() and download.url()!='':
             try:
                 filename = os.path.join(tempfile.gettempdir(), os.path.basename(download.url()))
+                print "Download from:", download.url()
                 content = scraper.get(download.url()).content
                 with open(filename, 'wb') as outfile:
                     outfile.write(content)
@@ -163,11 +164,17 @@ class EditSymbolFrame(PanelEditSymbol):
             except Exception as e:
                 wx.MessageBox(format(e), 'Error unziping symbol', wx.OK | wx.ICON_ERROR)
 
+            self.symbol.content = ''
             for file in glob.glob(filename+".tmp/*"):
                 if file.endswith(".lib"):
-                    with open(file, 'r') as content_file:
-                        self.symbol.content = content_file.read()
-                        print "--", self.symbol.content
+                    print "---------", file
+                    lib = KicadLibCache(filename+".tmp")
+                    symbols = lib.read_lib_file(os.path.basename(file))
+                    if len(symbols)>0:
+                        for symbol in symbols:
+                            self.symbol.content = symbols[symbol].content
+                            break
+                    print "****", self.symbol.content
                     
                     mod = kicad_lib_file.KicadLibFile()
                     mod.LoadFile(file)
