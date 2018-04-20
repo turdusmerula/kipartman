@@ -1,5 +1,5 @@
 from dialogs.panel_symbols import PanelSymbols
-from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_FOOTPRINT_APPLY_EVENT, EVT_EDIT_FOOTPRINT_CANCEL_EVENT
+from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_SYMBOL_APPLY_EVENT, EVT_EDIT_SYMBOL_CANCEL_EVENT
 from kicad.kicad_file_manager import KicadFileManagerLib
 from helper.filter import Filter
 import rest 
@@ -247,7 +247,7 @@ class SymbolsFrame(PanelSymbols):
         
         self.file_manager_lib = KicadFileManagerLib()
         self.manager_lib = sync.version_manager.VersionManager(self.file_manager_lib)
-        self.file_manager_lib.AddChangeHook(self.onFileLibChanged)
+        self.manager_lib.on_change_hook = self.onFileLibChanged
         
         # create libraries data
         self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries)
@@ -282,8 +282,8 @@ class SymbolsFrame(PanelSymbols):
         # create edit symbol panel
         self.panel_edit_symbol = EditSymbolFrame(self.symbol_splitter)
         self.symbol_splitter.SplitHorizontally(self.symbol_splitter.Window1, self.panel_edit_symbol, 400)
-        self.panel_edit_symbol.Bind( EVT_EDIT_FOOTPRINT_APPLY_EVENT, self.onEditSymbolApply )
-        self.panel_edit_symbol.Bind( EVT_EDIT_FOOTPRINT_CANCEL_EVENT, self.onEditSymbolCancel )
+        self.panel_edit_symbol.Bind( EVT_EDIT_SYMBOL_APPLY_EVENT, self.onEditSymbolApply )
+        self.panel_edit_symbol.Bind( EVT_EDIT_SYMBOL_CANCEL_EVENT, self.onEditSymbolCancel )
 
         self.toolbar_symbol.ToggleTool(self.toggle_symbol_path.GetId(), True)
         
@@ -422,7 +422,6 @@ class SymbolsFrame(PanelSymbols):
 
     def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
-        print "-------------------------------------------------------------------------------------"
         self.load()
        
     def onTreeLibrariesSelChanged( self, event ):
@@ -792,7 +791,6 @@ class SymbolsFrame(PanelSymbols):
             wx.MessageBox(format(e), 'Delete failed', wx.OK | wx.ICON_ERROR)
 
     def onSearchSymbolsButton( self, event ):
-        print "####"
         return self.onSearchSymbolsTextEnter(event)
     
     def onSearchSymbolsTextEnter( self, event ):

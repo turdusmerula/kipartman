@@ -147,6 +147,10 @@ def update_file_state(file):
                 
     else:
         file.state = 'outgo_add'
+        
+    if file.state=='outgo_add':
+        file.version = None
+        file.id = None
 
 def synchronize_versioned_files(files, root_path=None, category=None):
     """

@@ -16,10 +16,8 @@ class KicadFileManagerException(Exception):
         super(KicadFileManagerException, self).__init__(error)
 
 class KicadFileManager(FileSystemEventHandler):
-    id = 0
     def __init__(self):
-        self.on_change_hooks = []
-        self._id = self.id+1
+        self.on_change_hook = None
         
         self.files = {}
         self.folders = []
@@ -46,25 +44,27 @@ class KicadFileManager(FileSystemEventHandler):
         
         self.enabled = False
         for extension in self.extensions:
-            print "-- ", extension
             if hasattr(event, 'dest_path') and os.path.isfile(event.dest_path) and os.path.basename(event.dest_path).startswith('.')==False and event.dest_path.endswith('.'+extension):
-                print("%d: Something happend with %s" % (self._id, event.dest_path))
-                print self.on_change_hooks
-                for hook in self.on_change_hooks:
-                    print "---"
-                    wx.CallAfter(hook, event)
+                print("Something happend with %s" % (event.dest_path))
+                path = os.path.relpath(event.dest_path, self.root_path())
+                self.on_change_prehook(path)
+                if self.on_change_hook:
+                    wx.CallAfter(self.on_change_hook, path)
             elif hasattr(event, 'src_path') and os.path.isfile(event.src_path) and os.path.basename(event.src_path).startswith('.')==False and event.src_path.endswith('.'+extension):
-                print("%d: Something happend with %s" % (self._id, event.src_path))
-                print self.on_change_hooks
-                for hook in self.on_change_hooks:
-                    print "---"
-                    wx.CallAfter(hook, event)
+                print("Something happend with %s" % (event.src_path))
+                path = os.path.relpath(event.src_path, self.root_path())
+                self.on_change_prehook(path)
+                if self.on_change_hook:
+                    wx.CallAfter(self.on_change_hook, path)
         
         self.enabled = True
     # - on_moved(self, event)
     # - on_created(self, event)
     # - on_deleted(self, event)
     # - on_modified(self, event)
+    
+    def on_change_prehook(self, path):
+        pass
     
     def Enabled(self, enabled=True):
         if enabled:
@@ -74,9 +74,6 @@ class KicadFileManager(FileSystemEventHandler):
             if self.watch:
                 self.observer.unschedule(self.watch)
             self.watch = None
-
-    def AddChangeHook(self, hook):
-        self.on_change_hooks.append(hook)
 
     def Load(self):
         pass
@@ -312,11 +309,13 @@ class KicadLibCacheElement(object):
     def text_metadata(self):
         res = ''
         for metadata in self.metadata:
-            if res!='':
-                res = res+'\n'
-            res = res+metadata+' '+self.metadata[metadata]
+            if metadata=='K' or metadata=='D':
+                if res!='':
+                    res = res+'\n'
+                res = res+metadata+' '+self.metadata[metadata]
         return res
-    
+
+   
 class KicadLibCache(object):
     def __init__(self, root_path):
         self.libs = {}
@@ -495,7 +494,7 @@ class KicadFileManagerLib(KicadFileManager):
         super(KicadFileManagerLib, self).__init__()
         self.lib_cache = KicadLibCache(self.root_path())
         self.extensions = ['lib', 'dcm']
-       
+        
     def version_file(self):
         return '.kiversion_lib'
 
@@ -505,6 +504,14 @@ class KicadFileManagerLib(KicadFileManager):
     def category(self):
         return 'lib'
 
+    def on_change_prehook(self, path):
+# #         # discard cache
+#         if path.endswith(".dcm"):
+#             self.lib_cache.Clear(re.sub(r"\.dcm$", ".lib", path))
+#         if path.endswith(".lib"):
+#             self.lib_cache.Clear(path)
+        pass
+    
     def Load(self):
         """
         fill cache files from disk
@@ -624,8 +631,7 @@ class KicadFileManagerLib(KicadFileManager):
         if file.metadata:
             metadata = json.loads(file.metadata)
         self.lib_cache.AddSymbol(path, content, metadata)
-        symbols = self.lib_cache.GetSymbols(library)
-        self.write_library(library, symbols)
+        self.write_library(library, self.lib_cache.GetSymbols(library))
         
         return file
      
@@ -637,12 +643,15 @@ class KicadFileManagerLib(KicadFileManager):
         library_path = os.path.dirname(library)
 
         if self.Exists(file.source_path)==True:
-            md5file = hashlib.md5(self.lib_cache.GetSymbol(file.source_path).content).hexdigest()
+            symbol = self.lib_cache.GetSymbol(file.source_path)
+            md5file = hashlib.md5(symbol.content).hexdigest()
             md5 = hashlib.md5(content).hexdigest()
             if md5==md5file:
                 return file, False
+            self.lib_cache.AddSymbol(file.source_path, content, symbol.metadata)  
+            self.write_library(library, self.lib_cache.GetSymbols(library))
         else:
-            self.lib_cache.AddSymbol(file.source_path, content)  
+            self.lib_cache.AddSymbol(file.source_path, content, {})  
             self.write_library(library, self.lib_cache.GetSymbols(library))
 
         file.md5 = hashlib.md5(content).hexdigest()

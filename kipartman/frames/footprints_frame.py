@@ -235,7 +235,7 @@ class FootprintsFrame(PanelFootprints):
         
         self.file_manager_pretty = KicadFileManagerPretty()
         self.manager_pretty = sync.version_manager.VersionManager(self.file_manager_pretty)
-        self.file_manager_pretty.AddChangeHook(self.onFilePrettyChanged)
+        self.manager_pretty.on_change_hook = self.onFilePrettyChanged
         
         # create libraries data
         self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries)

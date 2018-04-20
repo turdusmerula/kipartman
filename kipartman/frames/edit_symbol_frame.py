@@ -17,8 +17,8 @@ import hashlib
 import json
 from kicad.kicad_file_manager import KicadFileManagerLib
 
-EditSymbolApplyEvent, EVT_EDIT_FOOTPRINT_APPLY_EVENT = wx.lib.newevent.NewEvent()
-EditSymbolCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewEvent()
+EditSymbolApplyEvent, EVT_EDIT_SYMBOL_APPLY_EVENT = wx.lib.newevent.NewEvent()
+EditSymbolCancelEvent, EVT_EDIT_SYMBOL_CANCEL_EVENT = wx.lib.newevent.NewEvent()
 
 scraper = cfscrape.create_scraper()
 
@@ -132,7 +132,8 @@ class EditSymbolFrame(PanelEditSymbol):
             download.get(part_number=snapeda.part_number(), 
                                manufacturer=snapeda.manufacturer(),
                                uniqueid=snapeda.uniqueid(),
-                               has_symbol=snapeda.has_symbol())
+                               has_symbol=snapeda.has_symbol(),
+                               has_footprint=snapeda.has_footprint())
             if download.error():
                 wx.MessageBox(download.error(), 'Error downloading symbol', wx.OK | wx.ICON_ERROR)
                 
@@ -163,14 +164,13 @@ class EditSymbolFrame(PanelEditSymbol):
                 wx.MessageBox(format(e), 'Error unziping symbol', wx.OK | wx.ICON_ERROR)
 
             for file in glob.glob(filename+".tmp/*"):
-                kicad_file = ''
                 if file.endswith(".lib"):
-                    with open(kicad_file, 'r') as content_file:
+                    with open(file, 'r') as content_file:
                         self.symbol.content = content_file.read()
                         print "--", self.symbol.content
                     
                     mod = kicad_lib_file.KicadLibFile()
-                    mod.LoadFile(kicad_file)
+                    mod.LoadFile(file)
                     image_file = tempfile.NamedTemporaryFile()
                     mod.Render(image_file.name, self.panel_image_symbol.GetRect().width, self.panel_image_symbol.GetRect().height)
                     img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)

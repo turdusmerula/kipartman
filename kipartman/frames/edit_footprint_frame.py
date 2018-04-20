@@ -75,10 +75,10 @@ class EditFootprintFrame(PanelEditFootprint):
              
             self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
             
-            print "----", os.path.join(configuration.kicad_library_path, footprint.source_path)
-            if self.edit_footprint_name.Value!='' and os.path.exists(os.path.join(configuration.kicad_library_path, footprint.source_path)):
+            print "----", os.path.join(configuration.kicad_footprints_path, footprint.source_path)
+            if self.edit_footprint_name.Value!='' and os.path.exists(os.path.join(configuration.kicad_footprints_path, footprint.source_path)):
                 mod = kicad_mod_file.KicadModFile()
-                mod.LoadFile(os.path.join(configuration.kicad_library_path, footprint.source_path))
+                mod.LoadFile(os.path.join(configuration.kicad_footprints_path, footprint.source_path))
                 image_file = tempfile.NamedTemporaryFile()
                 mod.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
                 img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)

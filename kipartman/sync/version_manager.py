@@ -7,6 +7,7 @@ import hashlib
 from helper.exception import print_stack
 import wx
 import wx.lib.newevent
+from conans.util.files import md5sum
 
 class VersionManagerException(Exception):
     def __init__(self, error):
@@ -32,10 +33,13 @@ class VersionManagerEnabler(object):
 class VersionManager(object):
     def __init__(self, file_manager):
         super(VersionManager, self).__init__()
+        self.on_change_hook = None
         
         self.root_path = file_manager.root_path()
         self.file_manager = file_manager
         self.config = os.path.join(self.root_path, file_manager.version_file())
+        
+        file_manager.on_change_hook = self.on_file_changed
         
         # files from hard drive
         self.local_files = {}
@@ -108,14 +112,30 @@ class VersionManager(object):
                 outfile.close()
             print "------------------"
     
+    def on_file_changed(self, path):
+        print "#####################################"
+        # integrate changes
+        self.file_manager.Load()
+        for filepath in self.file_manager.files:
+            file = self.file_manager.files[filepath]
+            if filepath.startswith(filepath) and self.local_files.has_key(filepath):
+                localfile = self.local_files[filepath]
+                print "{{{{", filepath, file.metadata, localfile.metadata
+                if file.md5!=localfile.md5 or file.metadata!=localfile.metadata:
+                    print "{{}}", filepath, file.metadata, localfile.metadata
+                    localfile.state = 'outgo_change'
+                    localfile.updated = rest.api.get_date()
+                    localfile.md5 = file.md5
+                    localfile.content = file.content
+                    localfile.metadata = file.metadata
+
+        if self.on_change_hook:
+            self.on_change_hook(path)
+        
     def LoadState(self):
         """
         Synchronize local files with state
         """
-        
-        #if len(self.local_files)>0:
-            # state already loaded
-        #    return
         
         with VersionManagerEnabler(self) as f:
             state_files = {}
@@ -132,11 +152,11 @@ class VersionManager(object):
             # load files from disk
             self.file_manager.Load()
             for filepath in self.file_manager.files:
+                file_disk = self.file_manager.files[filepath]
                 if self.local_files.has_key(filepath)==False:
-                    file = self.file_manager.files[filepath]
-                    file.state = ''
-                    self.local_files[filepath] = file
-
+                    file_disk.state = ''
+                    self.local_files[filepath] = file_disk
+                    
             # Match local_files with current stored version state
             for filepath in state_files:
                 state_file = state_files[filepath]
@@ -170,7 +190,7 @@ class VersionManager(object):
                         file_disk.updated = state_file.updated
                     file_disk.category = self.file_manager.category()
                                                 
-                    print '$$$$', state_file.metadata
+                    print '$$$$', filepath, state_file.metadata
                     file_disk.metadata = state_file.metadata
 
             # check if file exists on disk
@@ -400,9 +420,11 @@ class VersionManager(object):
                     newfile.version = file.version
                     newfile.state = ''
                     self.local_files[file.source_path] = newfile
-                    file = newfile             
+                    file = newfile
+                    self.file_manager.EditMetadata(file.source_path, file.metadata)     
                 elif file.state=='income_change':
                     file, changed = self.file_manager.EditFile(file, file.content, create=True)
+                    self.file_manager.EditMetadata(file.source_path, file.metadata)     
                         
                     # check if file should be renamed
                     local_file = None
