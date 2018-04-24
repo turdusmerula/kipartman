@@ -255,11 +255,49 @@ def CompareString(item1, item2):
         return 1
     return 0 
 
+class TreeImageList(wx.ImageList):
+    def __init__(self, width, height, mask=True, initialCount=1):
+        super(TreeImageList, self).__init__(width, height, mask, initialCount)
+        self.labels = {}
+    
+    def Add(self, label, *args, **kwargs):
+        self.labels[label] = self.GetImageCount()
+        return super(TreeImageList, self).Add(*args, **kwargs)
+
+    def AddFile(self, label, path):
+        icon = wx.Image(path)
+        return self.Add(label, icon.ConvertToBitmap())
+    
+    def GetBitmap(self, label):
+        index = self.labels[label]
+        return super(TreeImageList, self).GetBitmap(index)
+
+    def GetIcon(self, label):
+        index = self.labels[label]
+        return super(TreeImageList, self).GetIcon(index)
+
+    def GetSize(self, label):
+        index = self.labels[label]
+        return super(TreeImageList, self).GetSize(index)
+
+    def Remove(self, label):
+        index = self.labels[label]
+        self.labels.pop(label)
+        return super(TreeImageList, self).Remove(index)
+
+    def RemoveAll(self, label):
+        self.labels.clear()
+        return super(TreeImageList, self).RemoveAll()
+
+    def Replace(self, label, *args, **kwargs):
+        index = self.labels[label]
+        return super(TreeImageList, self).Replace(index, *args, **kwargs)
+
 class TreeManager(object):
     drag_item = None
     drag_source = None
     
-    def __init__(self, tree_view, model=None):
+    def __init__(self, tree_view, model=None, context_menu=None):
         #TODO ISSUE#8 Debug assist to Try various options
         self.onItemDropPossible_returnResult = 1
         self.onItemDropPossible_eventAction = 1
@@ -272,6 +310,8 @@ class TreeManager(object):
             self.model = model
         self.tree_view.AssociateModel(self.model)
 
+        self.context_menu = context_menu
+        
         # create drag and drop targets
         self.drop_targets = []
         self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
@@ -280,6 +320,7 @@ class TreeManager(object):
 
         # data elements
         self.data = []
+        self.data_state = []
         
         self.OnColumnHeaderClick = None
         self.OnColumnHeaderRightClick = None
@@ -289,6 +330,7 @@ class TreeManager(object):
         self.OnItemBeginDrag = None
         self.OnItemCollapsed = None
         self.OnItemCollapsing = None
+        self.OnItemBeforeContextMenu = None
         self.OnItemContextMenu = None
         self.OnItemDrop = None
         self.OnItemDropPossible = None
@@ -318,6 +360,7 @@ class TreeManager(object):
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_START_EDITING, self._onItemStartEditing, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self._onItemValueChanged, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self._onSelectionChanged, id = wx.ID_ANY )
+        
 
     def _onColumnHeaderClick( self, event ):
         event.manager = self
@@ -366,7 +409,6 @@ class TreeManager(object):
         if self.drag_item is None:
             event.Skip()
             return wx.DragCancel
-
         try:
             drag_data = self.model.ItemToObject(event.GetItem())
         except Exception as inst:
@@ -400,6 +442,12 @@ class TreeManager(object):
     
     def _onItemContextMenu( self, event ):
         event.manager = self
+        
+        if self.OnItemBeforeContextMenu:
+            self.OnItemBeforeContextMenu(event)
+        if self.context_menu:
+            pos = event.GetPosition()
+            self.tree_view.PopupMenu(self.context_menu, pos)
         if self.OnItemContextMenu:
             return self.OnItemContextMenu(event)
         event.Skip()
@@ -455,7 +503,7 @@ class TreeManager(object):
         event.manager = self
         if self.OnItemDropPossible:
             return self.OnItemDropPossible(event) 
-               #return False
+            #return False
         '''
         @TODO: Implement Drag Feedback 
          Ok/Not Ok for drop by event.Allow or event.Skip
@@ -552,6 +600,7 @@ class TreeManager(object):
         self.model.sort_function.append(CompareString)
         column.Sortable = True
         column.Reorderable = True
+        column.SortOrder = True
         return column
     
     def AddFloatColumn(self, title):
@@ -586,6 +635,15 @@ class TreeManager(object):
         column.Reorderable = True
         return column
 
+    def AddBitmapColumn(self, title):
+        column = self.tree_view.AppendBitmapColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
+        self.model.columns_type.append('bitmap')
+        # TODO: add support for sorting bitmaps by labels
+        self.model.sort_function.append(None)
+        column.Sortable = True
+        column.Reorderable = True
+        return column
+        
     def RemoveColumn(self, index):
         for column in self.tree_view.GetColumns():
             if column.GetModelColumn()==index:
@@ -638,7 +696,6 @@ class TreeManager(object):
     def Select(self, obj):
         item = self.model.ObjectToItem(obj)
         if item.IsOk():
-            print "select", item
             self.tree_view.Select(item)
 #             self.tree_view.SetCurrentItem(item)
 #             items = wx.dataview.DataViewItemArray()
@@ -667,3 +724,60 @@ class TreeManager(object):
 
     def DropAccept(self, type, trigger):
         self.drop_targets.append({'type': type.__name__, 'trigger': trigger})
+
+
+    def SaveState(self):
+        """
+        Backup objects state 
+        """
+        self.data_state = []
+        for obj in self.data:
+            self.data_state.append(obj)
+    
+    def DropStateObject(self, obj):
+        if self.data_state.count(obj)>0:
+            self.data_state.remove(obj)
+            self.UpdateItem(obj)
+            return True
+        return False
+    
+    def PurgeState(self, remove_empty_parent=True):
+        """
+        Remove from data every elements from state
+        """
+
+        # split list in container and non container elements
+        non_container = []
+        container = []
+        for data in self.data_state:
+            if isinstance(data, TreeContainerItem) or isinstance(data, TreeContainerLazyItem):
+                container.append(data)
+            else:
+                non_container.append(data)
+        
+        # remove non container elements first to avoid removing parent before its childs
+        while len(non_container)>0:
+            obj = non_container[0]
+            self.DeleteItem(obj.parent, obj)
+            non_container.remove(obj)
+
+        while len(container)>0:
+            # only remove container with empty childs
+            for obj in container:
+                if obj.childs is None or len(obj.childs)==0:
+                    break
+            if obj.childs and len(obj.childs)>0:
+                break # this is an error, we should never get there
+            self.DeleteItem(obj.parent, obj)
+            container.remove(obj)
+
+        self.data_state = []
+            # remove parents if they are empty
+#             if remove_empty_parent:
+#                 while obj and ( isinstance(obj, TreeContainerItem) or isinstance(obj, TreeContainerLazyItem) ) and len(obj.childs)==0:
+#                     try:
+#                         self.DeleteItem(obj.parent, obj)
+#                         self.data_state.remove(obj)
+#                     except:
+#                         pass
+#                     obj = obj.parent

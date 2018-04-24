@@ -39,8 +39,8 @@ class PartNew(object):
         'updated': 'datetime',
         'category': 'PartCategoryRef',
         'childs': 'list[PartRef]',
-        'footprint': 'FootprintRef',
-        'model': 'ModelRef',
+        'footprint': 'VersionedFileRef',
+        'symbol': 'VersionedFileRef',
         'parameters': 'list[PartParameter]',
         'distributors': 'list[PartDistributor]',
         'manufacturers': 'list[PartManufacturer]',
@@ -58,7 +58,7 @@ class PartNew(object):
         'category': 'category',
         'childs': 'childs',
         'footprint': 'footprint',
-        'model': 'model',
+        'symbol': 'symbol',
         'parameters': 'parameters',
         'distributors': 'distributors',
         'manufacturers': 'manufacturers',
@@ -66,7 +66,7 @@ class PartNew(object):
         'attachements': 'attachements'
     }
 
-    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, category=None, childs=None, footprint=None, model=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
+    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, category=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
         """
         PartNew - a model defined in Swagger
         """
@@ -80,7 +80,7 @@ class PartNew(object):
         self._category = None
         self._childs = None
         self._footprint = None
-        self._model = None
+        self._symbol = None
         self._parameters = None
         self._distributors = None
         self._manufacturers = None
@@ -105,8 +105,8 @@ class PartNew(object):
           self.childs = childs
         if footprint is not None:
           self.footprint = footprint
-        if model is not None:
-          self.model = model
+        if symbol is not None:
+          self.symbol = symbol
         if parameters is not None:
           self.parameters = parameters
         if distributors is not None:
@@ -292,7 +292,7 @@ class PartNew(object):
         Gets the footprint of this PartNew.
 
         :return: The footprint of this PartNew.
-        :rtype: FootprintRef
+        :rtype: VersionedFileRef
         """
         return self._footprint
 
@@ -302,31 +302,31 @@ class PartNew(object):
         Sets the footprint of this PartNew.
 
         :param footprint: The footprint of this PartNew.
-        :type: FootprintRef
+        :type: VersionedFileRef
         """
 
         self._footprint = footprint
 
     @property
-    def model(self):
+    def symbol(self):
         """
-        Gets the model of this PartNew.
+        Gets the symbol of this PartNew.
 
-        :return: The model of this PartNew.
-        :rtype: ModelRef
+        :return: The symbol of this PartNew.
+        :rtype: VersionedFileRef
         """
-        return self._model
+        return self._symbol
 
-    @model.setter
-    def model(self, model):
+    @symbol.setter
+    def symbol(self, symbol):
         """
-        Sets the model of this PartNew.
+        Sets the symbol of this PartNew.
 
-        :param model: The model of this PartNew.
-        :type: ModelRef
+        :param symbol: The symbol of this PartNew.
+        :type: VersionedFileRef
         """
 
-        self._model = model
+        self._symbol = symbol
 
     @property
     def parameters(self):

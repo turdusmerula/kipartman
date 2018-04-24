@@ -14,29 +14,14 @@
 from __future__ import absolute_import
 
 # import models into sdk package
+from .models.currency import Currency
 from .models.distributor import Distributor
 from .models.distributor_data import DistributorData
 from .models.distributor_new import DistributorNew
 from .models.error import Error
-from .models.footprint import Footprint
-from .models.footprint_category import FootprintCategory
-from .models.footprint_category_data import FootprintCategoryData
-from .models.footprint_category_new import FootprintCategoryNew
-from .models.footprint_category_ref import FootprintCategoryRef
-from .models.footprint_data import FootprintData
-from .models.footprint_new import FootprintNew
-from .models.footprint_ref import FootprintRef
 from .models.manufacturer import Manufacturer
 from .models.manufacturer_data import ManufacturerData
 from .models.manufacturer_new import ManufacturerNew
-from .models.model import Model
-from .models.model_category import ModelCategory
-from .models.model_category_data import ModelCategoryData
-from .models.model_category_new import ModelCategoryNew
-from .models.model_category_ref import ModelCategoryRef
-from .models.model_data import ModelData
-from .models.model_new import ModelNew
-from .models.model_ref import ModelRef
 from .models.part import Part
 from .models.part_attachement import PartAttachement
 from .models.part_category import PartCategory
@@ -65,7 +50,9 @@ from .models.unit import Unit
 from .models.unit_prefix import UnitPrefix
 from .models.upload_file import UploadFile
 from .models.upload_file_data import UploadFileData
-from .models.upload_file_ref import UploadFileRef
+from .models.versioned_file import VersionedFile
+from .models.versioned_file_data import VersionedFileData
+from .models.versioned_file_ref import VersionedFileRef
 
 # import apis into sdk package
 from .apis.default_api import DefaultApi

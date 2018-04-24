@@ -58,7 +58,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /parts/categories/{category_id}:
+  /parts/category/{category_id}:
     get:
       description: "Return a part category"
       operationId: "find_parts_category"
@@ -212,7 +212,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /parts/{part_id}:
+  /part/{part_id}:
     get:
       description: "Return a part"
       operationId: "find_part"
@@ -356,7 +356,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /units/{unit_id}:
+  /unit/{unit_id}:
     get:
       description: "Return a unit"
       operationId: "find_unit"
@@ -399,7 +399,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /unitprefixes/{unit_prefix_id}:
+  /unitprefix/{unit_prefix_id}:
     get:
       description: "Return a unit prefixes"
       operationId: "find_unit_prefix"
@@ -415,436 +415,6 @@ paths:
           description: "Unit prefix"
           schema:
             $ref: "#/definitions/UnitPrefix"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /footprints/categories:
-    get:
-      description: "Return all categories for footprints"
-      operationId: "find_footprints_categories"
-      parameters: []
-      responses:
-        200:
-          description: "List of categories"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/FootprintCategory"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    post:
-      description: "Creates a new footprint category"
-      operationId: "add_footprints_category"
-      parameters:
-      - in: "body"
-        name: "category"
-        description: "Category to add"
-        required: true
-        schema:
-          $ref: "#/definitions/FootprintCategoryNew"
-      responses:
-        200:
-          description: "Created category"
-          schema:
-            $ref: "#/definitions/FootprintCategory"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /footprints/categories/{category_id}:
-    get:
-      description: "Return a footprint category"
-      operationId: "find_footprints_category"
-      parameters:
-      - name: "category_id"
-        in: "path"
-        description: "Category id"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "Categories"
-          schema:
-            $ref: "#/definitions/FootprintCategory"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    put:
-      description: "Update footprint category"
-      operationId: "update_footprints_category"
-      parameters:
-      - name: "category_id"
-        in: "path"
-        description: "Category id"
-        required: true
-        type: "integer"
-        format: "int64"
-      - in: "body"
-        name: "category"
-        description: "Category to update"
-        required: true
-        schema:
-          $ref: "#/definitions/FootprintCategoryNew"
-      responses:
-        200:
-          description: "Updated pärt category"
-          schema:
-            $ref: "#/definitions/FootprintCategory"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    delete:
-      description: "Delete footprint category"
-      operationId: "delete_footprints_category"
-      parameters:
-      - name: "category_id"
-        in: "path"
-        description: "Category id"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "Deleted ok"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /footprints:
-    get:
-      description: "Return all footprints"
-      operationId: "find_footprints"
-      parameters:
-      - name: "category"
-        in: "query"
-        description: "Filter by category"
-        required: false
-        type: "integer"
-        format: "int64"
-      - name: "search"
-        in: "query"
-        description: "Search for footprint matching pattern"
-        required: false
-        type: "string"
-      responses:
-        200:
-          description: "List of footprints"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Footprint"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    post:
-      description: "Creates a new footprint"
-      operationId: "add_footprint"
-      parameters:
-      - in: "body"
-        name: "footprint"
-        description: "Footprint to add"
-        required: true
-        schema:
-          $ref: "#/definitions/FootprintNew"
-      responses:
-        200:
-          description: "Created footprint"
-          schema:
-            $ref: "#/definitions/Footprint"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /footprints/{footprint_id}:
-    get:
-      description: "Return a footprint"
-      operationId: "find_footprint"
-      parameters:
-      - name: "footprint_id"
-        in: "path"
-        description: "Footprint id"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "Categories"
-          schema:
-            $ref: "#/definitions/Footprint"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    put:
-      description: "Update footprint"
-      operationId: "update_footprint"
-      parameters:
-      - name: "footprint_id"
-        in: "path"
-        description: "Footprint id"
-        required: true
-        type: "integer"
-        format: "int64"
-      - in: "body"
-        name: "footprint"
-        description: "Footprint to update"
-        required: true
-        schema:
-          $ref: "#/definitions/FootprintNew"
-      responses:
-        200:
-          description: "Updated footprint"
-          schema:
-            $ref: "#/definitions/Footprint"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    delete:
-      description: "Delete footprint"
-      operationId: "delete_footprint"
-      parameters:
-      - name: "footprint_id"
-        in: "path"
-        description: "Footprint id"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "Deleted ok"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /models/categories:
-    get:
-      description: "Return all categories for models"
-      operationId: "find_models_categories"
-      parameters: []
-      responses:
-        200:
-          description: "List of categories"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/ModelCategory"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    post:
-      description: "Creates a new model category"
-      operationId: "add_models_category"
-      parameters:
-      - in: "body"
-        name: "category"
-        description: "Category to add"
-        required: true
-        schema:
-          $ref: "#/definitions/ModelCategoryNew"
-      responses:
-        200:
-          description: "Created category"
-          schema:
-            $ref: "#/definitions/ModelCategory"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /models/categories/{category_id}:
-    get:
-      description: "Return a model category"
-      operationId: "find_models_category"
-      parameters:
-      - name: "category_id"
-        in: "path"
-        description: "Category id"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "Categories"
-          schema:
-            $ref: "#/definitions/ModelCategory"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    put:
-      description: "Update model category"
-      operationId: "update_models_category"
-      parameters:
-      - name: "category_id"
-        in: "path"
-        description: "Category id"
-        required: true
-        type: "integer"
-        format: "int64"
-      - in: "body"
-        name: "category"
-        description: "Category to update"
-        required: true
-        schema:
-          $ref: "#/definitions/ModelCategoryNew"
-      responses:
-        200:
-          description: "Updated pärt category"
-          schema:
-            $ref: "#/definitions/ModelCategory"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    delete:
-      description: "Delete model category"
-      operationId: "delete_models_category"
-      parameters:
-      - name: "category_id"
-        in: "path"
-        description: "Category id"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "Deleted ok"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /models:
-    get:
-      description: "Return all models"
-      operationId: "find_models"
-      parameters:
-      - name: "category"
-        in: "query"
-        description: "Filter by category"
-        required: false
-        type: "integer"
-        format: "int64"
-      - name: "search"
-        in: "query"
-        description: "Search for model matching pattern"
-        required: false
-        type: "string"
-      responses:
-        200:
-          description: "List of models"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Model"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    post:
-      description: "Creates a new model"
-      operationId: "add_model"
-      parameters:
-      - in: "body"
-        name: "model"
-        description: "Model to add"
-        required: true
-        schema:
-          $ref: "#/definitions/ModelNew"
-      responses:
-        200:
-          description: "Created model"
-          schema:
-            $ref: "#/definitions/Model"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /models/{model_id}:
-    get:
-      description: "Return a model"
-      operationId: "find_model"
-      parameters:
-      - name: "model_id"
-        in: "path"
-        description: "Footprint id"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "Categories"
-          schema:
-            $ref: "#/definitions/Model"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    put:
-      description: "Update model"
-      operationId: "update_model"
-      parameters:
-      - name: "model_id"
-        in: "path"
-        description: "Footprint id"
-        required: true
-        type: "integer"
-        format: "int64"
-      - in: "body"
-        name: "model"
-        description: "Model to update"
-        required: true
-        schema:
-          $ref: "#/definitions/ModelNew"
-      responses:
-        200:
-          description: "Updated model"
-          schema:
-            $ref: "#/definitions/Model"
-        default:
-          description: "unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "swagger_server.controllers.default_controller"
-    delete:
-      description: "Delete model"
-      operationId: "delete_model"
-      parameters:
-      - name: "model_id"
-        in: "path"
-        description: "Footprint id"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        200:
-          description: "Deleted ok"
         default:
           description: "unexpected error"
           schema:
@@ -892,7 +462,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /distributors/{distributor_id}:
+  /distributor/{distributor_id}:
     get:
       description: "Return a distributor"
       operationId: "find_distributor"
@@ -999,7 +569,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /manufacturers/{manufacturer_id}:
+  /manufacturer/{manufacturer_id}:
     get:
       description: "Return a manufacturer"
       operationId: "find_manufacturer"
@@ -1086,6 +656,101 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /version/synchronize:
+    post:
+      description: "Get synchronization status of a fileset"
+      operationId: "synchronize_versioned_files"
+      parameters:
+      - in: "body"
+        name: "files"
+        description: "File list to test synchronization"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/VersionedFile"
+      - name: "root_path"
+        in: "query"
+        description: "Path from which to synchronize"
+        required: false
+        type: "string"
+      - name: "category"
+        in: "query"
+        description: "Category of files to see"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Synchronization state"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/VersionedFile"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /version/commit:
+    post:
+      description: "Commit a fileset"
+      operationId: "commit_versioned_files"
+      parameters:
+      - in: "body"
+        name: "files"
+        description: "File list to commit"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/VersionedFile"
+      - name: "force"
+        in: "query"
+        description: "Force commit"
+        required: false
+        type: "boolean"
+      responses:
+        200:
+          description: "Commit result"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/VersionedFile"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /version/update:
+    post:
+      description: "Update a fileset"
+      operationId: "update_versioned_files"
+      parameters:
+      - in: "body"
+        name: "files"
+        description: "File list to update"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/VersionedFile"
+      - name: "force"
+        in: "query"
+        description: "Force update"
+        required: false
+        type: "boolean"
+      responses:
+        200:
+          description: "Update result"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/VersionedFile"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
   /storages/categories:
     get:
       description: "Return all categories for storages"
@@ -1123,7 +788,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /storages/categories/{category_id}:
+  /storages/category/{category_id}:
     get:
       description: "Return a storage category"
       operationId: "find_storages_category"
@@ -1236,7 +901,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
-  /storages/{storage_id}:
+  /storage/{storage_id}:
     get:
       description: "Return a storage"
       operationId: "find_storage"
@@ -1301,6 +966,63 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /currencies:
+    get:
+      description: "Get supported currencies"
+      operationId: "find_currencies"
+      parameters: []
+      responses:
+        200:
+          description: "Categories"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Currency"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+    put:
+      description: "Update supported currencies"
+      operationId: "update_currencies"
+      parameters:
+      - in: "body"
+        name: "currencies"
+        description: "Currencies to update"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/Currency"
+      responses:
+        200:
+          description: "Updated currencies"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Currency"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /date:
+    get:
+      description: "Get server current datetime"
+      operationId: "get_date"
+      parameters: []
+      responses:
+        200:
+          description: "Current datetime"
+          schema:
+            type: "string"
+            format: "date-time"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
 definitions:
   PartCategory:
     allOf:
@@ -1355,9 +1077,9 @@ definitions:
           items:
             $ref: "#/definitions/Part"
         footprint:
-          $ref: "#/definitions/Footprint"
-        model:
-          $ref: "#/definitions/Model"
+          $ref: "#/definitions/VersionedFile"
+        symbol:
+          $ref: "#/definitions/VersionedFile"
         parameters:
           type: "array"
           items:
@@ -1389,9 +1111,9 @@ definitions:
           items:
             $ref: "#/definitions/PartRef"
         footprint:
-          $ref: "#/definitions/FootprintRef"
-        model:
-          $ref: "#/definitions/ModelRef"
+          $ref: "#/definitions/VersionedFileRef"
+        symbol:
+          $ref: "#/definitions/VersionedFileRef"
         parameters:
           type: "array"
           items:
@@ -1454,102 +1176,6 @@ definitions:
         type: "string"
       power:
         type: "string"
-  FootprintCategory:
-    allOf:
-    - $ref: "#/definitions/FootprintCategoryData"
-    - required:
-      - "id"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        parent:
-          $ref: "#/definitions/FootprintCategoryRef"
-        childs:
-          type: "array"
-          items:
-            $ref: "#/definitions/FootprintCategory"
-        path:
-          type: "string"
-  FootprintCategoryNew:
-    allOf:
-    - $ref: "#/definitions/FootprintCategoryData"
-    - properties:
-        parent:
-          $ref: "#/definitions/FootprintCategoryRef"
-  Footprint:
-    allOf:
-    - $ref: "#/definitions/FootprintData"
-    - required:
-      - "id"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        category:
-          $ref: "#/definitions/FootprintCategory"
-        image:
-          $ref: "#/definitions/UploadFile"
-        footprint:
-          $ref: "#/definitions/UploadFile"
-  FootprintNew:
-    allOf:
-    - $ref: "#/definitions/FootprintData"
-    - properties:
-        category:
-          $ref: "#/definitions/FootprintCategoryRef"
-        image:
-          $ref: "#/definitions/UploadFileRef"
-        footprint:
-          $ref: "#/definitions/UploadFileRef"
-  ModelCategory:
-    allOf:
-    - $ref: "#/definitions/ModelCategoryData"
-    - required:
-      - "id"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        parent:
-          $ref: "#/definitions/ModelCategoryRef"
-        childs:
-          type: "array"
-          items:
-            $ref: "#/definitions/ModelCategory"
-        path:
-          type: "string"
-  ModelCategoryNew:
-    allOf:
-    - $ref: "#/definitions/ModelCategoryData"
-    - properties:
-        parent:
-          $ref: "#/definitions/ModelCategoryRef"
-  Model:
-    allOf:
-    - $ref: "#/definitions/ModelData"
-    - required:
-      - "id"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        category:
-          $ref: "#/definitions/ModelCategory"
-        image:
-          $ref: "#/definitions/UploadFile"
-        model:
-          $ref: "#/definitions/UploadFile"
-  ModelNew:
-    allOf:
-    - $ref: "#/definitions/ModelData"
-    - properties:
-        category:
-          $ref: "#/definitions/ModelCategoryRef"
-        image:
-          $ref: "#/definitions/UploadFileRef"
-        Model:
-          $ref: "#/definitions/UploadFileRef"
   Distributor:
     allOf:
     - $ref: "#/definitions/DistributorData"
@@ -1585,6 +1211,16 @@ definitions:
         id:
           type: "integer"
           format: "int64"
+  VersionedFile:
+    allOf:
+    - $ref: "#/definitions/VersionedFileData"
+    - type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+        folder:
+          type: "boolean"
   StorageCategory:
     allOf:
     - $ref: "#/definitions/StorageCategoryData"
@@ -1625,6 +1261,23 @@ definitions:
     - properties:
         category:
           $ref: "#/definitions/StorageCategoryRef"
+  Currency:
+    type: "object"
+    required:
+    - "base"
+    - "name"
+    - "ratio"
+    - "symbol"
+    properties:
+      name:
+        type: "string"
+      symbol:
+        type: "string"
+      base:
+        type: "string"
+      ratio:
+        type: "number"
+        format: "double"
   PartCategoryData:
     type: "object"
     properties:
@@ -1712,7 +1365,7 @@ definitions:
       id:
         type: "integer"
         format: "int64"
-  FootprintRef:
+  VersionedFileRef:
     type: "object"
     required:
     - "id"
@@ -1720,84 +1373,6 @@ definitions:
       id:
         type: "integer"
         format: "int64"
-  ModelRef:
-    type: "object"
-    required:
-    - "id"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-  FootprintCategoryData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-  FootprintCategoryRef:
-    type: "object"
-    required:
-    - "id"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-  FootprintData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-      comment:
-        type: "string"
-      snapeda:
-        type: "string"
-      snapeda_uid:
-        type: "string"
-      updated:
-        type: "string"
-        format: "date-time"
-  UploadFileRef:
-    type: "object"
-    required:
-    - "id"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-  ModelCategoryData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-  ModelCategoryRef:
-    type: "object"
-    required:
-    - "id"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-  ModelData:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-      comment:
-        type: "string"
-      snapeda:
-        type: "string"
-      snapeda_uid:
-        type: "string"
-      updated:
-        type: "string"
-        format: "date-time"
   DistributorData:
     type: "object"
     properties:
@@ -1838,6 +1413,29 @@ definitions:
       source_name:
         type: "string"
       storage_path:
+        type: "string"
+  VersionedFileData:
+    type: "object"
+    properties:
+      source_path:
+        type: "string"
+      storage_path:
+        type: "string"
+      md5:
+        type: "string"
+      version:
+        type: "integer"
+        format: "int64"
+      state:
+        type: "string"
+      updated:
+        type: "string"
+        format: "date-time"
+      content:
+        type: "string"
+      category:
+        type: "string"
+      metadata:
         type: "string"
   StorageCategoryData:
     type: "object"

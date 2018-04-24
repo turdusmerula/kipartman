@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Nov 13 2017)
+## Python code generated with wxFormBuilder (version Dec 22 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -18,15 +18,23 @@ import wx.dataview
 class PanelParts ( wx.Panel ):
 	
 	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1086,756 ), style = wx.TAB_TRAVERSAL )
+		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1361,756 ), style = wx.TAB_TRAVERSAL )
 		
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.m_splitter2 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
 		self.m_splitter2.Bind( wx.EVT_IDLE, self.m_splitter2OnIdle )
-		self.m_splitter2.SetMinimumPaneSize( 300 )
+		self.m_splitter2.SetMinimumPaneSize( 100 )
 		
-		self.panel_category = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_panel6 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer15 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer161 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.kicadlink_splitter = wx.SplitterWindow( self.m_panel6, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.kicadlink_splitter.SetMinimumPaneSize( 100 )
+		
+		self.panel_category = wx.Panel( self.kicadlink_splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
@@ -63,6 +71,16 @@ class PanelParts ( wx.Panel ):
 		self.panel_category.SetSizer( bSizer2 )
 		self.panel_category.Layout()
 		bSizer2.Fit( self.panel_category )
+		self.kicadlink_splitter.Initialize( self.panel_category )
+		bSizer161.Add( self.kicadlink_splitter, 1, wx.EXPAND, 5 )
+		
+		
+		bSizer15.Add( bSizer161, 1, wx.EXPAND, 5 )
+		
+		
+		self.m_panel6.SetSizer( bSizer15 )
+		self.m_panel6.Layout()
+		bSizer15.Fit( self.m_panel6 )
 		self.m_panel3 = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -158,7 +176,7 @@ class PanelParts ( wx.Panel ):
 		self.m_panel3.SetSizer( bSizer3 )
 		self.m_panel3.Layout()
 		bSizer3.Fit( self.m_panel3 )
-		self.m_splitter2.SplitVertically( self.panel_category, self.m_panel3, 294 )
+		self.m_splitter2.SplitVertically( self.m_panel6, self.m_panel3, 308 )
 		bSizer1.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
 		
 		
@@ -167,6 +185,14 @@ class PanelParts ( wx.Panel ):
 		self.menu_parts = wx.Menu()
 		self.menu_parts_refresh_octopart = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Refresh octopart parts", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_parts.Append( self.menu_parts_refresh_octopart )
+		
+		self.menu_parts.AppendSeparator()
+		
+		self.menu_parts_import_parts = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Import parts", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parts.Append( self.menu_parts_import_parts )
+		
+		self.menu_parts_export_parts = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Export parts", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parts.Append( self.menu_parts_export_parts )
 		
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelPartsOnContextMenu ) 
 		
@@ -187,6 +213,8 @@ class PanelParts ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuParametersAddSelection, id = self.menu_parameters_add.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuParametersRemoveSelection, id = self.menu_parameters_remove.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsRefreshOctopart, id = self.menu_parts_refresh_octopart.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuItemPartsImportParts, id = self.menu_parts_import_parts.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuItemPartsExportParts, id = self.menu_parts_export_parts.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -238,8 +266,14 @@ class PanelParts ( wx.Panel ):
 	def onMenuItemPartsRefreshOctopart( self, event ):
 		event.Skip()
 	
+	def onMenuItemPartsImportParts( self, event ):
+		event.Skip()
+	
+	def onMenuItemPartsExportParts( self, event ):
+		event.Skip()
+	
 	def m_splitter2OnIdle( self, event ):
-		self.m_splitter2.SetSashPosition( 294 )
+		self.m_splitter2.SetSashPosition( 308 )
 		self.m_splitter2.Unbind( wx.EVT_IDLE )
 	
 	def panel_partsOnContextMenu( self, event ):

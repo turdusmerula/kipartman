@@ -1,0 +1,14 @@
+get:
+  description: Return a unit prefixes
+  operationId: findUnitPrefix
+  parameters:
+    - $ref: './types/unit_prefix_id.yaml#/unit_prefix_id'
+  responses:
+    "200":
+      description: Unit prefix
+      schema:
+        $ref: './unit/UnitPrefix.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

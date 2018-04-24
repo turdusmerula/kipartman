@@ -1,0 +1,13 @@
+get:
+  description: Get server current datetime
+  operationId: getDate
+  responses:
+    "200":
+      description: Current datetime
+      schema:
+        type: string
+        format: date-time
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

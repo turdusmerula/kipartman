@@ -31,8 +31,9 @@ class SearchResult(Model):
         #     pass
         # except expression as identifier:
         #     pass
-        for item in self.json["coverart"]:
-            list.append(Url(item))
+        if self.json.has_key("coverart"):
+            for item in self.json["coverart"]:
+                list.append(Url(item))
         return list
     
     def uniqueid(self):
@@ -75,7 +76,7 @@ class SearchResult(Model):
 
     def models(self):
         list = []
-        if(self.json.has_key("models")):
+        if self.json.has_key("models"):
             for item in self.json["models"]:
                 list.append(ResultModel(item))
         return list

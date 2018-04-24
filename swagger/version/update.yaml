@@ -1,0 +1,27 @@
+post:
+  description: Update a fileset
+  operationId: updateVersionedFiles
+  parameters:
+    - name: files
+      in: body
+      description: File list to update
+      required: true
+      schema:
+        type: array
+        items:
+          $ref: './version/VersionedFile.yaml'
+    - name: force
+      in: query
+      description: Force update
+      type: boolean
+  responses:
+    "200":
+      description: Update result
+      schema:
+        type: array
+        items:
+          $ref: './version/VersionedFile.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

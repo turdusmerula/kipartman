@@ -16,7 +16,7 @@ def read(*names, **kwargs):
 
 setup(
     name='kipartman',
-    version='0.4.0',
+    version='0.5.3',
     description='Kicad part manager',
 #     long_description='%s\n%s' %
 #     (re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub(
@@ -48,13 +48,18 @@ setup(
          'wxPython',
          'cfscrape',
          'docutils',
-#         
+         'asyncio',
+         'pathlib2',
+         'pycairo',
+         'conan',
+         'pyrfc3339',
 #         # for kipart base
-         'connexion>1.1,<1.2',
+         'connexion', #>1.1,<1.2',
 #         'python_dateutil',
          'django<1.12',
          'django-mptt<0.9',
-
+         'watchdog',
+         
          'setuptools',
     ],
 )

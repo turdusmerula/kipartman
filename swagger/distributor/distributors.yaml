@@ -1,0 +1,39 @@
+get:
+  description: Return all distributors
+  operationId: findDistributors
+  parameters:
+    - name: name
+      in: query
+      description: Search distributors matching name
+      type: string      
+  responses:
+    "200":
+      description: List of distributors
+      schema:
+        type: array
+        items:
+          $ref: './distributor/Distributor.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+post:
+  description: Creates a new distributor
+  operationId: addDistributor
+  parameters:
+    - name: distributor
+      in: body
+      description: Distributor to add
+      required: true
+      schema:
+        $ref: './distributor/DistributorNew.yaml'
+  responses:
+    "200":
+      description: Created distributor
+      schema:
+        $ref: './distributor/Distributor.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

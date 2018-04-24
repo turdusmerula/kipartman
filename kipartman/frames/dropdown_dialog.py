@@ -5,7 +5,7 @@ class DropdownDialog(wx.Dialog):
     Display a popup frame
     """
     
-    def __init__( self, parent, frame, initial=None ):
+    def __init__( self, parent, frame, *args, **kwargs ):
         """
         Create a popup modal dialog window from frame
         :param parent: owner
@@ -15,7 +15,7 @@ class DropdownDialog(wx.Dialog):
         """
         self.result_callback = None
         super(DropdownDialog, self).__init__(parent, style=wx.RESIZE_BORDER)
-        self.panel = frame(self, initial)
+        self.panel = frame(self, *args, **kwargs)
         self.SetSize( self.panel.GetSize())
         
         sizer = wx.BoxSizer(wx.VERTICAL)

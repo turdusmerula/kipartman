@@ -1,10 +1,14 @@
 from octopart import models
+from configuration import Configuration
 import json
 import urllib
 
+configuration = Configuration()   # TODO: Improve accessing Global DEFAULTS
+
+
 class OctopartQuery(object):
     baseurl = "http://octopart.com/api/v3/"
-    apikey = "69c36198"
+    apikey = ""
     start = 0
     limit = 100
     
@@ -37,6 +41,8 @@ class PartsQuery(OctopartQuery):
     path = "parts/search"
     
     def get(self, pattern):
+        configuration.Load()   # TODO: Improve accessing Global DEFAULTS
+        OctopartQuery.apikey = configuration.octopart_api_key
         self.json = OctopartQuery.get(self, q=pattern)
         return self.json
 

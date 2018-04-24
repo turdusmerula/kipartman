@@ -20,8 +20,8 @@ class Part(models.Model):
     description = models.TextField(blank=True, default='')
     comment = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    footprint = models.ForeignKey('Footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    model = models.ForeignKey('Model', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    footprint = models.ForeignKey('VersionedFile', related_name='footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    symbol = models.ForeignKey('VersionedFile', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     childs = models.ManyToManyField('Part', blank=True)
     #parameters is defined inside PartParameter by ForeignKey part
     #offers is defined inside PartOffer by ForeignKey part
@@ -114,55 +114,41 @@ class Distributor(models.Model):
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
-class FootprintCategory(MPTTModel):
-    parent = TreeForeignKey('FootprintCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
-    description = models.TextField(blank=True, default='')
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-
-
-class Footprint(models.Model):
-    category = models.ForeignKey('FootprintCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
-    description = models.TextField(blank=True, default='')
-    comment = models.TextField(blank=True, default='')
-    image = models.ForeignKey('File', related_name='image', on_delete=models.DO_NOTHING, null=True, default=None)
-    footprint = models.ForeignKey('File', related_name='footprint', on_delete=models.DO_NOTHING, null=True, default=None)
-
-    snapeda = models.TextField(null=True, blank=True)
-    snapeda_uid = models.TextField(null=True, blank=True, default=None)
-    updated = models.DateTimeField(null=True, blank=True, default=None)
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-    
-class ModelCategory(MPTTModel):
-    parent = TreeForeignKey('ModelCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
-    description = models.TextField(blank=True, default='')
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-
-
-class Model(models.Model):
-    category = models.ForeignKey('ModelCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
-    description = models.TextField(blank=True, default='')
-    comment = models.TextField(blank=True, default='')
-    image = models.ForeignKey('File', related_name='model_image', on_delete=models.DO_NOTHING, null=True, default=None)
-    model = models.ForeignKey('File', related_name='model_file', on_delete=models.DO_NOTHING, null=True, default=None)
-    snapeda = models.TextField(null=True, blank=True)
-    snapeda_uid = models.TextField(null=True, blank=True, default=None)
-    updated = models.DateTimeField(null=True, blank=True, default=None)
-    childs = models.ManyToManyField('Model', related_name='model_childs', blank=True)
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
 
 class File(models.Model):
     source_name = models.TextField()
     storage_path = models.TextField()
+    created = models.DateTimeField(null=True, blank=True, default=None)
     def __unicode__(self):
         return '%d: %s, %s' % (self.id, self.source_name, self.storage_path)
+
+
+class VersionedFileState(object):
+    created = 0
+    modified = 1
+    deleted = 2
+    
+class VersionedFile(models.Model):
+    source_path = models.TextField()
+    storage_path = models.TextField(default='')
+    md5 = models.TextField(null=False, blank=True, default='')
+    version = models.IntegerField(default=0)
+    state = models.IntegerField(default=0)
+    metadata = models.TextField(null=True, blank=True, default='')
+    category = models.TextField(null=True, blank=True, default='')
+    updated = models.DateTimeField(null=True, blank=True, default=None)
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.source_path)
+    
+class VersionedFileHistory(models.Model):
+    file = models.ForeignKey('VersionedFile', null=False, blank=False, default=None)
+    source_path = models.TextField()
+    storage_path = models.TextField(default='')
+    md5 = models.TextField(null=False, blank=True, default='')
+    version = models.IntegerField(default=0)
+    state = models.IntegerField(default=0)
+    updated = models.DateTimeField(null=True, blank=True, default=None)
+    operation = models.TextField()
 
 
 class Unit(models.Model):
@@ -199,3 +185,12 @@ class PartStorageHistory(models.Model):
     location = models.ForeignKey('Storage', null=False, blank=False, default=None)
     reason = models.TextField(blank=False)
     amount = models.IntegerField()
+
+class Currency(models.Model):
+    name = models.TextField()
+    symbol = models.TextField(default='')
+    base = models.TextField(default='EUR')
+    ratio = models.IntegerField()
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
+    

@@ -8,12 +8,20 @@ import helper.tree
 from helper.filter import Filter
 import rest
 import wx
+
+import os, datetime
 from time import sleep
 from octopart.queries import PartsQuery
-import datetime
+
 from octopart.extractor import OctopartExtractor
 import swagger_client
 from helper.tree import TreeModel
+
+
+from plugins import plugin_loader
+from plugins import import_plugins as import_plugins
+
+
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -116,19 +124,19 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
 
     def GetValue(self, col):
         if col<6:
-            model = ''
-            if self.part.model:
-                model = self.part.model.name
+            symbol = ''
+            if self.part.symbol:
+                symbol = os.path.basename(self.part.symbol.source_path).replace('.mod', '')
             footprint = ''
             if self.part.footprint:
-                footprint = self.part.footprint.name
+                footprint = os.path.basename(self.part.footprint.source_path).replace('.kicad_mod', '')
             
             vMap = { 
                 0 : str(self.part.id),
                 1 : self.part.name,
                 2 : self.part.description,
                 3 : self.part.comment,
-                4 : model,
+                4 : symbol,
                 5 : footprint
             }
             return vMap[col]
@@ -280,26 +288,26 @@ class TreeManagerParts(helper.tree.TreeManager):
     
     def AppendPart(self, part):
         categoryobj = self.AppendCategoryPath(part.category)
-        partobj = DataModelPart(part, self.model.columns)
+        partobj = DataModelPart(part, self.symbol.columns)
         self.AppendItem(categoryobj, partobj)
         self.Expand(categoryobj)
         return partobj
     
     def AppendChildPart(self, parent_part, part):
         parentobj = self.FindPart(parent_part.id)
-        partobj = DataModelPart(part, self.model.columns)
+        partobj = DataModelPart(part, self.symbol.columns)
         self.AppendItem(parentobj, partobj)
         self.Expand(parentobj)
         return partobj
 
     def AddParameterColumn(self, parameter_name):
         column = self.AddCustomColumn(parameter_name, 'parameter', None)
-        self.model.columns[column.GetModelColumn()] = DataColumnParameter(parameter_name)
+        self.symbol.columns[column.GetSymbolColumn()] = DataColumnParameter(parameter_name)
         
     def RemoveParameterColumn(self, index):
-        if self.model.columns.has_key(index)==False:
+        if self.symbol.columns.has_key(index)==False:
             return
-        self.model.columns.pop(index)
+        self.symbol.columns.pop(index)
         self.RemoveColumn(index)
 
 class PartsFrame(PanelParts): 
@@ -322,7 +330,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
         self.tree_parts_manager.AddIntegerColumn("comment")
-        self.tree_parts_manager.AddTextColumn("model")
+        self.tree_parts_manager.AddTextColumn("symbol")
         self.tree_parts_manager.AddTextColumn("footprint")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
         self.tree_parts_manager.OnColumnHeaderRightClick = self.onTreePartsColumnHeaderRightClick
@@ -359,7 +367,7 @@ class PartsFrame(PanelParts):
             id_category_map[category.id] = DataModelCategory(category)
             to_add.pop(0)
             
-            # add to model
+            # add to symbol
             if category.parent:
                 self.tree_categories_manager.AppendItem(id_category_map[category.parent.id], id_category_map[category.id])
             else:
@@ -441,6 +449,173 @@ class PartsFrame(PanelParts):
                 part.category = category.category
 
         self.edit_part(part)
+
+    def export_parts(self):
+
+        # exporters = plugin_loader.load_export_plugins()
+        # wildcards = '|'.join([x.wildcard for x in exporters])
+        # wildcards
+
+        # exportpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
+        # exportpath
+        # base, ext = os.path.splitext(exportpath)
+
+        # TODO: implement export
+        exporters = plugin_loader.load_export_plugins()
+
+        wildcards = '|'.join([x.wildcard for x in exporters])
+
+        export_dialog = wx.FileDialog(self, "Export Parts", "", "",
+                                      wildcards,
+                                      wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+
+        if export_dialog.ShowModal() == wx.ID_CANCEL:
+            return
+
+        base, ext = os.path.splitext(export_dialog.GetPath())
+        filt_idx = export_dialog.GetFilterIndex()
+        # load parts
+        parts = rest.api.find_parts(**self.parts_filter.query_filter())
+
+        exporters[filt_idx]().export(base, parts)     
+        self.edit_state = None
+
+    def import_parts(self):
+
+        importers = plugin_loader.load_import_plugins()
+        wildcards = '|'.join([x.wildcard for x in importers])
+        
+        import_dialog = wx.FileDialog(self, "Import Parts", "", "",
+                                      wildcards,
+                                      wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+
+        if import_dialog.ShowModal() == wx.ID_CANCEL:
+            return
+
+        base, ext = os.path.splitext(import_dialog.GetPath())
+        filt_idx = import_dialog.GetFilterIndex()
+
+
+        # set category
+        item = self.tree_categories.GetSelection()
+        if item.IsOk():
+            category = self.tree_categories_manager.ItemToObject(item)
+            if category.category:
+                import_items = importers[filt_idx]().fetch(base, category.category, rest.model)
+        progression_frame = ProgressionFrame(self, "Importing  parts ") ;
+        progression_frame.Show()
+
+        for i, importItem in enumerate(import_items):
+            wx.Yield()
+
+            part = rest.model.PartNew()
+            # SET imported Parts Fields
+            
+            part.name = importItem.name
+            part.description = importItem.description
+
+            # Update progress indicator
+            progression_frame.SetProgression(part.name, i+1, len(import_items))
+            if progression_frame.Canceled():
+                break
+
+
+            if isinstance(importItem.footprint, str) and len(importItem.footprint) == 0:  # Blank Footprint
+                part.footprint = None
+            else:  # Determine or Create correct Footprint References
+                searchparam = {'search': importItem.footprint}
+                matching_footprints = rest.api.find_footprints(**searchparam)
+                if len(matching_footprints)==0: # ADD new footprint
+                    # Check Footprint Category: "Uncatagorized" exists
+                    try:
+                        footprintcategoryid = {i.name: i.id
+                                               for i in
+                                               rest.api.find_footprints_categories()}['Uncategorized']
+                    except KeyError, e:  # Category 'Uncategorized' does not exist
+                        # Create the "Uncategorized" category
+                        category = rest.model.FootprintCategoryNew()
+                        category.name = "Uncategorized"
+                        category.description = 'imported footprint names not already defined'
+                        category = rest.api.add_footprints_category(category)
+                        footprintcategoryid = category.id
+                    except:
+                            # TODO: handle other errors cleanly
+                            raise
+                            pass
+
+                    part.footprint = rest.model.FootprintNew()
+                    part.footprint.category = rest.model.FootprintCategoryRef(id=footprintcategoryid)
+                    part.footprint.name = importItem.footprint
+                    part.footprint.description = u''
+                    part.footprint.comment = u''
+
+                    # update part on server
+                    part.footprint = rest.api.add_footprint(part.footprint)
+
+                elif len(matching_footprints)==1: # only 1 option so referece it
+                    part.footprint = matching_footprints[0]
+                else:  # multiple Footprint items
+                    pass  # TODO: handle if multiple Footprint options exist
+
+            part.comment = 'NEW IMPORT Timestamp:{:%y-%m-%d %H:%M:%S.%f}\n'.format(datetime.datetime.now())
+            
+            # set category
+            if category.category:
+                part.category = category.category
+            # Update edit_part panel
+            try:
+                #Lookup details in octopart
+                m_octopart = self.import_octopart_lookup(part)
+                assert len(m_octopart.data)==1,\
+                    'Import Octopart Lookup found {} matchs {}'.format(
+                        len(m_octopart.data)
+                    )
+                octopart_extractor = OctopartExtractor(m_octopart.data[0].json)
+                assert part.name == m_octopart.data[0].item().mpn(),\
+                    'Import Octopart Lookup found first part {}'.format(
+                        m_octopart.data[0].item().mpn()
+                    )
+                part.octopart_uid = m_octopart.data[0].item().uid()
+                part.parameters = []
+                part.distributors =[]
+                part.manufacturers =[]
+                self.octopart_to_part(m_octopart.data[0], part)
+                pass
+            except Exception as e:
+                part.comment = 'RESEARCH REQUIRED - FAILED OCTOPART LOOKUP - Timestamp:{:%y-%m-%d %H:%M:%S.%f}\n'.format(datetime.datetime.now()) \
+                                + part.comment
+                pass
+
+            self.edit_part(part)
+            self.show_part(part)
+
+            try:
+                if self.edit_state=='import':
+                    part = rest.api.add_part(part)
+                    self.tree_parts_manager.AppendPart(part)
+            except Exception as e:
+                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                return
+        self.edit_state = None
+        self.show_part(part)
+        progression_frame.Destroy()
+
+  
+    def import_octopart_lookup(self, part):
+        df = DummyFrame_import_ocotopart_lookup(None,'Dummy')
+        from frames.select_octopart_frame import SelectOctopartFrame
+        r = SelectOctopartFrame(df, part.name)
+        # print('IMPORT: octopart_lookup:{} found Qty:{}, UID:{}, MPN:{}'.format(
+        #     part.name
+        #     ,len(r.Children[1].Symbol.data)
+        #     , r.Children[1].Symbol.data[0].json['item']['uid']
+        #     , r.Children[1].Symbol.data[0].json['item']['mpn']
+        #     ))
+        df.Destroy()
+        return r.Children[1].Symbol
+
+
+            
 
     def GetMenus(self):
         return [{'title': 'Parts', 'menu': self.menu_parts}]
@@ -545,7 +720,7 @@ class PartsFrame(PanelParts):
             # update on server
             category = rest.api.update_parts_category(source_category.id, source_category)
 
-            # update tree model
+            # update tree symbol
             if source_categoryobj:
                 self.tree_categories_manager.MoveItem(source_categoryobj.parent, dest_categoryobj, source_categoryobj)
         except Exception as e:
@@ -573,7 +748,7 @@ class PartsFrame(PanelParts):
             # update on server
             part = rest.api.update_part(source_part.id, source_part)
             
-            # update tree model
+            # update tree symbol
             self.tree_parts_manager.DeletePart(source_part)
             self.tree_parts_manager.AppendPart(part)
         except Exception as e:
@@ -637,7 +812,7 @@ class PartsFrame(PanelParts):
                     # update on server
                     part = rest.api.update_part(source_part.id, source_part)
                     
-                    # update tree model
+                    # update tree symbol
                     self.tree_parts_manager.DeletePart(source_part)
                     self.tree_parts_manager.AppendPart(part)
                 except Exception as e:
@@ -662,7 +837,7 @@ class PartsFrame(PanelParts):
                 dest_part.childs.append(source_partobj.part)
                 rest.api.update_part(dest_part.id, dest_part)
 
-                # update tree model
+                # update tree symbol
                 self.tree_parts_manager.AppendChildPart(dest_part, source_partobj.part)
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
@@ -679,7 +854,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddParameterColumn(parameter.name)
         
     def onMenuParametersRemoveSelection( self, event ):
-        self.tree_parts_manager.RemoveParameterColumn(self.menu_parameters.Column.GetModelColumn())
+        self.tree_parts_manager.RemoveParameterColumn(self.menu_parameters.Column.GetSymbolColumn())
             
     def onEditPartApply( self, event ):
         part = event.data
@@ -755,7 +930,22 @@ class PartsFrame(PanelParts):
             else:
                 return
         self.show_part(None)
- 
+
+    def onMenuItemPartsImportParts( self, event ):
+        # TODO: Implement onButtonImportPartsClick
+        self.edit_state = 'import'
+        self.import_parts()
+
+        pass
+
+    def onMenuItemPartsExportParts( self, event ):
+        # TODO: Implement onButtonImportPartsClick
+        self.edit_state = 'export'
+        self.export_parts()
+
+        pass
+
+
     def onSearchPartsTextEnter( self, event ):
         # set search filter
         self.parts_filter.remove('search')
@@ -839,7 +1029,7 @@ class PartsFrame(PanelParts):
         if part.description is None:
             part.description = ""
             
-        # set field octopart to indicatethat part was imported from octopart
+        # set field octopart to indicate that part was imported from octopart
         part.octopart = octopart.item().mpn()
         part.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         
@@ -937,3 +1127,11 @@ class PartsFrame(PanelParts):
             part.manufacturers.append(part_manufacturer)
         except:
             wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+
+class DummyFrame_import_ocotopart_lookup(wx.Frame):
+    def __init__(self, parent, title=""):
+        super(DummyFrame_import_ocotopart_lookup, self).__init__(parent, title=title)
+        # # Set an application icon
+        # self.SetIcon(wx.Icon("appIcon.png"))
+        # Set the panel
+        self.panel = wx.Panel(self)

@@ -1,11 +1,12 @@
 from dialogs.panel_edit_part import PanelEditPart
 from frames.select_footprint_frame import SelectFootprintFrame
-from frames.select_model_frame import SelectModelFrame
+from frames.select_symbol_frame import SelectSymbolFrame
 from frames.part_parameters_frame import PartParametersFrame
 from frames.part_distributors_frame import PartDistributorsFrame
 from frames.part_manufacturers_frame import PartManufacturersFrame
 from frames.part_attachements_frame import PartAttachementsFrame
 from frames.part_storages_frame import PartStoragesFrame
+from frames.part_preview_data_frame import PartPreviewDataFrame
 from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
@@ -14,6 +15,7 @@ import datetime
 import re
 import rest
 from octopart.extractor import OctopartExtractor
+import os
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -30,6 +32,9 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_parameters = PartParametersFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_parameters, "Parameters")
         
+        self.edit_part_preview_data = PartPreviewDataFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_preview_data, "Preview")
+
         self.edit_part_distributors = PartDistributorsFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_distributors, "Distributors")
 
@@ -50,6 +55,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_manufacturers.SetPart(part)
         self.edit_part_storages.SetPart(part)
         self.edit_part_attachements.SetPart(part)
+        self.edit_part_preview_data.SetPart(part)
         
     def ShowPart(self, part):
         if part:
@@ -57,13 +63,13 @@ class EditPartFrame(PanelEditPart):
             self.edit_part_description.Value = NoneValue(part.description, "")
             self.edit_part_comment.Value = NoneValue(part.comment, '')
             if part.footprint:
-                self.button_part_footprint.Label = NoneValue(part.footprint.name, "")
+                self.button_part_footprint.Label = os.path.basename(part.footprint.source_path).replace(".kicad_mod", "")
             else:
                 self.button_part_footprint.Label = "<none>"
-            if part.model:
-                self.button_part_model.Label = NoneValue(part.model.name, "")
+            if part.symbol:
+                self.button_part_symbol.Label = os.path.basename(part.symbol.source_path).replace(".mod", "")
             else:
-                self.button_part_model.Label = "<none>"
+                self.button_part_symbol.Label = "<none>"
         else:
             self.edit_part_name.Value = ''
             self.edit_part_description.Value = ''
@@ -75,7 +81,7 @@ class EditPartFrame(PanelEditPart):
         self.button_octopart.Enabled = enabled
         self.edit_part_description.Enabled = enabled
         self.button_part_footprint.Enabled = enabled
-        self.button_part_model.Enabled = enabled
+        self.button_part_symbol.Enabled = enabled
         self.edit_part_comment.Enabled = enabled
         self.button_part_editApply.Enabled = enabled
         self.button_part_editCancel.Enabled = enabled
@@ -92,22 +98,22 @@ class EditPartFrame(PanelEditPart):
     
     def onSetFootprintCallback(self, footprint):
         if footprint:
-            self.button_part_footprint.Label = footprint.name
+            self.button_part_footprint.Label = os.path.basename(footprint.source_path).replace('.kicad_mod', '')
         else:
             self.button_part_footprint.Label = "<none>"
         self.part.footprint = footprint
         
-    def onButtonPartModelClick( self, event ):
-        model = self.part.model
-        frame = DropdownFrame(self.button_part_footprint, SelectModelFrame, model)
-        frame.Dropdown(self.onSetModelCallback)
+    def onButtonPartSymbolClick( self, event ):
+        symbol = self.part.symbol
+        frame = DropdownFrame(self.button_part_footprint, SelectSymbolFrame, symbol)
+        frame.Dropdown(self.onSetSymbolCallback)
     
-    def onSetModelCallback(self, model):
-        if model:
-            self.button_part_model.Label = model.name
+    def onSetSymbolCallback(self, symbol):
+        if symbol:
+            self.button_part_symbol.Label = os.path.basename(symbol.source_path).replace('.mod', '')
         else:
-            self.button_part_model.Label = "<none>"
-        self.part.model = model
+            self.button_part_symbol.Label = "<none>"
+        self.part.symbol = symbol
 
     def onButtonPartEditApply( self, event ):
         part = self.part
@@ -145,6 +151,10 @@ class EditPartFrame(PanelEditPart):
         # convert octopart to part values
         print "octopart:", octopart.json
         octopart_extractor = OctopartExtractor(octopart)
+
+        # TODO: THis looks something similar to def octopart_to_part(self, octopart, part): in parts_frame \
+        # explore if this can be rationalized under module octopart. \
+        # The code is complex, there could be change sync issues
         
         # import part fields
         self.part.name = octopart.item().mpn()

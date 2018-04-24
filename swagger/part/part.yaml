@@ -1,0 +1,76 @@
+get:
+  description: Return a part
+  operationId: findPart
+  parameters:
+    - $ref: './types/part_id.yaml#/part_id'
+    - name: with_offers
+      in: query
+      description: Include offers in answer
+      type: boolean
+    - name: with_parameters
+      in: query
+      description: Include parameters in answer
+      type: boolean
+    - name: with_childs
+      in: query
+      description: Include childs in answer
+      type: boolean
+    - name: with_distributors
+      in: query
+      description: Include distributors in answer
+      type: boolean
+    - name: with_manufacturers
+      in: query
+      description: Include manufacturers in answer
+      type: boolean
+    - name: with_storages
+      in: query
+      description: Include storages in answer
+      type: boolean
+    - name: with_attachements
+      in: query
+      description: Include attachements in answer
+      type: boolean
+  responses:
+    "200":
+      description: Categories
+      schema:
+        $ref: './part/Part.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+put:
+  description: Update part
+  operationId: updatePart
+  parameters:
+    - $ref: './types/part_id.yaml#/part_id'
+    - name: part
+      in: body
+      description: Part to update
+      required: true
+      schema:
+        $ref: './part/Part.yaml'
+  responses:
+    "200":
+      description: Updated pärt
+      schema:
+        $ref: './part/Part.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+delete:
+  description: Delete part
+  operationId: deletePart
+  parameters:
+    - $ref: './types/part_id.yaml#/part_id'
+  responses:
+    "200":
+      description: Deleted ok
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

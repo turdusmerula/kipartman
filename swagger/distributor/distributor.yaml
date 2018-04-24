@@ -1,0 +1,48 @@
+get:
+  description: Return a distributor
+  operationId: findDistributor
+  parameters:
+    - $ref: './types/distributor_id.yaml#/distributor_id'
+  responses:
+    "200":
+      description: Distributors
+      schema:
+        $ref: './distributor/Distributor.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+put:
+  description: Update a distributor
+  operationId: updateDistributor
+  parameters:
+    - $ref: './types/distributor_id.yaml#/distributor_id'
+    - name: category
+      in: body
+      description: Distributor to update
+      required: true
+      schema:
+        $ref: './distributor/DistributorNew.yaml'
+  responses:
+    "200":
+      description: Updated distributor
+      schema:
+        $ref: './distributor/Distributor.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
+
+delete:
+  description: Delete distributor
+  operationId: deleteDistributor
+  parameters:
+    - $ref: './types/distributor_id.yaml#/distributor_id'
+  responses:
+    "200":
+      description: Deleted ok
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

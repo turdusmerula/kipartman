@@ -1,0 +1,19 @@
+get:
+  description: Return all available parts parameters
+  operationId: findPartsParameters
+  parameters:
+    - name: search
+      in: query
+      description: Search parameter matching value
+      type: string      
+  responses:
+    "200":
+      description: List of parts parameters
+      schema:
+        type: array
+        items:
+          $ref: './part/parameter/PartParameterDescription.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
