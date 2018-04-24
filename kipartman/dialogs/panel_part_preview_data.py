@@ -11,10 +11,10 @@ import wx
 import wx.xrc
 
 ###########################################################################
-## Class PanelPartEcadData
+## Class PanelPartPreviewData
 ###########################################################################
 
-class PanelPartEcadData ( wx.Panel ):
+class PanelPartPreviewData ( wx.Panel ):
 	
 	def __init__( self, parent ):
 		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 759,345 ), style = wx.TAB_TRAVERSAL )

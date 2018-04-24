@@ -931,14 +931,14 @@ class PartsFrame(PanelParts):
                 return
         self.show_part(None)
 
-    def onButtonImportPartsClick( self, event ):
+    def onMenuItemPartsImportParts( self, event ):
         # TODO: Implement onButtonImportPartsClick
         self.edit_state = 'import'
         self.import_parts()
 
         pass
 
-    def onButtonExportPartsClick( self, event ):
+    def onMenuItemPartsExportParts( self, event ):
         # TODO: Implement onButtonImportPartsClick
         self.edit_state = 'export'
         self.export_parts()

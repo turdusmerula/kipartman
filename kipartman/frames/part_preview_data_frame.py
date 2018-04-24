@@ -1,13 +1,13 @@
-from dialogs.panel_part_ecad_data import PanelPartEcadData
+from dialogs.panel_part_preview_data import PanelPartPreviewData
 import helper.tree
 import kicad.kicad_lib_file
 import kicad.kicad_mod_file
 from configuration import configuration
 import os
 
-class PartEcadDataFrame(PanelPartEcadData):
+class PartPreviewDataFrame(PanelPartPreviewData):
     def __init__(self, parent): 
-        super(PartEcadDataFrame, self).__init__(parent)
+        super(PartPreviewDataFrame, self).__init__(parent)
         
         self.part = None
         

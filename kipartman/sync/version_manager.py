@@ -128,7 +128,13 @@ class VersionManager(object):
 
         if self.on_change_hook:
             self.on_change_hook(path)
-        
+    
+    def GetFile(self, path):
+        with VersionManagerEnabler(self) as f:
+            if os.path.exists(self.config)==False:
+                return None
+            return self.local_files[path]
+
     def LoadState(self):
         """
         Synchronize local files with state

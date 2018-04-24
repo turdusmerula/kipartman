@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 xpl_path=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 cd $xpl_path
 

@@ -66,9 +66,9 @@ from .models.unit import Unit
 from .models.unit_prefix import UnitPrefix
 from .models.upload_file import UploadFile
 from .models.upload_file_data import UploadFileData
-from .models.upload_file_ref import UploadFileRef
 from .models.versioned_file import VersionedFile
 from .models.versioned_file_data import VersionedFileData
+from .models.versioned_file_ref import VersionedFileRef
 
 # import apis into sdk package
 from .apis.default_api import DefaultApi

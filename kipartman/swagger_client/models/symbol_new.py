@@ -37,9 +37,7 @@ class SymbolNew(object):
         'snapeda': 'str',
         'snapeda_uid': 'str',
         'updated': 'datetime',
-        'category': 'SymbolCategoryRef',
-        'image': 'UploadFileRef',
-        'symbol': 'UploadFileRef'
+        'symbol': 'VersionedFileRef'
     }
 
     attribute_map = {
@@ -49,12 +47,10 @@ class SymbolNew(object):
         'snapeda': 'snapeda',
         'snapeda_uid': 'snapeda_uid',
         'updated': 'updated',
-        'category': 'category',
-        'image': 'image',
         'symbol': 'Symbol'
     }
 
-    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, category=None, image=None, symbol=None):
+    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, symbol=None):
         """
         SymbolNew - a model defined in Swagger
         """
@@ -65,8 +61,6 @@ class SymbolNew(object):
         self._snapeda = None
         self._snapeda_uid = None
         self._updated = None
-        self._category = None
-        self._image = None
         self._symbol = None
 
         if name is not None:
@@ -81,10 +75,6 @@ class SymbolNew(object):
           self.snapeda_uid = snapeda_uid
         if updated is not None:
           self.updated = updated
-        if category is not None:
-          self.category = category
-        if image is not None:
-          self.image = image
         if symbol is not None:
           self.symbol = symbol
 
@@ -215,54 +205,12 @@ class SymbolNew(object):
         self._updated = updated
 
     @property
-    def category(self):
-        """
-        Gets the category of this SymbolNew.
-
-        :return: The category of this SymbolNew.
-        :rtype: SymbolCategoryRef
-        """
-        return self._category
-
-    @category.setter
-    def category(self, category):
-        """
-        Sets the category of this SymbolNew.
-
-        :param category: The category of this SymbolNew.
-        :type: SymbolCategoryRef
-        """
-
-        self._category = category
-
-    @property
-    def image(self):
-        """
-        Gets the image of this SymbolNew.
-
-        :return: The image of this SymbolNew.
-        :rtype: UploadFileRef
-        """
-        return self._image
-
-    @image.setter
-    def image(self, image):
-        """
-        Sets the image of this SymbolNew.
-
-        :param image: The image of this SymbolNew.
-        :type: UploadFileRef
-        """
-
-        self._image = image
-
-    @property
     def symbol(self):
         """
         Gets the symbol of this SymbolNew.
 
         :return: The symbol of this SymbolNew.
-        :rtype: UploadFileRef
+        :rtype: VersionedFileRef
         """
         return self._symbol
 
@@ -272,7 +220,7 @@ class SymbolNew(object):
         Sets the symbol of this SymbolNew.
 
         :param symbol: The symbol of this SymbolNew.
-        :type: UploadFileRef
+        :type: VersionedFileRef
         """
 
         self._symbol = symbol

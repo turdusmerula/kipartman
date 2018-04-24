@@ -20,8 +20,8 @@ class Part(models.Model):
     description = models.TextField(blank=True, default='')
     comment = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    footprint = models.ForeignKey('Footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    symbol = models.ForeignKey('Symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    footprint = models.ForeignKey('VersionedFile', related_name='footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    symbol = models.ForeignKey('VersionedFile', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     childs = models.ManyToManyField('Part', blank=True)
     #parameters is defined inside PartParameter by ForeignKey part
     #offers is defined inside PartOffer by ForeignKey part
@@ -114,49 +114,6 @@ class Distributor(models.Model):
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
-class FootprintCategory(MPTTModel):
-    parent = TreeForeignKey('FootprintCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
-    description = models.TextField(blank=True, default='')
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-
-
-class Footprint(models.Model):
-    category = models.ForeignKey('FootprintCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
-    description = models.TextField(blank=True, default='')
-    comment = models.TextField(blank=True, default='')
-    image = models.ForeignKey('File', related_name='image', on_delete=models.DO_NOTHING, null=True, default=None)
-    footprint = models.ForeignKey('File', related_name='footprint', on_delete=models.DO_NOTHING, null=True, default=None)
-
-    snapeda = models.TextField(null=True, blank=True)
-    snapeda_uid = models.TextField(null=True, blank=True, default=None)
-    updated = models.DateTimeField(null=True, blank=True, default=None)
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-    
-class SymbolCategory(MPTTModel):
-    parent = TreeForeignKey('SymbolCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
-    description = models.TextField(blank=True, default='')
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-
-
-class Symbol(models.Model):
-    category = models.ForeignKey('SymbolCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
-    description = models.TextField(blank=True, default='')
-    comment = models.TextField(blank=True, default='')
-    image = models.ForeignKey('File', related_name='model_image', on_delete=models.DO_NOTHING, null=True, default=None)
-    symbol = models.ForeignKey('File', related_name='model_file', on_delete=models.DO_NOTHING, null=True, default=None)
-    snapeda = models.TextField(null=True, blank=True)
-    snapeda_uid = models.TextField(null=True, blank=True, default=None)
-    updated = models.DateTimeField(null=True, blank=True, default=None)
-    childs = models.ManyToManyField('Symbol', related_name='symbol_childs', blank=True)
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
 
 class File(models.Model):
     source_name = models.TextField()

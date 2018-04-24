@@ -38,9 +38,7 @@ class Symbol(object):
         'snapeda_uid': 'str',
         'updated': 'datetime',
         'id': 'int',
-        'category': 'SymbolCategory',
-        'image': 'UploadFile',
-        'symbol': 'UploadFile'
+        'symbol': 'VersionedFile'
     }
 
     attribute_map = {
@@ -51,12 +49,10 @@ class Symbol(object):
         'snapeda_uid': 'snapeda_uid',
         'updated': 'updated',
         'id': 'id',
-        'category': 'category',
-        'image': 'image',
         'symbol': 'symbol'
     }
 
-    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, id=None, category=None, image=None, symbol=None):
+    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, id=None, symbol=None):
         """
         Symbol - a model defined in Swagger
         """
@@ -68,8 +64,6 @@ class Symbol(object):
         self._snapeda_uid = None
         self._updated = None
         self._id = None
-        self._category = None
-        self._image = None
         self._symbol = None
 
         if name is not None:
@@ -85,10 +79,6 @@ class Symbol(object):
         if updated is not None:
           self.updated = updated
         self.id = id
-        if category is not None:
-          self.category = category
-        if image is not None:
-          self.image = image
         if symbol is not None:
           self.symbol = symbol
 
@@ -242,54 +232,12 @@ class Symbol(object):
         self._id = id
 
     @property
-    def category(self):
-        """
-        Gets the category of this Symbol.
-
-        :return: The category of this Symbol.
-        :rtype: SymbolCategory
-        """
-        return self._category
-
-    @category.setter
-    def category(self, category):
-        """
-        Sets the category of this Symbol.
-
-        :param category: The category of this Symbol.
-        :type: SymbolCategory
-        """
-
-        self._category = category
-
-    @property
-    def image(self):
-        """
-        Gets the image of this Symbol.
-
-        :return: The image of this Symbol.
-        :rtype: UploadFile
-        """
-        return self._image
-
-    @image.setter
-    def image(self, image):
-        """
-        Sets the image of this Symbol.
-
-        :param image: The image of this Symbol.
-        :type: UploadFile
-        """
-
-        self._image = image
-
-    @property
     def symbol(self):
         """
         Gets the symbol of this Symbol.
 
         :return: The symbol of this Symbol.
-        :rtype: UploadFile
+        :rtype: VersionedFile
         """
         return self._symbol
 
@@ -299,7 +247,7 @@ class Symbol(object):
         Sets the symbol of this Symbol.
 
         :param symbol: The symbol of this Symbol.
-        :type: UploadFile
+        :type: VersionedFile
         """
 
         self._symbol = symbol

@@ -36,8 +36,7 @@ class FootprintData(object):
         'comment': 'str',
         'snapeda': 'str',
         'snapeda_uid': 'str',
-        'updated': 'datetime',
-        'local_footprint': 'str'
+        'updated': 'datetime'
     }
 
     attribute_map = {
@@ -46,11 +45,10 @@ class FootprintData(object):
         'comment': 'comment',
         'snapeda': 'snapeda',
         'snapeda_uid': 'snapeda_uid',
-        'updated': 'updated',
-        'local_footprint': 'local_footprint'
+        'updated': 'updated'
     }
 
-    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, local_footprint=None):
+    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None):
         """
         FootprintData - a model defined in Swagger
         """
@@ -61,7 +59,6 @@ class FootprintData(object):
         self._snapeda = None
         self._snapeda_uid = None
         self._updated = None
-        self._local_footprint = None
 
         if name is not None:
           self.name = name
@@ -75,8 +72,6 @@ class FootprintData(object):
           self.snapeda_uid = snapeda_uid
         if updated is not None:
           self.updated = updated
-        if local_footprint is not None:
-          self.local_footprint = local_footprint
 
     @property
     def name(self):
@@ -203,27 +198,6 @@ class FootprintData(object):
         """
 
         self._updated = updated
-
-    @property
-    def local_footprint(self):
-        """
-        Gets the local_footprint of this FootprintData.
-
-        :return: The local_footprint of this FootprintData.
-        :rtype: str
-        """
-        return self._local_footprint
-
-    @local_footprint.setter
-    def local_footprint(self, local_footprint):
-        """
-        Sets the local_footprint of this FootprintData.
-
-        :param local_footprint: The local_footprint of this FootprintData.
-        :type: str
-        """
-
-        self._local_footprint = local_footprint
 
     def to_dict(self):
         """

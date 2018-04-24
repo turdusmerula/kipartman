@@ -10,9 +10,5 @@ allOf:
       id:
         type: integer
         format: int64
-      category:
-        $ref: "./symbol/category/SymbolCategory.yaml"
-      image:
-        $ref: "./upload/UploadFile.yaml"
       symbol:
-        $ref: "./upload/UploadFile.yaml"
+        $ref: "./version/VersionedFile.yaml"

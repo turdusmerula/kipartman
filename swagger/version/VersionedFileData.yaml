@@ -20,5 +20,3 @@ properties:
     type: string
   metadata:
     type: string
-#    additionalProperties:
-#      type: string    

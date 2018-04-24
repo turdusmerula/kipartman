@@ -37,11 +37,8 @@ class Footprint(object):
         'snapeda': 'str',
         'snapeda_uid': 'str',
         'updated': 'datetime',
-        'local_footprint': 'str',
         'id': 'int',
-        'category': 'FootprintCategory',
-        'image': 'UploadFile',
-        'footprint': 'UploadFile'
+        'footprint': 'VersionedFile'
     }
 
     attribute_map = {
@@ -51,14 +48,11 @@ class Footprint(object):
         'snapeda': 'snapeda',
         'snapeda_uid': 'snapeda_uid',
         'updated': 'updated',
-        'local_footprint': 'local_footprint',
         'id': 'id',
-        'category': 'category',
-        'image': 'image',
         'footprint': 'footprint'
     }
 
-    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, local_footprint=None, id=None, category=None, image=None, footprint=None):
+    def __init__(self, name=None, description=None, comment=None, snapeda=None, snapeda_uid=None, updated=None, id=None, footprint=None):
         """
         Footprint - a model defined in Swagger
         """
@@ -69,10 +63,7 @@ class Footprint(object):
         self._snapeda = None
         self._snapeda_uid = None
         self._updated = None
-        self._local_footprint = None
         self._id = None
-        self._category = None
-        self._image = None
         self._footprint = None
 
         if name is not None:
@@ -87,13 +78,7 @@ class Footprint(object):
           self.snapeda_uid = snapeda_uid
         if updated is not None:
           self.updated = updated
-        if local_footprint is not None:
-          self.local_footprint = local_footprint
         self.id = id
-        if category is not None:
-          self.category = category
-        if image is not None:
-          self.image = image
         if footprint is not None:
           self.footprint = footprint
 
@@ -224,27 +209,6 @@ class Footprint(object):
         self._updated = updated
 
     @property
-    def local_footprint(self):
-        """
-        Gets the local_footprint of this Footprint.
-
-        :return: The local_footprint of this Footprint.
-        :rtype: str
-        """
-        return self._local_footprint
-
-    @local_footprint.setter
-    def local_footprint(self, local_footprint):
-        """
-        Sets the local_footprint of this Footprint.
-
-        :param local_footprint: The local_footprint of this Footprint.
-        :type: str
-        """
-
-        self._local_footprint = local_footprint
-
-    @property
     def id(self):
         """
         Gets the id of this Footprint.
@@ -268,54 +232,12 @@ class Footprint(object):
         self._id = id
 
     @property
-    def category(self):
-        """
-        Gets the category of this Footprint.
-
-        :return: The category of this Footprint.
-        :rtype: FootprintCategory
-        """
-        return self._category
-
-    @category.setter
-    def category(self, category):
-        """
-        Sets the category of this Footprint.
-
-        :param category: The category of this Footprint.
-        :type: FootprintCategory
-        """
-
-        self._category = category
-
-    @property
-    def image(self):
-        """
-        Gets the image of this Footprint.
-
-        :return: The image of this Footprint.
-        :rtype: UploadFile
-        """
-        return self._image
-
-    @image.setter
-    def image(self, image):
-        """
-        Sets the image of this Footprint.
-
-        :param image: The image of this Footprint.
-        :type: UploadFile
-        """
-
-        self._image = image
-
-    @property
     def footprint(self):
         """
         Gets the footprint of this Footprint.
 
         :return: The footprint of this Footprint.
-        :rtype: UploadFile
+        :rtype: VersionedFile
         """
         return self._footprint
 
@@ -325,7 +247,7 @@ class Footprint(object):
         Sets the footprint of this Footprint.
 
         :param footprint: The footprint of this Footprint.
-        :type: UploadFile
+        :type: VersionedFile
         """
 
         self._footprint = footprint

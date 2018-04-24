@@ -6,9 +6,5 @@ allOf:
       - description
       - comment
     properties:
-      category:
-        $ref: "./footprint/category/FootprintCategoryRef.yaml"
-      image:
-        $ref: "./upload/UploadFileRef.yaml"
       footprint:
-        $ref: "./upload/UploadFileRef.yaml"
+        $ref: "./version/VersionedFileRef.yaml"

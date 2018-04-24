@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Nov  6 2017)
+## Python code generated with wxFormBuilder (version Dec 22 2017)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -18,7 +18,7 @@ import wx.dataview
 class PanelParts ( wx.Panel ):
 	
 	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1086,756 ), style = wx.TAB_TRAVERSAL )
+		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1361,756 ), style = wx.TAB_TRAVERSAL )
 		
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -147,21 +147,6 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer11.Add( bSizer61, 0, 0, 5 )
 		
-		bSizer111 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.button_import_parts = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/import.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		self.button_import_parts.SetToolTip( u"wx.ToolTip(\"Import Parts List\")" )
-		
-		bSizer111.Add( self.button_import_parts, 0, wx.ALL, 5 )
-		
-		self.button_export_parts = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/export.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		self.button_export_parts.SetToolTip( u"wx.ToolTip(\"Export Parts List\")" )
-		
-		bSizer111.Add( self.button_export_parts, 0, wx.ALL, 5 )
-		
-		
-		bSizer11.Add( bSizer111, 1, wx.EXPAND, 5 )
-		
 		
 		bSizer12.Add( bSizer11, 0, wx.EXPAND, 5 )
 		
@@ -191,7 +176,7 @@ class PanelParts ( wx.Panel ):
 		self.m_panel3.SetSizer( bSizer3 )
 		self.m_panel3.Layout()
 		bSizer3.Fit( self.m_panel3 )
-		self.m_splitter2.SplitVertically( self.m_panel6, self.m_panel3, 294 )
+		self.m_splitter2.SplitVertically( self.m_panel6, self.m_panel3, 471 )
 		bSizer1.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
 		
 		
@@ -200,6 +185,14 @@ class PanelParts ( wx.Panel ):
 		self.menu_parts = wx.Menu()
 		self.menu_parts_refresh_octopart = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Refresh octopart parts", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_parts.Append( self.menu_parts_refresh_octopart )
+		
+		self.menu_parts.AppendSeparator()
+		
+		self.menu_parts_import_parts = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Import parts", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parts.Append( self.menu_parts_import_parts )
+		
+		self.menu_parts_export_parts = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Export parts", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parts.Append( self.menu_parts_export_parts )
 		
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelPartsOnContextMenu ) 
 		
@@ -217,11 +210,11 @@ class PanelParts ( wx.Panel ):
 		self.search_parts.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchPartsButton )
 		self.search_parts.Bind( wx.EVT_TEXT_ENTER, self.onSearchPartsTextEnter )
 		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
-		self.button_import_parts.Bind( wx.EVT_BUTTON, self.onButtonImportPartsClick )
-		self.button_export_parts.Bind( wx.EVT_BUTTON, self.onButtonExportPartsClick )
 		self.Bind( wx.EVT_MENU, self.onMenuParametersAddSelection, id = self.menu_parameters_add.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuParametersRemoveSelection, id = self.menu_parameters_remove.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsRefreshOctopart, id = self.menu_parts_refresh_octopart.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuItemPartsImportParts, id = self.menu_parts_import_parts.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuItemPartsExportParts, id = self.menu_parts_export_parts.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -264,12 +257,6 @@ class PanelParts ( wx.Panel ):
 	def onButtonRefreshPartsClick( self, event ):
 		event.Skip()
 	
-	def onButtonImportPartsClick( self, event ):
-		event.Skip()
-	
-	def onButtonExportPartsClick( self, event ):
-		event.Skip()
-	
 	def onMenuParametersAddSelection( self, event ):
 		event.Skip()
 	
@@ -279,8 +266,14 @@ class PanelParts ( wx.Panel ):
 	def onMenuItemPartsRefreshOctopart( self, event ):
 		event.Skip()
 	
+	def onMenuItemPartsImportParts( self, event ):
+		event.Skip()
+	
+	def onMenuItemPartsExportParts( self, event ):
+		event.Skip()
+	
 	def m_splitter2OnIdle( self, event ):
-		self.m_splitter2.SetSashPosition( 294 )
+		self.m_splitter2.SetSashPosition( 471 )
 		self.m_splitter2.Unbind( wx.EVT_IDLE )
 	
 	def panel_partsOnContextMenu( self, event ):

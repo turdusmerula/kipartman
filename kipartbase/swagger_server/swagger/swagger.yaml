@@ -1638,22 +1638,14 @@ definitions:
         id:
           type: "integer"
           format: "int64"
-        category:
-          $ref: "#/definitions/FootprintCategory"
-        image:
-          $ref: "#/definitions/UploadFile"
         footprint:
-          $ref: "#/definitions/UploadFile"
+          $ref: "#/definitions/VersionedFile"
   FootprintNew:
     allOf:
     - $ref: "#/definitions/FootprintData"
     - properties:
-        category:
-          $ref: "#/definitions/FootprintCategoryRef"
-        image:
-          $ref: "#/definitions/UploadFileRef"
         footprint:
-          $ref: "#/definitions/UploadFileRef"
+          $ref: "#/definitions/VersionedFileRef"
   SymbolCategory:
     allOf:
     - $ref: "#/definitions/SymbolCategoryData"
@@ -1686,22 +1678,14 @@ definitions:
         id:
           type: "integer"
           format: "int64"
-        category:
-          $ref: "#/definitions/SymbolCategory"
-        image:
-          $ref: "#/definitions/UploadFile"
         symbol:
-          $ref: "#/definitions/UploadFile"
+          $ref: "#/definitions/VersionedFile"
   SymbolNew:
     allOf:
     - $ref: "#/definitions/SymbolData"
     - properties:
-        category:
-          $ref: "#/definitions/SymbolCategoryRef"
-        image:
-          $ref: "#/definitions/UploadFileRef"
         Symbol:
-          $ref: "#/definitions/UploadFileRef"
+          $ref: "#/definitions/VersionedFileRef"
   Distributor:
     allOf:
     - $ref: "#/definitions/DistributorData"
@@ -1938,9 +1922,7 @@ definitions:
       updated:
         type: "string"
         format: "date-time"
-      local_footprint:
-        type: "string"
-  UploadFileRef:
+  VersionedFileRef:
     type: "object"
     required:
     - "id"

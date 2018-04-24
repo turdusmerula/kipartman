@@ -77,7 +77,8 @@ class SelectSymbolFrame(PanelSelectSymbol):
 
     def load(self):
         try:
-            self.loadSymbols()
+            #self.loadSymbols()
+            pass
         except Exception as e:
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 

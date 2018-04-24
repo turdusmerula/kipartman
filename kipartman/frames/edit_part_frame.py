@@ -6,7 +6,7 @@ from frames.part_distributors_frame import PartDistributorsFrame
 from frames.part_manufacturers_frame import PartManufacturersFrame
 from frames.part_attachements_frame import PartAttachementsFrame
 from frames.part_storages_frame import PartStoragesFrame
-from frames.part_ecad_data_frame import PartEcadDataFrame
+from frames.part_preview_data_frame import PartPreviewDataFrame
 from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
@@ -15,6 +15,7 @@ import datetime
 import re
 import rest
 from octopart.extractor import OctopartExtractor
+import os
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -31,8 +32,8 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_parameters = PartParametersFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_parameters, "Parameters")
         
-        self.edit_part_ecad_data = PartEcadDataFrame(self.notebook_part)
-        self.notebook_part.AddPage(self.edit_part_ecad_data, "ECADdata")
+        self.edit_part_preview_data = PartPreviewDataFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_preview_data, "Preview")
 
         self.edit_part_distributors = PartDistributorsFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_distributors, "Distributors")
@@ -54,7 +55,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_manufacturers.SetPart(part)
         self.edit_part_storages.SetPart(part)
         self.edit_part_attachements.SetPart(part)
-        self.edit_part_ecad_data.SetPart(part)
+        self.edit_part_preview_data.SetPart(part)
         
     def ShowPart(self, part):
         if part:
@@ -97,7 +98,7 @@ class EditPartFrame(PanelEditPart):
     
     def onSetFootprintCallback(self, footprint):
         if footprint:
-            self.button_part_footprint.Label = footprint.name
+            self.button_part_footprint.Label = os.path.basename(footprint.source_path).replace('.kicad_mod', '')
         else:
             self.button_part_footprint.Label = "<none>"
         self.part.footprint = footprint

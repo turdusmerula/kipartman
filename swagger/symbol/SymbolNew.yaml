@@ -6,9 +6,5 @@ allOf:
       - description
       - comment
     properties:
-      category:
-        $ref: "./symbol/category/SymbolCategoryRef.yaml"
-      image:
-        $ref: "./upload/UploadFileRef.yaml"
       Symbol:
-        $ref: "./upload/UploadFileRef.yaml"
+        $ref: "./version/VersionedFileRef.yaml"
