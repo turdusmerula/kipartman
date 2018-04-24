@@ -9,6 +9,7 @@ from typing import List, Dict
 from six import iteritems
 from ..util import deserialize_date, deserialize_datetime
 import json
+import pyrfc3339
 
 import api.models
 import api.versioned_file_storage
@@ -57,8 +58,9 @@ def file_changed(file, ffile):
         file.metadata!=ffile.metadata         
 
 def file_updated(file, ffile):
+    print "%%%%", file.updated, ffile.updated
     if file.updated:
-        return file.updated>ffile.updated
+        return pyrfc3339.parser.parse(file.updated)>ffile.updated
     return False
 
 def update_file_state(file):
