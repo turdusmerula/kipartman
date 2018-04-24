@@ -126,10 +126,10 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
         if col<6:
             symbol = ''
             if self.part.symbol:
-                symbol = self.part.symbol.name
+                symbol = os.path.basename(self.part.symbol.source_path).replace('.mod', '')
             footprint = ''
             if self.part.footprint:
-                footprint = self.part.footprint.name
+                footprint = os.path.basename(self.part.footprint.source_path).replace('.kicad_mod', '')
             
             vMap = { 
                 0 : str(self.part.id),

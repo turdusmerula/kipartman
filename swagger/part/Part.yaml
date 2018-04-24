@@ -20,9 +20,9 @@ allOf:
         items: 
           $ref: "./part/Part.yaml"
       footprint:
-        $ref: "./footprint/Footprint.yaml"
+        $ref: "./version/VersionedFile.yaml"
       symbol:
-        $ref: "./symbol/Symbol.yaml"
+        $ref: "./version/VersionedFile.yaml"
       parameters:
         type: "array"
         items: 

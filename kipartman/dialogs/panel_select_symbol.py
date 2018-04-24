@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Jul 12 2017)
+## Python code generated with wxFormBuilder (version Dec 22 2017)
 ## http://www.wxformbuilder.org/
 ##
-## PLEASE DO "NOT" EDIT THIS FILE!
+## PLEASE DO *NOT* EDIT THIS FILE!
 ###########################################################################
 
 import wx
@@ -39,8 +39,17 @@ class PanelSelectSymbol ( wx.Panel ):
 		
 		bSizer2.Add( bSizer4, 1, wx.EXPAND, 5 )
 		
-		self.image_symbol = wx.StaticBitmap( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer2.Add( self.image_symbol, 1, wx.ALL|wx.EXPAND, 5 )
+		self.panel_image_symbol = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer41 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.image_symbol = wx.StaticBitmap( self.panel_image_symbol, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer41.Add( self.image_symbol, 1, wx.ALL|wx.EXPAND, 5 )
+		
+		
+		self.panel_image_symbol.SetSizer( bSizer41 )
+		self.panel_image_symbol.Layout()
+		bSizer41.Fit( self.panel_image_symbol )
+		bSizer2.Add( self.panel_image_symbol, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		
 		bSizer16.Add( bSizer2, 1, wx.EXPAND, 5 )

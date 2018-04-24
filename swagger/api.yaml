@@ -50,33 +50,6 @@ paths:
     $ref: './unit/unitprefix.yaml'
 
 
-  /footprints/categories:
-    $ref: './footprint/category/categories.yaml'
-    
-  /footprints/category/{category_id}:
-    $ref: './footprint/category/category.yaml'
-
-  /footprints:
-    $ref: './footprint/footprints.yaml'
-
-  /footprint/{footprint_id}:
-    $ref: './footprint/footprint.yaml'
-
-
-
-  /symbols/categories:
-    $ref: './symbol/category/categories.yaml'
-    
-  /symbols/category/{category_id}:
-    $ref: './symbol/category/category.yaml'
-
-  /symbols:
-    $ref: './symbol/symbols.yaml'
-
-  /symbol/{symbol_id}:
-    $ref: './symbol/symbol.yaml'
-
-
 
   /distributors:
     $ref: './distributor/distributors.yaml'

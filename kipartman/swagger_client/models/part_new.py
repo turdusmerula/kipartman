@@ -39,8 +39,8 @@ class PartNew(object):
         'updated': 'datetime',
         'category': 'PartCategoryRef',
         'childs': 'list[PartRef]',
-        'footprint': 'FootprintRef',
-        'symbol': 'SymbolRef',
+        'footprint': 'VersionedFileRef',
+        'symbol': 'VersionedFileRef',
         'parameters': 'list[PartParameter]',
         'distributors': 'list[PartDistributor]',
         'manufacturers': 'list[PartManufacturer]',
@@ -292,7 +292,7 @@ class PartNew(object):
         Gets the footprint of this PartNew.
 
         :return: The footprint of this PartNew.
-        :rtype: FootprintRef
+        :rtype: VersionedFileRef
         """
         return self._footprint
 
@@ -302,7 +302,7 @@ class PartNew(object):
         Sets the footprint of this PartNew.
 
         :param footprint: The footprint of this PartNew.
-        :type: FootprintRef
+        :type: VersionedFileRef
         """
 
         self._footprint = footprint
@@ -313,7 +313,7 @@ class PartNew(object):
         Gets the symbol of this PartNew.
 
         :return: The symbol of this PartNew.
-        :rtype: SymbolRef
+        :rtype: VersionedFileRef
         """
         return self._symbol
 
@@ -323,7 +323,7 @@ class PartNew(object):
         Sets the symbol of this PartNew.
 
         :param symbol: The symbol of this PartNew.
-        :type: SymbolRef
+        :type: VersionedFileRef
         """
 
         self._symbol = symbol

@@ -63,11 +63,11 @@ class EditPartFrame(PanelEditPart):
             self.edit_part_description.Value = NoneValue(part.description, "")
             self.edit_part_comment.Value = NoneValue(part.comment, '')
             if part.footprint:
-                self.button_part_footprint.Label = NoneValue(part.footprint.name, "")
+                self.button_part_footprint.Label = os.path.basename(part.footprint.source_path).replace(".kicad_mod", "")
             else:
                 self.button_part_footprint.Label = "<none>"
             if part.symbol:
-                self.button_part_symbol.Label = NoneValue(part.symbol.name, "")
+                self.button_part_symbol.Label = os.path.basename(part.symbol.source_path).replace(".mod", "")
             else:
                 self.button_part_symbol.Label = "<none>"
         else:
@@ -110,7 +110,7 @@ class EditPartFrame(PanelEditPart):
     
     def onSetSymbolCallback(self, symbol):
         if symbol:
-            self.button_part_symbol.Label = symbol.name
+            self.button_part_symbol.Label = os.path.basename(symbol.source_path).replace('.mod', '')
         else:
             self.button_part_symbol.Label = "<none>"
         self.part.symbol = symbol

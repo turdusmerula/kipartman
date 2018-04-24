@@ -400,3 +400,16 @@ def update_versioned_files(files, force=None):
 
     #print "----", update_files
     return update_files 
+
+def find_versioned_file(file_id):
+    try:
+        ffile = api.models.VersionedFile.objects.get(pk=file_id)
+    except:
+        return Error(code=1000, message='File %d does not exists'%file_id), 403
+    
+    try:
+        file = serialize_VersionedFile(ffile)
+    except ControllerError as e:
+        return e.error, 403
+    
+    return file

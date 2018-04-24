@@ -41,8 +41,8 @@ class Part(object):
         'category': 'PartCategory',
         'has_childs': 'int',
         'childs': 'list[Part]',
-        'footprint': 'Footprint',
-        'symbol': 'Symbol',
+        'footprint': 'VersionedFile',
+        'symbol': 'VersionedFile',
         'parameters': 'list[PartParameter]',
         'distributors': 'list[PartDistributor]',
         'manufacturers': 'list[PartManufacturer]',
@@ -345,7 +345,7 @@ class Part(object):
         Gets the footprint of this Part.
 
         :return: The footprint of this Part.
-        :rtype: Footprint
+        :rtype: VersionedFile
         """
         return self._footprint
 
@@ -355,7 +355,7 @@ class Part(object):
         Sets the footprint of this Part.
 
         :param footprint: The footprint of this Part.
-        :type: Footprint
+        :type: VersionedFile
         """
 
         self._footprint = footprint
@@ -366,7 +366,7 @@ class Part(object):
         Gets the symbol of this Part.
 
         :return: The symbol of this Part.
-        :rtype: Symbol
+        :rtype: VersionedFile
         """
         return self._symbol
 
@@ -376,7 +376,7 @@ class Part(object):
         Sets the symbol of this Part.
 
         :param symbol: The symbol of this Part.
-        :type: Symbol
+        :type: VersionedFile
         """
 
         self._symbol = symbol

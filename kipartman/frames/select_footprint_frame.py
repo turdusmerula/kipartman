@@ -5,13 +5,10 @@ import os
 from kicad.kicad_file_manager import KicadFileManagerPretty
 from kicad import kicad_mod_file
 import sync.version_manager
-import re
 from configuration import Configuration
 import tempfile
 
 class DataModelFootprintPath(helper.tree.TreeContainerItem):
-    image_none = None
-    
     def __init__(self, path):
         super(DataModelFootprintPath, self).__init__()
         self.path = path
@@ -40,7 +37,6 @@ class DataModelFootprint(helper.tree.TreeItem):
         vMap = {
             0 : name, 
         }
-#        return wx.dataview.DataViewIconText(vMap[col], None)
         return vMap[col]
 
 
@@ -65,7 +61,7 @@ class TreeManagerFootprints(helper.tree.TreeManager):
 
     def FindFootprint(self, path):
         for data in self.data:
-            if isinstance(data, DataModelFootprintPath) and data.path==os.path.normpath(path):
+            if isinstance(data, DataModelFootprint) and data.footprint.source_path==os.path.normpath(path):
                 return data
         return None
 

@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from __future__ import absolute_import
-from swagger_server.models.footprint import Footprint
 
 from swagger_server.models.part_attachement import PartAttachement
 from swagger_server.models.part_category import PartCategory
@@ -10,7 +9,7 @@ from swagger_server.models.part_distributor import PartDistributor
 from swagger_server.models.part_manufacturer import PartManufacturer
 from swagger_server.models.part_parameter import PartParameter
 from swagger_server.models.part_storage import PartStorage
-from swagger_server.models.symbol import Symbol
+from swagger_server.models.versioned_file import VersionedFile
 from .base_model_ import Model
 from datetime import date, datetime
 from typing import List, Dict
@@ -47,9 +46,9 @@ class Part(Model):
         :param childs: The childs of this Part.
         :type childs: List[Part]
         :param footprint: The footprint of this Part.
-        :type footprint: Footprint
+        :type footprint: VersionedFile
         :param symbol: The symbol of this Part.
-        :type symbol: Symbol
+        :type symbol: VersionedFile
         :param parameters: The parameters of this Part.
         :type parameters: List[PartParameter]
         :param distributors: The distributors of this Part.
@@ -72,8 +71,8 @@ class Part(Model):
             'category': PartCategory,
             'has_childs': int,
             'childs': List[Part],
-            'footprint': Footprint,
-            'symbol': Symbol,
+            'footprint': VersionedFile,
+            'symbol': VersionedFile,
             'parameters': List[PartParameter],
             'distributors': List[PartDistributor],
             'manufacturers': List[PartManufacturer],
@@ -349,7 +348,7 @@ class Part(Model):
         Gets the footprint of this Part.
 
         :return: The footprint of this Part.
-        :rtype: Footprint
+        :rtype: VersionedFile
         """
         return self._footprint
 
@@ -359,7 +358,7 @@ class Part(Model):
         Sets the footprint of this Part.
 
         :param footprint: The footprint of this Part.
-        :type footprint: Footprint
+        :type footprint: VersionedFile
         """
 
         self._footprint = footprint
@@ -370,7 +369,7 @@ class Part(Model):
         Gets the symbol of this Part.
 
         :return: The symbol of this Part.
-        :rtype: Symbol
+        :rtype: VersionedFile
         """
         return self._symbol
 
@@ -380,7 +379,7 @@ class Part(Model):
         Sets the symbol of this Part.
 
         :param symbol: The symbol of this Part.
-        :type symbol: Symbol
+        :type symbol: VersionedFile
         """
 
         self._symbol = symbol

@@ -22,12 +22,11 @@ from swagger_server.controllers.controller_part_offer import deserialize_PartOff
 
 from django.db.models import Q
 import api.models
-from swagger_server.controllers.controller_footprint import find_footprint
-from swagger_server.controllers.controller_symbol import find_symbol
 from swagger_server.controllers.controller_part_manufacturer import find_part_manufacturers
 from swagger_server.controllers.controller_part_storage import find_part_storages
 from swagger_server.controllers.controller_upload_file import find_upload_file
 from swagger_server.controllers.helpers import raise_on_error, ControllerError
+from swagger_server.controllers.controller_versioned_file import find_versioned_file
 
 def serialize_PartData(fpart, part=None, with_parameters=True):
     if part is None:
@@ -53,9 +52,9 @@ def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, wit
     if fpart.category:
         part.category = raise_on_error(find_parts_category(fpart.category.id))
     if fpart.footprint:
-        part.footprint = raise_on_error(find_footprint(fpart.footprint.id))
+        part.footprint = raise_on_error(find_versioned_file(fpart.footprint.id))
     if fpart.symbol:
-        part.symbol = raise_on_error(find_symbol(fpart.symbol.id))
+        part.symbol = raise_on_error(find_versioned_file(fpart.symbol.id))
     # extract childs
     if with_childs:
         part.childs = []
@@ -113,7 +112,7 @@ def deserialize_PartNew(part, fpart=None):
 
     if part.footprint:
         try:
-            fpart.footprint = api.models.Footprint.objects.get(pk=part.footprint.id)
+            fpart.footprint = api.models.VersionedFile.objects.get(pk=part.footprint.id)
         except:
             raise_on_error(Error(code=1000, message='Footprint %d does not exists'%part.footprint.id))
     else:
@@ -121,7 +120,7 @@ def deserialize_PartNew(part, fpart=None):
 
     if part.symbol:
         try:
-            fpart.symbol = api.models.Symbol.objects.get(pk=part.symbol.id)
+            fpart.symbol = api.models.VersionedFile.objects.get(pk=part.symbol.id)
         except:
             raise_on_error(Error(code=1000, message='Symbol %d does not exists'%part.symbol.id))
     else:

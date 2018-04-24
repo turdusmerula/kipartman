@@ -1,7 +1,0 @@
-symbol_id:
-  name: symbol_id
-  in: path
-  description: Footprint id
-  required: true
-  type: integer
-  format: int64

@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from __future__ import absolute_import
-from swagger_server.models.footprint_ref import FootprintRef
 from swagger_server.models.part_attachement import PartAttachement
 from swagger_server.models.part_category_ref import PartCategoryRef
 from swagger_server.models.part_data import PartData
@@ -10,7 +9,7 @@ from swagger_server.models.part_manufacturer import PartManufacturer
 from swagger_server.models.part_parameter import PartParameter
 from swagger_server.models.part_ref import PartRef
 from swagger_server.models.part_storage import PartStorage
-from swagger_server.models.symbol_ref import SymbolRef
+from swagger_server.models.versioned_file_ref import VersionedFileRef
 from .base_model_ import Model
 from datetime import date, datetime
 from typing import List, Dict
@@ -43,9 +42,9 @@ class PartNew(Model):
         :param childs: The childs of this PartNew.
         :type childs: List[PartRef]
         :param footprint: The footprint of this PartNew.
-        :type footprint: FootprintRef
+        :type footprint: VersionedFileRef
         :param symbol: The symbol of this PartNew.
-        :type symbol: SymbolRef
+        :type symbol: VersionedFileRef
         :param parameters: The parameters of this PartNew.
         :type parameters: List[PartParameter]
         :param distributors: The distributors of this PartNew.
@@ -66,8 +65,8 @@ class PartNew(Model):
             'updated': datetime,
             'category': PartCategoryRef,
             'childs': List[PartRef],
-            'footprint': FootprintRef,
-            'symbol': SymbolRef,
+            'footprint': VersionedFileRef,
+            'symbol': VersionedFileRef,
             'parameters': List[PartParameter],
             'distributors': List[PartDistributor],
             'manufacturers': List[PartManufacturer],
@@ -295,7 +294,7 @@ class PartNew(Model):
         Gets the footprint of this PartNew.
 
         :return: The footprint of this PartNew.
-        :rtype: FootprintRef
+        :rtype: VersionedFileRef
         """
         return self._footprint
 
@@ -305,7 +304,7 @@ class PartNew(Model):
         Sets the footprint of this PartNew.
 
         :param footprint: The footprint of this PartNew.
-        :type footprint: FootprintRef
+        :type footprint: VersionedFileRef
         """
 
         self._footprint = footprint
@@ -316,7 +315,7 @@ class PartNew(Model):
         Gets the symbol of this PartNew.
 
         :return: The symbol of this PartNew.
-        :rtype: SymbolRef
+        :rtype: VersionedFileRef
         """
         return self._symbol
 
@@ -326,7 +325,7 @@ class PartNew(Model):
         Sets the symbol of this PartNew.
 
         :param symbol: The symbol of this PartNew.
-        :type symbol: SymbolRef
+        :type symbol: VersionedFileRef
         """
 
         self._symbol = symbol

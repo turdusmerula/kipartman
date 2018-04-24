@@ -1,8 +1,0 @@
-type: object
-allOf:
-  - $ref: './symbol/category/SymbolCategoryData.yaml'
-  - required:
-      - name
-    properties:
-      parent:
-        $ref: "./symbol/category/SymbolCategoryRef.yaml"
