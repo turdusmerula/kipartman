@@ -10,7 +10,7 @@ from django.conf import settings
 from os.path import expanduser
 home = expanduser("~")
 
-options = {'STORAGE_PATH': home+'/.kipartman/storage', 'SUB_LEVELS': 3, 'SUB_LEVEL_SIZE': 2}
+options = {'STORAGE_PATH': os.path.join(os.environ['DATA_DIR'], 'storage'), 'SUB_LEVELS': 3, 'SUB_LEVEL_SIZE': 2}
 
 
 class FileStorage(object):

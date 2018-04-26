@@ -13,7 +13,7 @@ import api.models
 from os.path import expanduser
 home = expanduser("~")
 
-options = {'STORAGE_PATH': home+'/.kipartman/version_storage', 'SUB_LEVELS': 3, 'SUB_LEVEL_SIZE': 2}
+options = {'STORAGE_PATH': os.path.join(os.environ['DATA_DIR'], 'version_storage'), 'SUB_LEVELS': 3, 'SUB_LEVEL_SIZE': 2}
 
 
 class VersionedFileStorage(object):
@@ -39,7 +39,7 @@ class VersionedFileStorage(object):
         levels = self.get_sublevels(md5)
         
         # get current sublevel
-        storage_path = self.storage_path
+        storage_path = ''
 
         # create sublevels
         for level in levels:
@@ -50,13 +50,14 @@ class VersionedFileStorage(object):
     
     def add_file(self, version_file):
         storage_path = self.get_storage_path(version_file)
-
-        if not os.path.exists(os.path.dirname(storage_path)):
-            os.makedirs(os.path.dirname(storage_path))
+        abs_storage_path = os.path.join(self.storage_path, storage_path)
+        
+        if not os.path.exists(os.path.dirname(abs_storage_path)):
+            os.makedirs(os.path.dirname(abs_storage_path))
         
         # create file
         md5 = hashlib.md5(version_file.content).hexdigest()
-        with open(os.path.join(self.storage_path, storage_path), 'wb') as outfile:
+        with open(abs_storage_path, 'wb') as outfile:
             outfile.write(version_file.content)
             outfile.close()
 

@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
+
+#
+# To publish package release
+# python setup.py sdist upload -r pypi
+#
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -16,7 +22,7 @@ def read(*names, **kwargs):
 
 setup(
     name='kipartman',
-    version='0.5.3',
+    version='0.5.4',
     description='Kicad part manager',
 #     long_description='%s\n%s' %
 #     (re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub(
@@ -63,5 +69,4 @@ setup(
          'setuptools',
     ],
 )
-
 

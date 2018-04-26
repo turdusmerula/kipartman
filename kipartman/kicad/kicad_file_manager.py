@@ -422,7 +422,7 @@ class KicadLibCache(object):
             self.libs[lib_path] = {}
             for symbol in symbols:
                 meta = {}
-                if metadata.has_key(symbol):
+                if metadata and metadata.has_key(symbol):
                     meta = metadata[symbol]
                 print "%$$$", symbol, meta
                 self.libs[lib_path][symbol] = KicadLibCacheElement(content=symbols[symbol], metadata=meta)

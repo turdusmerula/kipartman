@@ -94,52 +94,6 @@ def load_unit_prefixes(apps, schema_editor):
             print "Add ", prefix.name
             prefix.save()
 
-# create default values for units
-def load_currencies(apps, schema_editor):
-    Currency = apps.get_model("api", "Currency")
-
-    currencies = [
-        Currency(name='EUR', symbol='€', base='EUR', ratio=1),
-        Currency(name='AUD', symbol='AUD', base='EUR', ratio=1.5382),
-        Currency(name='BGN', symbol='BGN', base='EUR', ratio=1.9558),
-        Currency(name='BRL', symbol='BRL', base='EUR', ratio=3.9171),
-        Currency(name='CAD', symbol='CAD', base='EUR', ratio=1.507),
-        Currency(name='CHF', symbol='CHF', base='EUR', ratio=1.1669),
-        Currency(name='CNY', symbol='CNY', base='EUR', ratio=7.8022),
-        Currency(name='CZK', symbol='CZK', base='EUR', ratio=25.678),
-        Currency(name='DKK', symbol='DKK', base='EUR', ratio=7.4443),
-        Currency(name='GBP', symbol='GBP', base='EUR', ratio=0.88253),
-        Currency(name='HKD', symbol='HKD', base='EUR', ratio=9.2223),
-        Currency(name='HRK', symbol='HRK', base='EUR', ratio=7.5465),
-        Currency(name='HUF', symbol='HUF', base='EUR', ratio=313.43),
-        Currency(name='IDR', symbol='IDR', base='EUR', ratio=16029.0),
-        Currency(name='ILS', symbol='ILS', base='EUR', ratio=4.1634),
-        Currency(name='INR', symbol='INR', base='EUR', ratio=75.608),
-        Currency(name='JPY', symbol='JPY', base='EUR', ratio=132.45),
-        Currency(name='KRW', symbol='KRW', base='EUR', ratio=1284.7),
-        Currency(name='MXN', symbol='MXN', base='EUR', ratio=22.628),
-        Currency(name='MYR', symbol='MYR', base='EUR', ratio=4.8163),
-        Currency(name='NOK', symbol='NOK', base='EUR', ratio=9.7828),
-        Currency(name='NZD', symbol='NZD', base='EUR', ratio=1.6803),
-        Currency(name='PHP', symbol='PHP', base='EUR', ratio=59.528),
-        Currency(name='PLN', symbol='PLN', base='EUR', ratio=4.2167),
-        Currency(name='RON', symbol='RON', base='EUR', ratio=4.6332),
-        Currency(name='RUB', symbol='RUB', base='EUR', ratio=69.504),
-        Currency(name='SEK', symbol='SEK', base='EUR', ratio=9.9583),
-        Currency(name='SGD', symbol='SGD', base='EUR', ratio=1.5897),
-        Currency(name='THB', symbol='THB', base='EUR', ratio=38.375),
-        Currency(name='TRY', symbol='TRY', base='EUR', ratio=4.5603),
-        Currency(name='USD', symbol='$', base='EUR', ratio=1.1806),
-        Currency(name='ZAR', symbol='ZAR', base='EUR', ratio=15.781),
-    ]
-    
-    for currency in currencies:
-        try:
-            Currency.objects.get(name=currency.name)
-        except Currency.DoesNotExist:
-            print "Add ", currency.name
-            currency.save()
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -149,5 +103,4 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(load_units),
         migrations.RunPython(load_unit_prefixes),
-        migrations.RunPython(load_currencies)
     ]

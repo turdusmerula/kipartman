@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import connexion
 from swagger_server.encoder import JSONEncoder
 from os.path import expanduser
+import argparse
 
 home = expanduser("~")
 
@@ -42,15 +43,29 @@ def serve(args=None):
     from flask import Flask, request, send_from_directory
     @app.route('/file/<path:path>')
     def send_js(path):
-        return send_from_directory(home+'/.kipartman/storage', path)
+        return send_from_directory(os.path.join(os.environ['DATA_DIR'], '/storage'), path)
 
     app.run(port=8200, debug=True)
 
+    
+def main(args=None):
+    """The main routine."""
 
-def main():
-    data_path = os.path.join(home, '.kipartman')
-    if os.path.exists(data_path)==False:
-        os.mkdir(os.path.join(home, '.kipartman'))
+    if args is None:
+        args = sys.argv[1:]
+    
+    parser = argparse.ArgumentParser(description='Kipartbase, the kicad part manager backend')
+    parser.add_argument('-d', '--data', help='data dir (default: ~/.kipartman)')
+
+    args = parser.parse_args(args)
+
+    if args.data:
+        os.environ['DATA_DIR'] = args.data
+    else:
+        os.environ['DATA_DIR'] = os.getenv('KIPARTBASE_PATH', os.path.join(os.path.expanduser("~"), '.kipartman'))
+        
+    if os.path.exists(os.environ['DATA_DIR'])==False:
+        os.mkdir(os.environ['DATA_DIR'])
     
     os.chdir(os.path.dirname(__file__))
 
