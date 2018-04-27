@@ -220,9 +220,9 @@ class TreeModelParts(TreeModel):
 
 
 class TreeManagerParts(helper.tree.TreeManager):
-    def __init__(self, tree_view):
+    def __init__(self, tree_view, *args, **kwargs):
         model = TreeModelParts()
-        super(TreeManagerParts, self).__init__(tree_view, model)
+        super(TreeManagerParts, self).__init__(tree_view, model, *args, **kwargs)
         
     def FindPart(self, part_id):
         for data in self.data:
@@ -315,17 +315,19 @@ class PartsFrame(PanelParts):
         super(PartsFrame, self).__init__(parent)
         
         # create categories list
-        self.tree_categories_manager = helper.tree.TreeManager(self.tree_categories)
+        self.tree_categories_manager = helper.tree.TreeManager(self.tree_categories, context_menu=self.menu_category)
         self.tree_categories_manager.AddTextColumn("name")
         self.tree_categories_manager.AddTextColumn("description")
         self.tree_categories_manager.DropAccept(DataModelCategory, self.onTreeCategoriesDropCategory)
         self.tree_categories_manager.DropAccept(DataModelPart, self.onTreeCategoriesDropPart)
         self.tree_categories_manager.OnSelectionChanged = self.onTreeCategoriesSelChanged
+        self.tree_categories_manager.OnItemBeforeContextMenu = self.onTreeCategoriesBeforeContextMenu
+
         # parts filters
         self.parts_filter = Filter(self.filters_panel, self.onButtonRemoveFilterClick)
         
         # create parts list
-        self.tree_parts_manager = TreeManagerParts(self.tree_parts)
+        self.tree_parts_manager = TreeManagerParts(self.tree_parts, context_menu=self.menu_part)
         self.tree_parts_manager.AddIntegerColumn("id")
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
@@ -335,6 +337,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
         self.tree_parts_manager.OnColumnHeaderRightClick = self.onTreePartsColumnHeaderRightClick
         self.tree_parts_manager.DropAccept(DataModelPart, self.onTreePartsDropPart)
+        self.tree_parts_manager.OnItemBeforeContextMenu = self.onTreePartsBeforeContextMenu
         
         # 
         # create edit part panel
@@ -342,6 +345,8 @@ class PartsFrame(PanelParts):
         self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
         self.panel_edit_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
         self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+
+        self.toolbar_part.ToggleTool(self.toggle_part_path.GetId(), True)
 
         # initial edit state
         self.show_part(None)
@@ -623,7 +628,8 @@ class PartsFrame(PanelParts):
     def onButtonRefreshCategoriesClick( self, event ):
         self.loadCategories()
 
-    def onButtonAddCategoryClick( self, event ):
+
+    def onMenuCategoryAddCategory( self, event ):
         category = EditCategoryFrame(self).addCategory(rest.model.PartCategoryNew)
         if category:
             try:
@@ -645,7 +651,7 @@ class PartsFrame(PanelParts):
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-    def onButtonEditCategoryClick( self, event ):
+    def onMenuCategoryEditCategory( self, event ):
         sel = self.tree_categories.GetSelection()
         if sel.IsOk()==False:
             return
@@ -661,7 +667,7 @@ class PartsFrame(PanelParts):
             except Exception as e:
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-    def onButtonRemoveCategoryClick( self, event ):
+    def onMenuCategoryRemoveCategory( self, event ):
         sel = self.tree_categories.GetSelection()
         categoryobj = self.tree_categories_manager.ItemToObject(sel)
         if categoryobj is None:
@@ -696,6 +702,19 @@ class PartsFrame(PanelParts):
             self.parts_filter.add('category', category.category.id, category.category.name)
         # apply new filter and reload
         self.loadParts()
+
+    def onTreeCategoriesBeforeContextMenu( self, event ):
+        item = self.tree_categories.GetSelection()
+        obj = None
+        if item.IsOk():
+            obj = self.tree_categories_manager.ItemToObject(item)
+
+        self.menu_category_add_category.Enable(True)
+        self.menu_category_edit_category.Enable(True)
+        self.menu_category_remove_category.Enable(True)
+        if isinstance(obj, DataModelCategory)==False:
+            self.menu_category_edit_category.Enable(False)
+            self.menu_category_remove_category.Enable(False)
 
     def onTreeCategoriesDropCategory(self, x, y, data):
         dest_categoryitem, _ = self.tree_categories.HitTest((x, y))
@@ -756,8 +775,8 @@ class PartsFrame(PanelParts):
         return wx.DragMove
 
 
-    def onToggleCategoryPathButton( self, event ):
-        self.show_categories = self.toggle_category_path.GetValue()
+    def onToggleCategoryPathClicked( self, event ):
+        self.show_categories = self.toolbar_part.GetToolState(self.toggle_part_path.GetId())
         self.loadParts()
     
     def onTreePartsSelChanged( self, event ):
@@ -771,6 +790,19 @@ class PartsFrame(PanelParts):
             self.load_full_part(obj)
             part = obj.part
         self.show_part(part)
+
+    def onTreePartsBeforeContextMenu( self, event ):
+        item = self.tree_parts.GetSelection()
+        obj = None
+        if item.IsOk():
+            obj = self.tree_parts_manager.ItemToObject(item)
+
+        self.menu_part_add_part.Enable(True)
+        self.menu_part_edit_part.Enable(True)
+        self.menu_part_remove_part.Enable(True)
+        if isinstance(obj, DataModelPart)==False:
+            self.menu_part_edit_part.Enable(False)
+            self.menu_part_remove_part.Enable(False)
 
     def onTreePartsColumnHeaderRightClick( self, event ):
         pos = event.GetPosition()
@@ -883,11 +915,11 @@ class PartsFrame(PanelParts):
         self.show_part(part)
 
 
-    def onButtonAddPartClick( self, event ):
+    def onMenuPartAddPart( self, event ):
         self.edit_state = 'add'
         self.new_part()
 
-    def onButtonEditPartClick( self, event ):
+    def onMenuPartEditPart( self, event ):
         item = self.tree_parts.GetSelection()
         if not item.IsOk():
             return
@@ -898,7 +930,7 @@ class PartsFrame(PanelParts):
         self.edit_state = 'edit'
         self.edit_part(obj.part)
 
-    def onButtonRemovePartClick( self, event ):
+    def onMenuPartRemovePart( self, event ):
         item = self.tree_parts.GetSelection()
         if not item.IsOk():
             return
