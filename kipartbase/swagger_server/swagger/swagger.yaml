@@ -1309,10 +1309,25 @@ definitions:
       updated:
         type: "string"
         format: "date-time"
+      value_parameter:
+        $ref: "#/definitions/PartParameterRef"
+  PartParameterRef:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
   PartParameter:
     allOf:
     - $ref: "#/definitions/PartParameterData"
-    - {}
+    - required:
+      - "id"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
   PartDistributor:
     allOf:
     - $ref: "#/definitions/DistributorData"

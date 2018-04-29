@@ -41,7 +41,8 @@ class PartParameter(object):
         'nom_value': 'float',
         'nom_prefix': 'UnitPrefix',
         'max_value': 'float',
-        'max_prefix': 'UnitPrefix'
+        'max_prefix': 'UnitPrefix',
+        'id': 'int'
     }
 
     attribute_map = {
@@ -55,10 +56,11 @@ class PartParameter(object):
         'nom_value': 'nom_value',
         'nom_prefix': 'nom_prefix',
         'max_value': 'max_value',
-        'max_prefix': 'max_prefix'
+        'max_prefix': 'max_prefix',
+        'id': 'id'
     }
 
-    def __init__(self, name=None, description=None, unit=None, numeric=None, text_value=None, min_value=None, min_prefix=None, nom_value=None, nom_prefix=None, max_value=None, max_prefix=None):
+    def __init__(self, name=None, description=None, unit=None, numeric=None, text_value=None, min_value=None, min_prefix=None, nom_value=None, nom_prefix=None, max_value=None, max_prefix=None, id=None):
         """
         PartParameter - a model defined in Swagger
         """
@@ -74,6 +76,7 @@ class PartParameter(object):
         self._nom_prefix = None
         self._max_value = None
         self._max_prefix = None
+        self._id = None
 
         if name is not None:
           self.name = name
@@ -97,6 +100,7 @@ class PartParameter(object):
           self.max_value = max_value
         if max_prefix is not None:
           self.max_prefix = max_prefix
+        self.id = id
 
     @property
     def name(self):
@@ -328,6 +332,29 @@ class PartParameter(object):
         """
 
         self._max_prefix = max_prefix
+
+    @property
+    def id(self):
+        """
+        Gets the id of this PartParameter.
+
+        :return: The id of this PartParameter.
+        :rtype: int
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """
+        Sets the id of this PartParameter.
+
+        :param id: The id of this PartParameter.
+        :type: int
+        """
+        if id is None:
+            raise ValueError("Invalid value for `id`, must not be `None`")
+
+        self._id = id
 
     def to_dict(self):
         """

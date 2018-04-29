@@ -36,7 +36,8 @@ class PartData(object):
         'comment': 'str',
         'octopart': 'str',
         'octopart_uid': 'str',
-        'updated': 'datetime'
+        'updated': 'datetime',
+        'value_parameter': 'PartParameterRef'
     }
 
     attribute_map = {
@@ -45,10 +46,11 @@ class PartData(object):
         'comment': 'comment',
         'octopart': 'octopart',
         'octopart_uid': 'octopart_uid',
-        'updated': 'updated'
+        'updated': 'updated',
+        'value_parameter': 'value_parameter'
     }
 
-    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None):
+    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, value_parameter=None):
         """
         PartData - a model defined in Swagger
         """
@@ -59,6 +61,7 @@ class PartData(object):
         self._octopart = None
         self._octopart_uid = None
         self._updated = None
+        self._value_parameter = None
 
         if name is not None:
           self.name = name
@@ -72,6 +75,8 @@ class PartData(object):
           self.octopart_uid = octopart_uid
         if updated is not None:
           self.updated = updated
+        if value_parameter is not None:
+          self.value_parameter = value_parameter
 
     @property
     def name(self):
@@ -198,6 +203,27 @@ class PartData(object):
         """
 
         self._updated = updated
+
+    @property
+    def value_parameter(self):
+        """
+        Gets the value_parameter of this PartData.
+
+        :return: The value_parameter of this PartData.
+        :rtype: PartParameterRef
+        """
+        return self._value_parameter
+
+    @value_parameter.setter
+    def value_parameter(self, value_parameter):
+        """
+        Sets the value_parameter of this PartData.
+
+        :param value_parameter: The value_parameter of this PartData.
+        :type: PartParameterRef
+        """
+
+        self._value_parameter = value_parameter
 
     def to_dict(self):
         """

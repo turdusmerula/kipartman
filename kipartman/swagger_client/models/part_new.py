@@ -37,6 +37,7 @@ class PartNew(object):
         'octopart': 'str',
         'octopart_uid': 'str',
         'updated': 'datetime',
+        'value_parameter': 'PartParameterRef',
         'category': 'PartCategoryRef',
         'childs': 'list[PartRef]',
         'footprint': 'VersionedFileRef',
@@ -55,6 +56,7 @@ class PartNew(object):
         'octopart': 'octopart',
         'octopart_uid': 'octopart_uid',
         'updated': 'updated',
+        'value_parameter': 'value_parameter',
         'category': 'category',
         'childs': 'childs',
         'footprint': 'footprint',
@@ -66,7 +68,7 @@ class PartNew(object):
         'attachements': 'attachements'
     }
 
-    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, category=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
+    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, value_parameter=None, category=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
         """
         PartNew - a model defined in Swagger
         """
@@ -77,6 +79,7 @@ class PartNew(object):
         self._octopart = None
         self._octopart_uid = None
         self._updated = None
+        self._value_parameter = None
         self._category = None
         self._childs = None
         self._footprint = None
@@ -99,6 +102,8 @@ class PartNew(object):
           self.octopart_uid = octopart_uid
         if updated is not None:
           self.updated = updated
+        if value_parameter is not None:
+          self.value_parameter = value_parameter
         if category is not None:
           self.category = category
         if childs is not None:
@@ -243,6 +248,27 @@ class PartNew(object):
         """
 
         self._updated = updated
+
+    @property
+    def value_parameter(self):
+        """
+        Gets the value_parameter of this PartNew.
+
+        :return: The value_parameter of this PartNew.
+        :rtype: PartParameterRef
+        """
+        return self._value_parameter
+
+    @value_parameter.setter
+    def value_parameter(self, value_parameter):
+        """
+        Sets the value_parameter of this PartNew.
+
+        :param value_parameter: The value_parameter of this PartNew.
+        :type: PartParameterRef
+        """
+
+        self._value_parameter = value_parameter
 
     @property
     def category(self):
