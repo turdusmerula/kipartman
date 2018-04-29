@@ -18,9 +18,11 @@ class Configuration(object):
         
         self.snapeda_user = ''
         self.snapeda_password = ''
+
+        self.kicad_eeschema_link = False
         
-        self.LOGLEVEL  = 10
-        self.LOGFILE   = 'stream://sys.stderr'
+        self.LOGLEVEL = 10
+        self.LOGFILE = 'stream://sys.stderr'
         self.LOGFORMAT = '%(asctime)-15s %(levelname)-5s [%(module)s] %(message)s'
         
         self.debug = False

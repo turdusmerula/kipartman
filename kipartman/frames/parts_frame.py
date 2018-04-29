@@ -3,6 +3,7 @@ from frames.dropdown_dialog import DropdownDialog
 from frames.progression_frame import ProgressionFrame
 from frames.edit_category_frame import EditCategoryFrame
 from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
+from frames.kicadlink_part_frame import KicadLinkPartFrame  #TODO Define events
 from frames.select_part_parameter_frame import SelectPartParameterFrame
 import helper.tree
 from helper.filter import Filter
@@ -347,6 +348,18 @@ class PartsFrame(PanelParts):
         self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
 
         self.toolbar_part.ToggleTool(self.toggle_part_path.GetId(), True)
+
+        # create KicadLink part panel
+        # kicad GUI link to Kipartman :PANEL SETUP
+        # 2017-12 presently only Windows support
+        if configuration.kicad_eeschema_link:
+            self.panel_kicadlink_part = KicadLinkPartFrame(self.kicadlink_splitter)
+            self.kicadlink_splitter.SplitHorizontally(self.kicadlink_splitter.Window1, self.panel_kicadlink_part, 400)
+            self.panel_kicadlink_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
+            self.panel_kicadlink_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+        else:
+            pass  # TODO: Linux/Mac support for KICAD GUI to Kipartman : SETUP
+
 
         # initial edit state
         self.show_part(None)
@@ -844,7 +857,7 @@ class PartsFrame(PanelParts):
                     # update on server
                     part = rest.api.update_part(source_part.id, source_part)
                     
-                    # update tree symbol
+                    # update tree model
                     self.tree_parts_manager.DeletePart(source_part)
                     self.tree_parts_manager.AppendPart(part)
                 except Exception as e:
