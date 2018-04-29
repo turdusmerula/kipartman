@@ -3,8 +3,9 @@ from frames.edit_part_parameter_frame import EditPartParameterFrame
 import helper.tree
 
 class DataModelPartParameter(helper.tree.TreeContainerItem):
-    def __init__(self, parameter):
+    def __init__(self, part, parameter):
         super(DataModelPartParameter, self).__init__()
+        self.part = part
         self.parameter = parameter
 
     def value_string(self, value, prefix, unit):
@@ -31,23 +32,29 @@ class DataModelPartParameter(helper.tree.TreeContainerItem):
         return self.parameter.unit.name
 
     def GetValue(self, col):
+        value_parameter = False
+        if self.part.value_parameter and self.part.value_parameter.id==self.parameter.id:
+            value_parameter = True
+            
         if self.parameter.numeric==True:
-            vMap = { 
-                0 : self.parameter.name,
-                1 : self.min_string(),
-                2 : self.nom_string(),
-                3 : self.max_string(),
-                4 : self.unit_string(),
-                5 : self.parameter.description,
+            vMap = {
+                0 : value_parameter,
+                1 : self.parameter.name,
+                2 : self.min_string(),
+                3 : self.nom_string(),
+                4 : self.max_string(),
+                5 : self.unit_string(),
+                6 : self.parameter.description,
             }
         else:
             vMap = { 
-                0 : self.parameter.name,
-                1 : "",
-                2 : self.parameter.text_value,
-                3 : "",
-                4 : self.unit_string(),
-                5 : self.parameter.description,
+                0 : value_parameter,
+                1 : self.parameter.name,
+                2 : "",
+                3 : self.parameter.text_value,
+                4 : "",
+                5 : self.unit_string(),
+                6 : self.parameter.description,
             }
         return vMap[col]
 
@@ -63,14 +70,19 @@ class PartParametersFrame(PanelPartParameters):
         """
         super(PartParametersFrame, self).__init__(parent)
 
+        self.enabled = False
+        
         # create parameters list
-        self.tree_parameters_manager = helper.tree.TreeManager(self.tree_parameters)
+        self.tree_parameters_manager = helper.tree.TreeManager(self.tree_parameters, context_menu=self.menu_parameter)
+        self.tree_parameters_manager.AddToggleColumn("*")
         self.tree_parameters_manager.AddTextColumn("Parameter")
         self.tree_parameters_manager.AddTextColumn("Min Value")
         self.tree_parameters_manager.AddTextColumn("Nominal Value")
         self.tree_parameters_manager.AddTextColumn("Max Value")
         self.tree_parameters_manager.AddTextColumn("Unit")
         self.tree_parameters_manager.AddTextColumn("Description")
+        self.tree_parameters_manager.OnItemBeforeContextMenu = self.onTreeParametersBeforeContextMenu
+        self.tree_parameters_manager.OnItemValueChanged = self.onTreeParametersItemValueChanged
 
         # set result functions
         self.cancel = None
@@ -90,10 +102,8 @@ class PartParametersFrame(PanelPartParameters):
         self.showParameters()
     
     def enable(self, enabled=True):
-        self.button_add_parameter.Enabled = enabled
-        self.button_edit_parameter.Enabled = enabled
-        self.button_remove_parameter.Enabled = enabled
-
+        self.enabled = enabled
+    
     def AddParameter(self, parameter):
         """
         Add a parameter to the part, or update if parameter already exists
@@ -107,7 +117,7 @@ class PartParametersFrame(PanelPartParameters):
         if self.part.parameters is None:
             self.part.parameters = []
         self.part.parameters.append(parameter)
-        self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(parameter))
+        self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(self.part, parameter))
 
     def ExistParameter(self, name):
         """
@@ -143,15 +153,52 @@ class PartParametersFrame(PanelPartParameters):
 
         if self.part and self.part.parameters:
             for parameter in self.part.parameters:
-                self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(parameter))
+                self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(self.part, parameter))
+
+    def onTreeParametersBeforeContextMenu( self, event ):
+        item = self.tree_parameters.GetSelection()
+        obj = None
+        if item.IsOk():
+            obj = self.tree_parameters_manager.ItemToObject(item)
+
+        self.menu_parameter_add_parameter.Enable(True)
+        self.menu_parameter_edit_parameter.Enable(True)
+        self.menu_parameter_remove_parameter.Enable(True)
+        self.menu_parameter_set_kicad_value.Enable(True)
+        self.menu_parameter_unset_kicad_value.Enable(True)
+        if isinstance(obj, DataModelPartParameter)==False:
+            self.menu_parameter_edit_parameter.Enable(False)
+            self.menu_parameter_remove_parameter.Enable(False)
+            self.menu_parameter_set_kicad_value.Enable(False)
+            self.menu_parameter_unset_kicad_value.Enable(False)
+        
+        if self.enabled==False:
+            self.menu_parameter_add_parameter.Enable(False)
+            self.menu_parameter_edit_parameter.Enable(False)
+            self.menu_parameter_remove_parameter.Enable(False)
+            self.menu_parameter_set_kicad_value.Enable(False)
+            self.menu_parameter_unset_kicad_value.Enable(False)
             
-    def onButtonAddParameterClick( self, event ):
+    def onTreeParametersItemValueChanged( self, event ):
+        if self.enabled==False:
+            return
+        item = self.tree_parameters.GetSelection()
+        if item.IsOk()==False:
+            return
+        parameterobj = self.tree_parameters_manager.ItemToObject(item)
+        
+        if self.part.value_parameter and parameterobj.parameter.id==self.part.value_parameter.id:
+            self.part.value_parameter = None
+        else:
+            self.part.value_parameter = parameterobj.parameter
+    
+    def onMenuParameterAddParameter( self, event ):
         parameter = EditPartParameterFrame(self).AddParameter(self.part)
         if not parameter is None:
             self.part.parameters.append(parameter)
-            self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(parameter))
+            self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(self.part, parameter))
     
-    def onButtonEditParameterClick( self, event ):
+    def onMenuParameterEditParameter( self, event ):
         item = self.tree_parameters.GetSelection()
         if item.IsOk()==False:
             return
@@ -160,7 +207,7 @@ class PartParametersFrame(PanelPartParameters):
         parameter = EditPartParameterFrame(self).EditParameter(self.part, parameterobj.parameter)
         self.tree_parameters_manager.UpdateItem(parameterobj)
         
-    def onButtonRemoveParameterClick( self, event ):
+    def onMenuParameterRemoveParameter( self, event ):
         item = self.tree_parameters.GetSelection()
         if item.IsOk()==False:
             return

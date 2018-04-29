@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import platform
 os.sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 if not os.path.exists('resources'):
@@ -17,6 +18,7 @@ if not os.path.exists('resources'):
 import sys
 import argparse
 from configuration import configuration
+import sys, time
 
 def configure(value):
     pass

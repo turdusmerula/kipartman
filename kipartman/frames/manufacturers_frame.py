@@ -2,6 +2,7 @@ from dialogs.panel_manufacturers import PanelManufacturers
 import wx
 import rest
 import helper.tree
+from helper.exception import print_stack
 
 def NoneValue(value, default):
     if value:
@@ -65,6 +66,7 @@ class ManufacturersFrame(PanelManufacturers):
         try:
             self.loadManufacturers()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def ShowManufacturer(self, manufacturer):
@@ -144,6 +146,7 @@ class ManufacturersFrame(PanelManufacturers):
             self.panel_manufacturers.Enabled = True
             
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
         

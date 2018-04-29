@@ -1,3 +1,5 @@
+from helper.exception import print_stack
+
 import imp
 try:
     imp.find_module('pcbnew')
@@ -26,6 +28,7 @@ if found:
         try:
             dst_plugin.FootprintLibDelete( dst_libpath )
         except:
+            print_stack()
             None    # ignore, new may not exist if first run
         
         dst_plugin.FootprintLibCreate( dst_libpath )
@@ -49,6 +52,7 @@ if found:
         try:
             dst_plugin.FootprintLibDelete( dst_libpath )
         except:
+            print_stack()
             None    # ignore, new may not exist if first run
         
         dst_plugin.FootprintLibCreate( dst_libpath )

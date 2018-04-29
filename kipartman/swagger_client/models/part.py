@@ -37,6 +37,7 @@ class Part(object):
         'octopart': 'str',
         'octopart_uid': 'str',
         'updated': 'datetime',
+        'value_parameter': 'PartParameterRef',
         'id': 'int',
         'category': 'PartCategory',
         'has_childs': 'int',
@@ -57,6 +58,7 @@ class Part(object):
         'octopart': 'octopart',
         'octopart_uid': 'octopart_uid',
         'updated': 'updated',
+        'value_parameter': 'value_parameter',
         'id': 'id',
         'category': 'category',
         'has_childs': 'has_childs',
@@ -70,7 +72,7 @@ class Part(object):
         'attachements': 'attachements'
     }
 
-    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, id=None, category=None, has_childs=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
+    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, value_parameter=None, id=None, category=None, has_childs=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
         """
         Part - a model defined in Swagger
         """
@@ -81,6 +83,7 @@ class Part(object):
         self._octopart = None
         self._octopart_uid = None
         self._updated = None
+        self._value_parameter = None
         self._id = None
         self._category = None
         self._has_childs = None
@@ -105,6 +108,8 @@ class Part(object):
           self.octopart_uid = octopart_uid
         if updated is not None:
           self.updated = updated
+        if value_parameter is not None:
+          self.value_parameter = value_parameter
         self.id = id
         if category is not None:
           self.category = category
@@ -252,6 +257,27 @@ class Part(object):
         """
 
         self._updated = updated
+
+    @property
+    def value_parameter(self):
+        """
+        Gets the value_parameter of this Part.
+
+        :return: The value_parameter of this Part.
+        :rtype: PartParameterRef
+        """
+        return self._value_parameter
+
+    @value_parameter.setter
+    def value_parameter(self, value_parameter):
+        """
+        Sets the value_parameter of this Part.
+
+        :param value_parameter: The value_parameter of this Part.
+        :type: PartParameterRef
+        """
+
+        self._value_parameter = value_parameter
 
     @property
     def id(self):

@@ -1,6 +1,7 @@
 import rest 
 import wx
 import re
+from helper.exception import print_stack
 
 class OctopartExtractor(object):
     
@@ -13,9 +14,12 @@ class OctopartExtractor(object):
             try:
                 return rest.api.find_units(symbol=symbol)[0]
             except Exception as e:
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                print_stack()
+                wx.MessageBox('%s: unit unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
 #            except Exception as e:
-                #TODO create unit if not found
+                # TODO: create unit if not found
+                # TODO: Change Modal warnings/error messages to logging
+                # TODO: place octopart lookup warnings/errors in Comment section of part
 #                wx.MessageBox('%s: unit unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
 
         return None
@@ -28,7 +32,10 @@ class OctopartExtractor(object):
             try:
                 return rest.api.find_unit_prefixes(symbol=symbol)[0]
             except Exception as e:
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                print_stack()
+                # TODO: create unit_prefix in kipartbase if not found
+
+                wx.MessageBox('%s: unit prefix unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
 #            except:
 #                wx.MessageBox('%s: unit prefix unknown' % (symbol), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
         return None

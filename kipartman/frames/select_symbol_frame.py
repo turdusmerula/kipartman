@@ -6,6 +6,7 @@ from kicad.kicad_file_manager import KicadFileManagerPretty, KicadFileManagerLib
 from kicad import kicad_lib_file
 import sync.version_manager
 import tempfile
+from helper.exception import print_stack
 
 class DataModelSymbolPath(helper.tree.TreeContainerItem):
     def __init__(self, path):
@@ -109,6 +110,7 @@ class SelectSymbolFrame(PanelSelectSymbol):
             self.loadSymbols()
             pass
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def loadSymbols(self):

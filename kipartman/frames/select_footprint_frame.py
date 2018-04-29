@@ -7,6 +7,7 @@ from kicad import kicad_mod_file
 import sync.version_manager
 from configuration import Configuration
 import tempfile
+from helper.exception import print_stack
 
 class DataModelFootprintPath(helper.tree.TreeContainerItem):
     def __init__(self, path):
@@ -108,6 +109,7 @@ class SelectFootprintFrame(PanelSelectFootprint):
         try:
             self.loadFootprints()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def loadFootprints(self):

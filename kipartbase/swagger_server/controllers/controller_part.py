@@ -15,7 +15,7 @@ from six import iteritems
 from ..util import deserialize_date, deserialize_datetime
 
 from swagger_server.controllers.controller_part_category import find_parts_category
-from swagger_server.controllers.controller_part_parameter import find_part_parameters, deserialize_PartParameter
+from swagger_server.controllers.controller_part_parameter import find_part_parameter, find_part_parameters, deserialize_PartParameter
 from swagger_server.controllers.controller_part_distributor import find_part_distributors
 from swagger_server.controllers.controller_manufacturer import deserialize_ManufacturerData
 from swagger_server.controllers.controller_part_offer import deserialize_PartOffer
@@ -42,6 +42,9 @@ def serialize_PartData(fpart, part=None, with_parameters=True):
         part.updated = fpart.updated
     if fpart.id and with_parameters:
         part.parameters = raise_on_error(find_part_parameters(fpart.id))
+    if fpart.value_parameter:
+        part.value_parameter = raise_on_error(find_part_parameter(fpart.id, fpart.value_parameter.id))
+
     return part
 
 def serialize_Part(fpart, part=None, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True):
@@ -97,6 +100,13 @@ def deserialize_PartData(part, fpart=None):
         fpart.octopart_uid = part.octopart_uid
     if part.updated:
         fpart.updated = part.updated
+    if part.value_parameter:
+        try:
+            fpart.value_parameter = api.models.PartParameter.objects.get(pk=part.value_parameter.id)
+        except:
+            raise_on_error(Error(code=1000, message='PartParameter %d does not exists'%part.value_parameter.id))
+    else:
+        fpart.value_parameter = None
     return fpart
 
 

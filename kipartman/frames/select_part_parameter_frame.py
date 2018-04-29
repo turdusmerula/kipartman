@@ -2,6 +2,7 @@ from dialogs.panel_select_part_parameter import PanelSelectPartParameter
 import helper.tree
 import rest
 import wx
+from helper.exception import print_stack
 
     
 class DataModelPartParameter(helper.tree.TreeItem):
@@ -71,6 +72,7 @@ class SelectPartParameterFrame(PanelSelectPartParameter):
         try:
             self.loadPartsParameters()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def loadPartsParameters(self):

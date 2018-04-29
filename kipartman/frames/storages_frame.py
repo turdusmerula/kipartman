@@ -8,6 +8,7 @@ from helper.filter import Filter
 import rest
 import wx
 from swagger_client.models.part_storage import PartStorage
+from helper.exception import print_stack
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -240,11 +241,13 @@ class StoragesFrame(PanelStorages):
         try:
             self.loadCategories()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
         try:
             self.loadStorages()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def show_storage(self, storage):
@@ -290,6 +293,7 @@ class StoragesFrame(PanelStorages):
                 self.tree_categories_manager.SelectItem(newitem)
                 self.onTreeCategoriesSelChanged(None)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def onButtonEditCategoryClick( self, event ):
@@ -304,6 +308,7 @@ class StoragesFrame(PanelStorages):
                 self.tree_categories_manager.UpdateItem(categoryobj)
                 self.onTreeCategoriesSelChanged(None)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def onButtonRemoveCategoryClick( self, event ):
@@ -319,6 +324,7 @@ class StoragesFrame(PanelStorages):
             else:
                 return
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def onButtonRemoveFilterClick( self, event ):
@@ -366,6 +372,7 @@ class StoragesFrame(PanelStorages):
             if source_categoryobj:
                 self.tree_categories_manager.MoveItem(source_categoryobj.parent, dest_categoryobj, source_categoryobj)
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
         return wx.DragMove
@@ -394,6 +401,7 @@ class StoragesFrame(PanelStorages):
             self.tree_storages_manager.DeleteStorage(source_storage)
             self.tree_storages_manager.AppendStorage(storage)
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         return wx.DragMove
 
@@ -419,6 +427,7 @@ class StoragesFrame(PanelStorages):
                 storage = rest.api.add_storage(storage)
                 self.tree_storages_manager.AppendStorage(storage)
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return
         self.edit_state = None
@@ -453,6 +462,7 @@ class StoragesFrame(PanelStorages):
                 self.tree_storages_manager.SelectItem(newitem)
                 self.onTreeStoragesSelChanged(None)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         
     def onButtonEditStorageClick( self, event ):
@@ -469,6 +479,7 @@ class StoragesFrame(PanelStorages):
                 self.tree_storages_manager.UpdateItem(storageobj)
                 self.onTreeStoragesSelChanged(None)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         # 
     def onButtonRemoveStorageClick( self, event ):
@@ -487,6 +498,7 @@ class StoragesFrame(PanelStorages):
             else:
                 return
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def onButtonRefreshStoragesClick( self, event ):
@@ -554,6 +566,7 @@ class StoragesFrame(PanelStorages):
             else:
                 return
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def onButtonRemoveStorageItemClick( self, event ):
@@ -591,6 +604,7 @@ class StoragesFrame(PanelStorages):
             else:
                 return
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def onSelectPartCallback(self, part_event):

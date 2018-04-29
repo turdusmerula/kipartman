@@ -1,5 +1,6 @@
 import csv
 import datetime
+from helper.exception import print_stack
 
 from . import _import_base
 
@@ -26,6 +27,7 @@ class CsvImport(_import_base.KiPartmanImporter):
                     components.append(i)
                     print("Name:", row['Name'], category, row['Description'], row['Footprint'])  # TODO: remove
                 except Exception, e:
+                    print_stack()
                     print(e)
                     pass
             return components

@@ -5,6 +5,7 @@ import helper.tree
 import os
 import tempfile
 import cfscrape
+from helper.exception import print_stack
 
 SelectSnapedaOkEvent, EVT_SELECT_SNAPEDA_OK_EVENT = wx.lib.newevent.NewEvent()
 SelectSnapedaCancelEvent, EVT_SELECT_SNAPEDA_APPLY_EVENT = wx.lib.newevent.NewEvent()
@@ -116,6 +117,7 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
                  
                 self.SetImage(filename)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error loading image', wx.OK | wx.ICON_ERROR)
         else:
             self.SetImage()

@@ -2,6 +2,7 @@ from dialogs.panel_distributors import PanelDistributors
 import wx
 import rest
 import helper.tree
+from helper.exception import print_stack
 
 def NoneValue(value, default):
     if value:
@@ -72,6 +73,7 @@ class DistributorsFrame(PanelDistributors):
         try:
             self.loadDistributors()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def ShowDistributor(self, distributor):
@@ -155,6 +157,7 @@ class DistributorsFrame(PanelDistributors):
             self.panel_distributors.Enabled = True
             
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
         

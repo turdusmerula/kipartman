@@ -3,7 +3,8 @@ from frames.dropdown_dialog import DropdownDialog
 from frames.select_part_parameter_frame import SelectPartParameterFrame
 import wx
 import rest
- 
+from helper.exception import print_stack
+
 class EditPartParameterFrame(DialogEditPartParameter):
     def __init__(self, parent): 
         super(EditPartParameterFrame, self).__init__(parent)
@@ -148,9 +149,11 @@ class EditPartParameterFrame(DialogEditPartParameter):
             else:
                 self.parameter.max_prefix = rest.api.find_unit_prefix(self.choice_part_parameter_max_prefix.GetSelection())
         except ValueError as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return 
 

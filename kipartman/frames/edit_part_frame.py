@@ -16,6 +16,7 @@ import re
 import rest
 from octopart.extractor import OctopartExtractor
 import os
+from helper.exception import print_stack
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -191,6 +192,7 @@ class EditPartFrame(PanelEditPart):
                     distributor.allowed = True
                     distributor = rest.api.add_distributor(distributor)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
                         
             for price_name in offer.prices():
@@ -231,6 +233,7 @@ class EditPartFrame(PanelEditPart):
             part_manufacturer.part_name = self.part.name
             self.edit_part_manufacturers.AddManufacturer(part_manufacturer)
         except:
+            print_stack()
             wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
 
         self.ShowPart(self.part)

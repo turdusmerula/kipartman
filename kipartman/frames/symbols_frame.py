@@ -640,9 +640,7 @@ class SymbolsFrame(PanelSymbols):
                     wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
             dlg.Destroy()
         
-        print "****", self.manager_lib.local_files
         self.load()
-        print "++++", self.manager_lib.local_files
 
     def onMenuLibrariesRemove( self, event ):
         item = self.tree_libraries.GetSelection()
@@ -720,7 +718,6 @@ class SymbolsFrame(PanelSymbols):
                         files.append(child.symbol)
         
         try:
-            print "*****", files
             self.manager_lib.Commit(files) 
             self.load()
         except Exception as e:

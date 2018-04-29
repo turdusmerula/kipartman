@@ -5,6 +5,7 @@ import rest
 import os
 from configuration import Configuration
 import webbrowser
+from helper.exception import print_stack
 
 class EditAttachementFrame(DialogEditAttachement):
     def __init__(self, parent): 
@@ -75,6 +76,7 @@ class EditAttachementFrame(DialogEditAttachement):
             else:
                 self.EndModal(wx.ID_OK)
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return None
     

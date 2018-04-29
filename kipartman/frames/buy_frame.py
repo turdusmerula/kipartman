@@ -10,6 +10,7 @@ from basket.basket import Basket
 import os
 from bom.bom import Bom
 from frames.edit_wish_frame import EditWishFrame
+from helper.exception import print_stack
 
 configuration = Configuration()
 currency = Currency(configuration.base_currency)
@@ -232,6 +233,7 @@ class DataModelOffer(helper.tree.TreeItem):
         try:
             return [currency.convert(self.offer.unit_price, self.offer.currency, configuration.base_currency), configuration.base_currency]
         except:
+            print_stack()
             # error during conversion, no conversion
             return res
         
@@ -280,6 +282,7 @@ class DataModelWishPart(helper.tree.TreeItem):
         try:
             return [currency.convert(offer.unit_price, offer.currency, configuration.base_currency), configuration.base_currency]
         except:
+            print_stack()
             # error during conversion, no conversion
             return res
 
@@ -899,9 +902,10 @@ class BuyFrame(PanelBuy):
                     self.basket.AddWish(wishobj.distributor, wishobj.sku, wishobj.quantity, wishobj.converted_unit_price(wishobj.matching_offer()))
                 self.basket.SaveFile(filename)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error saving %s'%filename, wx.OK | wx.ICON_ERROR)
 
-
+ 
     def onButtonAddBomClick( self, event ):
         dlg = wx.FileDialog(
             self, message="Choose a BOM file",

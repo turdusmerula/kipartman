@@ -8,6 +8,7 @@ from frames.manufacturers_frame import ManufacturersFrame
 from frames.bom_frame import BomFrame
 from frames.configuration_frame import ConfigurationFrame
 from frames.storages_frame import StoragesFrame
+from helper.exception import print_stack
 
 import wx
 
@@ -64,6 +65,7 @@ class MainFrame(DialogMain):
                 for menu_item in menu['menu'].GetMenuItems():
                     self.Bind( wx.EVT_MENU, self.OnMenuItem, id = menu_item.GetId() )
         except:
+            print_stack()
             pass
     
     def OnMenuItem( self, event ):

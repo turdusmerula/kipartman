@@ -1,6 +1,7 @@
 from dialogs.dialog_edit_part_offer import DialogEditPartOffer
 import wx
 import rest
+from helper.exception import print_stack
 
 # TODO: switch to a list for currency
 class EditPartOfferFrame(DialogEditPartOffer):
@@ -69,9 +70,11 @@ class EditPartOfferFrame(DialogEditPartOffer):
             self.offer.currency = self.edit_part_offer_currency.Value
             self.offer.sku = self.edit_part_offer_sku.Value
         except ValueError as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return 
         self.EndModal(wx.ID_OK)

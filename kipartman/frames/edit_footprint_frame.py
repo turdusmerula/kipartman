@@ -16,6 +16,7 @@ import glob
 import datetime
 import hashlib
 import json
+from helper.exception import print_stack
 
 EditFootprintApplyEvent, EVT_EDIT_FOOTPRINT_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditFootprintCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -140,6 +141,7 @@ class EditFootprintFrame(PanelEditFootprint):
                 wx.MessageBox(download.error(), 'Error downloading footprint', wx.OK | wx.ICON_ERROR)
                 
         except:
+            print_stack()
             DialogSnapedaError(self).ShowModal()
             return
         
@@ -154,7 +156,8 @@ class EditFootprintFrame(PanelEditFootprint):
                 with open(filename, 'wb') as outfile:
                     outfile.write(content)
                 outfile.close()
-            except :
+            except:
+                print_stack()
                 wx.MessageBox(download.url(), 'Error loading footprint', wx.OK | wx.ICON_ERROR)
                 return
                 
@@ -164,6 +167,7 @@ class EditFootprintFrame(PanelEditFootprint):
                 zip_ref.extractall(filename+".tmp")
                 zip_ref.close()
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error unziping footprint', wx.OK | wx.ICON_ERROR)
 
             for file in glob.glob(filename+".tmp/*"):

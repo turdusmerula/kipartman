@@ -4,6 +4,7 @@ import wx
 from kicad.pcb import Module
 import rest
 from kicad.pcb import Pcb
+from helper.exception import print_stack
 
 class BomException(BaseException):
     def __init__(self, error):
@@ -44,6 +45,7 @@ class Bom(object):
                 self.parts.append(rest.api.find_part(part['id']))
                 self.part_modules[part['id']] = []
             except:
+                print_stack()
                 print "Warning: part %d not found on server"%part['id']
                 part_not_found.append(part)
 

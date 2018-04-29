@@ -6,6 +6,7 @@ import wx
 import swagger_client
 from octopart.queries import PartsQuery as OctpartPartsQuery
 from snapeda.connection import SnapedaConnection, SnapedaConnectionException
+from helper.exception import print_stack
 
 class ConfigurationFrame(DialogConfiguration): 
     def __init__(self, parent): 
@@ -34,6 +35,7 @@ class ConfigurationFrame(DialogConfiguration):
         try:
             currencies = Currency(configuration.base_currency).load()
         except Exception as e:
+            print_stack()
             currencies = Currency('EUR').load()
             
         if currencies.has_key('error'):
@@ -83,6 +85,7 @@ class ConfigurationFrame(DialogConfiguration):
             api = swagger_client.DefaultApi(client)
             currencies = api.find_currencies()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         
     def onTestOctopart( self, event ):
@@ -97,6 +100,7 @@ class ConfigurationFrame(DialogConfiguration):
             wx.MessageBox( 'OCTOPART CONNECTION OK', 
                 'OCTOPART CONNECTION OK', wx.OK )
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         OctpartPartsQuery.apikey = apikey
            
@@ -109,6 +113,7 @@ class ConfigurationFrame(DialogConfiguration):
             wx.MessageBox( 'SNAPEDA CONNECTION OK', 
                 'SNAPEDA CONNECTION OK', wx.OK )
         except SnapedaConnectionException as e:
+            print_stack()
             wx.MessageBox(format(e.error), 'Error', wx.OK | wx.ICON_ERROR)
     
     def onButtonKicadPathDefault( self, event ):

@@ -5,6 +5,7 @@ import wx.dataview
 #import wx.dataview.DataViewTreeCtrl
 import json
 from array import array
+from helper.exception import print_stack
 
 class Tree:
     def __init__(self, tree):
@@ -412,6 +413,7 @@ class TreeManager(object):
         try:
             drag_data = self.model.ItemToObject(event.GetItem())
         except Exception as inst:
+            print_stack()
             if 'logging' in globals(): logging.debug('DRAG ERROR:{} {} {} {}'.format(type(inst), inst.message,inst.args,event.GetItem()))
             return wx.DragCancel
         if drag_data.GetDragData() is None:

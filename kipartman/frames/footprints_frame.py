@@ -631,9 +631,7 @@ class FootprintsFrame(PanelFootprints):
                     wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
             dlg.Destroy()
         
-        print "****", self.manager_pretty.local_files
         self.load()
-        print "++++", self.manager_pretty.local_files
 
     def onMenuLibrariesRemove( self, event ):
         item = self.tree_libraries.GetSelection()

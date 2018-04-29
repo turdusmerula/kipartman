@@ -13,3 +13,5 @@ properties:
   updated:
     type: string
     format: date-time
+  value_parameter:
+    $ref: "./parameter/PartParameterRef.yaml"

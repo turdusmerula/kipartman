@@ -16,6 +16,7 @@ import datetime
 import hashlib
 import json
 from kicad.kicad_file_manager import KicadLibCache, KicadFileManagerLib
+from helper.exception import print_stack
 
 EditSymbolApplyEvent, EVT_EDIT_SYMBOL_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditSymbolCancelEvent, EVT_EDIT_SYMBOL_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -138,6 +139,7 @@ class EditSymbolFrame(PanelEditSymbol):
                 wx.MessageBox(download.error(), 'Error downloading symbol', wx.OK | wx.ICON_ERROR)
                 
         except:
+            print_stack()
             DialogSnapedaError(self).ShowModal()
             return
         
@@ -152,7 +154,8 @@ class EditSymbolFrame(PanelEditSymbol):
                 with open(filename, 'wb') as outfile:
                     outfile.write(content)
                 outfile.close()
-            except :
+            except:
+                print_stack()
                 wx.MessageBox(download.url(), 'Error loading symbol', wx.OK | wx.ICON_ERROR)
                 return
                 
@@ -162,6 +165,7 @@ class EditSymbolFrame(PanelEditSymbol):
                 zip_ref.extractall(filename+".tmp")
                 zip_ref.close()
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error unziping symbol', wx.OK | wx.ICON_ERROR)
 
             self.symbol.content = ''

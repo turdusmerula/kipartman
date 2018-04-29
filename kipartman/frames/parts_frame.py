@@ -8,6 +8,7 @@ import helper.tree
 from helper.filter import Filter
 import rest
 import wx
+from helper.exception import print_stack
 
 import os, datetime
 from time import sleep
@@ -220,9 +221,9 @@ class TreeModelParts(TreeModel):
 
 
 class TreeManagerParts(helper.tree.TreeManager):
-    def __init__(self, tree_view):
+    def __init__(self, tree_view, *args, **kwargs):
         model = TreeModelParts()
-        super(TreeManagerParts, self).__init__(tree_view, model)
+        super(TreeManagerParts, self).__init__(tree_view, model, *args, **kwargs)
         
     def FindPart(self, part_id):
         for data in self.data:
@@ -315,17 +316,19 @@ class PartsFrame(PanelParts):
         super(PartsFrame, self).__init__(parent)
         
         # create categories list
-        self.tree_categories_manager = helper.tree.TreeManager(self.tree_categories)
+        self.tree_categories_manager = helper.tree.TreeManager(self.tree_categories, context_menu=self.menu_category)
         self.tree_categories_manager.AddTextColumn("name")
         self.tree_categories_manager.AddTextColumn("description")
         self.tree_categories_manager.DropAccept(DataModelCategory, self.onTreeCategoriesDropCategory)
         self.tree_categories_manager.DropAccept(DataModelPart, self.onTreeCategoriesDropPart)
         self.tree_categories_manager.OnSelectionChanged = self.onTreeCategoriesSelChanged
+        self.tree_categories_manager.OnItemBeforeContextMenu = self.onTreeCategoriesBeforeContextMenu
+
         # parts filters
         self.parts_filter = Filter(self.filters_panel, self.onButtonRemoveFilterClick)
         
         # create parts list
-        self.tree_parts_manager = TreeManagerParts(self.tree_parts)
+        self.tree_parts_manager = TreeManagerParts(self.tree_parts, context_menu=self.menu_part)
         self.tree_parts_manager.AddIntegerColumn("id")
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
@@ -335,6 +338,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
         self.tree_parts_manager.OnColumnHeaderRightClick = self.onTreePartsColumnHeaderRightClick
         self.tree_parts_manager.DropAccept(DataModelPart, self.onTreePartsDropPart)
+        self.tree_parts_manager.OnItemBeforeContextMenu = self.onTreePartsBeforeContextMenu
         
         # 
         # create edit part panel
@@ -342,6 +346,8 @@ class PartsFrame(PanelParts):
         self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
         self.panel_edit_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
         self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+
+        self.toolbar_part.ToggleTool(self.toggle_part_path.GetId(), True)
 
         # initial edit state
         self.show_part(None)
@@ -409,11 +415,13 @@ class PartsFrame(PanelParts):
         try:
             self.loadCategories()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
         try:
             self.loadParts()
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def load_full_part(self, partobj):
@@ -532,6 +540,7 @@ class PartsFrame(PanelParts):
                                                for i in
                                                rest.api.find_footprints_categories()}['Uncategorized']
                     except KeyError, e:  # Category 'Uncategorized' does not exist
+                        print_stack()
                         # Create the "Uncategorized" category
                         category = rest.model.FootprintCategoryNew()
                         category.name = "Uncategorized"
@@ -539,9 +548,10 @@ class PartsFrame(PanelParts):
                         category = rest.api.add_footprints_category(category)
                         footprintcategoryid = category.id
                     except:
-                            # TODO: handle other errors cleanly
-                            raise
-                            pass
+                        print_stack()
+                        # TODO: handle other errors cleanly
+                        raise
+                        pass
 
                     part.footprint = rest.model.FootprintNew()
                     part.footprint.category = rest.model.FootprintCategoryRef(id=footprintcategoryid)
@@ -582,6 +592,7 @@ class PartsFrame(PanelParts):
                 self.octopart_to_part(m_octopart.data[0], part)
                 pass
             except Exception as e:
+                print_stack()
                 part.comment = 'RESEARCH REQUIRED - FAILED OCTOPART LOOKUP - Timestamp:{:%y-%m-%d %H:%M:%S.%f}\n'.format(datetime.datetime.now()) \
                                 + part.comment
                 pass
@@ -594,6 +605,7 @@ class PartsFrame(PanelParts):
                     part = rest.api.add_part(part)
                     self.tree_parts_manager.AppendPart(part)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
                 return
         self.edit_state = None
@@ -623,7 +635,8 @@ class PartsFrame(PanelParts):
     def onButtonRefreshCategoriesClick( self, event ):
         self.loadCategories()
 
-    def onButtonAddCategoryClick( self, event ):
+
+    def onMenuCategoryAddCategory( self, event ):
         category = EditCategoryFrame(self).addCategory(rest.model.PartCategoryNew)
         if category:
             try:
@@ -643,9 +656,10 @@ class PartsFrame(PanelParts):
                 self.tree_categories_manager.SelectItem(newitem)
                 self.onTreeCategoriesSelChanged(None)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-    def onButtonEditCategoryClick( self, event ):
+    def onMenuCategoryEditCategory( self, event ):
         sel = self.tree_categories.GetSelection()
         if sel.IsOk()==False:
             return
@@ -659,9 +673,10 @@ class PartsFrame(PanelParts):
                 self.tree_categories_manager.UpdateItem(categoryobj)
                 self.onTreeCategoriesSelChanged(None)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
-    def onButtonRemoveCategoryClick( self, event ):
+    def onMenuCategoryRemoveCategory( self, event ):
         sel = self.tree_categories.GetSelection()
         categoryobj = self.tree_categories_manager.ItemToObject(sel)
         if categoryobj is None:
@@ -674,6 +689,7 @@ class PartsFrame(PanelParts):
             else:
                 return
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
 
@@ -696,6 +712,19 @@ class PartsFrame(PanelParts):
             self.parts_filter.add('category', category.category.id, category.category.name)
         # apply new filter and reload
         self.loadParts()
+
+    def onTreeCategoriesBeforeContextMenu( self, event ):
+        item = self.tree_categories.GetSelection()
+        obj = None
+        if item.IsOk():
+            obj = self.tree_categories_manager.ItemToObject(item)
+
+        self.menu_category_add_category.Enable(True)
+        self.menu_category_edit_category.Enable(True)
+        self.menu_category_remove_category.Enable(True)
+        if isinstance(obj, DataModelCategory)==False:
+            self.menu_category_edit_category.Enable(False)
+            self.menu_category_remove_category.Enable(False)
 
     def onTreeCategoriesDropCategory(self, x, y, data):
         dest_categoryitem, _ = self.tree_categories.HitTest((x, y))
@@ -724,6 +753,7 @@ class PartsFrame(PanelParts):
             if source_categoryobj:
                 self.tree_categories_manager.MoveItem(source_categoryobj.parent, dest_categoryobj, source_categoryobj)
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
         return wx.DragMove
@@ -752,12 +782,13 @@ class PartsFrame(PanelParts):
             self.tree_parts_manager.DeletePart(source_part)
             self.tree_parts_manager.AppendPart(part)
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         return wx.DragMove
 
 
-    def onToggleCategoryPathButton( self, event ):
-        self.show_categories = self.toggle_category_path.GetValue()
+    def onToggleCategoryPathClicked( self, event ):
+        self.show_categories = self.toolbar_part.GetToolState(self.toggle_part_path.GetId())
         self.loadParts()
     
     def onTreePartsSelChanged( self, event ):
@@ -771,6 +802,19 @@ class PartsFrame(PanelParts):
             self.load_full_part(obj)
             part = obj.part
         self.show_part(part)
+
+    def onTreePartsBeforeContextMenu( self, event ):
+        item = self.tree_parts.GetSelection()
+        obj = None
+        if item.IsOk():
+            obj = self.tree_parts_manager.ItemToObject(item)
+
+        self.menu_part_add_part.Enable(True)
+        self.menu_part_edit_part.Enable(True)
+        self.menu_part_remove_part.Enable(True)
+        if isinstance(obj, DataModelPart)==False:
+            self.menu_part_edit_part.Enable(False)
+            self.menu_part_remove_part.Enable(False)
 
     def onTreePartsColumnHeaderRightClick( self, event ):
         pos = event.GetPosition()
@@ -812,10 +856,11 @@ class PartsFrame(PanelParts):
                     # update on server
                     part = rest.api.update_part(source_part.id, source_part)
                     
-                    # update tree symbol
+                    # update tree model
                     self.tree_parts_manager.DeletePart(source_part)
                     self.tree_parts_manager.AppendPart(part)
                 except Exception as e:
+                    print_stack()
                     wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
                 return wx.DragMove
 
@@ -840,6 +885,7 @@ class PartsFrame(PanelParts):
                 # update tree symbol
                 self.tree_parts_manager.AppendChildPart(dest_part, source_partobj.part)
             except Exception as e:
+                print_stack()
                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
                 return wx.DragCancel
             return wx.DragMove
@@ -867,6 +913,7 @@ class PartsFrame(PanelParts):
                 part = rest.api.add_part(part)
                 self.tree_parts_manager.AppendPart(part)
         except Exception as e:
+            print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
             return
         self.edit_state = None
@@ -883,11 +930,11 @@ class PartsFrame(PanelParts):
         self.show_part(part)
 
 
-    def onButtonAddPartClick( self, event ):
+    def onMenuPartAddPart( self, event ):
         self.edit_state = 'add'
         self.new_part()
 
-    def onButtonEditPartClick( self, event ):
+    def onMenuPartEditPart( self, event ):
         item = self.tree_parts.GetSelection()
         if not item.IsOk():
             return
@@ -898,7 +945,7 @@ class PartsFrame(PanelParts):
         self.edit_state = 'edit'
         self.edit_part(obj.part)
 
-    def onButtonRemovePartClick( self, event ):
+    def onMenuPartRemovePart( self, event ):
         item = self.tree_parts.GetSelection()
         if not item.IsOk():
             return
@@ -1077,6 +1124,7 @@ class PartsFrame(PanelParts):
                         distributor = rest.api.add_distributor(distributor)
                         
                 except Exception as e:
+                    print_stack()
                     wx.MessageBox(format(e), 'Error with distributor %s'%distributor_name, wx.OK | wx.ICON_ERROR)
                 
                 if distributor:
@@ -1126,6 +1174,7 @@ class PartsFrame(PanelParts):
             part_manufacturer.part_name = part.name
             part.manufacturers.append(part_manufacturer)
         except:
+            print_stack()
             wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
 
 class DummyFrame_import_ocotopart_lookup(wx.Frame):

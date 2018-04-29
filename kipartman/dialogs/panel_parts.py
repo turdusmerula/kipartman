@@ -18,7 +18,7 @@ import wx.dataview
 class PanelParts ( wx.Panel ):
 	
 	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1361,756 ), style = wx.TAB_TRAVERSAL )
+		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1361,758 ), style = wx.TAB_TRAVERSAL )
 		
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -39,30 +39,11 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		bSizer5 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.button_add_category = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer5.Add( self.button_add_category, 0, wx.ALL, 5 )
-		
-		self.button_edit_category = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer5.Add( self.button_edit_category, 0, wx.ALL, 5 )
-		
-		self.button_remove_category = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer5.Add( self.button_remove_category, 0, wx.ALL, 5 )
+		self.button_refresh_categories = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.NO_BORDER )
+		bSizer4.Add( self.button_refresh_categories, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
-		bSizer4.Add( bSizer5, 1, wx.EXPAND, 5 )
-		
-		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.button_refresh_categories = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer6.Add( self.button_refresh_categories, 0, wx.ALL, 5 )
-		
-		
-		bSizer4.Add( bSizer6, 0, 0, 5 )
-		
-		
-		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
+		bSizer2.Add( bSizer4, 0, wx.ALIGN_RIGHT, 5 )
 		
 		self.tree_categories = wx.dataview.DataViewCtrl( self.panel_category, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer2.Add( self.tree_categories, 1, wx.ALL|wx.EXPAND, 5 )
@@ -71,6 +52,21 @@ class PanelParts ( wx.Panel ):
 		self.panel_category.SetSizer( bSizer2 )
 		self.panel_category.Layout()
 		bSizer2.Fit( self.panel_category )
+		self.menu_category = wx.Menu()
+		self.menu_category_add_category = wx.MenuItem( self.menu_category, wx.ID_ANY, u"Add new category", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_category_add_category.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_category.Append( self.menu_category_add_category )
+		
+		self.menu_category_edit_category = wx.MenuItem( self.menu_category, wx.ID_ANY, u"Edit category", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_category_edit_category.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_category.Append( self.menu_category_edit_category )
+		
+		self.menu_category_remove_category = wx.MenuItem( self.menu_category, wx.ID_ANY, u"Remove category", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_category_remove_category.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_category.Append( self.menu_category_remove_category )
+		
+		self.panel_category.Bind( wx.EVT_RIGHT_DOWN, self.panel_categoryOnContextMenu ) 
+		
 		self.kicadlink_splitter.Initialize( self.panel_category )
 		bSizer161.Add( self.kicadlink_splitter, 1, wx.EXPAND, 5 )
 		
@@ -112,25 +108,12 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		bSizer10 = wx.BoxSizer( wx.HORIZONTAL )
+		self.toolbar_part = wx.ToolBar( self.panel_parts, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.toggle_part_path = self.toolbar_part.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/tree_mode.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None ) 
 		
-		self.button_add_part = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer10.Add( self.button_add_part, 0, wx.ALL, 5 )
+		self.toolbar_part.Realize() 
 		
-		self.button_edit_part = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer10.Add( self.button_edit_part, 0, wx.ALL, 5 )
-		
-		self.button_remove_part = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer10.Add( self.button_remove_part, 0, wx.ALL, 5 )
-		
-		self.toggle_category_path = wx.ToggleButton( self.panel_parts, wx.ID_ANY, u"/", wx.DefaultPosition, wx.Size( -1,-1 ), 0 )
-		self.toggle_category_path.SetValue( True ) 
-		self.toggle_category_path.SetMaxSize( wx.Size( 32,-1 ) )
-		
-		bSizer10.Add( self.toggle_category_path, 0, wx.ALL, 5 )
-		
-		
-		bSizer11.Add( bSizer10, 1, wx.EXPAND, 5 )
+		bSizer11.Add( self.toolbar_part, 1, wx.EXPAND, 5 )
 		
 		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
 		
@@ -141,7 +124,7 @@ class PanelParts ( wx.Panel ):
 		
 		bSizer61.Add( self.search_parts, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		self.button_refresh_parts = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
+		self.button_refresh_parts = wx.BitmapButton( self.panel_parts, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.NO_BORDER )
 		bSizer61.Add( self.button_refresh_parts, 0, wx.ALL, 5 )
 		
 		
@@ -176,6 +159,21 @@ class PanelParts ( wx.Panel ):
 		self.m_panel3.SetSizer( bSizer3 )
 		self.m_panel3.Layout()
 		bSizer3.Fit( self.m_panel3 )
+		self.menu_part = wx.Menu()
+		self.menu_part_add_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Add new part", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_part_add_part.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_part.Append( self.menu_part_add_part )
+		
+		self.menu_part_edit_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Edit part", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_part_edit_part.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_part.Append( self.menu_part_edit_part )
+		
+		self.menu_part_remove_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Remove part", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_part_remove_part.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_part.Append( self.menu_part_remove_part )
+		
+		self.m_panel3.Bind( wx.EVT_RIGHT_DOWN, self.m_panel3OnContextMenu ) 
+		
 		self.m_splitter2.SplitVertically( self.m_panel6, self.m_panel3, 308 )
 		bSizer1.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
 		
@@ -199,19 +197,19 @@ class PanelParts ( wx.Panel ):
 		
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
-		self.button_add_category.Bind( wx.EVT_BUTTON, self.onButtonAddCategoryClick )
-		self.button_edit_category.Bind( wx.EVT_BUTTON, self.onButtonEditCategoryClick )
-		self.button_remove_category.Bind( wx.EVT_BUTTON, self.onButtonRemoveCategoryClick )
 		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onButtonRefreshCategoriesClick )
-		self.button_add_part.Bind( wx.EVT_BUTTON, self.onButtonAddPartClick )
-		self.button_edit_part.Bind( wx.EVT_BUTTON, self.onButtonEditPartClick )
-		self.button_remove_part.Bind( wx.EVT_BUTTON, self.onButtonRemovePartClick )
-		self.toggle_category_path.Bind( wx.EVT_TOGGLEBUTTON, self.onToggleCategoryPathButton )
+		self.Bind( wx.EVT_MENU, self.onMenuCategoryAddCategory, id = self.menu_category_add_category.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuCategoryEditCategory, id = self.menu_category_edit_category.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuCategoryRemoveCategory, id = self.menu_category_remove_category.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToggleCategoryPathClicked, id = self.toggle_part_path.GetId() )
 		self.search_parts.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchPartsButton )
 		self.search_parts.Bind( wx.EVT_TEXT_ENTER, self.onSearchPartsTextEnter )
 		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
 		self.Bind( wx.EVT_MENU, self.onMenuParametersAddSelection, id = self.menu_parameters_add.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuParametersRemoveSelection, id = self.menu_parameters_remove.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuPartAddPart, id = self.menu_part_add_part.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuPartEditPart, id = self.menu_part_edit_part.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuPartRemovePart, id = self.menu_part_remove_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsRefreshOctopart, id = self.menu_parts_refresh_octopart.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsImportParts, id = self.menu_parts_import_parts.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsExportParts, id = self.menu_parts_export_parts.GetId() )
@@ -224,28 +222,19 @@ class PanelParts ( wx.Panel ):
 	def onInitDialog( self, event ):
 		event.Skip()
 	
-	def onButtonAddCategoryClick( self, event ):
-		event.Skip()
-	
-	def onButtonEditCategoryClick( self, event ):
-		event.Skip()
-	
-	def onButtonRemoveCategoryClick( self, event ):
-		event.Skip()
-	
 	def onButtonRefreshCategoriesClick( self, event ):
 		event.Skip()
 	
-	def onButtonAddPartClick( self, event ):
+	def onMenuCategoryAddCategory( self, event ):
 		event.Skip()
 	
-	def onButtonEditPartClick( self, event ):
+	def onMenuCategoryEditCategory( self, event ):
 		event.Skip()
 	
-	def onButtonRemovePartClick( self, event ):
+	def onMenuCategoryRemoveCategory( self, event ):
 		event.Skip()
 	
-	def onToggleCategoryPathButton( self, event ):
+	def onToggleCategoryPathClicked( self, event ):
 		event.Skip()
 	
 	def onSearchPartsButton( self, event ):
@@ -263,6 +252,15 @@ class PanelParts ( wx.Panel ):
 	def onMenuParametersRemoveSelection( self, event ):
 		event.Skip()
 	
+	def onMenuPartAddPart( self, event ):
+		event.Skip()
+	
+	def onMenuPartEditPart( self, event ):
+		event.Skip()
+	
+	def onMenuPartRemovePart( self, event ):
+		event.Skip()
+	
 	def onMenuItemPartsRefreshOctopart( self, event ):
 		event.Skip()
 	
@@ -276,8 +274,14 @@ class PanelParts ( wx.Panel ):
 		self.m_splitter2.SetSashPosition( 308 )
 		self.m_splitter2.Unbind( wx.EVT_IDLE )
 	
+	def panel_categoryOnContextMenu( self, event ):
+		self.panel_category.PopupMenu( self.menu_category, event.GetPosition() )
+		
 	def panel_partsOnContextMenu( self, event ):
 		self.panel_parts.PopupMenu( self.menu_parameters, event.GetPosition() )
+		
+	def m_panel3OnContextMenu( self, event ):
+		self.m_panel3.PopupMenu( self.menu_part, event.GetPosition() )
 		
 	def PanelPartsOnContextMenu( self, event ):
 		self.PopupMenu( self.menu_parts, event.GetPosition() )
