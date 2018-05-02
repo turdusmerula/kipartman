@@ -22,6 +22,12 @@ class DialogMain ( wx.Frame ):
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
 		self.menu_bar = wx.MenuBar( 0 )
+		self.menu_file = wx.Menu()
+		self.menu_file_project = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Open project", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_file.Append( self.menu_file_project )
+		
+		self.menu_bar.Append( self.menu_file, u"File" ) 
+		
 		self.menu_view = wx.Menu()
 		self.menu_view_configuration = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Configuration", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_view.Append( self.menu_view_configuration )
@@ -56,6 +62,7 @@ class DialogMain ( wx.Frame ):
 		
 		# Connect Events
 		self.Bind( wx.EVT_KILL_FOCUS, self.onKillFocus )
+		self.Bind( wx.EVT_MENU, self.onMenuFileProjetSelection, id = self.menu_file_project.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewConfigurationSelection, id = self.menu_view_configuration.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuHelpAboutSelection, id = self.menu_about.GetId() )
 		self.notebook.Bind( wx.EVT_NOTEBOOK_PAGE_CHANGED, self.onNotebookPageChanged )
@@ -66,6 +73,9 @@ class DialogMain ( wx.Frame ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def onKillFocus( self, event ):
+		event.Skip()
+	
+	def onMenuFileProjetSelection( self, event ):
 		event.Skip()
 	
 	def onMenuViewConfigurationSelection( self, event ):

@@ -37,7 +37,6 @@ from .models.part_offer_data import PartOfferData
 from .models.part_parameter import PartParameter
 from .models.part_parameter_data import PartParameterData
 from .models.part_parameter_description import PartParameterDescription
-from .models.part_parameter_ref import PartParameterRef
 from .models.part_ref import PartRef
 from .models.part_storage import PartStorage
 from .models.storage import Storage

@@ -342,7 +342,7 @@ class TreeManager(object):
         self.OnItemStartEditing = None
         self.OnItemValueChanged = None
         self.OnSelectionChanged = None
-
+        
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_COLUMN_HEADER_CLICK, self._onColumnHeaderClick, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK, self._onColumnHeaderRightClick, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_COLUMN_REORDERED, self._onColumnReordered, id = wx.ID_ANY )
@@ -361,7 +361,6 @@ class TreeManager(object):
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_START_EDITING, self._onItemStartEditing, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self._onItemValueChanged, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self._onSelectionChanged, id = wx.ID_ANY )
-        
 
     def _onColumnHeaderClick( self, event ):
         event.manager = self
@@ -594,7 +593,6 @@ class TreeManager(object):
         if self.OnSelectionChanged:
             return self.OnSelectionChanged(event)
         event.Skip()
-
 
     def AddTextColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)

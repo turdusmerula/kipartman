@@ -67,7 +67,7 @@ class SelectPartFrame(PanelSelectPart):
             if categories.has_key(category_name)==False:
                 categories[category_name] = DataModelCategoryPath(part.category)
                 self.tree_parts_manager.AppendItem(None, categories[category_name])
-            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part))
+            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, {}))
         
         for category in categories:
             self.tree_parts_manager.Expand(categories[category])

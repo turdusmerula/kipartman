@@ -5,6 +5,7 @@ import Canvas
 import re 
 import math
 import tempfile
+import sys
 
 def tab(level):
     res = ''
@@ -38,6 +39,7 @@ class KicadLibFile(object):
         self.line = ''
         self.buff = ''
 
+        self.parent = KicadObject('')
         self.read_lines(self.parent) 
         #self.Write(self.parent, 0)
                     
@@ -59,6 +61,7 @@ class KicadLibFile(object):
         self.line = ''
         self.buff = ''
 
+        self.parent = KicadObject('')
         self.read_lines(self.parent) 
         #self.Write(self.parent, 0)
                     
@@ -69,8 +72,25 @@ class KicadLibFile(object):
         canvas = Canvas.LibraryCanvas()
         surface = canvas.Render(self.parent, width, height)
         surface.write_to_png (filename)
+    
+    def SaveAs(self, filename):
+        with open(filename, "w") as f:
+            if len(self.parent.nodes)>0:
+                for node in self.parent.nodes:
+                    self.Write(f, node)
+    
+    def Write(self, file, obj, level=0):
+        line = "%s%s"%(tab(level), obj.header)
+        for attr in obj.attributes:
+            line = line+" "+attr
         
-    def Write(self, obj, level=0):
+        file.write(line+'\n')
+
+        if len(obj.nodes)>0:
+            for node in obj.nodes:
+                self.Write(node, level+1)
+        
+    def DebugWrite(self, obj, level=0):
         line = "%s%s"%(tab(level), obj.header)
         for attr in obj.attributes:
             line = line+" "+attr
@@ -81,6 +101,8 @@ class KicadLibFile(object):
                 self.Write(node, level+1)
 
     def read_lines(self, parent):
+        parents = []
+        
         while self.next_line()!=EOF:
             # skip comment lines
             self._skip_spaces()
@@ -93,9 +115,16 @@ class KicadLibFile(object):
             if header is None:
                 continue
         
-            obj = KicadLibObject.Instance(header)        
+            obj = KicadLibObject.Instance(header)
             parent.AddNode(obj)
 
+            if obj.open_block()==True:
+                parents.append(parent)
+                parent = obj
+            
+            if obj.close_block()==True:
+                parent = parents.pop()
+            
             attr = self._read_field()
             while attr!=EOL:
                 obj.AddAttribute(attr)
@@ -182,6 +211,27 @@ class KicadLibObject(KicadObject):
                 return obj
         return KicadLibObject(header)
 
+    def open_block(self):
+        return False
+    
+    def close_block(self):
+        return False
+    
+class KicadDescr(KicadLibObject):
+    def __init__(self):
+        super(KicadDEF, self).__init__('$Descr', True)
+        KicadObject._register(self.header, KicadDEF)
+
+    def open_block(self):
+        return True
+
+class KicadEndDescr(KicadLibObject):
+    def __init__(self):
+        super(KicadDEF, self).__init__('$EndDescr', True)
+        KicadObject._register(self.header, KicadDEF)
+
+    def close_block(self):
+        return True
 
 class KicadDEF(KicadLibObject):
     def __init__(self):

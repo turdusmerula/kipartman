@@ -37,7 +37,7 @@ class PartData(object):
         'octopart': 'str',
         'octopart_uid': 'str',
         'updated': 'datetime',
-        'value_parameter': 'PartParameterRef'
+        'value_parameter': 'str'
     }
 
     attribute_map = {
@@ -210,7 +210,7 @@ class PartData(object):
         Gets the value_parameter of this PartData.
 
         :return: The value_parameter of this PartData.
-        :rtype: PartParameterRef
+        :rtype: str
         """
         return self._value_parameter
 
@@ -220,7 +220,7 @@ class PartData(object):
         Sets the value_parameter of this PartData.
 
         :param value_parameter: The value_parameter of this PartData.
-        :type: PartParameterRef
+        :type: str
         """
 
         self._value_parameter = value_parameter

@@ -37,7 +37,7 @@ class PartNew(object):
         'octopart': 'str',
         'octopart_uid': 'str',
         'updated': 'datetime',
-        'value_parameter': 'PartParameterRef',
+        'value_parameter': 'str',
         'category': 'PartCategoryRef',
         'childs': 'list[PartRef]',
         'footprint': 'VersionedFileRef',
@@ -255,7 +255,7 @@ class PartNew(object):
         Gets the value_parameter of this PartNew.
 
         :return: The value_parameter of this PartNew.
-        :rtype: PartParameterRef
+        :rtype: str
         """
         return self._value_parameter
 
@@ -265,7 +265,7 @@ class PartNew(object):
         Sets the value_parameter of this PartNew.
 
         :param value_parameter: The value_parameter of this PartNew.
-        :type: PartParameterRef
+        :type: str
         """
 
         self._value_parameter = value_parameter

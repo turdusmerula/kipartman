@@ -37,7 +37,7 @@ class Part(object):
         'octopart': 'str',
         'octopart_uid': 'str',
         'updated': 'datetime',
-        'value_parameter': 'PartParameterRef',
+        'value_parameter': 'str',
         'id': 'int',
         'category': 'PartCategory',
         'has_childs': 'int',
@@ -264,7 +264,7 @@ class Part(object):
         Gets the value_parameter of this Part.
 
         :return: The value_parameter of this Part.
-        :rtype: PartParameterRef
+        :rtype: str
         """
         return self._value_parameter
 
@@ -274,7 +274,7 @@ class Part(object):
         Sets the value_parameter of this Part.
 
         :param value_parameter: The value_parameter of this Part.
-        :type: PartParameterRef
+        :type: str
         """
 
         self._value_parameter = value_parameter

@@ -8,7 +8,6 @@ from swagger_server.models.part_data import PartData
 from swagger_server.models.part_distributor import PartDistributor
 from swagger_server.models.part_manufacturer import PartManufacturer
 from swagger_server.models.part_parameter import PartParameter
-from swagger_server.models.part_parameter_ref import PartParameterRef
 from swagger_server.models.part_storage import PartStorage
 from swagger_server.models.versioned_file import VersionedFile
 from .base_model_ import Model
@@ -39,7 +38,7 @@ class Part(Model):
         :param updated: The updated of this Part.
         :type updated: datetime
         :param value_parameter: The value_parameter of this Part.
-        :type value_parameter: PartParameterRef
+        :type value_parameter: str
         :param id: The id of this Part.
         :type id: int
         :param category: The category of this Part.
@@ -70,7 +69,7 @@ class Part(Model):
             'octopart': str,
             'octopart_uid': str,
             'updated': datetime,
-            'value_parameter': PartParameterRef,
+            'value_parameter': str,
             'id': int,
             'category': PartCategory,
             'has_childs': int,
@@ -268,7 +267,7 @@ class Part(Model):
         Gets the value_parameter of this Part.
 
         :return: The value_parameter of this Part.
-        :rtype: PartParameterRef
+        :rtype: str
         """
         return self._value_parameter
 
@@ -278,7 +277,7 @@ class Part(Model):
         Sets the value_parameter of this Part.
 
         :param value_parameter: The value_parameter of this Part.
-        :type value_parameter: PartParameterRef
+        :type value_parameter: str
         """
 
         self._value_parameter = value_parameter

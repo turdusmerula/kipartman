@@ -100,7 +100,8 @@ class PartParameter(object):
           self.max_value = max_value
         if max_prefix is not None:
           self.max_prefix = max_prefix
-        self.id = id
+        if id is not None:
+          self.id = id
 
     @property
     def name(self):
@@ -351,8 +352,6 @@ class PartParameter(object):
         :param id: The id of this PartParameter.
         :type: int
         """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")
 
         self._id = id
 

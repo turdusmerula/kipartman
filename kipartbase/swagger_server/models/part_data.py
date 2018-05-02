@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from __future__ import absolute_import
-from swagger_server.models.part_parameter_ref import PartParameterRef
 from .base_model_ import Model
 from datetime import date, datetime
 from typing import List, Dict
@@ -30,7 +29,7 @@ class PartData(Model):
         :param updated: The updated of this PartData.
         :type updated: datetime
         :param value_parameter: The value_parameter of this PartData.
-        :type value_parameter: PartParameterRef
+        :type value_parameter: str
         """
         self.swagger_types = {
             'name': str,
@@ -39,7 +38,7 @@ class PartData(Model):
             'octopart': str,
             'octopart_uid': str,
             'updated': datetime,
-            'value_parameter': PartParameterRef
+            'value_parameter': str
         }
 
         self.attribute_map = {
@@ -204,7 +203,7 @@ class PartData(Model):
         Gets the value_parameter of this PartData.
 
         :return: The value_parameter of this PartData.
-        :rtype: PartParameterRef
+        :rtype: str
         """
         return self._value_parameter
 
@@ -214,7 +213,7 @@ class PartData(Model):
         Sets the value_parameter of this PartData.
 
         :param value_parameter: The value_parameter of this PartData.
-        :type value_parameter: PartParameterRef
+        :type value_parameter: str
         """
 
         self._value_parameter = value_parameter

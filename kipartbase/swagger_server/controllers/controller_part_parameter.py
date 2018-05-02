@@ -192,6 +192,24 @@ def find_part_parameter(part_id, parameter_id):
 
     return serialize_PartParameter(fpart_parameter)
 
+def find_part_parameter_name(part_id, parameter_name):
+    """
+    find_part_parameter
+    Return a part parameter
+    :param part_id: Part id
+    :type part_id: int
+    :param parameter_id: Parameter id
+    :type parameter_id: int
+
+    :rtype: List[PartParameter]
+    """
+    try:
+        fpart_parameter = api.models.PartParameter.objects.get(part=part_id, name=parameter_name)
+    except:
+        return Error(code=1000, message='Part parameter %s for part %d does not exists'%(parameter_name, part_id)), 403
+
+    return serialize_PartParameter(fpart_parameter)
+
 def find_parts_parameters(search=None):
     """
     find_parts_parameters

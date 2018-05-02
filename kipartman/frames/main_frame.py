@@ -1,15 +1,14 @@
 from dialogs.dialog_main import DialogMain
-from frames.buy_frame import BuyFrame
 from frames.parts_frame import PartsFrame
 from frames.symbols_frame import SymbolsFrame
 from frames.footprints_frame import FootprintsFrame
 from frames.distributors_frame import DistributorsFrame
 from frames.manufacturers_frame import ManufacturersFrame
-from frames.bom_frame import BomFrame
 from frames.configuration_frame import ConfigurationFrame
 from frames.storages_frame import StoragesFrame
+from frames.project_frame import ProjectFrame
 from helper.exception import print_stack
-
+import os
 import wx
 
 class MainFrame(DialogMain): 
@@ -25,8 +24,6 @@ class MainFrame(DialogMain):
         self.distributorsframe = DistributorsFrame(self.notebook)
         self.manufacturersframe = ManufacturersFrame(self.notebook)
         self.storageframe = StoragesFrame(self.notebook)
-        self.buyframe = BuyFrame(self.notebook)
-        self.bomframe = BomFrame(self.notebook)
  
         self.pages.append(self.partsframe)
         self.notebook.AddPage(self.partsframe, "Parts", False)
@@ -40,10 +37,6 @@ class MainFrame(DialogMain):
         self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
         self.pages.append(self.storageframe)
         self.notebook.AddPage(self.storageframe, "Storage locations", False)
-        self.pages.append(self.bomframe)
-        self.notebook.AddPage(self.bomframe, "BOM", False)
-        self.pages.append(self.buyframe)
-        self.notebook.AddPage(self.buyframe, "Buy", False)
 
     def onMenuViewConfigurationSelection( self, event ):
         ConfigurationFrame(self).ShowModal()
@@ -67,6 +60,24 @@ class MainFrame(DialogMain):
         except:
             print_stack()
             pass
-    
+
+    def onMenuFileProjetSelection( self, event ):
+        dlg = wx.FileDialog(
+            self, message="Choose a kicad project file",
+            defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard="Kicad project (*.pro)|*.pro",
+                style=wx.FD_OPEN |
+                wx.FD_FILE_MUST_EXIST |
+                wx.FD_PREVIEW
+        )
+        dlg.SetFilterIndex(0)
+
+        # Show the dialog and retrieve the user response. If it is the OK response,
+        # process the data.
+        if dlg.ShowModal() == wx.ID_OK:
+            project_frame = ProjectFrame(self, dlg.GetPath())
+            project_frame.Show(True)
+
     def OnMenuItem( self, event ):
         self.pages[self.notebook.GetSelection()].OnMenuItem(event)

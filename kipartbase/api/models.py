@@ -32,7 +32,7 @@ class Part(models.Model):
     octopart = models.TextField(null=True, blank=True, default=None)
     octopart_uid = models.TextField(null=True, blank=True, default=None)
     updated = models.DateTimeField(null=True, blank=True, default=None)
-    value_parameter = models.ForeignKey('PartParameter', related_name='value_parameter', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    value_parameter = models.TextField(null=True, blank=True, default=None)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 

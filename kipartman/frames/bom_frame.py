@@ -3,9 +3,7 @@ from frames.dropdown_dialog import DropdownDialog
 from frames.select_part_frame import SelectPartFrame, EVT_SELECT_PART_OK_EVENT
 from kicad.pcb import Pcb
 from bom.bom import Bom
-import wx.dataview
 import os
-from docutils.parsers.rst.directives import path
 import helper.tree
 
 

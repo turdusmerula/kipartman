@@ -33,7 +33,7 @@ class DataModelPartParameter(helper.tree.TreeContainerItem):
 
     def GetValue(self, col):
         value_parameter = False
-        if self.part.value_parameter and self.part.value_parameter.id==self.parameter.id:
+        if self.part.value_parameter and self.part.value_parameter==self.parameter.name:
             value_parameter = True
             
         if self.parameter.numeric==True:
@@ -164,20 +164,14 @@ class PartParametersFrame(PanelPartParameters):
         self.menu_parameter_add_parameter.Enable(True)
         self.menu_parameter_edit_parameter.Enable(True)
         self.menu_parameter_remove_parameter.Enable(True)
-        self.menu_parameter_set_kicad_value.Enable(True)
-        self.menu_parameter_unset_kicad_value.Enable(True)
         if isinstance(obj, DataModelPartParameter)==False:
             self.menu_parameter_edit_parameter.Enable(False)
             self.menu_parameter_remove_parameter.Enable(False)
-            self.menu_parameter_set_kicad_value.Enable(False)
-            self.menu_parameter_unset_kicad_value.Enable(False)
         
         if self.enabled==False:
             self.menu_parameter_add_parameter.Enable(False)
             self.menu_parameter_edit_parameter.Enable(False)
             self.menu_parameter_remove_parameter.Enable(False)
-            self.menu_parameter_set_kicad_value.Enable(False)
-            self.menu_parameter_unset_kicad_value.Enable(False)
             
     def onTreeParametersItemValueChanged( self, event ):
         if self.enabled==False:
@@ -187,11 +181,11 @@ class PartParametersFrame(PanelPartParameters):
             return
         parameterobj = self.tree_parameters_manager.ItemToObject(item)
         
-        if self.part.value_parameter and parameterobj.parameter.id==self.part.value_parameter.id:
+        if self.part.value_parameter and parameterobj.parameter.name==self.part.value_parameter:
             self.part.value_parameter = None
         else:
-            self.part.value_parameter = parameterobj.parameter
-    
+            self.part.value_parameter = parameterobj.parameter.name
+        
     def onMenuParameterAddParameter( self, event ):
         parameter = EditPartParameterFrame(self).AddParameter(self.part)
         if not parameter is None:
