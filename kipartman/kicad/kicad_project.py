@@ -21,7 +21,7 @@ class KicadProject(FileSystemEventHandler):
         
         self.files = {}
         self.folders = []
-        self.extensions = ['.bom', '.net', '.sch', '.kicad_pcb']
+        self.extensions = ['bom', 'net', 'sch', 'kicad_pcb']
         
         self.project_file = project_file
         self.root_path = os.path.dirname(self.project_file)
@@ -40,14 +40,12 @@ class KicadProject(FileSystemEventHandler):
         for extension in self.extensions:
             if hasattr(event, 'dest_path') and os.path.isfile(event.dest_path) and os.path.basename(event.dest_path).startswith('.')==False and event.dest_path.endswith('.'+extension):
                 print("Something happend with %s" % (event.dest_path))
-                path = os.path.relpath(event.dest_path, self.root_path())
-                self.on_change_prehook(path)
+                path = os.path.relpath(event.dest_path, self.root_path)
                 if self.on_change_hook:
                     wx.CallAfter(self.on_change_hook, path)
             elif hasattr(event, 'src_path') and os.path.isfile(event.src_path) and os.path.basename(event.src_path).startswith('.')==False and event.src_path.endswith('.'+extension):
                 print("Something happend with %s" % (event.src_path))
-                path = os.path.relpath(event.src_path, self.root_path())
-                self.on_change_prehook(path)
+                path = os.path.relpath(event.src_path, self.root_path)
                 if self.on_change_hook:
                     wx.CallAfter(self.on_change_hook, path)
         

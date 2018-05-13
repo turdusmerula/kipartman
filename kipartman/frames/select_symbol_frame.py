@@ -99,7 +99,7 @@ class SelectSymbolFrame(PanelSelectSymbol):
         self.load()
         
         if initial:
-            self.tree_symbols.Select(self.tree_symbols_manager.ObjectToItem(self.tree_symbols_manager.FindSymbol(initial.id)))
+            self.tree_symbols.Select(self.tree_symbols_manager.ObjectToItem(self.tree_symbols_manager.FindSymbol(initial.source_path)))
         
         # set result functions
         self.cancel = None

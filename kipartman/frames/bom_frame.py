@@ -5,7 +5,7 @@ from kicad.pcb import Pcb
 from bom.bom import Bom
 import os
 import helper.tree
-
+import wx
 
 class DataModelModule(helper.tree.TreeItem):
     def __init__(self, module):

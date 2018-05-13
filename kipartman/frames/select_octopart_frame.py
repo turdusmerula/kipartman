@@ -91,7 +91,7 @@ class SelectOctopartFrame(PanelSelectOctopart):
     
         # create octoparts list
         self.octoparts_symbol = OctopartDataModel(initial_search)
-        self.tree_octoparts.AssociateSymbol(self.octoparts_symbol)
+        self.tree_octoparts.AssociateModel(self.octoparts_symbol)
         # add default columns
         self.tree_octoparts.AppendTextColumn("Manufacturer", 0, width=wx.COL_WIDTH_AUTOSIZE)
         self.tree_octoparts.AppendTextColumn("Description", 1, width=wx.COL_WIDTH_AUTOSIZE)

@@ -55,11 +55,17 @@ def main(args=None):
 
 if __name__ == "__main__":
     
-    from kicad.kicad_schematic_file import KicadSchematicFile
-    sch = KicadSchematicFile()
-    sch.LoadFile('/home/seb/git/mcu_atsamd21g/MCU_ATSAMD21G/MCU_ATSAMD21G.sch')
-    #sch.SaveAs('/home/seb/git/mcu_atsamd21g/MCU_ATSAMD21G/MCU_ATSAMD21G-2.sch')
-    exit(1)
+#     from kicad.kicad_schematic_file import KicadSchematicFile
+#     sch = KicadSchematicFile()
+#     sch.LoadFile('/home/seb/git/mcu_atsamd21g/MCU_ATSAMD21G/MCU_ATSAMD21G.sch')
+#     
+#     for comp in sch.Components():
+#         comp.kicad_part = 'aaa'
+#         print "**", comp.symbol, comp.reference, comp.value, comp.footprint
+#     sch.Save()
+#     #sch.DebugWrite(sch.parent)
+#     exit(1)
+
     #import cProfile
     #cProfile.run("main()")
     main()

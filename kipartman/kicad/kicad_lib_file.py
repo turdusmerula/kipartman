@@ -1,23 +1,8 @@
-import wx
 import os
-from kicad_object import KicadObject
-import Canvas
+from kicad_object import *
 import re 
 import math
 import tempfile
-import sys
-
-def tab(level):
-    res = ''
-    for i in range(level):
-        res = res+'  '
-    return res
-
-class EOL(object):
-    pass
-
-class EOF(object):
-    pass
 
 class KicadLibFile(object):
     def __init__(self):
@@ -88,7 +73,7 @@ class KicadLibFile(object):
 
         if len(obj.nodes)>0:
             for node in obj.nodes:
-                self.Write(node, level+1)
+                self.Write(file, node, level+1)
         
     def DebugWrite(self, obj, level=0):
         line = "%s%s"%(tab(level), obj.header)
@@ -98,11 +83,9 @@ class KicadLibFile(object):
         print(line, type(obj))
         if len(obj.nodes)>0:
             for node in obj.nodes:
-                self.Write(node, level+1)
+                self.DebugWrite(node, level+1)
 
     def read_lines(self, parent):
-        parents = []
-        
         while self.next_line()!=EOF:
             # skip comment lines
             self._skip_spaces()
@@ -117,13 +100,6 @@ class KicadLibFile(object):
         
             obj = KicadLibObject.Instance(header)
             parent.AddNode(obj)
-
-            if obj.open_block()==True:
-                parents.append(parent)
-                parent = obj
-            
-            if obj.close_block()==True:
-                parent = parents.pop()
             
             attr = self._read_field()
             while attr!=EOL:
@@ -210,29 +186,7 @@ class KicadLibObject(KicadObject):
                 obj.header = header
                 return obj
         return KicadLibObject(header)
-
-    def open_block(self):
-        return False
     
-    def close_block(self):
-        return False
-    
-class KicadDescr(KicadLibObject):
-    def __init__(self):
-        super(KicadDEF, self).__init__('$Descr', True)
-        KicadObject._register(self.header, KicadDEF)
-
-    def open_block(self):
-        return True
-
-class KicadEndDescr(KicadLibObject):
-    def __init__(self):
-        super(KicadDEF, self).__init__('$EndDescr', True)
-        KicadObject._register(self.header, KicadDEF)
-
-    def close_block(self):
-        return True
-
 class KicadDEF(KicadLibObject):
     def __init__(self):
         super(KicadDEF, self).__init__('DEF', True)

@@ -99,7 +99,7 @@ class SelectFootprintFrame(PanelSelectFootprint):
         self.load()
         
         if initial:
-            self.tree_footprints.Select(self.tree_footprints_manager.ObjectToItem(self.tree_footprints_manager.FindFootprint(initial.id)))
+            self.tree_footprints.Select(self.tree_footprints_manager.ObjectToItem(self.tree_footprints_manager.FindFootprint(initial.source_path)))
         
         # set result functions
         self.cancel = None

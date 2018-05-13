@@ -12,7 +12,7 @@ class DataModelPartParameter(helper.tree.TreeContainerItem):
         res = ""
         if value is None:
             return res
-        res = res+"%g"%value+" "
+        res = res+"%g"%value#+" "
         if not prefix is None:
             res = res+prefix.symbol
         if not unit is None:

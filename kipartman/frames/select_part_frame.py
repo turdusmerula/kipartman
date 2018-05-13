@@ -30,6 +30,7 @@ class SelectPartFrame(PanelSelectPart):
 
         # create parameters list
         self.tree_parameters_manager = helper.tree.TreeManager(self.tree_parameters)
+        self.tree_parameters_manager.AddToggleColumn("*")
         self.tree_parameters_manager.AddTextColumn("Parameter")
         self.tree_parameters_manager.AddTextColumn("Min Value")
         self.tree_parameters_manager.AddTextColumn("Nominal Value")
@@ -77,7 +78,7 @@ class SelectPartFrame(PanelSelectPart):
         
         if part and part.parameters:
             for parameter in part.parameters:
-                self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(parameter))
+                self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(part, parameter))
 
     def SetResult(self, result, cancel=None):
         self.result = result
