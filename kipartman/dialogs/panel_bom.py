@@ -28,19 +28,34 @@ class PanelBom ( wx.Panel ):
 		self.m_panel1 = wx.Panel( self.m_splitter1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer4 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.m_toolBar1 = wx.ToolBar( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
-		self.tool_open_brd = self.m_toolBar1.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/open-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Open a kicad board", wx.EmptyString, None ) 
+		bSizer8 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.tool_refresh_brd = self.m_toolBar1.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/refresh-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh module list", wx.EmptyString, None ) 
+		bSizer11 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer101 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_toolBar3 = wx.ToolBar( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.tool_save_bom = self.m_toolBar3.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/save.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Save kipartman BOM file", wx.EmptyString, None ) 
+		
+		self.m_toolBar3.Realize() 
+		
+		bSizer101.Add( self.m_toolBar3, 1, wx.EXPAND, 5 )
+		
+		self.m_toolBar1 = wx.ToolBar( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.tool_refresh_brd = self.m_toolBar1.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh module list", wx.EmptyString, None ) 
 		
 		self.m_toolBar1.Realize() 
 		
-		bSizer4.Add( self.m_toolBar1, 0, wx.EXPAND, 5 )
+		bSizer101.Add( self.m_toolBar1, 0, wx.EXPAND, 5 )
 		
-		bSizer8 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		bSizer11.Add( bSizer101, 0, wx.EXPAND, 5 )
 		
 		self.tree_modules = wx.dataview.DataViewCtrl( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer8.Add( self.tree_modules, 1, wx.ALL|wx.EXPAND, 5 )
+		bSizer11.Add( self.tree_modules, 1, wx.ALL|wx.EXPAND, 5 )
+		
+		
+		bSizer8.Add( bSizer11, 1, wx.EXPAND, 5 )
 		
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -66,7 +81,9 @@ class PanelBom ( wx.Panel ):
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.toolbar_bom = wx.ToolBar( self.m_panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
-		self.tool_save_bom = self.toolbar_bom.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/save-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Save kipartman BOM file", wx.EmptyString, None ) 
+		self.tool_add_bom_part = self.toolbar_bom.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+		
+		self.tool_remove_bom_part = self.toolbar_bom.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
 		
 		self.toolbar_bom.Realize() 
 		
@@ -82,12 +99,6 @@ class PanelBom ( wx.Panel ):
 		bSizer41 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer51 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.button_add_bom_part = wx.BitmapButton( self.m_panel3, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer51.Add( self.button_add_bom_part, 0, wx.ALL, 5 )
-		
-		self.button_remove_bom_part = wx.BitmapButton( self.m_panel3, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer51.Add( self.button_remove_bom_part, 0, wx.ALL, 5 )
 		
 		
 		bSizer41.Add( bSizer51, 0, wx.EXPAND, 5 )
@@ -124,13 +135,12 @@ class PanelBom ( wx.Panel ):
 		self.Layout()
 		
 		# Connect Events
-		self.Bind( wx.EVT_TOOL, self.onToolOpenBrdClicked, id = self.tool_open_brd.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToolSaveBomClicked, id = self.tool_save_bom.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onToolRefreshBrd, id = self.tool_refresh_brd.GetId() )
 		self.button_add_bom_module.Bind( wx.EVT_BUTTON, self.onButtonAddBomModuleClick )
 		self.button_remove_bom_module.Bind( wx.EVT_BUTTON, self.onButtonRemoveBomModuleClick )
-		self.Bind( wx.EVT_TOOL, self.onToolSaveBomClicked, id = self.tool_save_bom.GetId() )
-		self.button_add_bom_part.Bind( wx.EVT_BUTTON, self.onButtonAddBomPartClick )
-		self.button_remove_bom_part.Bind( wx.EVT_BUTTON, self.onButtonRemoveBomPartClick )
+		self.Bind( wx.EVT_TOOL, self.onToolAddBomPartClick, id = self.tool_add_bom_part.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToolRemoveBomPartClick, id = self.tool_remove_bom_part.GetId() )
 		self.tree_bom_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomPartsSelectionChanged, id = wx.ID_ANY )
 	
 	def __del__( self ):
@@ -138,7 +148,7 @@ class PanelBom ( wx.Panel ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def onToolOpenBrdClicked( self, event ):
+	def onToolSaveBomClicked( self, event ):
 		event.Skip()
 	
 	def onToolRefreshBrd( self, event ):
@@ -150,13 +160,10 @@ class PanelBom ( wx.Panel ):
 	def onButtonRemoveBomModuleClick( self, event ):
 		event.Skip()
 	
-	def onToolSaveBomClicked( self, event ):
+	def onToolAddBomPartClick( self, event ):
 		event.Skip()
 	
-	def onButtonAddBomPartClick( self, event ):
-		event.Skip()
-	
-	def onButtonRemoveBomPartClick( self, event ):
+	def onToolRemoveBomPartClick( self, event ):
 		event.Skip()
 	
 	def onTreeBomPartsSelectionChanged( self, event ):

@@ -279,8 +279,8 @@ class KicadComp(KicadSchematicObject):
         return ''
     
     def fset_value(self, value):
-        l = self.getF(1)
-        l.SetAttribute(1, value)    
+        f = self.getF(1)
+        f.SetAttribute(1, value, 'string')    
 
 
     def fget_footprint(self):
@@ -294,41 +294,41 @@ class KicadComp(KicadSchematicObject):
         f.SetAttribute(1, value, 'string')    
 
 
-    def fget_kicad_part(self):
-        f = self.getF_Name('kicad_part')
+    def fget_kipart_id(self):
+        f = self.getF_Name('kipart_id')
         if f:
             return f.Attribute(1)
         return ''
     
-    def fset_kicad_part(self, value):
-        f = self.getF_Name('kicad_part')
+    def fset_kipart_id(self, value):
+        f = self.getF_Name('kipart_id')
         if not f:
             f = KicadF(parent=self)
             f.add_attributes()
-            f.SetAttribute(9, 'kicad_part', 'string')    
+            f.SetAttribute(9, 'kipart_id', 'string')    
         f.SetAttribute(1, value, 'string')    
 
 
-    def fget_kicad_sku(self):
-        f = self.getF_Name('kicad_sku')
+    def fget_kipart_sku(self):
+        f = self.getF_Name('kipart_sku')
         if f:
             return f.Attribute(1)
         return ''
     
-    def fset_kicad_sku(self, value):
-        f = self.getF_Name('kicad_sku')
+    def fset_kipart_sku(self, value):
+        f = self.getF_Name('kipart_sku')
         if not f:
             f = KicadF(parent=self)
             f.add_attributes()
-            f.SetAttribute(9, 'kicad_sku', 'string')    
+            f.SetAttribute(9, 'kipart_sku', 'string')    
         f.SetAttribute(1, value, 'string')    
 
     symbol = property(fget=fget_symbol, fset=fset_symbol)
     reference = property(fget=fget_reference, fset=fset_reference)
     value = property(fget=fget_value, fset=fset_value)
     footprint = property(fget=fget_footprint, fset=fset_footprint)
-    kicad_part = property(fget=fget_kicad_part, fset=fset_kicad_part)
-    kicad_sku = property(fget=fget_kicad_sku, fset=fset_kicad_sku)
+    kipart_id = property(fget=fget_kipart_id, fset=fset_kipart_id)
+    kipart_sku = property(fget=fget_kipart_sku, fset=fset_kipart_sku)
 
 
 class KicadF(KicadSchematicObject):

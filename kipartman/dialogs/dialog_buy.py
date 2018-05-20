@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*- 
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Jul 12 2017)
+## Python code generated with wxFormBuilder (version Dec 22 2017)
 ## http://www.wxformbuilder.org/
 ##
-## PLEASE DO "NOT" EDIT THIS FILE!
+## PLEASE DO *NOT* EDIT THIS FILE!
 ###########################################################################
 
 import wx
@@ -12,13 +12,15 @@ import wx.xrc
 import wx.dataview
 
 ###########################################################################
-## Class PanelBuy
+## Class DialogBuy
 ###########################################################################
 
-class PanelBuy ( wx.Panel ):
+class DialogBuy ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Panel.__init__ ( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1149,803 ), style = wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1205,752 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
 		bSizer3 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -51,24 +53,14 @@ class PanelBuy ( wx.Panel ):
 		
 		self.m_staticText3111 = wx.StaticText( self.m_panel311, wx.ID_ANY, u"Boms:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3111.Wrap( -1 )
-		bSizer17.Add( self.m_staticText3111, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		bSizer17.Add( self.m_staticText3111, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
+		self.toolbar_boms = wx.ToolBar( self.m_panel311, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.toolbar_boms_refresh = self.toolbar_boms.AddLabelTool( wx.ID_ANY, u"Refresh", wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh boms", wx.EmptyString, None ) 
 		
-		self.button_add_bom = wx.BitmapButton( self.m_panel311, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer18.Add( self.button_add_bom, 0, wx.ALL, 5 )
+		self.toolbar_boms.Realize() 
 		
-		self.button_remove_bom = wx.BitmapButton( self.m_panel311, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer18.Add( self.button_remove_bom, 0, wx.ALL, 5 )
-		
-		self.spin_bom_boards = wx.SpinCtrl( self.m_panel311, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 999999999, 0 )
-		bSizer18.Add( self.spin_bom_boards, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		
-		bSizer17.Add( bSizer18, 1, wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		self.button_refresh = wx.BitmapButton( self.m_panel311, wx.ID_ANY, wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer17.Add( self.button_refresh, 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+		bSizer17.Add( self.toolbar_boms, 0, wx.EXPAND, 5 )
 		
 		
 		bSizer211.Add( bSizer17, 0, wx.EXPAND, 5 )
@@ -80,6 +72,18 @@ class PanelBuy ( wx.Panel ):
 		self.m_panel311.SetSizer( bSizer211 )
 		self.m_panel311.Layout()
 		bSizer211.Fit( self.m_panel311 )
+		self.menu_boms = wx.Menu()
+		self.menu_boms_add = wx.MenuItem( self.menu_boms, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_boms.Append( self.menu_boms_add )
+		
+		self.menu_boms_remove = wx.MenuItem( self.menu_boms, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_boms.Append( self.menu_boms_remove )
+		
+		self.menu_boms_quantity = wx.MenuItem( self.menu_boms, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_boms.Append( self.menu_boms_quantity )
+		
+		self.m_panel311.Bind( wx.EVT_RIGHT_DOWN, self.m_panel311OnContextMenu ) 
+		
 		self.m_panel411 = wx.Panel( self.m_splitter311, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer221 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -115,7 +119,7 @@ class PanelBuy ( wx.Panel ):
 		self.m_panel41.SetSizer( bSizer22 )
 		self.m_panel41.Layout()
 		bSizer22.Fit( self.m_panel41 )
-		self.m_splitter31.SplitHorizontally( self.m_panel31, self.m_panel41, 0 )
+		self.m_splitter31.SplitHorizontally( self.m_panel31, self.m_panel41, 352 )
 		bSizer8.Add( self.m_splitter31, 1, wx.EXPAND, 5 )
 		
 		
@@ -128,34 +132,11 @@ class PanelBuy ( wx.Panel ):
 		self.panel_buy = wx.Panel( self.m_splitter1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer5 = wx.BoxSizer( wx.VERTICAL )
 		
-		bSizer28 = wx.BoxSizer( wx.VERTICAL )
-		
-		self.m_toolBar1 = wx.ToolBar( self.panel_buy, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
-		self.tool_save_basket = self.m_toolBar1.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/save-32x32.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Save basket file", wx.EmptyString, None ) 
-		
-		self.m_toolBar1.Realize() 
-		
-		bSizer28.Add( self.m_toolBar1, 1, wx.EXPAND, 5 )
-		
-		
-		bSizer5.Add( bSizer28, 0, wx.EXPAND, 5 )
-		
 		self.m_splitter3 = wx.SplitterWindow( self.panel_buy, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
 		self.m_splitter3.Bind( wx.EVT_IDLE, self.m_splitter3OnIdle )
 		
 		self.m_panel3 = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer41 = wx.BoxSizer( wx.VERTICAL )
-		
-		bSizer112 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.button_add_wish_parts = wx.BitmapButton( self.m_panel3, wx.ID_ANY, wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer112.Add( self.button_add_wish_parts, 0, wx.ALL, 5 )
-		
-		self.spin_add_wish_parts = wx.SpinCtrl( self.m_panel3, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 999999999, 0 )
-		bSizer112.Add( self.spin_add_wish_parts, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		
-		bSizer41.Add( bSizer112, 0, wx.EXPAND, 5 )
 		
 		self.tree_distributors = wx.dataview.DataViewCtrl( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_VARIABLE_LINE_HEIGHT )
 		bSizer41.Add( self.tree_distributors, 1, wx.ALL|wx.EXPAND, 5 )
@@ -166,17 +147,6 @@ class PanelBuy ( wx.Panel ):
 		bSizer41.Fit( self.m_panel3 )
 		self.m_panel4 = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
-		
-		bSizer13 = wx.BoxSizer( wx.HORIZONTAL )
-		
-		self.button_edit_wish = wx.BitmapButton( self.m_panel4, wx.ID_ANY, wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer13.Add( self.button_edit_wish, 0, wx.ALL, 5 )
-		
-		self.button_delete_wish = wx.BitmapButton( self.m_panel4, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
-		bSizer13.Add( self.button_delete_wish, 0, wx.ALL, 5 )
-		
-		
-		bSizer10.Add( bSizer13, 0, wx.EXPAND, 5 )
 		
 		self.tree_wish_parts = wx.dataview.DataViewCtrl( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_VARIABLE_LINE_HEIGHT )
 		bSizer10.Add( self.tree_wish_parts, 1, wx.ALL|wx.EXPAND, 5 )
@@ -214,35 +184,60 @@ class PanelBuy ( wx.Panel ):
 		
 		self.SetSizer( bSizer3 )
 		self.Layout()
+		self.menu_main = wx.MenuBar( 0 )
+		self.menu_basket = wx.Menu()
+		self.menu_basket_open = wx.MenuItem( self.menu_basket, wx.ID_ANY, u"Open", u"Open a basket file", wx.ITEM_NORMAL )
+		self.menu_basket.Append( self.menu_basket_open )
+		
+		self.menu_basket_save = wx.MenuItem( self.menu_basket, wx.ID_ANY, u"Save", u"Save current basket", wx.ITEM_NORMAL )
+		self.menu_basket.Append( self.menu_basket_save )
+		
+		self.menu_basket_save_as = wx.MenuItem( self.menu_basket, wx.ID_ANY, u"Save basket as ...", u"Save basket in a new location ", wx.ITEM_NORMAL )
+		self.menu_basket.Append( self.menu_basket_save_as )
+		
+		self.menu_main.Append( self.menu_basket, u"Basket" ) 
+		
+		self.menu_wish = wx.Menu()
+		self.menu_wish_add = wx.MenuItem( self.menu_wish, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_wish.Append( self.menu_wish_add )
+		
+		self.menu_main.Append( self.menu_wish, u"Part" ) 
+		
 		self.menu_prices = wx.Menu()
 		self.menu_item_prices_view_all = wx.MenuItem( self.menu_prices, wx.ID_ANY, u"View all prices", wx.EmptyString, wx.ITEM_CHECK )
-		self.menu_prices.AppendItem( self.menu_item_prices_view_all )
+		self.menu_prices.Append( self.menu_item_prices_view_all )
 		self.menu_item_prices_view_all.Check( True )
 		
 		self.menu_prices.AppendSeparator()
 		
 		self.menu_item_prices_select_bestprice = wx.MenuItem( self.menu_prices, wx.ID_ANY, u"Select best price", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_prices.AppendItem( self.menu_item_prices_select_bestprice )
+		self.menu_prices.Append( self.menu_item_prices_select_bestprice )
 		
 		self.menu_item_prices_automatic_order = wx.MenuItem( self.menu_prices, wx.ID_ANY, u"Automatic complete order", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_prices.AppendItem( self.menu_item_prices_automatic_order )
+		self.menu_prices.Append( self.menu_item_prices_automatic_order )
 		
-		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelBuyOnContextMenu ) 
+		self.menu_main.Append( self.menu_prices, u"Prices" ) 
 		
+		self.menu_distributors = wx.Menu()
+		self.menu_distributors_add_quantity = wx.MenuItem( self.menu_distributors, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_distributors.Append( self.menu_distributors_add_quantity )
+		
+		self.menu_distributors_add_custom_quantity = wx.MenuItem( self.menu_distributors, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_distributors.Append( self.menu_distributors_add_custom_quantity )
+		
+		self.menu_main.Append( self.menu_distributors, u"Distributors" ) 
+		
+		self.SetMenuBar( self.menu_main )
+		
+		
+		self.Centre( wx.BOTH )
 		
 		# Connect Events
-		self.button_add_bom.Bind( wx.EVT_BUTTON, self.onButtonAddBomClick )
-		self.button_remove_bom.Bind( wx.EVT_BUTTON, self.onButtonRemoveBomClick )
-		self.spin_bom_boards.Bind( wx.EVT_SPINCTRL, self.onSpinBomBoardsCtrl )
-		self.button_refresh.Bind( wx.EVT_BUTTON, self.onButtonRefreshClick )
+		self.Bind( wx.EVT_TOOL, self.onButtonRefreshClick, id = self.toolbar_boms_refresh.GetId() )
 		self.tree_boms.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomsSelectionChanged, id = wx.ID_ANY )
 		self.tree_bom_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomPartsSelectionChanged, id = wx.ID_ANY )
 		self.tree_part_equivalents.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartEquivalentsSelectionChanged, id = wx.ID_ANY )
-		self.Bind( wx.EVT_TOOL, self.onToolSaveBasketClicked, id = self.tool_save_basket.GetId() )
-		self.button_add_wish_parts.Bind( wx.EVT_BUTTON, self.onButtonAddWishPartsClick )
 		self.tree_distributors.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeDistributorsSelectionChanged, id = wx.ID_ANY )
-		self.button_edit_wish.Bind( wx.EVT_BUTTON, self.onButtonEditWishClick )
-		self.button_delete_wish.Bind( wx.EVT_BUTTON, self.onButtonDeleteWishClick )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesViewAllSelection, id = self.menu_item_prices_view_all.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesSelectBestpriceSelection, id = self.menu_item_prices_select_bestprice.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesAutomaticOrderSelection, id = self.menu_item_prices_automatic_order.GetId() )
@@ -252,15 +247,6 @@ class PanelBuy ( wx.Panel ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def onButtonAddBomClick( self, event ):
-		event.Skip()
-	
-	def onButtonRemoveBomClick( self, event ):
-		event.Skip()
-	
-	def onSpinBomBoardsCtrl( self, event ):
-		event.Skip()
-	
 	def onButtonRefreshClick( self, event ):
 		event.Skip()
 	
@@ -273,19 +259,7 @@ class PanelBuy ( wx.Panel ):
 	def onTreePartEquivalentsSelectionChanged( self, event ):
 		event.Skip()
 	
-	def onToolSaveBasketClicked( self, event ):
-		event.Skip()
-	
-	def onButtonAddWishPartsClick( self, event ):
-		event.Skip()
-	
 	def onTreeDistributorsSelectionChanged( self, event ):
-		event.Skip()
-	
-	def onButtonEditWishClick( self, event ):
-		event.Skip()
-	
-	def onButtonDeleteWishClick( self, event ):
 		event.Skip()
 	
 	def onMenuItemPricesViewAllSelection( self, event ):
@@ -302,18 +276,18 @@ class PanelBuy ( wx.Panel ):
 		self.m_splitter1.Unbind( wx.EVT_IDLE )
 	
 	def m_splitter31OnIdle( self, event ):
-		self.m_splitter31.SetSashPosition( 0 )
+		self.m_splitter31.SetSashPosition( 352 )
 		self.m_splitter31.Unbind( wx.EVT_IDLE )
 	
 	def m_splitter311OnIdle( self, event ):
 		self.m_splitter311.SetSashPosition( 0 )
 		self.m_splitter311.Unbind( wx.EVT_IDLE )
 	
+	def m_panel311OnContextMenu( self, event ):
+		self.m_panel311.PopupMenu( self.menu_boms, event.GetPosition() )
+		
 	def m_splitter3OnIdle( self, event ):
 		self.m_splitter3.SetSashPosition( 351 )
 		self.m_splitter3.Unbind( wx.EVT_IDLE )
 	
-	def PanelBuyOnContextMenu( self, event ):
-		self.PopupMenu( self.menu_prices, event.GetPosition() )
-		
 

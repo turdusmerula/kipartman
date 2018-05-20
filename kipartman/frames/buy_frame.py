@@ -1,4 +1,4 @@
-from dialogs.panel_buy import PanelBuy
+from dialogs.dialog_buy import DialogBuy
 from frames.order_options_dialog import OrderOptionsDialog
 import wx.dataview
 from currency.currency import Currency
@@ -336,9 +336,9 @@ class TreeManagerDistributors(helper.tree.TreeManager):
         super(TreeManagerDistributors, self).__init__(tree_view)
     
 
-class BuyFrame(PanelBuy): 
+class BuyFrame(DialogBuy): 
     def __init__(self, parent):
-        super(BuyFrame, self).__init__(parent)
+        super(DialogBuy, self).__init__(parent)
 
         # create module bom parts list
         self.tree_boms_manager = helper.tree.TreeManager(self.tree_boms)
@@ -386,6 +386,9 @@ class BuyFrame(PanelBuy):
         self.tree_wish_parts_manager.AddTextColumn("Currency")
         self.tree_wish_parts_manager.AddTextColumn("Description")
 
+        self.menu_main.Append( self.menu_boms, u"Bom" )
+        self.menu_main.Layout()
+        
         self.basket = Basket()
 
         self.enableBom(False)

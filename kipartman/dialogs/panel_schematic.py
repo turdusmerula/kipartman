@@ -31,12 +31,14 @@ class PanelSchematic ( wx.Panel ):
 		bSizer8 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		self.m_toolBar1 = wx.ToolBar( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.tool_export_bom = self.m_toolBar1.AddLabelTool( wx.ID_ANY, u"Export BOM", wx.Bitmap( u"resources/export.gif", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Export BOM", wx.EmptyString, None ) 
+		
 		self.m_toolBar1.Realize() 
 		
 		bSizer8.Add( self.m_toolBar1, 1, wx.EXPAND, 5 )
 		
 		self.m_toolBar2 = wx.ToolBar( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
-		self.tool_refresh_schematic = self.m_toolBar2.AddLabelTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, wx.EmptyString, wx.EmptyString, None ) 
+		self.tool_refresh_schematic = self.m_toolBar2.AddLabelTool( wx.ID_ANY, u"Refresh", wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh schematic file", wx.EmptyString, None ) 
 		
 		self.m_toolBar2.Realize() 
 		
@@ -58,8 +60,13 @@ class PanelSchematic ( wx.Panel ):
 		self.m_panel1.Layout()
 		bSizer4.Fit( self.m_panel1 )
 		self.menu_parts = wx.Menu()
-		self.menu_parts_link = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Set kicad part", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parts_link = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Set kicad part", u"Link schematic part to a kipartman part", wx.ITEM_NORMAL )
 		self.menu_parts.Append( self.menu_parts_link )
+		
+		self.menu_parts.AppendSeparator()
+		
+		self.m_menuItem2 = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parts.Append( self.m_menuItem2 )
 		
 		self.m_panel1.Bind( wx.EVT_RIGHT_DOWN, self.m_panel1OnContextMenu ) 
 		

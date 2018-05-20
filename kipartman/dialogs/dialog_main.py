@@ -26,6 +26,11 @@ class DialogMain ( wx.Frame ):
 		self.menu_file_project = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Open project", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_file.Append( self.menu_file_project )
 		
+		self.menu_file.AppendSeparator()
+		
+		self.menu_buy_parts = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Buy parts", u"Open the buy parts window", wx.ITEM_NORMAL )
+		self.menu_file.Append( self.menu_buy_parts )
+		
 		self.menu_bar.Append( self.menu_file, u"File" ) 
 		
 		self.menu_view = wx.Menu()
@@ -63,6 +68,7 @@ class DialogMain ( wx.Frame ):
 		# Connect Events
 		self.Bind( wx.EVT_KILL_FOCUS, self.onKillFocus )
 		self.Bind( wx.EVT_MENU, self.onMenuFileProjetSelection, id = self.menu_file_project.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuBuyPartsSelection, id = self.menu_buy_parts.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewConfigurationSelection, id = self.menu_view_configuration.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuHelpAboutSelection, id = self.menu_about.GetId() )
 		self.notebook.Bind( wx.EVT_NOTEBOOK_PAGE_CHANGED, self.onNotebookPageChanged )
@@ -76,6 +82,9 @@ class DialogMain ( wx.Frame ):
 		event.Skip()
 	
 	def onMenuFileProjetSelection( self, event ):
+		event.Skip()
+	
+	def onMenuBuyPartsSelection( self, event ):
 		event.Skip()
 	
 	def onMenuViewConfigurationSelection( self, event ):

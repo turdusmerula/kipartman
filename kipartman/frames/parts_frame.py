@@ -289,26 +289,26 @@ class TreeManagerParts(helper.tree.TreeManager):
     
     def AppendPart(self, part):
         categoryobj = self.AppendCategoryPath(part.category)
-        partobj = DataModelPart(part, self.symbol.columns)
+        partobj = DataModelPart(part, self.model.columns)
         self.AppendItem(categoryobj, partobj)
         self.Expand(categoryobj)
         return partobj
     
     def AppendChildPart(self, parent_part, part):
         parentobj = self.FindPart(parent_part.id)
-        partobj = DataModelPart(part, self.symbol.columns)
+        partobj = DataModelPart(part, self.model.columns)
         self.AppendItem(parentobj, partobj)
         self.Expand(parentobj)
         return partobj
 
     def AddParameterColumn(self, parameter_name):
         column = self.AddCustomColumn(parameter_name, 'parameter', None)
-        self.symbol.columns[column.GetSymbolColumn()] = DataColumnParameter(parameter_name)
+        self.model.columns[column.GetModelColumn()] = DataColumnParameter(parameter_name)
         
     def RemoveParameterColumn(self, index):
-        if self.symbol.columns.has_key(index)==False:
+        if self.model.columns.has_key(index)==False:
             return
-        self.symbol.columns.pop(index)
+        self.model.columns.pop(index)
         self.RemoveColumn(index)
 
 class PartsFrame(PanelParts): 
@@ -900,7 +900,7 @@ class PartsFrame(PanelParts):
         self.tree_parts_manager.AddParameterColumn(parameter.name)
         
     def onMenuParametersRemoveSelection( self, event ):
-        self.tree_parts_manager.RemoveParameterColumn(self.menu_parameters.Column.GetSymbolColumn())
+        self.tree_parts_manager.RemoveParameterColumn(self.menu_parameters.Column.GetModelColumn())
             
     def onEditPartApply( self, event ):
         part = event.data

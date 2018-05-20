@@ -105,7 +105,6 @@ class ProjectFrame(DialogProject):
         # do a synchronize when a file change on disk
         self.load()
 
-        print "***", path
         # reload pages
         for page in self.pages:
             if path.endswith(".bom") and isinstance(page, BomFrame):
@@ -127,7 +126,6 @@ class ProjectFrame(DialogProject):
         
         # load libraries tree
         for file_path in self.kicad_project.files:
-            print "%%%%", file_path, self.kicad_project.root_path
             # decompose path
             folders = []
             file_name = os.path.basename(file_path)
@@ -136,15 +134,16 @@ class ProjectFrame(DialogProject):
                 folders.insert(0, path)
                 path = os.path.dirname(path)
             
+            file_path = self.kicad_project.root_path
             for folder in folders:
+                file_path = os.path.join(self.kicad_project.root_path, folder)
                 pathobj = self.tree_project_manager.FindPath(folder)
                 if self.tree_project_manager.DropStateObject(pathobj)==False:
                     self.tree_project_manager.AppendPath(folder)
-                    
-            path = self.kicad_project.root_path
-            fileobj = self.tree_project_manager.FindFile(path, file_name)
+                     
+            fileobj = self.tree_project_manager.FindFile(file_path, file_name)
             if self.tree_project_manager.DropStateObject(fileobj)==False:
-                self.tree_project_manager.AppendFile(path, file_name)
+                self.tree_project_manager.AppendFile(file_path, file_name)
                             
         self.tree_project_manager.PurgeState()
 

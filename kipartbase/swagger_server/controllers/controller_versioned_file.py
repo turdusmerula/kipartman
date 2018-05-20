@@ -58,7 +58,6 @@ def file_changed(file, ffile):
         file.metadata!=ffile.metadata         
 
 def file_updated(file, ffile):
-    print "%%%%", file.updated, ffile.updated
     if file.updated:
         return pyrfc3339.parser.parse(file.updated)>ffile.updated
     return False

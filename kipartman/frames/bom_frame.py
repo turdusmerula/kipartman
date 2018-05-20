@@ -119,8 +119,8 @@ class BomFrame(PanelBom):
     def enableBom(self, enabled=True):
         self.button_add_bom_module.Enabled = enabled
         self.button_remove_bom_module.Enabled = enabled
-        self.button_add_bom_part.Enabled = enabled
-        self.button_remove_bom_part.Enabled = enabled
+        self.tool_add_bom_part.Enabled = enabled
+        self.tool_remove_bom_part.Enabled = enabled
         self.toolbar_bom.Enabled = enabled
         self.tree_bom_parts.Enabled = enabled
         self.tree_bom_modules.Enabled = enabled

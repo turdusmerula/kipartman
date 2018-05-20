@@ -1,4 +1,5 @@
 from dialogs.dialog_main import DialogMain
+from dialogs.dialog_buy import DialogBuy
 from frames.parts_frame import PartsFrame
 from frames.symbols_frame import SymbolsFrame
 from frames.footprints_frame import FootprintsFrame
@@ -37,6 +38,8 @@ class MainFrame(DialogMain):
         self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
         self.pages.append(self.storageframe)
         self.notebook.AddPage(self.storageframe, "Storage locations", False)
+
+        self.buy_frame = DialogBuy(self)
 
     def onMenuViewConfigurationSelection( self, event ):
         ConfigurationFrame(self).ShowModal()
@@ -79,5 +82,9 @@ class MainFrame(DialogMain):
             project_frame = ProjectFrame(self, dlg.GetPath())
             project_frame.Show(True)
 
+    def onMenuBuyPartsSelection( self, event ):
+        self.buy_frame.Show(True)
+
     def OnMenuItem( self, event ):
         self.pages[self.notebook.GetSelection()].OnMenuItem(event)
+

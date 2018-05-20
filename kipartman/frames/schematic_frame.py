@@ -10,7 +10,8 @@ import os
 from part_parameters_frame import DataModelPartParameter
 import tempfile
 import hashlib
-from pathlib2 import Path
+import rest
+
 
 class DataModelPart(helper.tree.TreeItem):
     def __init__(self, component):
@@ -21,7 +22,7 @@ class DataModelPart(helper.tree.TreeItem):
         vMap = { 
             0 : self.component.reference,
             1 : self.component.value,
-            2: self.component.kicad_sku,
+            2: self.component.kipart_sku,
             3: self.component.symbol,
             4: self.component.footprint
         }
@@ -76,8 +77,21 @@ class SchematicFrame(PanelSchematic):
         
     def loadSchematic(self):
         self.schematic.LoadFile(self.file)
-        self.schematic.Save()
         #self.schematic.DebugWrite(self.schematic.parent)
+        
+        # load parts
+        parts = rest.api.find_parts(with_parameters=True)
+        for component in self.schematic.Components():
+            if component.kipart_id!='':
+                part_id = int(component.kipart_id)
+                part = None
+                for p in parts:
+                    if p.id==part_id:
+                        part = p
+                        break
+                if part:
+                    self.associate_part(component, part)
+        self.schematic.Save()
         
         self.tree_parts_manager.SaveState()
         
@@ -135,9 +149,7 @@ class SchematicFrame(PanelSchematic):
         footprint = os.path.basename(path).replace(".kicad_mod", "")
         return lib+":"+footprint
     
-    def onSelectPartCallback(self, part_event):
-        part = part_event.data
-
+    def associate_part(self, component, part):
         symbol = None
         if part.symbol:
             symbol = self.get_symbol(part.symbol.source_path)
@@ -146,24 +158,29 @@ class SchematicFrame(PanelSchematic):
         if part.footprint:
             footprint = self.get_footprint(part.footprint.source_path)
         
+        if symbol:
+            component.symbol = symbol
+        if footprint:
+            component.footprint = footprint
+        if part.value_parameter:
+            for parameter in part.parameters:
+                if parameter.name==part.value_parameter:
+                    paramobj = DataModelPartParameter(part, parameter)
+                    component.value = paramobj.nom_string()
+        
+        component.kipart_id = unicode(part.id)
+        component.kipart_sku = unicode(part.name)
+    
+    def onSelectPartCallback(self, part_event):
+        part = part_event.data
+        
         items = self.tree_parts.GetSelections()
         if items:
             for item in items:
-                if item.IsOk():
-                    partobj = self.tree_parts_manager.ItemToObject(item)
-                    if symbol:
-                        partobj.component.symbol = symbol
-                    if footprint:
-                        partobj.component.footprint = footprint
-                    if part.value_parameter:
-                        for parameter in part.parameters:
-                            if parameter.name==part.value_parameter:
-                                paramobj = DataModelPartParameter(part, parameter)
-                                partobj.component.value = paramobj.nom_string()
-                    partobj.component.kicad_part = unicode(part.id)
-                    partobj.component.kicad_sku = unicode(part.name)
+                partobj = self.tree_parts_manager.ItemToObject(item)
+                self.associate_part(partobj.component, part)
                     
-                    self.schematic.Save()
+        self.schematic.Save()
 
         self.load()
 
