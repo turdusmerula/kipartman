@@ -58,7 +58,7 @@ class KicadProject(FileSystemEventHandler):
     def Enabled(self, enabled=True):
         if enabled:
             if self.watch is None:
-                self.watch = self.observer.schedule(self, self.root_path(), recursive=True)
+                self.watch = self.observer.schedule(self, self.root_path, recursive=True)
         else:
             if self.watch:
                 self.observer.unschedule(self.watch)

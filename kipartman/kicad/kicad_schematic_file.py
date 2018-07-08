@@ -1,9 +1,10 @@
 import os
 from kicad_object import *
 import re 
-import math
 import tempfile
 import io
+import tempfile
+import hashlib
 
 class KicadSchematicFile(object):
     def __init__(self):
@@ -28,7 +29,8 @@ class KicadSchematicFile(object):
         self.parent = KicadObject('')
         self.read_lines(self.parent) 
         #self.Write(self.parent, 0)
-                    
+        self.LoadSheets()
+        
         if self.onChanged:
             self.onChanged()
    
@@ -50,10 +52,16 @@ class KicadSchematicFile(object):
         self.parent = KicadObject('')
         self.read_lines(self.parent) 
         #self.Write(self.parent, 0)
+        self.LoadSheets()
                     
         if self.onChanged:
             self.onChanged()
-        
+    
+    def LoadSheets(self):
+        for obj in self.parent.nodes:
+            if isinstance(obj, KicadSheet):
+                obj.Load(os.path.dirname(self.filename))
+    
     def Render(self, filename, width=256, height=256):
         canvas = Canvas.LibraryCanvas()
         surface = canvas.Render(self.parent, width, height)
@@ -67,6 +75,35 @@ class KicadSchematicFile(object):
             if len(self.parent.nodes)>0:
                 for node in self.parent.nodes:
                     self.Write(f, node)
+        self.SaveSheets()
+        
+    def SaveSheets(self):
+        for obj in self.parent.nodes:
+            if isinstance(obj, KicadSheet):
+                obj.Save()
+    
+    def Modified(self):
+        tmp_file = tempfile.NamedTemporaryFile()
+        self.SaveAs(tmp_file.name)
+        content = ''
+        with open(tmp_file.name, 'rb') as f:
+            content = f.read()
+        src_md5 = hashlib.md5(content).hexdigest()
+        
+        content = ''
+        with open(self.filename, 'rb') as f:
+            content = f.read()
+        dst_md5 = hashlib.md5(content).hexdigest()
+        
+        if src_md5!=dst_md5:
+            return True
+        
+        for obj in self.parent.nodes:
+            if isinstance(obj, KicadSheet):
+                if obj.Modified():
+                    return True
+                
+        return False
     
     @staticmethod
     def to_utf8(text):
@@ -197,6 +234,11 @@ class KicadSchematicFile(object):
         for obj in self.parent.nodes:
             if isinstance(obj, KicadComp):
                 components.append(obj)
+
+            if isinstance(obj, KicadSheet):
+                for component in obj.schematic.Components():
+                    components.append(component)
+
         return components
         
 
@@ -323,12 +365,34 @@ class KicadComp(KicadSchematicObject):
             f.SetAttribute(9, 'kipart_sku', 'string')    
         f.SetAttribute(1, value, 'string')    
 
+    def fget_kipart_status(self):
+        f = self.getF_Name('kipart_status')
+        if f:
+            return f.Attribute(1)
+        return ''
+    
+    def fset_kipart_status(self, value):
+        f = self.getF_Name('kipart_status')
+        if not f:
+            f = KicadF(parent=self)
+            f.add_attributes()
+            f.SetAttribute(9, 'kipart_status', 'string')    
+        f.SetAttribute(1, value, 'string')    
+
+    def fget_timestamp(self):
+        for node in self.nodes:
+            if isinstance(node, KicadU):
+                return node.Attribute(2)
+        return None
+
+    timestamp = property(fget=fget_timestamp)
     symbol = property(fget=fget_symbol, fset=fset_symbol)
     reference = property(fget=fget_reference, fset=fset_reference)
     value = property(fget=fget_value, fset=fset_value)
     footprint = property(fget=fget_footprint, fset=fset_footprint)
     kipart_id = property(fget=fget_kipart_id, fset=fset_kipart_id)
     kipart_sku = property(fget=fget_kipart_sku, fset=fset_kipart_sku)
+    kipart_status = property(fget=fget_kipart_status, fset=fset_kipart_status)
 
 
 class KicadF(KicadSchematicObject):
@@ -369,6 +433,58 @@ class KicadL(KicadSchematicObject):
         super(KicadL, self).__init__('L')
         KicadObject._register(self.header, KicadL)
         
+class KicadU(KicadSchematicObject):
+    def __init__(self):
+        super(KicadU, self).__init__('U')
+        KicadObject._register(self.header, KicadU)
+
+class KicadSheet(KicadSchematicObject):
+    def __init__(self):
+        super(KicadSheet, self).__init__('\$Sheet', True)
+        KicadObject._register(self.header, KicadSheet)
+        
+        self.schematic = None
+        
+    def getF(self, index):
+        for node in self.nodes:
+            if node.header=='F'+str(index):
+                return node
+        return None
+
+    def fget_name(self):
+        f = self.getF(0)
+        if f:
+            return f.Attribute(0)
+        return ''
+    
+    def fset_name(self, value):
+        f = self.getF(0)
+        f.SetAttribute(0, value, 'string')    
+
+    def fget_file(self):
+        f = self.getF(1)
+        if f:
+            return f.Attribute(0)
+        return ''
+    
+    def fset_file(self, value):
+        f = self.getF(1)
+        f.SetAttribute(0, value, 'string')    
+
+    def Load(self, basepath):
+        self.schematic = KicadSchematicFile()
+        
+        file = os.path.join(basepath, self.file)
+        self.schematic.LoadFile(file)
+    
+    def Save(self):
+        self.schematic.Save()
+
+    def Modified(self):
+        return self.schematic.Modified()
+
+    name = property(fget=fget_name, fset=fset_name)
+    file = property(fget=fget_file, fset=fset_file)
 
 """
 Instanciate at least one time to force objects registration
@@ -377,3 +493,5 @@ KicadDescr()
 KicadComp()
 KicadF()
 KicadL()
+KicadU()
+KicadSheet()

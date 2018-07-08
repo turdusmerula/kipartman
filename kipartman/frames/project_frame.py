@@ -102,6 +102,8 @@ class ProjectFrame(DialogProject):
         self.pages[self.notebook.GetSelection()].OnMenuItem(event)
 
     def onProjectFileChanged(self, path):
+        self.kicad_project.Enabled(False)
+        
         # do a synchronize when a file change on disk
         self.load()
 
@@ -111,7 +113,9 @@ class ProjectFrame(DialogProject):
                 page.reload()
             elif path.endswith(".sch") and isinstance(page, SchematicFrame):
                 page.reload()
-            
+        
+        self.kicad_project.Enabled(True)
+        
     def load(self):
         try:
             self.loadFiles()

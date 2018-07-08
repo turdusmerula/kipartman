@@ -8,10 +8,9 @@ import wx
 import re
 import os
 from part_parameters_frame import DataModelPartParameter
-import tempfile
-import hashlib
 import rest
-
+from bom.bom import Bom
+from helper.exception import print_stack
 
 class DataModelPart(helper.tree.TreeItem):
     def __init__(self, component):
@@ -101,8 +100,19 @@ class SchematicFrame(PanelSchematic):
             if partobj:
                 partobj.component = component
             
+            show = True
+            if self.tool_show_all.IsToggled() and 'hidden' in component.kipart_status:
+                show = False
+
+            if show==False:
+                try:
+                    self.tree_parts_manager.DeleteItem(None, partobj)
+                except:
+                    pass
+
             if self.tree_parts_manager.DropStateObject(partobj)==False:
-                self.tree_parts_manager.AppendPart(component)
+                if show==True:
+                    self.tree_parts_manager.AppendPart(component)
             
         self.tree_parts_manager.PurgeState()
     
@@ -111,19 +121,7 @@ class SchematicFrame(PanelSchematic):
             # reload dialog already pending
             return
 
-        tmp_file = tempfile.NamedTemporaryFile()
-        self.schematic.SaveAs(tmp_file.name)
-        content = ''
-        with open(tmp_file.name, 'rb') as f:
-            content = f.read()
-        src_md5 = hashlib.md5(content).hexdigest()
-        
-        content = ''
-        with open(self.file, 'rb') as f:
-            content = f.read()
-        dst_md5 = hashlib.md5(content).hexdigest()
-        
-        if src_md5!=dst_md5:
+        if self.schematic.Modified():
             self.has_reload_dialog = True
             res = wx.MessageDialog(self, "%s modified, reload it?" % self.file, "File changed", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
             if res == wx.ID_YES:
@@ -134,8 +132,21 @@ class SchematicFrame(PanelSchematic):
         self.load()
     
     def onTreePartsSelChanged( self, event ):
-        items = self.tree_parts.GetSelections()
-
+        self.data_frame.SetPart(None)
+        if len(self.tree_parts.GetSelections())>1:
+            return
+        item = self.tree_parts.GetSelection()
+        if item.IsOk():
+            partobj = self.tree_parts_manager.ItemToObject(item)
+            part = None            
+            try:
+                if partobj.component.kipart_id!='': 
+                    part = rest.api.find_part(partobj.component.kipart_id)
+            except Exception as e:
+                print_stack()
+                print format(e)
+            self.data_frame.SetPart(part)
+        
     def onMenuPartsLinkSelection( self, event ):
         dropdown = DropdownDialog(self.tree_parts, SelectPartFrame, "")
         dropdown.panel.Bind( EVT_SELECT_PART_OK_EVENT, self.onSelectPartCallback )
@@ -184,3 +195,57 @@ class SchematicFrame(PanelSchematic):
 
         self.load()
 
+    def onToolExportBomClicked( self, event ):
+        path = os.getcwd()
+        dlg = wx.FileDialog(
+            self, message="Save a bom file",
+            defaultDir=path,
+            defaultFile="new",
+            wildcard="Kipartman bom (*.bom)|*.bom",
+                style=wx.FD_SAVE | wx.FD_CHANGE_DIR
+        )
+        dlg.SetFilterIndex(0)
+        if dlg.ShowModal() == wx.ID_OK:
+            filename = dlg.GetPath()
+            
+            bom = Bom()            
+            try:
+                bom.SetSchematic(self.file)
+                bom.SaveFile(filename)
+            except Exception as e:
+                print_stack()
+                wx.MessageBox(format(e), 'Error saving %s'%filename, wx.OK | wx.ICON_ERROR)
+
+    
+    def onMenuPartsUnlinkSelection( self, event ):
+        items = self.tree_parts.GetSelections()
+        if items:
+            for item in items:
+                partobj = self.tree_parts_manager.ItemToObject(item)
+                component = partobj.component
+                component.kipart_id = ''
+                component.kipart_sku = ''
+        self.load()
+
+    def onMenuPartsHideSelection( self, event ):
+        items = self.tree_parts.GetSelections()
+        if items:
+            for item in items:
+                partobj = self.tree_parts_manager.ItemToObject(item)
+                component = partobj.component
+                component.kipart_status = 'hidden'
+        self.schematic.Save()
+        self.load()
+    
+    def onMenuPartsShowSelection( self, event ):
+        items = self.tree_parts.GetSelections()
+        if items:
+            for item in items:
+                partobj = self.tree_parts_manager.ItemToObject(item)
+                component = partobj.component
+                component.kipart_status = ''
+        self.schematic.Save()
+        self.load()
+
+    def onToolShowAllClicked( self, event ):
+        self.load()

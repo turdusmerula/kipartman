@@ -18,7 +18,7 @@ import wx.dataview
 class DialogBuy ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1205,752 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Buy parts", pos = wx.DefaultPosition, size = wx.Size( 1205,752 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -27,7 +27,7 @@ class DialogBuy ( wx.Frame ):
 		self.m_splitter1 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
 		self.m_splitter1.Bind( wx.EVT_IDLE, self.m_splitter1OnIdle )
 		
-		self.m_panel1 = wx.Panel( self.m_splitter1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_boms = wx.Panel( self.m_splitter1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer4 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer111 = wx.BoxSizer( wx.HORIZONTAL )
@@ -37,7 +37,7 @@ class DialogBuy ( wx.Frame ):
 		
 		bSizer8 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_splitter31 = wx.SplitterWindow( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.m_splitter31 = wx.SplitterWindow( self.panel_boms, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
 		self.m_splitter31.Bind( wx.EVT_IDLE, self.m_splitter31OnIdle )
 		
 		self.m_panel31 = wx.Panel( self.m_splitter31, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -54,6 +54,9 @@ class DialogBuy ( wx.Frame ):
 		self.m_staticText3111 = wx.StaticText( self.m_panel311, wx.ID_ANY, u"Boms:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3111.Wrap( -1 )
 		bSizer17.Add( self.m_staticText3111, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.spin_quantity = wx.SpinCtrl( self.m_panel311, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 1, 9999999, 1 )
+		bSizer17.Add( self.spin_quantity, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		self.toolbar_boms = wx.ToolBar( self.m_panel311, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
 		self.toolbar_boms_refresh = self.toolbar_boms.AddLabelTool( wx.ID_ANY, u"Refresh", wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh boms", wx.EmptyString, None ) 
@@ -72,18 +75,6 @@ class DialogBuy ( wx.Frame ):
 		self.m_panel311.SetSizer( bSizer211 )
 		self.m_panel311.Layout()
 		bSizer211.Fit( self.m_panel311 )
-		self.menu_boms = wx.Menu()
-		self.menu_boms_add = wx.MenuItem( self.menu_boms, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_boms.Append( self.menu_boms_add )
-		
-		self.menu_boms_remove = wx.MenuItem( self.menu_boms, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_boms.Append( self.menu_boms_remove )
-		
-		self.menu_boms_quantity = wx.MenuItem( self.menu_boms, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_boms.Append( self.menu_boms_quantity )
-		
-		self.m_panel311.Bind( wx.EVT_RIGHT_DOWN, self.m_panel311OnContextMenu ) 
-		
 		self.m_panel411 = wx.Panel( self.m_splitter311, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer221 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -126,9 +117,9 @@ class DialogBuy ( wx.Frame ):
 		bSizer4.Add( bSizer8, 1, wx.EXPAND, 5 )
 		
 		
-		self.m_panel1.SetSizer( bSizer4 )
-		self.m_panel1.Layout()
-		bSizer4.Fit( self.m_panel1 )
+		self.panel_boms.SetSizer( bSizer4 )
+		self.panel_boms.Layout()
+		bSizer4.Fit( self.panel_boms )
 		self.panel_buy = wx.Panel( self.m_splitter1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer5 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -178,7 +169,7 @@ class DialogBuy ( wx.Frame ):
 		self.panel_buy.SetSizer( bSizer5 )
 		self.panel_buy.Layout()
 		bSizer5.Fit( self.panel_buy )
-		self.m_splitter1.SplitVertically( self.m_panel1, self.panel_buy, 638 )
+		self.m_splitter1.SplitVertically( self.panel_boms, self.panel_buy, 639 )
 		bSizer3.Add( self.m_splitter1, 1, wx.EXPAND, 5 )
 		
 		
@@ -197,8 +188,17 @@ class DialogBuy ( wx.Frame ):
 		
 		self.menu_main.Append( self.menu_basket, u"Basket" ) 
 		
+		self.menu_boms = wx.Menu()
+		self.menu_boms_add = wx.MenuItem( self.menu_boms, wx.ID_ANY, u"Add bom", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_boms.Append( self.menu_boms_add )
+		
+		self.menu_boms_remove = wx.MenuItem( self.menu_boms, wx.ID_ANY, u"Remove bom", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_boms.Append( self.menu_boms_remove )
+		
+		self.menu_main.Append( self.menu_boms, u"Bom" ) 
+		
 		self.menu_wish = wx.Menu()
-		self.menu_wish_add = wx.MenuItem( self.menu_wish, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_wish_add = wx.MenuItem( self.menu_wish, wx.ID_ANY, u"Add part", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_wish.Append( self.menu_wish_add )
 		
 		self.menu_main.Append( self.menu_wish, u"Part" ) 
@@ -233,11 +233,17 @@ class DialogBuy ( wx.Frame ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
+		self.spin_quantity.Bind( wx.EVT_SPINCTRL, self.onSpinQuantityCtrl )
 		self.Bind( wx.EVT_TOOL, self.onButtonRefreshClick, id = self.toolbar_boms_refresh.GetId() )
-		self.tree_boms.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomsSelectionChanged, id = wx.ID_ANY )
 		self.tree_bom_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomPartsSelectionChanged, id = wx.ID_ANY )
 		self.tree_part_equivalents.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartEquivalentsSelectionChanged, id = wx.ID_ANY )
 		self.tree_distributors.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeDistributorsSelectionChanged, id = wx.ID_ANY )
+		self.Bind( wx.EVT_MENU, self.onMenuBasketOpenSelection, id = self.menu_basket_open.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuBasketSaveSelection, id = self.menu_basket_save.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuBasketSaveAsSelection, id = self.menu_basket_save_as.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuBomsAddSelection, id = self.menu_boms_add.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuBomsRemoveSelection, id = self.menu_boms_remove.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuWishAddSelection, id = self.menu_wish_add.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesViewAllSelection, id = self.menu_item_prices_view_all.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesSelectBestpriceSelection, id = self.menu_item_prices_select_bestprice.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesAutomaticOrderSelection, id = self.menu_item_prices_automatic_order.GetId() )
@@ -247,10 +253,10 @@ class DialogBuy ( wx.Frame ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def onButtonRefreshClick( self, event ):
+	def onSpinQuantityCtrl( self, event ):
 		event.Skip()
 	
-	def onTreeBomsSelectionChanged( self, event ):
+	def onButtonRefreshClick( self, event ):
 		event.Skip()
 	
 	def onTreeBomPartsSelectionChanged( self, event ):
@@ -260,6 +266,24 @@ class DialogBuy ( wx.Frame ):
 		event.Skip()
 	
 	def onTreeDistributorsSelectionChanged( self, event ):
+		event.Skip()
+	
+	def onMenuBasketOpenSelection( self, event ):
+		event.Skip()
+	
+	def onMenuBasketSaveSelection( self, event ):
+		event.Skip()
+	
+	def onMenuBasketSaveAsSelection( self, event ):
+		event.Skip()
+	
+	def onMenuBomsAddSelection( self, event ):
+		event.Skip()
+	
+	def onMenuBomsRemoveSelection( self, event ):
+		event.Skip()
+	
+	def onMenuWishAddSelection( self, event ):
 		event.Skip()
 	
 	def onMenuItemPricesViewAllSelection( self, event ):
@@ -272,7 +296,7 @@ class DialogBuy ( wx.Frame ):
 		event.Skip()
 	
 	def m_splitter1OnIdle( self, event ):
-		self.m_splitter1.SetSashPosition( 638 )
+		self.m_splitter1.SetSashPosition( 639 )
 		self.m_splitter1.Unbind( wx.EVT_IDLE )
 	
 	def m_splitter31OnIdle( self, event ):
@@ -283,9 +307,6 @@ class DialogBuy ( wx.Frame ):
 		self.m_splitter311.SetSashPosition( 0 )
 		self.m_splitter311.Unbind( wx.EVT_IDLE )
 	
-	def m_panel311OnContextMenu( self, event ):
-		self.m_panel311.PopupMenu( self.menu_boms, event.GetPosition() )
-		
 	def m_splitter3OnIdle( self, event ):
 		self.m_splitter3.SetSashPosition( 351 )
 		self.m_splitter3.Unbind( wx.EVT_IDLE )

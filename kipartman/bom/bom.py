@@ -1,9 +1,7 @@
 import json
 import os
-import wx
-from kicad.pcb import Module
 import rest
-from kicad.pcb import Pcb
+from kicad.kicad_schematic_file import KicadSchematicFile
 from helper.exception import print_stack
 
 class BomException(BaseException):
@@ -14,17 +12,17 @@ class Bom(object):
     def __init__(self):
         self.filename = None
         self.parts = []
-        self.part_modules = {}
-        self.module_part = {}
-        self.pcb = None
+        self.part_components = {}
+        self.component_part = {}
+        self.schematic = None
         self.saved = True
 
     def LoadFile(self, filename):
         print "Load BOM", filename
 #        for part in self.parts:
 #            self.parts.remove(part)
-        self.part_modules = {}
-        self.module_part = {}
+        self.part_components = {}
+        self.component_part = {}
         self.parts = []
         
         if(os.path.isfile(filename)==False):
@@ -33,26 +31,24 @@ class Bom(object):
         with open(filename, 'r') as infile:
             content = json.load(infile)
         
-        # load associated pcb
-        if self.pcb is None:
-            self.pcb = Pcb()
-            self.pcb.LoadFile(content['pcb'])
+        # load associated schematic
+        self.SetSchematic(content['schematic'])
             
         part_not_found = []
         for part in content['parts']:
             # load part from server
             try:
                 self.parts.append(rest.api.find_part(part['id']))
-                self.part_modules[part['id']] = []
+                self.part_components[part['id']] = []
             except:
                 print_stack()
                 print "Warning: part %d not found on server"%part['id']
                 part_not_found.append(part)
 
-        module_not_found= []
+        component_not_found= []
         part_id_not_found = []
-        # load modules from BOM
-        for part_id in content['modules']:
+        # load components from BOM
+        for part_id in content['components']:
             part = None
             # get part from list
             for p in self.parts:
@@ -60,15 +56,15 @@ class Bom(object):
                     part = p
                     break
             if part:
-                # get modules from pcb
-                for module in content['modules'][part_id]:
-                    if self.part_modules.has_key(int(part_id)):
-                        if self.pcb.ExistModule(module['timestamp']):
-                            self.part_modules[int(part_id)].append(self.pcb.GetModule(module['timestamp']))
-                            self.module_part[module['timestamp']] = part
+                # get components from schematic
+                for component in content['components'][part_id]:
+                    if self.part_components.has_key(int(part_id)):
+                        if self.schematic.ExistComponent(component['timestamp']):
+                            self.part_components[int(part_id)].append(self.pcb.GetComponent(component['timestamp']))
+                            self.component_part[component['timestamp']] = part
                         else:
-                            print "Warning: module %s does not exist in pcb"%module['timestamp']
-                            module_not_found.append(module)
+                            print "Warning: component %s does not exist in pcb"%component['timestamp']
+                            component_not_found.append(component)
                     else:
                         print "Warning: part %d not found on bom"%part_id
                         part_id_not_found.append(int(part_id))
@@ -76,17 +72,22 @@ class Bom(object):
                 print "Warning: part %d from BOM does not exist on server"%int(part_id)
                 part_id_not_found.append(int(part_id))
             
-        # TODO: show error messages from part_not_found, module_not_found and part_id_not_found
+        # TODO: show error messages from part_not_found, component_not_found and part_id_not_found
         self.filename = filename
         self.saved = True
-
-    def pcbChanged(self):
-        for part_id in self.part_modules:
-            for module in self.part_modules[int(part_id)]:
-                if self.pcb.ExistModule(module.timestamp)==False:
-                    self.parts[int(part_id)].pop(module)
-                    self.module_part.pop(module)
  
+    def byteify(self, input):
+        if isinstance(input, dict):
+            return {self.byteify(key): self.byteify(value)
+                    for key, value in input.iteritems()}
+        elif isinstance(input, list):
+            return [self.byteify(element) for element in input]
+        elif isinstance(input, unicode):
+            print "****", input, input.encode('utf-8')
+            return input.encode('utf-8')
+        else:
+            return input
+        
     def SaveFile(self, filename):
         print "Save BOM", filename
         with open(filename, 'w') as outfile:
@@ -94,15 +95,19 @@ class Bom(object):
             for part in self.parts:
                 parts.append({'id': part.id, 'name': part.name, 'description': part.description})
             
-            part_modules = {}
-            for part_name in self.part_modules:
-                if len(self.part_modules[part_name])>0:
-                    part_modules[part_name] = []
-                for module in self.part_modules[part_name]:
-                    part_modules[part_name].append({'timestamp': module.timestamp, 'reference': module.reference, 'value': module.value}) 
+            part_components = {}
+            for part_name in self.part_components:
+                if len(self.part_components[part_name])>0:
+                    part_components[part_name] = []
+                for component in self.part_components[part_name]:
+                    part_components[part_name].append({'timestamp': component.timestamp, 'reference': component.reference, 'value': component.value}) 
             
-            json.dump({ 'pcb': self.pcb.filename, 'parts': parts, 'modules': part_modules }, outfile, sort_keys=True,
-                  indent=4, separators=(',', ': '))
+            input = { 'schematic': self.schematic.filename, 'parts': parts, 'components': part_components }
+#            json_string = json.dumps(input, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': ')).encode('utf8')
+            json_string = json.dumps(self.byteify(input), ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+            outfile.write(json_string)
+#            json.dump(self.byteify(input), outfile, sort_keys=True,
+#                  indent=4, separators=(',', ': '))
         self.filename = filename
         self.saved = True
 
@@ -118,42 +123,57 @@ class Bom(object):
                 return True
         return False
     
-#     def FindPartModule(self, module, part_id):
+#     def FindPartComponent(self, component, part_id):
 #         try:
-#             part = self.module_part[module.timestamp]
+#             part = self.component_part[component.timestamp]
 #         except:
-#             raise BomException("Module %s does not exist in BOM"%module.timestamp)
+#             raise BomException("Component %s does not exist in BOM"%component.timestamp)
 #         for part in 
+
+    def SetSchematic(self, file):
+        self.schematic = KicadSchematicFile()
+        self.schematic.LoadFile(file)
+
+        for component in self.schematic.Components():
+            if component.kipart_id:
+                part = None            
+                try:
+                    part = rest.api.find_part(component.kipart_id)
+                    self.AddPart(part)
+                    self.AddPartComponent(part, component)
+                except Exception as e:
+                    print format(e)
+        
     def AddPart(self, part):
         self.parts.append(part)
-        self.part_modules[part.id] = []
+        self.part_components[part.id] = []
         self.saved = False
 
-    def AddPartModule(self, part, module):
-        self.part_modules[part.id].append(module)
-        self.module_part[module.timestamp] = part
+    def AddPartComponent(self, part, component):
+        self.part_components[part.id].append(component)
+        self.component_part[component.timestamp] = part
         self.saved = False
     
     def RemovePart(self, part):
         self.parts.remove(part)
-        for module in self.part_modules[part.id]:
-            self.module_part.pop(module.timestamp)
-        self.part_modules.pop(part.id)
+        for component in self.part_components[part.id]:
+            self.component_part.pop(component.timestamp)
+        self.part_components.pop(part.id)
         self.saved = False
         
-    def RemovePartModule(self, module):
-        part = self.module_part[module.timestamp]
-        self.module_part.pop(module.timestamp)
+    def RemovePartComponent(self, component):
+        part = self.component_part[component.timestamp]
+        self.component_part.pop(component.timestamp)
         
-        for part_module in self.part_modules[part.id]:
-            if part_module.timestamp==module.timestamp:
-                self.part_modules[part.id].remove(part_module)
+        for part_component in self.part_components[part.id]:
+            if part_component.timestamp==component.timestamp:
+                self.part_components[part.id].remove(part_component)
 
         self.saved = False
     
-    def NumModules(self, bom_part):
-        num_modules = 0
-        if self.part_modules.has_key(bom_part.id):
-            num_modules = num_modules+len(self.part_modules[bom_part.id])
-        return num_modules
+    def NumComponents(self, bom_part):
+        num_components = 0
+        if self.part_components.has_key(bom_part.id):
+            num_components = num_components+len(self.part_components[bom_part.id])
+        return num_components
     

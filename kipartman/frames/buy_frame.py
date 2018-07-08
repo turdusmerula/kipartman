@@ -1,37 +1,35 @@
 from dialogs.dialog_buy import DialogBuy
 from frames.order_options_dialog import OrderOptionsDialog
-import wx.dataview
 from currency.currency import Currency
 from configuration import Configuration
 import rest
 import helper.tree
-import math
 from basket.basket import Basket
 import os
-from bom.bom import Bom
 from frames.edit_wish_frame import EditWishFrame
 from helper.exception import print_stack
+import wx
 
 configuration = Configuration()
-currency = Currency(configuration.base_currency)
+currency = Currency()
 
 view_all = True
 wish_parts = []
 
 class DataModelBomProduct(helper.tree.TreeItem):
-    def __init__(self, bom_product):
+    def __init__(self, bom_quantity):
         super(DataModelBomProduct, self).__init__()
-        self.bom_product = bom_product
+        self.bom_quantity = bom_quantity
 
     def GetValue(self, col):
         vMap = { 
-            0 : self.bom_product.bom.filename,
-            1 : str(self.bom_product.quantity),
+            0 : self.bom_quantity.path,
+            1 : str(self.bom_quantity.quantity),
         }
         return vMap[col]
 
     def GetAttr(self, col, attr):
-        if os.path.isfile(self.bom_product.bom.filename)==False:
+        if os.path.isfile(self.bom_quantity.path)==False:
             attr.SetColour('red') # red
             return True
         return False
@@ -338,13 +336,14 @@ class TreeManagerDistributors(helper.tree.TreeManager):
 
 class BuyFrame(DialogBuy): 
     def __init__(self, parent):
-        super(DialogBuy, self).__init__(parent)
-
+        super(BuyFrame, self).__init__(parent)
+        
         # create module bom parts list
-        self.tree_boms_manager = helper.tree.TreeManager(self.tree_boms)
+        self.tree_boms_manager = helper.tree.TreeManager(self.tree_boms, context_menu=self.menu_boms)
         self.tree_boms_manager.AddTextColumn("Path")
         self.tree_boms_manager.AddTextColumn("Production count")
-
+        self.tree_boms_manager.OnSelectionChanged = self.onTreeBomsSelectionChanged
+        
         # create module bom parts list
         self.tree_bom_parts_manager = TreeManagerBomParts(self.tree_bom_parts)
         self.tree_bom_parts_manager.AddIntegerColumn("Id")
@@ -386,31 +385,60 @@ class BuyFrame(DialogBuy):
         self.tree_wish_parts_manager.AddTextColumn("Currency")
         self.tree_wish_parts_manager.AddTextColumn("Description")
 
-        self.menu_main.Append( self.menu_boms, u"Bom" )
-        self.menu_main.Layout()
-        
         self.basket = Basket()
 
-        self.enableBom(False)
-
+        self.update_state()
+        
     def load(self):
+        self.loadBoms()
         self.loadBomParts()
-        self.loadPartEquivalents()
-        self.loadDistributors()
-    
+#        self.loadPartEquivalents()
+#        self.loadDistributors()
+        self.update_state()
+
     def refresh(self):
         self.refreshBomParts()
     
+    def update_state(self):
+        if self.basket is None:
+            self.menu_basket_save.Enable(False)
+            self.menu_basket_save_as.Enable(False)
+        else:
+            self.menu_basket_save.Enable(True)
+            self.menu_basket_save_as.Enable(True)
+        
+        item = self.tree_boms.GetSelection()
+        if item.IsOk():
+            self.spin_quantity.Enable(True)
+            self.menu_boms_remove.Enable(True)
+        else:
+            self.spin_quantity.Enable(False)
+            self.menu_boms_remove.Enable(False)
+            
     def refreshBomParts(self):
+        self.update_menu_state()
         for data in self.tree_bom_parts_manager.data:
             self.tree_bom_parts_manager.UpdateItem(data)
-        
+
+    def loadBoms(self):
+        self.tree_boms_manager.ClearItems()
+        for bom in self.basket.boms:
+            self.tree_boms_manager.AppendItem(None, DataModelBomProduct(self.basket.boms[bom]))
+    
     def loadBomParts(self):
         self.tree_bom_parts_manager.ClearItems()
 
         for bom_file in self.basket.boms:
             bom_product = self.basket.boms[bom_file]
+            
+            try:
+                bom_product.load()
+            except Exception as e:
+                print_stack()
+                print format(e)
+                
             for bom_part in bom_product.bom.Parts():
+                print "$$$$$$$$$$$$$$"
                 full_part = rest.api.find_part(bom_part.id, with_childs=True, with_storages=True)
                 self.tree_bom_parts_manager.AppendBomPart(bom_product, full_part)
 
@@ -516,14 +544,114 @@ class BuyFrame(DialogBuy):
         for sku in best_offers:
             self.tree_distributors_manager.AppendItem(distributorobj, DataModelOffer(best_offers[sku], bom_part))
 
-    def enableBom(self, enabled=True):
-        self.tree_boms.Enabled = enabled
-        self.tree_bom_parts.Enabled = enabled
-        self.tree_part_equivalents.Enabled = enabled
-        self.panel_buy.Enabled = enabled
+
+    def onMenuBasketOpenSelection( self, event ):
+        if self.basket.saved==False:
+            res = wx.MessageDialog(self, "%s modified, save it?" % self.basket.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+            if res==wx.ID_YES:
+                self.onToolSaveBasketClicked(event)
+
+        dlg = wx.FileDialog(
+            self, message="Choose a basket file",
+            defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard="Kipartman basket (*.basket)|*.basket",
+                style=wx.FD_OPEN |
+                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
+                wx.FD_PREVIEW
+        )
+        dlg.SetFilterIndex(0)
+
+        # Show the dialog and retrieve the user response. If it is the OK response,
+        # process the data.
+        if dlg.ShowModal() == wx.ID_OK:
+            self.basket.LoadFile(dlg.GetPath())
+            self.load()
+    
+    def onMenuBasketSaveSelection( self, event ):
+        if self.basket.filename is None:
+            self.onMenuBasketSaveAsSelection(event)
+        else:
+            self.basket.Save()
+
+    def onMenuBasketSaveAsSelection( self, event ):
+        path = os.getcwd()
+        dlg = wx.FileDialog(
+            self, message="Save a basket file",
+            defaultDir=path,
+            defaultFile="new",
+            wildcard="Kipartman basket (*.basket)|*.basket",
+                style=wx.FD_SAVE | wx.FD_CHANGE_DIR
+        )
+        dlg.SetFilterIndex(0)
+        if dlg.ShowModal() == wx.ID_OK:
+            filename = dlg.GetPath()
+            try:
+                # add wishes
+                self.basket.ClearWishes()
+                for wishobj in self.tree_wish_parts_manager.data:
+                    #wishobj = self.tree_wish_parts_manager.ItemToObject(data)
+                    self.basket.AddWish(wishobj.distributor, wishobj.sku, wishobj.quantity, wishobj.converted_unit_price(wishobj.matching_offer()))
+                self.basket.SaveFile(filename)
+            except Exception as e:
+                print_stack()
+                wx.MessageBox(format(e), 'Error saving %s'%filename, wx.OK | wx.ICON_ERROR)
+
+    def onMenuBomsAddSelection( self, event ):
+        dlg = wx.FileDialog(
+            self, message="Choose a bom file",
+            defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard="Kipartman bom (*.bom)|*.bom",
+                style=wx.FD_OPEN |
+                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
+                wx.FD_PREVIEW
+        )
+        dlg.SetFilterIndex(0)
+
+        # Show the dialog and retrieve the user response. If it is the OK response,
+        # process the data.
+        if dlg.ShowModal() == wx.ID_OK:
+            self.basket.AddBom(dlg.GetPath(), 1)
+            self.load()
+    
+    def onMenuBomsRemoveSelection( self, event ):
+        item = self.tree_boms.GetSelection()
+        if item.IsOk():
+            bom_productobj = self.tree_boms_manager.ItemToObject(item)
+        else:
+            return
+        self.basket.RemoveBom(bom_productobj.bom_quantity.path)
+        self.tree_boms_manager.DeleteItem(None, bom_productobj)
+    
+    def onSpinQuantityCtrl( self, event ):
+        item = self.tree_boms.GetSelection()
+        if item.IsOk():
+            bom_productobj = self.tree_boms_manager.ItemToObject(item)
+        else:
+            return
+        bom_productobj.bom_quantity.quantity = self.spin_quantity.GetValue()
+        self.tree_boms_manager.UpdateItem(bom_productobj)
         
-    def GetMenus(self):
-        return [{'title': 'Prices', 'menu': self.menu_prices}]
+    def onTreeBomsSelectionChanged( self, event ):
+        self.update_state()
+        
+        item = self.tree_boms.GetSelection()
+        if item.IsOk():
+            bom_productobj = self.tree_boms_manager.ItemToObject(item)
+        else:
+            return
+        self.spin_quantity.SetValue(bom_productobj.bom_quantity.quantity)
+
+
+
+
+
+
+
+
+
+
 
     def onSpinBomBoardsCtrl( self, event ):
         item = self.tree_boms.GetSelection()
@@ -535,14 +663,6 @@ class BuyFrame(DialogBuy):
         self.tree_boms_manager.UpdateItem(bom_productobj)
         self.loadBomParts()
         self.loadDistributors()
-
-    def onTreeBomsSelectionChanged( self, event ):
-        item = self.tree_boms.GetSelection()
-        if item.IsOk():
-            bom_productobj = self.tree_boms_manager.ItemToObject(item)
-        else:
-            return
-        self.spin_bom_boards.SetValue(bom_productobj.bom_product.quantity)
         
     def onTreeBomPartsSelectionChanged( self, event ):
         self.loadPartEquivalents()
@@ -861,52 +981,6 @@ class BuyFrame(DialogBuy):
         
         self.refresh()
 
-    def onToolOpenBasketClicked( self, event ):
-        if self.basket.saved==False:
-            res = wx.MessageDialog(self, "%s modified, save it?" % self.basket.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
-            if res==wx.ID_YES:
-                self.onToolSaveBasketClicked(event)
-
-        dlg = wx.FileDialog(
-            self, message="Choose a basket file",
-            defaultDir=os.getcwd(),
-            defaultFile="",
-            wildcard="Kipartman basket (*.basket)|*.basket",
-                style=wx.FD_OPEN | wx.FD_MULTIPLE |
-                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
-                wx.FD_PREVIEW
-        )
-        dlg.SetFilterIndex(0)
-
-        # Show the dialog and retrieve the user response. If it is the OK response,
-        # process the data.
-        if dlg.ShowModal() == wx.ID_OK:
-            self.basket.LoadFile(dlg.GetPath())
-            self.load()
-            self.enableBuy(True)
-    
-    def onToolSaveBasketClicked( self, event ):
-        path = os.getcwd()
-        dlg = wx.FileDialog(
-            self, message="Save a basket file",
-            defaultDir=path,
-            defaultFile="new",
-            wildcard="Kipartman basket (*.basket)|*.basket",
-                style=wx.FD_SAVE | wx.FD_CHANGE_DIR
-        )
-        dlg.SetFilterIndex(0)
-        if dlg.ShowModal() == wx.ID_OK:
-            filename = dlg.GetPath()
-            try:
-                # add wishes
-                self.basket.ClearWishes()
-                for wishobj in self.tree_wish_parts_manager.data:
-                    #wishobj = self.tree_wish_parts_manager.ItemToObject(data)
-                    self.basket.AddWish(wishobj.distributor, wishobj.sku, wishobj.quantity, wishobj.converted_unit_price(wishobj.matching_offer()))
-                self.basket.SaveFile(filename)
-            except Exception as e:
-                print_stack()
-                wx.MessageBox(format(e), 'Error saving %s'%filename, wx.OK | wx.ICON_ERROR)
 
  
     def onButtonAddBomClick( self, event ):

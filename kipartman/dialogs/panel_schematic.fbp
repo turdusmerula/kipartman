@@ -301,7 +301,7 @@
                                                     <property name="minimize_button">0</property>
                                                     <property name="minimum_size"></property>
                                                     <property name="moveable">1</property>
-                                                    <property name="name">m_toolBar1</property>
+                                                    <property name="name">toolbar</property>
                                                     <property name="packing">1</property>
                                                     <property name="pane_border">1</property>
                                                     <property name="pane_position"></property>
@@ -348,8 +348,32 @@
                                                         <property name="context_menu">0</property>
                                                         <property name="id">wxID_ANY</property>
                                                         <property name="kind">wxITEM_NORMAL</property>
-                                                        <property name="label">Export BOM</property>
+                                                        <property name="label">export</property>
                                                         <property name="name">tool_export_bom</property>
+                                                        <property name="permission">protected</property>
+                                                        <property name="statusbar"></property>
+                                                        <property name="tooltip">Export bom from schematic</property>
+                                                        <event name="OnAuiToolBarBeginDrag"></event>
+                                                        <event name="OnAuiToolBarMiddleClick"></event>
+                                                        <event name="OnAuiToolBarOverflowClick"></event>
+                                                        <event name="OnAuiToolBarRightClick"></event>
+                                                        <event name="OnAuiToolBarToolDropDown"></event>
+                                                        <event name="OnMenuSelection"></event>
+                                                        <event name="OnToolClicked">onToolExportBomClicked</event>
+                                                        <event name="OnToolEnter"></event>
+                                                        <event name="OnToolRClicked"></event>
+                                                        <event name="OnUpdateUI"></event>
+                                                    </object>
+                                                    <object class="toolSeparator" expanded="1">
+                                                        <property name="permission">protected</property>
+                                                    </object>
+                                                    <object class="tool" expanded="1">
+                                                        <property name="bitmap">Load From Embedded File; resources/hide.png</property>
+                                                        <property name="context_menu">0</property>
+                                                        <property name="id">wxID_ANY</property>
+                                                        <property name="kind">wxITEM_CHECK</property>
+                                                        <property name="label">Show all parts</property>
+                                                        <property name="name">tool_show_all</property>
                                                         <property name="permission">protected</property>
                                                         <property name="statusbar"></property>
                                                         <property name="tooltip">Export BOM</property>
@@ -359,7 +383,7 @@
                                                         <event name="OnAuiToolBarRightClick"></event>
                                                         <event name="OnAuiToolBarToolDropDown"></event>
                                                         <event name="OnMenuSelection"></event>
-                                                        <event name="OnToolClicked"></event>
+                                                        <event name="OnToolClicked">onToolShowAllClicked</event>
                                                         <event name="OnToolEnter"></event>
                                                         <event name="OnToolRClicked"></event>
                                                         <event name="OnUpdateUI"></event>
@@ -573,23 +597,53 @@
                                         <event name="OnMenuSelection">onMenuPartsLinkSelection</event>
                                         <event name="OnUpdateUI"></event>
                                     </object>
+                                    <object class="wxMenuItem" expanded="1">
+                                        <property name="bitmap"></property>
+                                        <property name="checked">0</property>
+                                        <property name="enabled">1</property>
+                                        <property name="help">Unlink kipartman part</property>
+                                        <property name="id">wxID_ANY</property>
+                                        <property name="kind">wxITEM_NORMAL</property>
+                                        <property name="label">Remove kicad part</property>
+                                        <property name="name">menu_parts_unlink</property>
+                                        <property name="permission">none</property>
+                                        <property name="shortcut"></property>
+                                        <property name="unchecked_bitmap"></property>
+                                        <event name="OnMenuSelection">onMenuPartsUnlinkSelection</event>
+                                        <event name="OnUpdateUI"></event>
+                                    </object>
                                     <object class="separator" expanded="1">
-                                        <property name="name">m_separator1</property>
+                                        <property name="name">m_separator2</property>
                                         <property name="permission">none</property>
                                     </object>
                                     <object class="wxMenuItem" expanded="1">
                                         <property name="bitmap"></property>
                                         <property name="checked">0</property>
                                         <property name="enabled">1</property>
-                                        <property name="help"></property>
+                                        <property name="help">Hide part</property>
                                         <property name="id">wxID_ANY</property>
                                         <property name="kind">wxITEM_NORMAL</property>
-                                        <property name="label">MyMenuItem</property>
-                                        <property name="name">m_menuItem2</property>
+                                        <property name="label">Hide</property>
+                                        <property name="name">menu_parts_hide</property>
                                         <property name="permission">none</property>
                                         <property name="shortcut"></property>
                                         <property name="unchecked_bitmap"></property>
-                                        <event name="OnMenuSelection"></event>
+                                        <event name="OnMenuSelection">onMenuPartsHideSelection</event>
+                                        <event name="OnUpdateUI"></event>
+                                    </object>
+                                    <object class="wxMenuItem" expanded="1">
+                                        <property name="bitmap"></property>
+                                        <property name="checked">0</property>
+                                        <property name="enabled">1</property>
+                                        <property name="help">Show part</property>
+                                        <property name="id">wxID_ANY</property>
+                                        <property name="kind">wxITEM_NORMAL</property>
+                                        <property name="label">Show</property>
+                                        <property name="name">menu_parts_show</property>
+                                        <property name="permission">none</property>
+                                        <property name="shortcut"></property>
+                                        <property name="unchecked_bitmap"></property>
+                                        <event name="OnMenuSelection">onMenuPartsShowSelection</event>
                                         <event name="OnUpdateUI"></event>
                                     </object>
                                 </object>

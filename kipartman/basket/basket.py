@@ -9,9 +9,14 @@ class BasketException(BaseException):
         self.error = error
 
 class BomQuantity(object):
-    def __init__(self, bom, quantity):
-        self.bom = bom
+    def __init__(self, path, quantity):
+        self.path = path
         self.quantity = quantity
+        self.bom = None
+    
+    def load(self):    
+        self.bom = Bom()
+        self.bom.LoadFile(self.path)
 
 class WishPart(object):
     def __init__(self, distributor, sku, quantity, unit_price):
@@ -30,21 +35,42 @@ class Basket(object):
 
     def LoadFile(self, filename):
         print "Load Basket", filename
+        
+        if(os.path.isfile(filename)==False):
+            raise Exception("Error: %s does not exists" % filename)
+        
+        with open(filename, 'r') as infile:
+            content = json.load(infile)
+
+        for bom in content['boms']:
+            print "----", bom
+            self.boms[bom['path']] = BomQuantity(bom['path'], int(bom['quantity']))
+            
+        # TODO: show error messages from part_not_found, module_not_found and part_id_not_found
+        self.filename = filename
         self.saved = True
-    
+                
     def SaveFile(self, filename):
         print "Save Basket", filename
         with open(filename, 'w') as outfile:
-            outfile.write("-- Bom files --\n")
-            outfile.write("filename;quantity\n")
+            boms = []
             for bom in self.boms:
-                outfile.write(self.boms[bom].bom.filename+";"+str(self.boms[bom].quantity)+"\n")
+                boms.append({'path': bom, 'quantity': self.boms[bom].quantity})
             
-            for distributor in self.distributors:
-                outfile.write("\n-- "+distributor+" --\n")
-                outfile.write("sku;quantity;unit-price\n")
-                for wish in self.distributors[distributor]:
-                    outfile.write(wish.sku+";"+str(wish.quantity)+";"+str(wish.unit_price[0])+"\n")
+            json.dump({ 'boms': boms}, outfile, sort_keys=True,
+                  indent=4, separators=(',', ': '))
+
+#         with open(filename, 'w') as outfile:
+#             outfile.write("-- Bom files --\n")
+#             outfile.write("filename;quantity\n")
+#             for bom in self.boms:
+#                 outfile.write(self.boms[bom].bom.filename+";"+str(self.boms[bom])+"\n")
+#             
+#             for distributor in self.distributors:
+#                 outfile.write("\n-- "+distributor+" --\n")
+#                 outfile.write("sku;quantity;unit-price\n")
+#                 for wish in self.distributors[distributor]:
+#                     outfile.write(wish.sku+";"+str(wish.quantity)+";"+str(wish.unit_price[0])+"\n")
         self.filename = filename
         self.saved = True
 
@@ -61,9 +87,7 @@ class Basket(object):
     
     def AddBom(self, bom_file, quantity):
         if self.boms.has_key(bom_file)==False:
-            bom = Bom()
-            bom.LoadFile(bom_file)
-            self.boms[bom_file] = BomQuantity(bom, 1)
+            self.boms[bom_file] = BomQuantity(bom_file, 1)
         else:
             self.boms[bom_file].quantity = self.boms[bom_file].quantity+quantity
         return self.boms[bom_file]
@@ -74,9 +98,9 @@ class Basket(object):
     
     def SetBomQuantity(self, bom_file, quantity):
         if self.boms.has_key(bom_file)==False:
-            self.boms[bom_file][0] = 1
+            self.boms[bom_file] = BomQuantity(bom_file, 1)
         else:
-            self.boms[bom_file][0] = quantity
+            self.boms[bom_file].quantity = quantity
     
     
     def ClearWishes(self):
