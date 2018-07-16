@@ -173,11 +173,11 @@ class ProjectFrame(DialogProject):
         obj = self.tree_project_manager.ItemToObject(item)
 
         if isinstance(obj, DataModelFile):
-            if obj.name.endswith(".bom"):
-                bom = BomFrame(self.notebook)
-                self.pages.append(bom)
-                self.notebook.AddPage(bom, obj.path, False)
-            elif obj.name.endswith(".sch"):
+#             if obj.name.endswith(".bom"):
+#                 bom = BomFrame(self.notebook)
+#                 self.pages.append(bom)
+#                 self.notebook.AddPage(bom, obj.path, False)
+            if obj.name.endswith(".sch"):
                 sch = SchematicFrame(self.notebook, obj.path)
                 self.pages.append(sch)
                 self.notebook.AddPage(sch, obj.name, False)

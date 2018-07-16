@@ -16,6 +16,8 @@ class MainFrame(DialogMain):
     def __init__(self, parent): 
         DialogMain.__init__(self, parent)
         
+        self.cwd = os.getcwd()
+        
         self.menus = self.menu_bar.GetMenus()
 
         self.pages = []
@@ -77,10 +79,12 @@ class MainFrame(DialogMain):
         # Show the dialog and retrieve the user response. If it is the OK response,
         # process the data.
         if dlg.ShowModal() == wx.ID_OK:
+            os.chdir(self.cwd)
             project_frame = ProjectFrame(self, dlg.GetPath())
             project_frame.Show(True)
 
     def onMenuBuyPartsSelection( self, event ):
+        os.chdir(self.cwd)
         buy_frame = BuyFrame(self)
         buy_frame.Show(True)
 
