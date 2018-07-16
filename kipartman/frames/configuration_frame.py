@@ -36,15 +36,15 @@ class ConfigurationFrame(DialogConfiguration):
             currencies = Currency(configuration.base_currency).load()
         except Exception as e:
             print_stack()
-            currencies = Currency('EUR').load()
+            currencies = Currency().load()
             
         if currencies.has_key('error'):
-            currencies = Currency('EUR').load()
+            currencies = Currency().load()
             self.choice_user_currency.Append('EUR')
         else:
             self.choice_user_currency.Append(configuration.base_currency)
-            
-        for currency in currencies['rates']:
+        
+        for currency in currencies:
             self.choice_user_currency.Append(currency)
         self.choice_user_currency.SetSelection(0)
 

@@ -39,8 +39,6 @@ class MainFrame(DialogMain):
         self.pages.append(self.storageframe)
         self.notebook.AddPage(self.storageframe, "Storage locations", False)
 
-        self.buy_frame = BuyFrame(self)
-
     def onMenuViewConfigurationSelection( self, event ):
         ConfigurationFrame(self).ShowModal()
 
@@ -83,7 +81,8 @@ class MainFrame(DialogMain):
             project_frame.Show(True)
 
     def onMenuBuyPartsSelection( self, event ):
-        self.buy_frame.Show(True)
+        buy_frame = BuyFrame(self)
+        buy_frame.Show(True)
 
     def OnMenuItem( self, event ):
         self.pages[self.notebook.GetSelection()].OnMenuItem(event)

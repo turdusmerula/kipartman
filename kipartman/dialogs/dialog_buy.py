@@ -257,7 +257,7 @@ class DialogBuy ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.onMenuItemPriceAddSelection, id = self.menu_item_reference_add.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesSelectBestpriceSelection, id = self.menu_item_prices_select_bestprice.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesAutomaticOrderSelection, id = self.menu_item_prices_automatic_order.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuDistributorsRefresh Prices, id = self.menu_distributors_refresh_prices.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDistributorsRefreshPrices, id = self.menu_distributors_refresh_prices.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -312,7 +312,7 @@ class DialogBuy ( wx.Frame ):
 	def onMenuItemPricesAutomaticOrderSelection( self, event ):
 		event.Skip()
 	
-	def onMenuDistributorsRefresh Prices( self, event ):
+	def onMenuDistributorsRefreshPrices( self, event ):
 		event.Skip()
 	
 	def m_splitter1OnIdle( self, event ):
