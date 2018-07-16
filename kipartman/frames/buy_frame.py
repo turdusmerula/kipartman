@@ -9,6 +9,7 @@ import os
 from frames.edit_wish_frame import EditWishFrame
 from helper.exception import print_stack
 import wx
+from bom.bom import Bom
 
 configuration = Configuration()
 currency = Currency()
@@ -17,19 +18,20 @@ view_all = True
 wish_parts = []
 
 class DataModelBomProduct(helper.tree.TreeItem):
-    def __init__(self, bom_quantity):
+    def __init__(self, bom, quantity):
         super(DataModelBomProduct, self).__init__()
-        self.bom_quantity = bom_quantity
+        self.bom = bom
+        self.quantity = quantity
 
     def GetValue(self, col):
         vMap = { 
-            0 : self.bom_quantity.path,
-            1 : str(self.bom_quantity.quantity),
+            0 : self.bom.filename,
+            1 : str(self.quantity),
         }
         return vMap[col]
 
     def GetAttr(self, col, attr):
-        if os.path.isfile(self.bom_quantity.path)==False:
+        if os.path.isfile(self.bom.filename)==False:
             attr.SetColour('red') # red
             return True
         return False
@@ -98,16 +100,16 @@ class DataModelBomPart(helper.tree.TreeItem):
                 provisioning = provisioning+partobj.buy_items(partobj.matching_offer())
         return provisioning
     
-    def num_modules(self):
-        num_modules = 0
+    def num_components(self):
+        num_components = 0
         for bom_product in self.bom_products:
-            num_modules = num_modules+bom_product.bom.NumModules(self.bom_part)
-        return num_modules
+            num_components = num_components+bom_product.bom.NumComponents(self.bom_part)
+        return num_components
     
     def needed(self):
         needed = 0
         for bom_product in self.bom_products:
-            needed = needed+bom_product.quantity*bom_product.bom.NumModules(self.bom_part)
+            needed = needed+bom_product.quantity*bom_product.bom.NumComponents(self.bom_part)
         
         needed = needed-self.stock()
             
@@ -119,7 +121,7 @@ class DataModelBomPart(helper.tree.TreeItem):
         vMap = { 
             0 : str(self.bom_part.id),
             1 : self.bom_part.name,
-            2 : str(self.num_modules()),
+            2 : str(self.num_components()),
             3 : str(self.needed()),
             4 : str(int(self.stock())),
             5 : str(int(self.provisioning())),
@@ -330,25 +332,25 @@ class DataModelWishPart(helper.tree.TreeItem):
 
 
 class TreeManagerDistributors(helper.tree.TreeManager):
-    def __init__(self, tree_view):
-        super(TreeManagerDistributors, self).__init__(tree_view)
+    def __init__(self, tree_view, *args, **kwargs):
+        super(TreeManagerDistributors, self).__init__(tree_view, *args, **kwargs)
     
 
 class BuyFrame(DialogBuy): 
     def __init__(self, parent):
         super(BuyFrame, self).__init__(parent)
         
-        # create module bom parts list
+        # create component bom parts list
         self.tree_boms_manager = helper.tree.TreeManager(self.tree_boms, context_menu=self.menu_boms)
         self.tree_boms_manager.AddTextColumn("Path")
         self.tree_boms_manager.AddTextColumn("Production count")
         self.tree_boms_manager.OnSelectionChanged = self.onTreeBomsSelectionChanged
         
-        # create module bom parts list
+        # create component bom parts list
         self.tree_bom_parts_manager = TreeManagerBomParts(self.tree_bom_parts)
         self.tree_bom_parts_manager.AddIntegerColumn("Id")
         self.tree_bom_parts_manager.AddTextColumn("Name")
-        self.tree_bom_parts_manager.AddIntegerColumn("Modules")
+        self.tree_bom_parts_manager.AddIntegerColumn("Components")
         self.tree_bom_parts_manager.AddIntegerColumn("Needed")
         self.tree_bom_parts_manager.AddIntegerColumn("Stock")
         self.tree_bom_parts_manager.AddIntegerColumn("Provisioning")
@@ -364,7 +366,7 @@ class BuyFrame(DialogBuy):
         self.tree_equivalent_parts_manager.AddTextColumn("Comment")
 
         # create octoparts list
-        self.tree_distributors_manager = TreeManagerDistributors(self.tree_distributors)
+        self.tree_distributors_manager = TreeManagerDistributors(self.tree_distributors, context_menu=self.menu_prices)
         self.tree_distributors_manager.AddIntegerColumn("Amount To Buy")
         self.tree_distributors_manager.AddFloatColumn("Buy Price")
         self.tree_distributors_manager.AddIntegerColumn("Packaging Unit")
@@ -392,8 +394,9 @@ class BuyFrame(DialogBuy):
     def load(self):
         self.loadBoms()
         self.loadBomParts()
-#        self.loadPartEquivalents()
-#        self.loadDistributors()
+        self.loadPartEquivalents()
+        self.loadDistributors()
+
         self.update_state()
 
     def refresh(self):
@@ -416,14 +419,17 @@ class BuyFrame(DialogBuy):
             self.menu_boms_remove.Enable(False)
             
     def refreshBomParts(self):
-        self.update_menu_state()
+        self.update_state()
         for data in self.tree_bom_parts_manager.data:
             self.tree_bom_parts_manager.UpdateItem(data)
 
     def loadBoms(self):
         self.tree_boms_manager.ClearItems()
-        for bom in self.basket.boms:
-            self.tree_boms_manager.AppendItem(None, DataModelBomProduct(self.basket.boms[bom]))
+        for bom_quantity in self.basket.boms:
+            bom = Bom()
+            bom.LoadFile(self.basket.boms[bom_quantity].path)
+            quantity = self.basket.boms[bom_quantity].quantity
+            self.tree_boms_manager.AppendItem(None, DataModelBomProduct(bom, quantity))
     
     def loadBomParts(self):
         self.tree_bom_parts_manager.ClearItems()
@@ -438,7 +444,6 @@ class BuyFrame(DialogBuy):
                 print format(e)
                 
             for bom_part in bom_product.bom.Parts():
-                print "$$$$$$$$$$$$$$"
                 full_part = rest.api.find_part(bom_part.id, with_childs=True, with_storages=True)
                 self.tree_bom_parts_manager.AppendBomPart(bom_product, full_part)
 
@@ -529,209 +534,22 @@ class BuyFrame(DialogBuy):
     def loadBestOffers(self, bom_part, distributorobj):
         # Only keep best offer for each sku of each distributor
         # best offer by sku
-        quantity = DataModelBomPart(bom_part).needed()
+        bom_partobj = self.tree_bom_parts_manager.FindBomPart(bom_part.id)
+        quantity = bom_partobj.needed()
 
         best_offers = {}
         for offer in distributorobj.distributor.offers:
             if best_offers.has_key(offer.sku)==False:
                 best_offers[offer.sku] = offer
             
-            offerobj = DataModelOffer(offer, bom_part)
-            best_offerobj = DataModelOffer(best_offers[offer.sku], bom_part)
+            offerobj = DataModelOffer(offer, bom_partobj)
+            best_offerobj = DataModelOffer(best_offers[offer.sku], bom_partobj)
             if offer.quantity<=quantity and offerobj.buy_price()<best_offerobj.buy_price():
                 best_offers[offer.sku] = offer
 
         for sku in best_offers:
-            self.tree_distributors_manager.AppendItem(distributorobj, DataModelOffer(best_offers[sku], bom_part))
+            self.tree_distributors_manager.AppendItem(distributorobj, DataModelOffer(best_offers[sku], bom_partobj))
 
-
-    def onMenuBasketOpenSelection( self, event ):
-        if self.basket.saved==False:
-            res = wx.MessageDialog(self, "%s modified, save it?" % self.basket.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
-            if res==wx.ID_YES:
-                self.onToolSaveBasketClicked(event)
-
-        dlg = wx.FileDialog(
-            self, message="Choose a basket file",
-            defaultDir=os.getcwd(),
-            defaultFile="",
-            wildcard="Kipartman basket (*.basket)|*.basket",
-                style=wx.FD_OPEN |
-                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
-                wx.FD_PREVIEW
-        )
-        dlg.SetFilterIndex(0)
-
-        # Show the dialog and retrieve the user response. If it is the OK response,
-        # process the data.
-        if dlg.ShowModal() == wx.ID_OK:
-            self.basket.LoadFile(dlg.GetPath())
-            self.load()
-    
-    def onMenuBasketSaveSelection( self, event ):
-        if self.basket.filename is None:
-            self.onMenuBasketSaveAsSelection(event)
-        else:
-            self.basket.Save()
-
-    def onMenuBasketSaveAsSelection( self, event ):
-        path = os.getcwd()
-        dlg = wx.FileDialog(
-            self, message="Save a basket file",
-            defaultDir=path,
-            defaultFile="new",
-            wildcard="Kipartman basket (*.basket)|*.basket",
-                style=wx.FD_SAVE | wx.FD_CHANGE_DIR
-        )
-        dlg.SetFilterIndex(0)
-        if dlg.ShowModal() == wx.ID_OK:
-            filename = dlg.GetPath()
-            try:
-                # add wishes
-                self.basket.ClearWishes()
-                for wishobj in self.tree_wish_parts_manager.data:
-                    #wishobj = self.tree_wish_parts_manager.ItemToObject(data)
-                    self.basket.AddWish(wishobj.distributor, wishobj.sku, wishobj.quantity, wishobj.converted_unit_price(wishobj.matching_offer()))
-                self.basket.SaveFile(filename)
-            except Exception as e:
-                print_stack()
-                wx.MessageBox(format(e), 'Error saving %s'%filename, wx.OK | wx.ICON_ERROR)
-
-    def onMenuBomsAddSelection( self, event ):
-        dlg = wx.FileDialog(
-            self, message="Choose a bom file",
-            defaultDir=os.getcwd(),
-            defaultFile="",
-            wildcard="Kipartman bom (*.bom)|*.bom",
-                style=wx.FD_OPEN |
-                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
-                wx.FD_PREVIEW
-        )
-        dlg.SetFilterIndex(0)
-
-        # Show the dialog and retrieve the user response. If it is the OK response,
-        # process the data.
-        if dlg.ShowModal() == wx.ID_OK:
-            self.basket.AddBom(dlg.GetPath(), 1)
-            self.load()
-    
-    def onMenuBomsRemoveSelection( self, event ):
-        item = self.tree_boms.GetSelection()
-        if item.IsOk():
-            bom_productobj = self.tree_boms_manager.ItemToObject(item)
-        else:
-            return
-        self.basket.RemoveBom(bom_productobj.bom_quantity.path)
-        self.tree_boms_manager.DeleteItem(None, bom_productobj)
-    
-    def onSpinQuantityCtrl( self, event ):
-        item = self.tree_boms.GetSelection()
-        if item.IsOk():
-            bom_productobj = self.tree_boms_manager.ItemToObject(item)
-        else:
-            return
-        bom_productobj.bom_quantity.quantity = self.spin_quantity.GetValue()
-        self.tree_boms_manager.UpdateItem(bom_productobj)
-        
-    def onTreeBomsSelectionChanged( self, event ):
-        self.update_state()
-        
-        item = self.tree_boms.GetSelection()
-        if item.IsOk():
-            bom_productobj = self.tree_boms_manager.ItemToObject(item)
-        else:
-            return
-        self.spin_quantity.SetValue(bom_productobj.bom_quantity.quantity)
-
-
-
-
-
-
-
-
-
-
-
-    def onSpinBomBoardsCtrl( self, event ):
-        item = self.tree_boms.GetSelection()
-        if item.IsOk():
-            bom_productobj = self.tree_boms_manager.ItemToObject(item)
-        else:
-            return
-        bom_productobj.bom_product.quantity = self.spin_bom_boards.GetValue()
-        self.tree_boms_manager.UpdateItem(bom_productobj)
-        self.loadBomParts()
-        self.loadDistributors()
-        
-    def onTreeBomPartsSelectionChanged( self, event ):
-        self.loadPartEquivalents()
-        self.loadDistributors()
-    
-    def onTreePartEquivalentsSelectionChanged( self, event ):
-        self.loadDistributors()
-
-    def onTreeDistributorsSelectionChanged( self, event ):
-        self.spin_add_wish_parts.SetValue(0)
-        item = self.tree_distributors.GetSelection()
-        if item.IsOk()==False:
-            return
-        obj = self.tree_distributors_manager.ItemToObject(item)
-        if isinstance(obj, DataModelOffer)==False:
-            return
-
-        self.spin_add_wish_parts.SetValue(obj.buy_items())
-            
-    def OnMenuItem( self, event ):
-        # events are not distributed by the frame so we distribute them manually
-        if event.GetId()==self.menu_item_prices_view_all.GetId():
-            self.onMenuItemPricesViewAllSelection(event)
-        elif event.GetId()==self.menu_item_prices_select_bestprice.GetId():
-            self.onMenuItemPricesSelectBestpriceSelection(event)
-        elif event.GetId()==self.menu_item_prices_automatic_order.GetId():
-            self.onMenuItemPricesAutomaticOrderSelection(event)
-    
-    def onMenuItemPricesViewAllSelection( self, event ):
-        global view_all
-        view_all = self.menu_item_prices_view_all.IsChecked()
-        self.loadDistributors()
-    
-    def onMenuItemPricesSelectBestpriceSelection( self, event ):
-        best_offer = None
-        for data in self.tree_distributors_manager.data:
-            if isinstance(data, DataModelOffer):
-                if best_offer is None:
-                    best_offer = data
-                if data.buy_price()<best_offer.buy_price():
-                    best_offer = data
-        
-        self.tree_distributors_manager.Select(best_offer)
-    
-    def onMenuItemPricesAutomaticOrderSelection(self, event):
-        options_dlg = OrderOptionsDialog(self)
-        options_dlg.ShowModal()
-        options = options_dlg.options
-        if options is None:
-            return
-        
-        if options['clean']:
-            self.tree_wish_parts_manager.ClearItems()
-
-        global wish_parts
-        wish_parts = self.tree_wish_parts_manager.data
-
-        if options['best_distributor']:
-            self.add_wishes_best_distributor(options['allowed_distributors'])
-        else:
-            self.add_wishes_best_offers(options['allowed_distributors'])
-
-#     class Offer(object):
-#         def __init__(self, offerobj):
-#             self.offerobj = offerobj
-#     
-#     class Distributor(object):
-#         def __init__(self, distributorobj):
-#             self.distributorobj = distributorobj
 
     def needed_bom_parts(self):
         parts = []
@@ -919,100 +737,249 @@ class BuyFrame(DialogBuy):
         self.refresh()
         self.loadTotalPrice()
 
-    def onButtonAddWishPartsClick( self, event ):
-        global wish_parts
-        wish_parts = self.tree_wish_parts_manager.data
-        
-        item = self.tree_distributors.GetSelection()
-        if item.IsOk()==False:
-            return
-        obj = self.tree_distributors_manager.ItemToObject(item)
-        if isinstance(obj, DataModelOffer)==False:
-            return
-        part = obj.parent.parent.part
-        distributor = obj.parent.distributor
-        offer = obj.offer
-        
-        item = self.tree_bom_parts.GetSelection()
-        if item.IsOk()==False:
-            return        
-        obj = self.tree_bom_parts_manager.ItemToObject(item)
-        bom_part = obj.bom_part
-        
-        # search if part already added for this distributor
-        wishobj = None
-        for data in self.tree_wish_parts_manager.data:
-            if data.part.name==part.name and data.sku==offer.sku:
-                wishobj = data
-        
-        if wishobj:
-            # append requested items to alredy existing wish
-            wishobj.quantity = wishobj.quantity+self.spin_add_wish_parts.GetValue()
-            self.tree_wish_parts_manager.UpdateItem(wishobj)
-        else:
-            wishobj = DataModelWishPart(part, distributor, offer.sku, self.spin_add_wish_parts.GetValue())
-            self.tree_wish_parts_manager.AppendItem(None, wishobj)
 
-        self.refresh()
-        self.loadTotalPrice()
-        
+    def onMenuBasketOpenSelection( self, event ):
+        if self.basket.saved==False:
+            res = wx.MessageDialog(self, "%s modified, save it?" % self.basket.filename, "File not saved", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+            if res==wx.ID_YES:
+                self.onToolSaveBasketClicked(event)
 
-    def onButtonRefreshClick(self, event):
-        self.load()
-
-    def onButtonEditWishClick( self, event ):
-        item = self.tree_wish_parts.GetSelection()
-        if item.IsOk()==False:
-            return        
-        wishobj = self.tree_wish_parts_manager.ItemToObject(item)
-        if wishobj is None:
-            return
-        
-        EditWishFrame(self).editWish(wishobj)
-        self.tree_wish_parts_manager.UpdateItem(wishobj)
-        self.load()
-    
-    def onButtonDeleteWishClick( self, event ):
-        item = self.tree_wish_parts.GetSelection()
-        if item.IsOk()==False:
-            return
-        wishobj = self.tree_wish_parts_manager.ItemToObject(item)
-        self.tree_wish_parts_manager.DeleteItem(None, wishobj)
-        
-        self.refresh()
-
-
- 
-    def onButtonAddBomClick( self, event ):
         dlg = wx.FileDialog(
-            self, message="Choose a BOM file",
+            self, message="Choose a basket file",
             defaultDir=os.getcwd(),
             defaultFile="",
-            wildcard="Kipartman BOM (*.bom)|*.bom",
-                style=wx.FD_OPEN | wx.FD_MULTIPLE |
+            wildcard="Kipartman basket (*.basket)|*.basket",
+                style=wx.FD_OPEN |
                 wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
                 wx.FD_PREVIEW
         )
         dlg.SetFilterIndex(0)
 
+        # Show the dialog and retrieve the user response. If it is the OK response,
+        # process the data.
         if dlg.ShowModal() == wx.ID_OK:
-            if self.basket.HasBom(dlg.GetPath())==False:
-                bom_product = self.basket.AddBom(dlg.GetPath(), 1)
-                self.tree_boms_manager.AppendItem(None, DataModelBomProduct(bom_product))
-            self.enableBom(True)
+            self.basket.LoadFile(dlg.GetPath())
             self.load()
     
-    def onButtonRemoveBomClick( self, event ):
-        item = self.tree_boms.GetSelection()
-        if item.IsOk()==False:
-            return
-        bomobj = self.tree_boms_manager.ItemToObject(item)
-        if bomobj is None:
-            return
-        res = wx.MessageDialog(self, "Remove BOM '%s'?" % bomobj.bom_product.bom.filename, "Remove BOM", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
-        if res==wx.ID_YES:
-            self.tree_boms_manager.DeleteItem(None, bomobj)
-            self.basket.RemoveBom(bomobj.bom_product.bom.filename)
-            if len(self.basket.boms)==0:
-                self.enableBom(False)
+    def onMenuBasketSaveSelection( self, event ):
+        if self.basket.filename is None:
+            self.onMenuBasketSaveAsSelection(event)
+        else:
+            self.basket.Save()
+
+    def onMenuBasketSaveAsSelection( self, event ):
+        path = os.getcwd()
+        dlg = wx.FileDialog(
+            self, message="Save a basket file",
+            defaultDir=path,
+            defaultFile="new",
+            wildcard="Kipartman basket (*.basket)|*.basket",
+                style=wx.FD_SAVE | wx.FD_CHANGE_DIR
+        )
+        dlg.SetFilterIndex(0)
+        if dlg.ShowModal() == wx.ID_OK:
+            filename = dlg.GetPath()
+            try:
+                # add wishes
+                self.basket.ClearWishes()
+                for wishobj in self.tree_wish_parts_manager.data:
+                    #wishobj = self.tree_wish_parts_manager.ItemToObject(data)
+                    self.basket.AddWish(wishobj.distributor, wishobj.sku, wishobj.quantity, wishobj.converted_unit_price(wishobj.matching_offer()))
+                self.basket.SaveFile(filename)
+            except Exception as e:
+                print_stack()
+                wx.MessageBox(format(e), 'Error saving %s'%filename, wx.OK | wx.ICON_ERROR)
+
+    def onMenuBomsAddSelection( self, event ):
+        dlg = wx.FileDialog(
+            self, message="Choose a bom file",
+            defaultDir=os.getcwd(),
+            defaultFile="",
+            wildcard="Kipartman bom (*.bom)|*.bom",
+                style=wx.FD_OPEN |
+                wx.FD_CHANGE_DIR | wx.FD_FILE_MUST_EXIST |
+                wx.FD_PREVIEW
+        )
+        dlg.SetFilterIndex(0)
+
+        # Show the dialog and retrieve the user response. If it is the OK response,
+        # process the data.
+        if dlg.ShowModal() == wx.ID_OK:
+            self.basket.AddBom(dlg.GetPath(), 1)
             self.load()
+    
+    def onMenuBomsRemoveSelection( self, event ):
+        item = self.tree_boms.GetSelection()
+        if item.IsOk():
+            bom_productobj = self.tree_boms_manager.ItemToObject(item)
+        else:
+            return
+
+        res = wx.MessageDialog(self, "Remove BOM '%s'?" % bom_productobj.bom_quantity.path, "Remove BOM", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+        if res==wx.ID_YES:
+            self.basket.RemoveBom(bom_productobj.bom_quantity.path)
+            self.tree_boms_manager.DeleteItem(None, bom_productobj)
+            self.load()
+    
+    def onSpinQuantityCtrl( self, event ):
+        item = self.tree_boms.GetSelection()
+        if item.IsOk():
+            bom_productobj = self.tree_boms_manager.ItemToObject(item)
+        else:
+            return
+        
+        bom_productobj.quantity = self.spin_quantity.GetValue()
+        self.basket.boms[bom_productobj.bom.filename].quantity = self.spin_quantity.GetValue()
+        
+        self.tree_boms_manager.UpdateItem(bom_productobj)
+        self.loadBomParts()
+        self.loadDistributors()
+        
+    def onTreeBomsSelectionChanged( self, event ):
+        self.update_state()
+        
+        item = self.tree_boms.GetSelection()
+        if item.IsOk():
+            bom_productobj = self.tree_boms_manager.ItemToObject(item)
+        else:
+            return
+        self.spin_quantity.SetValue(bom_productobj.bom_quantity.quantity)
+
+    def onToolDistributorsViewAllPrices( self, event ):
+        global view_all
+        view_all = not self.tool_distributors_view_all_prices.IsToggled()
+        self.loadDistributors()
+        
+    def onToolDistributorsCollapseAll( self, event ):
+        self.tree_distributors_manager.CollapseAll()
+        
+    def onToolDistributorsExpandAll( self, event ):
+        self.tree_distributors_manager.ExpandAll()
+
+    def onMenuItemPriceAddSelection( self, event ):
+        event.Skip()
+    
+    def onMenuItemPricesSelectBestpriceSelection( self, event ):
+        best_offer = None
+        for data in self.tree_distributors_manager.data:
+            if isinstance(data, DataModelOffer):
+                if best_offer is None:
+                    best_offer = data
+                if data.buy_price()<best_offer.buy_price():
+                    best_offer = data
+        
+        self.tree_distributors_manager.Select(best_offer)
+    
+    def onMenuItemPricesAutomaticOrderSelection(self, event):
+        options_dlg = OrderOptionsDialog(self)
+        options_dlg.ShowModal()
+        options = options_dlg.options
+        if options is None:
+            return
+        
+        if options['clean']:
+            self.tree_wish_parts_manager.ClearItems()
+
+        global wish_parts
+        wish_parts = self.tree_wish_parts_manager.data
+
+        if options['best_distributor']:
+            self.add_wishes_best_distributor(options['allowed_distributors'])
+        else:
+            self.add_wishes_best_offers(options['allowed_distributors'])
+
+#     class Offer(object):
+#         def __init__(self, offerobj):
+#             self.offerobj = offerobj
+#     
+#     class Distributor(object):
+#         def __init__(self, distributorobj):
+#             self.distributorobj = distributorobj
+
+    def onTreeBomPartsSelectionChanged( self, event ):
+        self.loadPartEquivalents()
+        self.loadDistributors()
+
+
+
+
+
+
+        
+#     
+#     def onTreePartEquivalentsSelectionChanged( self, event ):
+#         self.loadDistributors()
+# 
+#     def onTreeDistributorsSelectionChanged( self, event ):
+#         self.spin_add_wish_parts.SetValue(0)
+#         item = self.tree_distributors.GetSelection()
+#         if item.IsOk()==False:
+#             return
+#         obj = self.tree_distributors_manager.ItemToObject(item)
+#         if isinstance(obj, DataModelOffer)==False:
+#             return
+# 
+#         self.spin_add_wish_parts.SetValue(obj.buy_items())
+#             
+# 
+#     def onButtonAddWishPartsClick( self, event ):
+#         global wish_parts
+#         wish_parts = self.tree_wish_parts_manager.data
+#         
+#         item = self.tree_distributors.GetSelection()
+#         if item.IsOk()==False:
+#             return
+#         obj = self.tree_distributors_manager.ItemToObject(item)
+#         if isinstance(obj, DataModelOffer)==False:
+#             return
+#         part = obj.parent.parent.part
+#         distributor = obj.parent.distributor
+#         offer = obj.offer
+#         
+#         item = self.tree_bom_parts.GetSelection()
+#         if item.IsOk()==False:
+#             return        
+#         obj = self.tree_bom_parts_manager.ItemToObject(item)
+#         bom_part = obj.bom_part
+#         
+#         # search if part already added for this distributor
+#         wishobj = None
+#         for data in self.tree_wish_parts_manager.data:
+#             if data.part.name==part.name and data.sku==offer.sku:
+#                 wishobj = data
+#         
+#         if wishobj:
+#             # append requested items to alredy existing wish
+#             wishobj.quantity = wishobj.quantity+self.spin_add_wish_parts.GetValue()
+#             self.tree_wish_parts_manager.UpdateItem(wishobj)
+#         else:
+#             wishobj = DataModelWishPart(part, distributor, offer.sku, self.spin_add_wish_parts.GetValue())
+#             self.tree_wish_parts_manager.AppendItem(None, wishobj)
+# 
+#         self.refresh()
+#         self.loadTotalPrice()
+#         
+# 
+#     def onButtonRefreshClick(self, event):
+#         self.load()
+# 
+#     def onButtonEditWishClick( self, event ):
+#         item = self.tree_wish_parts.GetSelection()
+#         if item.IsOk()==False:
+#             return        
+#         wishobj = self.tree_wish_parts_manager.ItemToObject(item)
+#         if wishobj is None:
+#             return
+#         
+#         EditWishFrame(self).editWish(wishobj)
+#         self.tree_wish_parts_manager.UpdateItem(wishobj)
+#         self.load()
+#     
+#     def onButtonDeleteWishClick( self, event ):
+#         item = self.tree_wish_parts.GetSelection()
+#         if item.IsOk()==False:
+#             return
+#         wishobj = self.tree_wish_parts_manager.ItemToObject(item)
+#         self.tree_wish_parts_manager.DeleteItem(None, wishobj)
+#         
+#         self.refresh()

@@ -43,7 +43,6 @@ class Basket(object):
             content = json.load(infile)
 
         for bom in content['boms']:
-            print "----", bom
             self.boms[bom['path']] = BomQuantity(bom['path'], int(bom['quantity']))
             
         # TODO: show error messages from part_not_found, module_not_found and part_id_not_found

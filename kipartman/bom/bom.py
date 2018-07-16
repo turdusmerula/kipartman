@@ -32,7 +32,8 @@ class Bom(object):
             content = json.load(infile)
         
         # load associated schematic
-        self.SetSchematic(content['schematic'])
+        self.schematic = KicadSchematicFile()
+        self.schematic.LoadFile(content['schematic'])
             
         part_not_found = []
         for part in content['parts']:
@@ -56,14 +57,15 @@ class Bom(object):
                     part = p
                     break
             if part:
+                schematic_components = self.schematic.Components()
                 # get components from schematic
                 for component in content['components'][part_id]:
                     if self.part_components.has_key(int(part_id)):
                         if self.schematic.ExistComponent(component['timestamp']):
-                            self.part_components[int(part_id)].append(self.pcb.GetComponent(component['timestamp']))
+                            self.part_components[int(part_id)].append(self.schematic.GetComponent(component['timestamp']))
                             self.component_part[component['timestamp']] = part
                         else:
-                            print "Warning: component %s does not exist in pcb"%component['timestamp']
+                            print "Warning: component %s does not exist in schematic"%component['timestamp']
                             component_not_found.append(component)
                     else:
                         print "Warning: part %d not found on bom"%part_id
@@ -83,7 +85,6 @@ class Bom(object):
         elif isinstance(input, list):
             return [self.byteify(element) for element in input]
         elif isinstance(input, unicode):
-            print "****", input, input.encode('utf-8')
             return input.encode('utf-8')
         else:
             return input

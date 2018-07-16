@@ -241,7 +241,18 @@ class KicadSchematicFile(object):
 
         return components
         
-
+    def GetComponent(self, timestamp):
+        for component in self.Components():
+            if component.timestamp==timestamp:
+                return component
+        return None
+    
+    def ExistComponent(self, timestamp):
+        for component in self.Components():
+            if component.timestamp==timestamp:
+                return True
+        return False
+        
 class KicadSchematicObject(KicadObject):
     def __init__(self, header, category=False):
         super(KicadSchematicObject, self).__init__(header)

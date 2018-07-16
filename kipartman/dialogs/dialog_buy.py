@@ -89,7 +89,7 @@ class DialogBuy ( wx.Frame ):
 		self.m_panel411.SetSizer( bSizer221 )
 		self.m_panel411.Layout()
 		bSizer221.Fit( self.m_panel411 )
-		self.m_splitter311.SplitHorizontally( self.m_panel311, self.m_panel411, 0 )
+		self.m_splitter311.SplitHorizontally( self.m_panel311, self.m_panel411, 158 )
 		bSizer21.Add( self.m_splitter311, 1, wx.EXPAND, 5 )
 		
 		
@@ -110,7 +110,7 @@ class DialogBuy ( wx.Frame ):
 		self.m_panel41.SetSizer( bSizer22 )
 		self.m_panel41.Layout()
 		bSizer22.Fit( self.m_panel41 )
-		self.m_splitter31.SplitHorizontally( self.m_panel31, self.m_panel41, 352 )
+		self.m_splitter31.SplitHorizontally( self.m_panel31, self.m_panel41, 575 )
 		bSizer8.Add( self.m_splitter31, 1, wx.EXPAND, 5 )
 		
 		
@@ -128,6 +128,24 @@ class DialogBuy ( wx.Frame ):
 		
 		self.m_panel3 = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer41 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer14 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.m_toolBar2 = wx.ToolBar( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL ) 
+		self.tool_distributors_view_all_prices = self.m_toolBar2.AddLabelTool( wx.ID_ANY, u"view all prices", wx.Bitmap( u"resources/hide.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, u"View all prices", wx.EmptyString, None ) 
+		
+		self.m_toolBar2.AddSeparator()
+		
+		self.tool_distributors_collapse_all = self.m_toolBar2.AddLabelTool( wx.ID_ANY, u"Collapse all", wx.Bitmap( u"resources/collapseall.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Collapse all", wx.EmptyString, None ) 
+		
+		self.tool_distributors_expand_all = self.m_toolBar2.AddLabelTool( wx.ID_ANY, u"Expand all", wx.Bitmap( u"resources/expandall.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Expand all", wx.EmptyString, None ) 
+		
+		self.m_toolBar2.Realize() 
+		
+		bSizer14.Add( self.m_toolBar2, 0, wx.EXPAND, 5 )
+		
+		
+		bSizer41.Add( bSizer14, 0, wx.EXPAND, 5 )
 		
 		self.tree_distributors = wx.dataview.DataViewCtrl( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_VARIABLE_LINE_HEIGHT )
 		bSizer41.Add( self.tree_distributors, 1, wx.ALL|wx.EXPAND, 5 )
@@ -197,16 +215,9 @@ class DialogBuy ( wx.Frame ):
 		
 		self.menu_main.Append( self.menu_boms, u"Bom" ) 
 		
-		self.menu_wish = wx.Menu()
-		self.menu_wish_add = wx.MenuItem( self.menu_wish, wx.ID_ANY, u"Add part", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_wish.Append( self.menu_wish_add )
-		
-		self.menu_main.Append( self.menu_wish, u"Part" ) 
-		
 		self.menu_prices = wx.Menu()
-		self.menu_item_prices_view_all = wx.MenuItem( self.menu_prices, wx.ID_ANY, u"View all prices", wx.EmptyString, wx.ITEM_CHECK )
-		self.menu_prices.Append( self.menu_item_prices_view_all )
-		self.menu_item_prices_view_all.Check( True )
+		self.menu_item_reference_add = wx.MenuItem( self.menu_prices, wx.ID_ANY, u"Add reference", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_prices.Append( self.menu_item_reference_add )
 		
 		self.menu_prices.AppendSeparator()
 		
@@ -219,11 +230,8 @@ class DialogBuy ( wx.Frame ):
 		self.menu_main.Append( self.menu_prices, u"Prices" ) 
 		
 		self.menu_distributors = wx.Menu()
-		self.menu_distributors_add_quantity = wx.MenuItem( self.menu_distributors, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_distributors.Append( self.menu_distributors_add_quantity )
-		
-		self.menu_distributors_add_custom_quantity = wx.MenuItem( self.menu_distributors, wx.ID_ANY, u"MyMenuItem", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_distributors.Append( self.menu_distributors_add_custom_quantity )
+		self.menu_distributors_refresh_prices = wx.MenuItem( self.menu_distributors, wx.ID_ANY, u"Refresh prices", u"Refresh prices", wx.ITEM_NORMAL )
+		self.menu_distributors.Append( self.menu_distributors_refresh_prices )
 		
 		self.menu_main.Append( self.menu_distributors, u"Distributors" ) 
 		
@@ -237,16 +245,19 @@ class DialogBuy ( wx.Frame ):
 		self.Bind( wx.EVT_TOOL, self.onButtonRefreshClick, id = self.toolbar_boms_refresh.GetId() )
 		self.tree_bom_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomPartsSelectionChanged, id = wx.ID_ANY )
 		self.tree_part_equivalents.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartEquivalentsSelectionChanged, id = wx.ID_ANY )
+		self.Bind( wx.EVT_TOOL, self.onToolDistributorsViewAllPrices, id = self.tool_distributors_view_all_prices.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToolDistributorsCollapseAll, id = self.tool_distributors_collapse_all.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToolDistributorsExpandAll, id = self.tool_distributors_expand_all.GetId() )
 		self.tree_distributors.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeDistributorsSelectionChanged, id = wx.ID_ANY )
 		self.Bind( wx.EVT_MENU, self.onMenuBasketOpenSelection, id = self.menu_basket_open.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuBasketSaveSelection, id = self.menu_basket_save.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuBasketSaveAsSelection, id = self.menu_basket_save_as.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuBomsAddSelection, id = self.menu_boms_add.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuBomsRemoveSelection, id = self.menu_boms_remove.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuWishAddSelection, id = self.menu_wish_add.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuItemPricesViewAllSelection, id = self.menu_item_prices_view_all.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuItemPriceAddSelection, id = self.menu_item_reference_add.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesSelectBestpriceSelection, id = self.menu_item_prices_select_bestprice.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPricesAutomaticOrderSelection, id = self.menu_item_prices_automatic_order.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDistributorsRefresh Prices, id = self.menu_distributors_refresh_prices.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -263,6 +274,15 @@ class DialogBuy ( wx.Frame ):
 		event.Skip()
 	
 	def onTreePartEquivalentsSelectionChanged( self, event ):
+		event.Skip()
+	
+	def onToolDistributorsViewAllPrices( self, event ):
+		event.Skip()
+	
+	def onToolDistributorsCollapseAll( self, event ):
+		event.Skip()
+	
+	def onToolDistributorsExpandAll( self, event ):
 		event.Skip()
 	
 	def onTreeDistributorsSelectionChanged( self, event ):
@@ -283,10 +303,7 @@ class DialogBuy ( wx.Frame ):
 	def onMenuBomsRemoveSelection( self, event ):
 		event.Skip()
 	
-	def onMenuWishAddSelection( self, event ):
-		event.Skip()
-	
-	def onMenuItemPricesViewAllSelection( self, event ):
+	def onMenuItemPriceAddSelection( self, event ):
 		event.Skip()
 	
 	def onMenuItemPricesSelectBestpriceSelection( self, event ):
@@ -295,16 +312,19 @@ class DialogBuy ( wx.Frame ):
 	def onMenuItemPricesAutomaticOrderSelection( self, event ):
 		event.Skip()
 	
+	def onMenuDistributorsRefresh Prices( self, event ):
+		event.Skip()
+	
 	def m_splitter1OnIdle( self, event ):
 		self.m_splitter1.SetSashPosition( 639 )
 		self.m_splitter1.Unbind( wx.EVT_IDLE )
 	
 	def m_splitter31OnIdle( self, event ):
-		self.m_splitter31.SetSashPosition( 352 )
+		self.m_splitter31.SetSashPosition( 575 )
 		self.m_splitter31.Unbind( wx.EVT_IDLE )
 	
 	def m_splitter311OnIdle( self, event ):
-		self.m_splitter311.SetSashPosition( 0 )
+		self.m_splitter311.SetSashPosition( 158 )
 		self.m_splitter311.Unbind( wx.EVT_IDLE )
 	
 	def m_splitter3OnIdle( self, event ):

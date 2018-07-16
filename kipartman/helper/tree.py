@@ -693,6 +693,23 @@ class TreeManager(object):
         if item:
             self.tree_view.Expand(item)
     
+    def ExpandAll(self):
+        for obj in self.data:
+            item = self.model.ObjectToItem(obj)
+            if item:
+                self.tree_view.Expand(item)
+
+    def Collapse(self, obj):
+        item = self.model.ObjectToItem(obj)
+        if item:
+            self.tree_view.Collapse(item)
+    
+    def CollapseAll(self):
+        for obj in self.data:
+            item = self.model.ObjectToItem(obj)
+            if item:
+                self.tree_view.Collapse(item)
+
     def Select(self, obj):
         item = self.model.ObjectToItem(obj)
         if item.IsOk():
