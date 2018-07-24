@@ -1,4 +1,5 @@
 from dialogs.panel_edit_footprint import PanelEditFootprint
+from frames.draw_footprint_frame import DrawFootprintFrame
 from frames.select_snapeda_frame import SelectSnapedaFrame, EVT_SELECT_SNAPEDA_OK_EVENT
 from frames.dropdown_dialog import DropdownDialog
 from kicad import kicad_mod_file
@@ -243,3 +244,7 @@ class EditFootprintFrame(PanelEditFootprint):
     def onButtonFootprintEditCancel( self, event ):
         event = EditFootprintCancelEvent()
         wx.PostEvent(self, event)
+
+    def onButtonEditFootprintClick( self, event ):
+        draw_frame = DrawFootprintFrame(self)
+        draw_frame.Show(True)

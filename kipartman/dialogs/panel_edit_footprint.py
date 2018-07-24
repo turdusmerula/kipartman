@@ -72,7 +72,7 @@ class PanelEditFootprint ( wx.Panel ):
 		self.button_open_url_snapeda = wx.Button( self.m_panel7, wx.ID_ANY, u"<None>", wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT|wx.NO_BORDER )
 		bSizer172.Add( self.button_open_url_snapeda, 1, wx.ALL|wx.EXPAND, 5 )
 		
-		self.button_remove_url_snapeda = wx.BitmapButton( self.m_panel7, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.SIMPLE_BORDER )
+		self.button_remove_url_snapeda = wx.BitmapButton( self.m_panel7, wx.ID_ANY, wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ), wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW )
 		bSizer172.Add( self.button_remove_url_snapeda, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
@@ -96,6 +96,14 @@ class PanelEditFootprint ( wx.Panel ):
 		bSizer15.Fit( self.m_panel7 )
 		self.panel_image_footprint = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
+		
+		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
+		
+		self.button_edit_footprint = wx.Button( self.panel_image_footprint, wx.ID_ANY, u"Edit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer6.Add( self.button_edit_footprint, 0, wx.ALL, 5 )
+		
+		
+		bSizer16.Add( bSizer6, 0, wx.EXPAND, 5 )
 		
 		self.bitmap_edit_footprint = wx.StaticBitmap( self.panel_image_footprint, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer16.Add( self.bitmap_edit_footprint, 1, wx.ALL|wx.EXPAND, 5 )
@@ -124,6 +132,7 @@ class PanelEditFootprint ( wx.Panel ):
 		self.button_remove_url_snapeda.Bind( wx.EVT_BUTTON, self.onButtonRemoveUrlSnapedaClick )
 		self.button_footprint_editApply.Bind( wx.EVT_BUTTON, self.onButtonFootprintEditApply )
 		self.button_footprint_editCancel.Bind( wx.EVT_BUTTON, self.onButtonFootprintEditCancel )
+		self.button_edit_footprint.Bind( wx.EVT_BUTTON, self.onButtonEditFootprintClick )
 		self.Bind( wx.EVT_MENU, self.onMenuKicadRebuildFootprintsSelection, id = self.menu_rebuild_footprints.GetId() )
 	
 	def __del__( self ):
@@ -147,6 +156,9 @@ class PanelEditFootprint ( wx.Panel ):
 		event.Skip()
 	
 	def onButtonFootprintEditCancel( self, event ):
+		event.Skip()
+	
+	def onButtonEditFootprintClick( self, event ):
 		event.Skip()
 	
 	def onMenuKicadRebuildFootprintsSelection( self, event ):
