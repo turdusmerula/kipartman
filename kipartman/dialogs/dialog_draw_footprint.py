@@ -108,8 +108,6 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.Centre( wx.BOTH )
 		
 		# Connect Events
-		self.Bind( wx.EVT_CHAR, self.onDialogDrawFootprintChar )
-		self.image_draw.Bind( wx.EVT_CHAR, self.onImageDrawChar )
 		self.image_draw.Bind( wx.EVT_LEFT_DCLICK, self.onImageDrawLeftDClick )
 		self.image_draw.Bind( wx.EVT_LEFT_DOWN, self.onImageDrawLeftDown )
 		self.image_draw.Bind( wx.EVT_LEFT_UP, self.onImageDrawLeftUp )
@@ -117,6 +115,19 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.image_draw.Bind( wx.EVT_MIDDLE_DOWN, self.onImageDrawMiddleDown )
 		self.image_draw.Bind( wx.EVT_MIDDLE_UP, self.onImageDrawMiddleUp )
 		self.image_draw.Bind( wx.EVT_MOTION, self.onImageDrawMotion )
+		self.image_draw.Bind( wx.EVT_LEFT_DOWN, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_LEFT_UP, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_MIDDLE_DOWN, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_MIDDLE_UP, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_RIGHT_DOWN, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_RIGHT_UP, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_MOTION, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_LEFT_DCLICK, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_MIDDLE_DCLICK, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_RIGHT_DCLICK, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_LEAVE_WINDOW, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_ENTER_WINDOW, self.onImageDrawMouseEvents )
+		self.image_draw.Bind( wx.EVT_MOUSEWHEEL, self.onImageDrawMouseEvents )
 		self.image_draw.Bind( wx.EVT_MOUSEWHEEL, self.onImageDrawMouseWheel )
 		self.image_draw.Bind( wx.EVT_RIGHT_DCLICK, self.onImageDrawRightDClick )
 		self.image_draw.Bind( wx.EVT_RIGHT_DOWN, self.onImageDrawRightDown )
@@ -133,12 +144,6 @@ class DialogDrawFootprint ( wx.Frame ):
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def onDialogDrawFootprintChar( self, event ):
-		event.Skip()
-	
-	def onImageDrawChar( self, event ):
-		event.Skip()
-	
 	def onImageDrawLeftDClick( self, event ):
 		event.Skip()
 	
@@ -158,6 +163,9 @@ class DialogDrawFootprint ( wx.Frame ):
 		event.Skip()
 	
 	def onImageDrawMotion( self, event ):
+		event.Skip()
+	
+	def onImageDrawMouseEvents( self, event ):
 		event.Skip()
 	
 	def onImageDrawMouseWheel( self, event ):

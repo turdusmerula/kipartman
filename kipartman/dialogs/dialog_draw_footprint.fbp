@@ -61,7 +61,7 @@
             <event name="OnAuiPaneMaximize"></event>
             <event name="OnAuiPaneRestore"></event>
             <event name="OnAuiRender"></event>
-            <event name="OnChar">onDialogDrawFootprintChar</event>
+            <event name="OnChar"></event>
             <event name="OnClose"></event>
             <event name="OnEnterWindow"></event>
             <event name="OnEraseBackground"></event>
@@ -317,7 +317,7 @@
                                             <property name="window_extra_style"></property>
                                             <property name="window_name"></property>
                                             <property name="window_style"></property>
-                                            <event name="OnChar">onImageDrawChar</event>
+                                            <event name="OnChar"></event>
                                             <event name="OnEnterWindow"></event>
                                             <event name="OnEraseBackground"></event>
                                             <event name="OnKeyDown"></event>
@@ -331,7 +331,7 @@
                                             <event name="OnMiddleDown">onImageDrawMiddleDown</event>
                                             <event name="OnMiddleUp">onImageDrawMiddleUp</event>
                                             <event name="OnMotion">onImageDrawMotion</event>
-                                            <event name="OnMouseEvents"></event>
+                                            <event name="OnMouseEvents">onImageDrawMouseEvents</event>
                                             <event name="OnMouseWheel">onImageDrawMouseWheel</event>
                                             <event name="OnPaint"></event>
                                             <event name="OnRightDClick">onImageDrawRightDClick</event>

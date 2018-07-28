@@ -4,6 +4,7 @@ from kicad.Canvas import *
 import wx.lib.wxcairo
 import helper.tree
 
+epsilon=1e-9
 
 class DataModelCategory(helper.tree.TreeContainerItem):
     def __init__(self, name):
@@ -42,6 +43,12 @@ class TreeManagerObjects(helper.tree.TreeManager):
                 return data
         return None
                 
+    def FindObject(self, obj):
+        for data in self.data:
+            if isinstance(data, DataModelObject) and data.obj==obj:
+                return data
+        return None
+
     def AppendCategory(self, name):
         categoryobj = self.FindCategory(name)
         if categoryobj:
@@ -57,7 +64,12 @@ class TreeManagerObjects(helper.tree.TreeManager):
         self.Expand(categoryobj)
         return objobj
 
-
+    def DeleteObject(self, obj):
+        objobj = self.FindObject(obj)
+        if objobj is None:
+            return None
+        self.DeleteItem(objobj.parent, objobj)
+        
 class Anchor(object):
     def __init__(self, pos):
         self.pos = pos # mm
@@ -79,6 +91,8 @@ class EditorObject(Object):
         self.pos = pos  # mm
         self.origin_pos = None
         self.radius = 5
+
+        self.placed = False
         
         self.Clear()
     
@@ -155,8 +169,12 @@ class EditorObject(Object):
     def Place(self, pos):
         self.pos = pos
         self.Update()
+        self.placed = True
         return True
 
+    def Placed(self):
+        return self.placed
+    
     def Cancel(self):
         if self.origin_pos:
             self.pos = self.origin_pos
@@ -231,7 +249,7 @@ class ObjectGrid(EditorObject):
         canvas.Draw(MultiLine(lines, self.width), self.layers)
 
 class ObjectPoint(EditorObject):
-    def __init__(self, pos):
+    def __init__(self, pos=Point()):
         super(ObjectPoint, self).__init__([], pos)
                 
         self.width = 4 # px
@@ -262,28 +280,150 @@ class ObjectDimension(EditorObject):
         super(ObjectDimension, self).__init__(["editor"], Point())
         
         self.width = 1 # px
-
-        self.points = []
-
+        self.font = Font(Point(15, 15), 1)
+        
+        self.points = [ObjectPoint(), ObjectPoint()]
+        for point in self.points:
+            self.AddNode(point)
+        
+        self.placing_point = None
+        
+        self.text_point = Point()
+        
         self.Update()
              
+    def get_p0p1_center(self):
+        p0 = self.points[0].pos
+        p1 = self.points[1].pos
+        
+        pcx = math.fabs(p0.x+p1.x)
+        pcy = math.fabs(p0.y+p1.y)
+        
+        return Point(pcx, pcy)
+    
+    def get_ab(self, p0, p1):
+        a = (p1.y-p0.y)/(p1.x-p0.x)
+        b = p0.y-a*p0.x
+        return [a, b]
+    
+    def get_b(self, a, p0):
+        b = p0.y-a*p0.x
+        return b
+
+    def get_projection(self, p0, a, b):
+        p1 = Point()
+        a1 = -1/a
+        b1 = p0.y-a1*p0.x
+        
+        p1.x = (b-b1)/(a1-a)
+        p1.y = (b*a1-a*b1)/(a1-a)
+                
+        return p1
+    
     def Render(self, canvas):
         super(ObjectDimension, self).Render(canvas)
-                    
+
+        # p0-p1 center
+        p0 = Point(canvas.xmm2px(self.points[0].pos.x), canvas.ymm2px(self.points[0].pos.y))
+        p1 = Point(canvas.xmm2px(self.points[1].pos.x), canvas.ymm2px(self.points[1].pos.y))
+        p2 = Point(canvas.xmm2px(self.text_point.x), canvas.ymm2px(self.text_point.y))
+        
+        pc = self.get_p0p1_center()
+        
+        # p0 p1 line equation
+        
+        if math.fabs(p1.x-p0.x)<epsilon:
+            p3 = Point(p2.x, p0.y)
+            p4 = Point(p2.x, p1.y)
+        else:
+            [p0p1a, p0p1b] = self.get_ab(p0, p1)
+            # parralel to p0p1 passing by p2
+            p2b = self.get_b(p0p1a, p2)
+            
+            if math.fabs(p0p1a)<epsilon:
+                # projection of p0 and p1 on parallel
+                p3 = Point(p0.x, p2b)
+                p4 = Point(p1.x, p2b)
+            else:
+                # projection of p0 and p1 on parallel
+                p3 = self.get_projection(p0, p0p1a, p2b)
+                p4 = self.get_projection(p1, p0p1a, p2b)
+                
+        # compute angle for p0p1
+        angle = -math.atan2( p1.x-p0.x,  p1.y-p0.y)+math.pi/2.
+
+        # distance
+        distance = math.sqrt((p1.x-p0.x)*(p1.x-p0.x)+(p1.y-p0.y)*(p1.y-p0.y))
+#         # compute distance between p0p1 and p2
+#         if p0p1a!=0:
+#             pd0 = Point(0, p0p1b)
+#             pd1 = Point(0, p2b)
+#             d = pd1.y-pd0.y
+#         else:
+#             pd0 = Point(p0.x, 0)
+#             pd1 = Point(p2.x, 0)
+#             d = pd1.x-pd0.x
+#         
+# 
+#         # compute new points
+#         p3 = Point(p0.x+d*math.cos(angle), p0.y+d*math.sin(angle))
+#         p4 = Point(p1.x+d*math.cos(angle), p1.y+d*math.sin(angle))
+
+        canvas.SetFont(self.font)
+        
+        if self.placed==False and self.placing_point is None:
+            return
+        if self.placing_point and self.placing_point==1:
+            p5 = Point((p0.x+p1.x)/2., (p0.y+p1.y)/2.)
+            canvas.Draw(Arrow(p0, p1, 1), self.layers)
+            canvas.Draw(Text(format(distance), Position(p5.x, p5.y, angle), 'center', 'bottom', 5), self.layers)
+        if self.placed or self.placing_point==2:
+            p5 = Point((p3.x+p4.x)/2., (p3.y+p4.y)/2.)
+            canvas.Draw(Line(p0, p3, 1), self.layers)
+            canvas.Draw(Line(p1, p4, 1), self.layers)
+            canvas.Draw(Arrow(p3, p4, 1), self.layers)
+            canvas.Draw(Text(format(distance), Position(p5.x, p5.y, angle), 'center', 'bottom', 5), self.layers)
+                
+        
+    def Move(self, pos):
+        if not self.placing_point is None:
+            if self.placing_point<2:
+                self.points[self.placing_point].Move(pos)
+            else:
+                self.text_point = pos
+        self.Update()
+        
     def StartPlace(self):
-        pass
-    
+        self.placing_point = 0
+        self.points[0].Select()
+        
     # return True if placement is complete
     def Place(self, pos):
-        res = False
-        point = ObjectPoint(pos)
-        point.Select()
-        self.points.append(point)
-        self.AddNode(point)
-        if len(self.points)==3:
-            res = True
+        if self.placing_point<2:    
+            point = self.points[self.placing_point]
+        else:
+            self.text_point = pos 
         self.Update()
-        return res
+        
+        self.placing_point = self.placing_point+1
+        if self.placing_point>0 and self.placing_point<2:
+            self.points[self.placing_point].pos = self.points[self.placing_point-1].pos
+            self.points[self.placing_point].Update()
+        if self.placing_point==2:
+            self.text_point = self.points[1].pos
+        if self.placing_point<2:
+            self.points[self.placing_point].Select()
+        if self.placing_point>2:
+            self.placing_point = None
+            self.placed = True
+            return True
+        return False
+
+    def Select(self):
+        self.layers.append("selection")
+        if self.placed:
+            for node in self.nodes:
+                node.Select()
 
 class EditorState(object):
     StateNone = 0
@@ -347,10 +487,13 @@ class EditorState(object):
                 
     def GetMovingObjects(self):
         res = []
-        if self.state==self.StateMoving:
+        if self.state==self.StateMoving or self.state==self.StatePlacing:
             res = self.objs
         return res
-
+    
+    def GetObjects(self):
+        return self.objs
+    
 class DrawFootprintFrame(DialogDrawFootprint): 
     def __init__(self, parent):
         super(DrawFootprintFrame, self).__init__(parent)
@@ -377,7 +520,6 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.tree_objects_manager = TreeManagerObjects(self.tree_objects, context_menu=self.menu_edit)
         self.tree_objects_manager.AddTextColumn("name")
         self.tree_objects_manager.OnSelectionChanged = self.onTreeMenuObjectsSelChanged
-        
         self.tree_objects_manager.AppendCategory('Drawing')
         self.tree_objects_manager.AppendCategory('Part')
         
@@ -390,6 +532,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         
         # last used objects
         self.last_grid = None
+
+        self.Bind(wx.EVT_CHAR_HOOK, self.keyPressed)
         
         ######
         node = ObjectGrid(Position(0, 0), Position(20, 20), Position(10, 10))
@@ -409,6 +553,11 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.image_draw.SetBitmap(wx.lib.wxcairo.BitmapFromImageSurface(img))
 
     def SelectObjects(self, objs):
+        for obj in self.state.GetObjects():
+            if obj.Placed()==False:
+                self.tree_objects_manager.DeleteObject(obj)
+                if obj.Parent():
+                    obj.Parent().RemoveNode(obj)
         self.state.Cancel()
         
         self.selection = objs
@@ -421,12 +570,13 @@ class DrawFootprintFrame(DialogDrawFootprint):
             self.current_panel = EditGridFrame(self.panel_edit_object, self.Render, objs[0])
             self.last_grid = objs[0]
             
-    def onDialogDrawFootprintChar( self, event ):
-        print type(event)
+    def keyPressed( self, event):
+        print "keyPressed", type(event), event.GetKeyCode(), event.GetRawKeyFlags(), event.ControlDown()
 
-    def onImageDrawChar( self, event ):
-        print type(event)
-
+        if event.GetKeyCode()==27:
+            # cancel any operation
+            self.SelectObjects([])
+        
     def onImageDrawLeftDClick( self, event ):
         event.Skip()
     

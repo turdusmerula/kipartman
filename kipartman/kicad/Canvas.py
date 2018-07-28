@@ -2,6 +2,7 @@ import math
 import cairo
 import re
 import wx
+from Cython.Compiler import UtilNodes
 
 
 class ColorRGB(object):
@@ -159,6 +160,45 @@ class MultiLine(Drawing):
             ctx.line_to(l[1].x, l[1].y)
         ctx.stroke()
 
+class Arrow(Drawing):
+    def __init__(self, p0, p1, width=0):
+        super(Arrow, self).__init__()
+        self.p0 = p0
+        self.p1 = p1
+        self.width = width
+        
+        self.angle = math.pi/4
+        self.length = 10
+        
+    def Render(self, ctx):
+        ctx.set_line_width(self.width)
+        ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+
+        ctx.move_to(self.p0.x, self.p0.y)
+        ctx.line_to(self.p1.x, self.p1.y)
+        
+        #angle = math.atan2(self.p1.y,self.p1.x) - math.atan2(self.p0.y,self.p0.x)
+        angle = math.atan2( self.p1.x-self.p0.x,  self.p1.y-self.p0.y)
+        a0 = Point(self.p0.x+self.length*math.sin(angle+self.angle), self.p0.y+self.length*math.cos(angle+self.angle))
+        a1 = Point(self.p0.x+self.length*math.sin(angle-self.angle), self.p0.y+self.length*math.cos(angle-self.angle))
+        a2 = Point(self.p1.x+self.length*math.sin(angle+self.angle+math.pi), self.p1.y+self.length*math.cos(angle+self.angle+math.pi))
+        a3 = Point(self.p1.x+self.length*math.sin(angle-self.angle+math.pi), self.p1.y+self.length*math.cos(angle-self.angle+math.pi))
+        
+        ctx.move_to(self.p0.x, self.p0.y)
+        ctx.line_to(a0.x, a0.y)
+        
+        ctx.move_to(self.p0.x, self.p0.y)
+        ctx.line_to(a1.x, a1.y)
+
+        ctx.move_to(self.p1.x, self.p1.y)
+        ctx.line_to(a2.x, a2.y)
+        
+        ctx.move_to(self.p1.x, self.p1.y)
+        ctx.line_to(a3.x, a3.y)
+
+        ctx.stroke()
+        
+        
 class Circle(Drawing):
     def __init__(self, centre=Point(), end=Point(), width=0, fill=False):
         super(Circle, self).__init__()
@@ -201,28 +241,33 @@ class Rect(Drawing):
             ctx.stroke()
 
 class Text(Drawing):
-    def __init__(self, value=""):
+    def __init__(self, value="", at=Position(), anchor_x='left', anchor_y='top', anchor_margin=0):
         super(Text, self).__init__()
         self.value = value
-        self.at = Position()
-        self.anchor_x = 'left'
-        self.anchor_y = 'top'
+        self.at = at
+        self.anchor_x = anchor_x # left | center | right
+        self.anchor_y = anchor_y # top | center | bottom
+        self.anchor_margin = anchor_margin
         
     def Render(self, ctx):
         ctx.save()
 #        self.at.Apply(ctx)
         x, y, width, height, x_advance, y_advance=ctx.text_extents(self.value)
-        posx = self.at.x
-        posy = self.at.y
-
+        posx = self.at.x-self.anchor_margin*math.cos(self.at.angle+math.pi/2.)
+        posy = self.at.y-self.anchor_margin*math.sin(self.at.angle+math.pi/2.)
+        
+        print "--", self.anchor_margin*math.cos(self.at.angle+math.pi/2.), self.anchor_margin*math.sin(self.at.angle+math.pi/2.)
         if self.anchor_x=='center':
-            posx = posx-width/2*math.cos(self.at.angle)
-            posy = posy-width/2*math.sin(self.at.angle)
+            posx = posx-width/2.*math.cos(self.at.angle)
+            posy = posy-width/2.*math.sin(self.at.angle)
         
         if self.anchor_y=='center':
-            posx = posx-height/2*math.sin(self.at.angle)
-            posy = posy-height/2*math.cos(self.at.angle)
+            posx = posx-height/2.*math.sin(self.at.angle)
+            posy = posy-height/2.*math.cos(self.at.angle)
         
+#        posx = posx+self.anchor_margin*math.cos(self.at.angle)
+#        posY = posy+self.anchor_margin*math.sin(self.at.angle)
+
         ctx.move_to(posx, posy)
         ctx.rotate(self.at.angle)
 
@@ -266,6 +311,12 @@ class Object(object):
         node.parent = self
         self.nodes.append(node)
 
+    def RemoveNode(self, node):
+        self.nodes.remove(node)
+    
+    def Parent(self):
+        return self.parent
+        
 class Canvas(object):
 
     def __init__(self):
