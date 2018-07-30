@@ -1,5 +1,6 @@
 from dialogs.dialog_draw_footprint import DialogDrawFootprint
 from frames.frame_draw_footprint.edit_grid_frame import EditGridFrame
+from frames.frame_draw_footprint.edit_dimension_frame import EditDimensionFrame
 from kicad.Canvas import *
 import wx.lib.wxcairo
 import helper.tree
@@ -71,9 +72,10 @@ class TreeManagerObjects(helper.tree.TreeManager):
         self.DeleteItem(objobj.parent, objobj)
         
 class Anchor(object):
-    def __init__(self, pos):
+    def __init__(self, parent, pos):
         self.pos = pos # mm
-
+        self.parent = parent
+        
     def Distance(self, pospx, canvas):
         dx = pospx.x-canvas.xmm2px(self.pos.x)
         dy = pospx.y-canvas.ymm2px(self.pos.y)
@@ -100,7 +102,7 @@ class EditorObject(Object):
         self.anchors = []
 
     def AddAnchor(self, pos):
-        self.anchors.append(Anchor(pos))
+        self.anchors.append(Anchor(self, pos))
 
     # find closest anchor to position in radius
     def FindAnchor(self, pos, canvas, exclude_objects=[]):
@@ -326,7 +328,7 @@ class ObjectDimension(EditorObject):
         # p0-p1 center
         p0 = Point(canvas.xmm2px(self.points[0].pos.x), canvas.ymm2px(self.points[0].pos.y))
         p1 = Point(canvas.xmm2px(self.points[1].pos.x), canvas.ymm2px(self.points[1].pos.y))
-        p2 = Point(canvas.xmm2px(self.text_point.x), canvas.ymm2px(self.text_point.y))
+        p2 = Point(canvas.xmm2px(self.pos.x), canvas.ymm2px(self.pos.y))
         
         pc = self.get_p0p1_center()
         
@@ -353,21 +355,7 @@ class ObjectDimension(EditorObject):
         angle = -math.atan2( p1.x-p0.x,  p1.y-p0.y)+math.pi/2.
 
         # distance
-        distance = math.sqrt((p1.x-p0.x)*(p1.x-p0.x)+(p1.y-p0.y)*(p1.y-p0.y))
-#         # compute distance between p0p1 and p2
-#         if p0p1a!=0:
-#             pd0 = Point(0, p0p1b)
-#             pd1 = Point(0, p2b)
-#             d = pd1.y-pd0.y
-#         else:
-#             pd0 = Point(p0.x, 0)
-#             pd1 = Point(p2.x, 0)
-#             d = pd1.x-pd0.x
-#         
-# 
-#         # compute new points
-#         p3 = Point(p0.x+d*math.cos(angle), p0.y+d*math.sin(angle))
-#         p4 = Point(p1.x+d*math.cos(angle), p1.y+d*math.sin(angle))
+        distance = self.Size()
 
         canvas.SetFont(self.font)
         
@@ -390,7 +378,13 @@ class ObjectDimension(EditorObject):
             if self.placing_point<2:
                 self.points[self.placing_point].Move(pos)
             else:
-                self.text_point = pos
+                self.pos = pos
+        elif self.placed:
+            for point in self.points:
+                point.pos = Point(point.pos.x+pos.x-self.pos.x, point.pos.y+pos.y-self.pos.y) 
+                point.Update()
+            self.pos = pos
+            
         self.Update()
         
     def StartPlace(self):
@@ -402,7 +396,7 @@ class ObjectDimension(EditorObject):
         if self.placing_point<2:    
             point = self.points[self.placing_point]
         else:
-            self.text_point = pos 
+            self.pos = pos 
         self.Update()
         
         self.placing_point = self.placing_point+1
@@ -410,7 +404,7 @@ class ObjectDimension(EditorObject):
             self.points[self.placing_point].pos = self.points[self.placing_point-1].pos
             self.points[self.placing_point].Update()
         if self.placing_point==2:
-            self.text_point = self.points[1].pos
+            self.pos = self.points[1].pos
         if self.placing_point<2:
             self.points[self.placing_point].Select()
         if self.placing_point>2:
@@ -425,6 +419,51 @@ class ObjectDimension(EditorObject):
             for node in self.nodes:
                 node.Select()
 
+    def Size(self):
+        dx = self.points[1].pos.x-self.points[0].pos.x
+        dy = self.points[1].pos.y-self.points[0].pos.y
+        return math.sqrt(dx*dx+dy*dy)
+    
+    def SetSize(self, size):
+        p0 = Point(self.points[0].pos.x, self.points[0].pos.y)
+        p1 = Point(self.points[1].pos.x, self.points[1].pos.y)
+
+        dx = p1.x-p0.x
+        dy = p1.y-p0.y
+        
+        if math.fabs(p1.x-p0.x)<epsilon:
+            if dy>=0:
+                self.points[1].pos.y = p0.y+size
+            else:
+                self.points[1].pos.y = p0.y-size                
+        else:
+            
+            [p0p1a, p0p1b] = self.get_ab(p1, p0)
+            d = size
+            # solve: d=sqrt(dx*dx+dy*dy)
+            # with: dy=a*dx
+            ndx = d/math.sqrt(p0p1a*p0p1a+1)
+            if dx>=0:
+                self.points[1].pos.x = p0.x+ndx
+            else:
+                self.points[1].pos.x = p0.x-ndx                
+            # solve: d=sqrt(dx*dx+dy*dy)
+            # with: dx=dy/a
+            ndy = math.fabs(p0p1a)*d/math.sqrt(p0p1a*p0p1a+1)
+            if dy>=0:
+                self.points[1].pos.y = p0.y+ndy
+            else:
+                self.points[1].pos.y = p0.y-ndy
+                
+            
+             
+#             # solve: d=sqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0))
+#             # with: y1=a*x1+b
+#             self.points[1].pos.x = (math.sqrt(p0p1a*p0p1a*(d*d-p0.x*p0.x)-2*p0p1a*(p0p1b-p0.y)*p0.x-p0p1b*p0p1b+2*p0p1b*p0.y+d*d-p0.y*p0.y)-p0p1a*(p0p1b-p0.y)+p0.x)/(p0p1a*p0p1a+1)
+#             # solve: d=sqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0))
+#             # with: x1=(y1-b)/a
+#             self.points[1].pos.y = -(p0p1a*math.sqrt(p0p1a*p0p1a*(d*d-p0.x*p0.x)-2*p0p1a*(p0p1b-p0.y)*p0.x-p0p1b*p0p1b+2*p0p1b*p0.y+d*d-p0.y*p0.y)-p0p1a*p0p1a*p0.y-p0p1a*p0.x-p0p1b)/(p0p1a*p0p1a+1)
+            
 class EditorState(object):
     StateNone = 0
     StateStartMoving = 1
@@ -553,11 +592,11 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.image_draw.SetBitmap(wx.lib.wxcairo.BitmapFromImageSurface(img))
 
     def SelectObjects(self, objs):
-        for obj in self.state.GetObjects():
-            if obj.Placed()==False:
-                self.tree_objects_manager.DeleteObject(obj)
-                if obj.Parent():
-                    obj.Parent().RemoveNode(obj)
+#         for obj in self.state.GetObjects():
+#             if obj.Placed()==False:
+#                 self.tree_objects_manager.DeleteObject(obj)
+#                 if obj.Parent():
+#                     obj.Parent().RemoveNode(obj)
         self.state.Cancel()
         
         self.selection = objs
@@ -569,6 +608,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         if len(objs)==1 and isinstance(objs[0], ObjectGrid):
             self.current_panel = EditGridFrame(self.panel_edit_object, self.Render, objs[0])
             self.last_grid = objs[0]
+        elif len(objs)==1 and isinstance(objs[0], ObjectDimension):
+            self.current_panel = EditDimensionFrame(self.panel_edit_object, self.Render, objs[0])
             
     def keyPressed( self, event):
         print "keyPressed", type(event), event.GetKeyCode(), event.GetRawKeyFlags(), event.ControlDown()
@@ -576,6 +617,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         if event.GetKeyCode()==27:
             # cancel any operation
             self.SelectObjects([])
+        
+        event.Skip(True)
         
     def onImageDrawLeftDClick( self, event ):
         event.Skip()

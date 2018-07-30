@@ -256,7 +256,6 @@ class Text(Drawing):
         posx = self.at.x-self.anchor_margin*math.cos(self.at.angle+math.pi/2.)
         posy = self.at.y-self.anchor_margin*math.sin(self.at.angle+math.pi/2.)
         
-        print "--", self.anchor_margin*math.cos(self.at.angle+math.pi/2.), self.anchor_margin*math.sin(self.at.angle+math.pi/2.)
         if self.anchor_x=='center':
             posx = posx-width/2.*math.cos(self.at.angle)
             posy = posy-width/2.*math.sin(self.at.angle)

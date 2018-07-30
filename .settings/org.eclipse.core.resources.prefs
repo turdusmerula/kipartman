@@ -31,6 +31,7 @@ encoding//kipartman/dialogs/dialog_main.py=utf-8
 encoding//kipartman/dialogs/dialog_order_options.py=utf-8
 encoding//kipartman/dialogs/dialog_progression.py=utf-8
 encoding//kipartman/dialogs/dialog_project.py=utf-8
+encoding//kipartman/dialogs/draw_footprint/panel_edit_dimension.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_grid.py=utf-8
 encoding//kipartman/dialogs/panel_bom.py=utf-8
 encoding//kipartman/dialogs/panel_distributors.py=utf-8
