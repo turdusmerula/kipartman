@@ -2,7 +2,9 @@ import math
 import cairo
 import re
 import wx
-from Cython.Compiler import UtilNodes
+import numpy as np
+
+epsilon=1e-9
 
 
 class ColorRGB(object):
@@ -61,50 +63,75 @@ class Layer(object):
     def Render(self, ctx):
         pass
 
-class Position(object):
-    def __init__(self, x=0, y=0, angle=0):
-        super(Position, self).__init__()
-        self.x = x
-        self.y = y
-        self.angle = angle
-    
-    def Apply(self, ctx):
-        ctx.move_to(self.x, self.y)
-        ctx.rotate(self.angle)
-        
 class Drawing(object):
     def __init__(self):
         pass
     
     def Render(self, ctx):
         pass    
-
+    
+    def Apply(self, ctx):
+        pass
+    
 class Point(Drawing):
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0., y=0.):
         super(Point, self).__init__()
         self.x = x
         self.y = y
+
+    def Rotate(self, origin, angle):
+        dx = self.x-origin.x
+        dy = self.y-origin.y
+        c = math.cos(angle)
+        s = math.sin(angle)
+        return Point(origin.x+dx*c-dy*s, origin.y+dx*s+dy*c)
+
+    # return angle between two points with self as origin in [-pi, pi]
+    def GetAngle(self, p0, p1):
+        v0 = np.array([p0.x-self.x, p0.y-self.y])
+        v1 = np.array([p1.x-self.x, p1.y-self.y])
+        return np.math.atan2(np.linalg.det([v0,v1]),np.dot(v0,v1))
     
+class Position(Point):
+    def __init__(self, x=0., y=0., angle=0.):
+        super(Position, self).__init__(x, y)
+        self.angle = angle
+    
+    def Apply(self, ctx):
+        ctx.move_to(self.x, self.y)
+        ctx.rotate(self.angle)
+        
 class Pad(Drawing):
-    def __init__(self, smd=False, rect=False, thru_hole=False, oval=False):
+    def __init__(self, type='smd', shape='rect', at=Position(), size=Point(), drill=0):
         super(Pad, self).__init__()
-        self.smd = smd
-        self.thru_hole = thru_hole
-        self.rect = rect
-        self.oval = oval
-        self.at = Point()
-        self.size = Point()
-        self.drill = 0
+        self.type = type # smd or thru_hole
+        self.shape = shape # rect or oval
+        self.at = at
+        self.size = size
+        self.drill = drill
         
     def Render(self, ctx):
         ctx.set_line_width(0)
-        if self.rect:
+        if self.shape=='rect':
             ctx.rectangle(self.at.x-self.size.x/2, self.at.y-self.size.y/2, self.size.x, self.size.y)
+
+#             cx = self.size.x/2*math.cos(self.at.angle)
+#             cy = self.size.y/2*math.sin(self.at.angle)
+#             print "++", cx, cy
+#             points = [Point(self.at.x-cx, self.at.y-cy), 
+#                       Point(self.at.x+cx, self.at.y-cy), 
+#                       Point(self.at.x+cx, self.at.y+cy),
+#                       Point(self.at.x-cx, self.at.y+cy)]
+#             ctx.set_line_width(0)
+#             ctx.move_to(points[0].x, points[0].y)
+#             for p in range(1, len(points)):
+#                 ctx.line_to(points[p].x, points[p].y)
+#             ctx.line_to(points[0].x, points[0].y)
             ctx.fill()
-        elif self.oval:
+        elif self.shape=='oval':
             ctx.arc(self.at.x, self.at.y, self.size.x/2 , 0, 2*math.pi)
             ctx.fill()
-        if self.thru_hole:
+        if self.type=='thru_hole':
             ctx.save()
             color = ColorRGB.Blue()
             ctx.set_source_rgb(color.r, color.g, color.b)
@@ -127,6 +154,35 @@ class Line(Drawing):
         ctx.move_to(self.start.x, self.start.y)
         ctx.line_to(self.end.x, self.end.y)
         ctx.stroke()
+
+    # return the a and b coef of line equation y=a*x+b
+    def get_ab(self):
+        a = (self.end.y-self.start.y)/(self.end.x-self.start.x)
+        b = self.start.y-a*self.start.x
+        return [a, b]
+    
+    # retrieve b from y=a*x+b given a point on the line and a
+    @staticmethod
+    def get_b(a, p0):
+        b = p0.y-a*p0.x
+        return b
+    
+    def get_center(self):
+        pcx = math.fabs(self.start.x+self.end.x)
+        pcy = math.fabs(self.start.y+self.end.y)
+        
+        return Point(pcx, pcy)
+        
+    # get projection of point on line
+    def get_projection(self, p):
+        a, b = self.get_ab()
+        
+        if math.fabs(a)<epsilon:
+            return Point(self.start.x, p.y)
+        else:
+            a1 = -1/a
+            b1 = p.y-a1*p.x
+            return Point((b-b1)/(a1-a), (b*a1-a*b1)/(a1-a))
         
 class PolyLine(Drawing):
     def __init__(self, points=[], width=0, fill=False):
@@ -313,6 +369,9 @@ class Object(object):
     def RemoveNode(self, node):
         self.nodes.remove(node)
     
+    def ClearNodes(self):
+        self.nodes = []
+        
     def Parent(self):
         return self.parent
         
@@ -480,7 +539,7 @@ class FootprintCanvas(Canvas):
         self.AddLayer("F.Fab", ColorRGB.Grey())
 
         self.AddLayer("selection", ColorRGB.Yellow())
-        self.AddLayer("anchor", ColorRGB.Red())
+        self.AddLayer("anchor", ColorRGB.Yellow())
 
 class LibraryCanvas(Canvas):
     def __init__(self):

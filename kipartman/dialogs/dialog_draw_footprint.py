@@ -70,7 +70,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		
 		self.SetSizer( bSizer1 )
 		self.Layout()
-		self.m_statusBar1 = self.CreateStatusBar( 1, wx.STB_SIZEGRIP, wx.ID_ANY )
+		self.status_bar = self.CreateStatusBar( 3, wx.STB_SIZEGRIP, wx.ID_ANY )
 		self.menu = wx.MenuBar( 0 )
 		self.menu_draw = wx.Menu()
 		self.menu_draw_pad = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad", wx.EmptyString, wx.ITEM_NORMAL )
@@ -99,6 +99,9 @@ class DialogDrawFootprint ( wx.Frame ):
 		
 		self.menu_edit_remove = wx.MenuItem( self.menu_edit, wx.ID_ANY, u"Remove", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_edit.Append( self.menu_edit_remove )
+		
+		self.menu_edit_rotate = wx.MenuItem( self.menu_edit, wx.ID_ANY, u"Rotate", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_edit.Append( self.menu_edit_rotate )
 		
 		self.menu.Append( self.menu_edit, u"Edit" ) 
 		
@@ -138,6 +141,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.onMenuZoomResetSelection, id = self.menu_zoom_reset.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuEditMoveSelection, id = self.menu_edit_move.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuEditRemoveSelection, id = self.menu_edit_remove.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuEditRotateSelection, id = self.menu_edit_rotate.GetId() )
 	
 	def __del__( self ):
 		pass
@@ -196,6 +200,9 @@ class DialogDrawFootprint ( wx.Frame ):
 		event.Skip()
 	
 	def onMenuEditRemoveSelection( self, event ):
+		event.Skip()
+	
+	def onMenuEditRotateSelection( self, event ):
 		event.Skip()
 	
 	def m_splitter1OnIdle( self, event ):
