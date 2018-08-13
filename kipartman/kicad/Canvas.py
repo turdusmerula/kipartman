@@ -60,14 +60,14 @@ class Layer(object):
     def Apply(self, ctx):
         ctx.set_source_rgb(self.color.r, self.color.g, self.color.b)
 
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         pass
 
 class Drawing(object):
     def __init__(self):
         pass
     
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         pass    
     
     def Apply(self, ctx):
@@ -110,7 +110,7 @@ class Pad(Drawing):
         self.size = size
         self.drill = drill
         
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         ctx.set_line_width(0)
         if self.shape=='rect':
             ctx.rectangle(self.at.x-self.size.x/2, self.at.y-self.size.y/2, self.size.x, self.size.y)
@@ -148,7 +148,7 @@ class Line(Drawing):
         self.end = end
         self.width = width
 
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         ctx.set_line_width(self.width)
         ctx.set_line_cap(cairo.LINE_CAP_ROUND)
         ctx.move_to(self.start.x, self.start.y)
@@ -157,8 +157,12 @@ class Line(Drawing):
 
     # return the a and b coef of line equation y=a*x+b
     def get_ab(self):
-        a = (self.end.y-self.start.y)/(self.end.x-self.start.x)
-        b = self.start.y-a*self.start.x
+        if math.fabs(self.end.x-self.start.x)<epsilon:
+            a = None
+            b = self.start.x
+        else:
+            a = (self.end.y-self.start.y)/(self.end.x-self.start.x)
+            b = self.start.y-a*self.start.x
         return [a, b]
     
     # retrieve b from y=a*x+b given a point on the line and a
@@ -176,14 +180,32 @@ class Line(Drawing):
     # get projection of point on line
     def get_projection(self, p):
         a, b = self.get_ab()
-        
+        if a is None:
+            return Point(b, p.y)
         if math.fabs(a)<epsilon:
-            return Point(self.start.x, p.y)
-        else:
-            a1 = -1/a
-            b1 = p.y-a1*p.x
-            return Point((b-b1)/(a1-a), (b*a1-a*b1)/(a1-a))
+            return Point(p.x, b)
+        a1 = -1/a
+        b1 = p.y-a1*p.x
+        return Point((b-b1)/(a1-a), (b*a1-a*b1)/(a1-a))
         
+class StraightLine(Line):
+    def __init__(self, start=Point(), end=Point(), width=0):
+        super(StraightLine, self).__init__(start, end, width)
+
+    def Render(self, ctx, canvas):
+        ctx.set_line_width(self.width)
+        ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+        
+        a, b = self.get_ab()
+        if a is None:
+            ctx.move_to(b, 0)
+            ctx.line_to(b, canvas.viewport.y)
+        else:
+            ctx.move_to(1, b)
+            ctx.line_to(canvas.viewport.x, a*canvas.viewport.x+b)
+        ctx.stroke()
+
+
 class PolyLine(Drawing):
     def __init__(self, points=[], width=0, fill=False):
         super(PolyLine, self).__init__()
@@ -191,7 +213,7 @@ class PolyLine(Drawing):
         self.width = width
         self.fill = fill
         
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         ctx.set_line_width(self.width)
         ctx.set_line_cap(cairo.LINE_CAP_ROUND)
         ctx.move_to(self.points[0].x, self.points[0].y)
@@ -208,7 +230,7 @@ class MultiLine(Drawing):
         self.lines = lines
         self.width = width
         
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         ctx.set_line_width(self.width)
         ctx.set_line_cap(cairo.LINE_CAP_ROUND)
         for l in self.lines:
@@ -226,7 +248,7 @@ class Arrow(Drawing):
         self.angle = math.pi/4
         self.length = 10
         
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         ctx.set_line_width(self.width)
         ctx.set_line_cap(cairo.LINE_CAP_ROUND)
 
@@ -263,7 +285,7 @@ class Circle(Drawing):
         self.width = width
         self.fill = fill
 
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         ctx.set_line_width(self.width)
         x1 = self.end.x-self.centre.x
         y1 = self.end.y-self.centre.y
@@ -282,7 +304,7 @@ class Rect(Drawing):
         self.width = width
         self.fill = fill
 
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         ctx.set_line_width(self.width)
         ctx.move_to(self.start.x, self.start.y)
         ctx.line_to(self.start.x, self.end.y)
@@ -305,7 +327,7 @@ class Text(Drawing):
         self.anchor_y = anchor_y # top | center | bottom
         self.anchor_margin = anchor_margin
         
-    def Render(self, ctx):
+    def Render(self, ctx, canvas):
         ctx.save()
 #        self.at.Apply(ctx)
         x, y, width, height, x_advance, y_advance=ctx.text_extents(self.value)
@@ -454,7 +476,7 @@ class Canvas(object):
             
             layer.Apply(layer.ctx)
             self.font.Apply(layer.ctx)
-            obj.Render(layer.ctx)
+            obj.Render(layer.ctx, self)
 
     def Render(self, obj):
         obj.Render(self)

@@ -1,6 +1,7 @@
 from dialogs.dialog_draw_footprint import DialogDrawFootprint
 from frames.frame_draw_footprint.edit_grid_frame import EditGridFrame
 from frames.frame_draw_footprint.edit_dimension_frame import EditDimensionFrame
+from frames.frame_draw_footprint.edit_line_frame import EditLineFrame
 from kicad.Canvas import *
 import wx.lib.wxcairo
 import helper.tree
@@ -80,18 +81,27 @@ class Anchor(object):
         self.parent = parent
         
     def Distance(self, pospx, canvas):
-        line = Line(Point(canvas.xmm2px(self.pos.x), canvas.xmm2px(self.pos.y)), Point(canvas.xmm2px(self.pos2.x), canvas.xmm2px(self.pos2.y)))
-        a, b = line.get_ab()
-        
-class AnchorLine(Anchor):
-    def __init__(self, parent, pos, pos2):
-        super(AnchorLine, self).__init__(parent, pos)
-        self.pos2 = pos2
-        
-    def Distance(self, pospx, canvas):
         dx = pospx.x-canvas.xmm2px(self.pos.x)
         dy = pospx.y-canvas.ymm2px(self.pos.y)
         return math.sqrt(dx*dx+dy*dy)
+    
+    def Pos(self, point=None):
+        return self.pos
+    
+class AnchorLine(object):
+    def __init__(self, parent, line):
+        self.line = line
+        
+    def Distance(self, pospx, canvas):
+        p = Point(canvas.xpx2mm(pospx.x), canvas.ypx2mm(pospx.y))
+        pp = self.line.get_projection(p)
+        dx = p.x-pp.x
+        dy = p.y-pp.y
+        return canvas.mm2px(math.sqrt(dx*dx+dy*dy))
+
+    # return projection of point on line
+    def Pos(self, point=None):
+        return self.line.get_projection(point)
 
 # base object for all editor objects
 class EditorObject(Object):
@@ -100,7 +110,7 @@ class EditorObject(Object):
         
         self.pos = pos  # mm
         self.origin_pos = None
-        self.radius = 5
+        self.radius = 10
         
         self.angle = 0.
         self.origin_angle = None
@@ -115,29 +125,57 @@ class EditorObject(Object):
     def AddAnchor(self, pos):
         self.anchors.append(Anchor(self, pos))
 
+    def AddAnchorLine(self, line):
+        self.anchors.append(AnchorLine(self, line))
+
     # find closest anchor to position in radius
+    # priority: points then intersections, then lines
+    # TODO: lines intersections 
     def FindAnchor(self, pos, canvas, exclude_objects=[]):
-        return self.r_find_anchor(self, pos, canvas, exclude_objects, min_distance=None, min_anchor=None)
+        [min_distance, min_anchor] = self.r_find_anchor(self, pos, canvas, exclude_objects, min_distance=None, min_anchor=None)
+        if min_anchor is None:
+            [min_distance, min_anchor] = self.r_find_anchor_line(self, pos, canvas, exclude_objects, min_distance=None, min_anchor=None)
+        return [min_distance, min_anchor] 
     
     def r_find_anchor(self, obj, pos, canvas, exclude_objects=[], min_distance=None, min_anchor=None):
         if obj in exclude_objects:
             return [min_distance, min_anchor]
         
         for anchor in obj.anchors:
-            distance = anchor.Distance(pos, canvas)
-            if distance<=self.radius:
-                if min_distance and distance<min_distance:
-                    min_distance = distance
-                    min_anchor = anchor
-                elif not min_distance:
-                    min_distance = distance
-                    min_anchor = anchor
+            if isinstance(anchor, Anchor):
+                distance = anchor.Distance(pos, canvas)
+                if distance<=self.radius:
+                    if min_distance and distance<min_distance:
+                        min_distance = distance
+                        min_anchor = anchor
+                    elif not min_distance:
+                        min_distance = distance
+                        min_anchor = anchor
 
         for node in obj.nodes:
             [min_distance, min_anchor] = self.r_find_anchor(node, pos, canvas, exclude_objects, min_distance, min_anchor)
                 
         return [min_distance, min_anchor]
 
+    def r_find_anchor_line(self, obj, pos, canvas, exclude_objects=[], min_distance=None, min_anchor=None):
+        if obj in exclude_objects:
+            return [min_distance, min_anchor]
+        
+        for anchor in obj.anchors:
+            if isinstance(anchor, AnchorLine):
+                distance = anchor.Distance(pos, canvas)
+                if distance<=self.radius:
+                    if min_distance and distance<min_distance:
+                        min_distance = distance
+                        min_anchor = anchor
+                    elif not min_distance:
+                        min_distance = distance
+                        min_anchor = anchor
+
+        for node in obj.nodes:
+            [min_distance, min_anchor] = self.r_find_anchor_line(node, pos, canvas, exclude_objects, min_distance, min_anchor)
+                
+        return [min_distance, min_anchor]
     
     # find closest anchor to position
     def FindAnchors(self, pos, canvas, exclude_objects=[]):
@@ -328,25 +366,7 @@ class ObjectDimension(EditorObject):
     def Update(self):
         self.Clear()
         self.AddAnchor(Point((self.points[0].pos.x+self.points[1].pos.x)/2., (self.points[0].pos.y+self.points[1].pos.y)/2.))
-             
-    def get_p0p1_center(self):
-        p0 = self.points[0].pos
-        p1 = self.points[1].pos
-        
-        pcx = math.fabs(p0.x+p1.x)
-        pcy = math.fabs(p0.y+p1.y)
-        
-        return Point(pcx, pcy)
     
-    def get_ab(self, p0, p1):
-        a = (p1.y-p0.y)/(p1.x-p0.x)
-        b = p0.y-a*p0.x
-        return [a, b]
-    
-    def get_b(self, a, p0):
-        b = p0.y-a*p0.x
-        return b
-
     def get_projection(self, p0, a, b):
         p1 = Point()
         a1 = -1/a
@@ -365,17 +385,16 @@ class ObjectDimension(EditorObject):
         p1 = Point(canvas.xmm2px(self.points[1].pos.x), canvas.ymm2px(self.points[1].pos.y))
         p2 = Point(canvas.xmm2px(self.pos.x), canvas.ymm2px(self.pos.y))
         
-        pc = self.get_p0p1_center()
-        
-        # p0 p1 line equation
+        p0p1 = Line(p0, p1)
+        pc = p0p1.get_center()
         
         if math.fabs(p1.x-p0.x)<epsilon:
             p3 = Point(p2.x, p0.y)
             p4 = Point(p2.x, p1.y)
         else:
-            [p0p1a, p0p1b] = self.get_ab(p0, p1)
+            [p0p1a, p0p1b] = p0p1.get_ab()
             # parralel to p0p1 passing by p2
-            p2b = self.get_b(p0p1a, p2)
+            p2b = Line.get_b(p0p1a, p2)
             
             if math.fabs(p0p1a)<epsilon:
                 # projection of p0 and p1 on parallel
@@ -489,6 +508,126 @@ class ObjectDimension(EditorObject):
                 self.points[1].pos.y = p0.y+ndy
             else:
                 self.points[1].pos.y = p0.y-ndy
+
+# line object
+class ObjectLine(EditorObject):
+    def __init__(self):
+        super(ObjectLine, self).__init__(["editor"], Point())
+        
+        self.width = 1 # px
+
+        self.points = [ObjectPoint(), ObjectPoint()]
+        for point in self.points:
+            self.AddNode(point)
+
+        self.placing_point = None
+        
+        self.Update()
+
+    def Update(self):
+        self.Clear()
+        self.AddAnchorLine(Line(self.points[0].pos, self.points[1].pos))
+    
+    def Render(self, canvas):
+        super(ObjectLine, self).Render(canvas)
+
+        points = []
+        for point in self.points:
+            points.append(Point(point.pos.x, point.pos.y).Rotate(self.points[0].pos, self.angle))
+
+        if self.placed or ( not self.placing_point is None and self.placing_point>0):
+            p0 = Point(canvas.xmm2px(points[0].x), canvas.ymm2px(points[0].y))
+            p1 = Point(canvas.xmm2px(points[1].x), canvas.ymm2px(points[1].y))
+            canvas.Draw(StraightLine(p0, p1, self.width), self.layers)
+        
+    def Move(self, pos):
+        if not self.placing_point is None:
+            if self.placing_point<2:
+                self.points[self.placing_point].Move(pos)
+                self.points[self.placing_point].Update()
+            else:
+                self.pos = pos
+        elif self.placed:
+            for point in self.points:
+                point.pos = Point(point.pos.x+pos.x-self.pos.x, point.pos.y+pos.y-self.pos.y) 
+                point.Update()
+            self.pos = pos
+            
+        self.Update()
+        
+    def StartPlace(self):
+        self.placing_point = 0
+        self.points[0].Select()
+        
+    # return True if placement is complete
+    def Place(self, pos):
+        self.placing_point = self.placing_point+1
+        if self.placing_point==1:
+            self.points[1].pos = self.points[0].pos
+            self.points[1].Update()
+        if self.placing_point<2:
+            self.points[self.placing_point].Select()
+        if self.placing_point==2:
+            self.placing_point = None
+            self.placed = True
+            for node in self.nodes:
+                node.UnSelect()
+            return True
+        return False
+
+    def Select(self):
+        if "selection" not in self.layers:
+            self.layers.append("selection")
+    
+class ObjectVerticalLine(ObjectLine):
+    def __init__(self):
+        super(ObjectVerticalLine, self).__init__()
+                        
+    def Move(self, pos):
+        if not self.placing_point is None:
+            if self.placing_point<2:
+                self.points[0].Move(pos)
+                self.points[1].Move(Point(pos.x, pos.y+1))
+                self.points[0].Update()
+            else:
+                self.pos = pos
+        elif self.placed:
+            for point in self.points:
+                point.pos = Point(point.pos.x+pos.x-self.pos.x, point.pos.y+pos.y-self.pos.y) 
+                point.Update()
+            self.pos = pos
+            
+        self.Update()
+        
+    def StartPlace(self):
+        self.placing_point = 1
+        self.points[0].Select()
+
+class ObjectHorizontalLine(ObjectLine):
+    def __init__(self):
+        super(ObjectHorizontalLine, self).__init__()
+
+        self.points[1].pos = Point(1, 0)
+                        
+    def Move(self, pos):
+        if not self.placing_point is None:
+            if self.placing_point<2:
+                self.points[0].Move(pos)
+                self.points[1].Move(Point(pos.x+1, pos.y))
+                self.points[0].Update()
+            else:
+                self.pos = pos
+        elif self.placed:
+            for point in self.points:
+                point.pos = Point(point.pos.x+pos.x-self.pos.x, point.pos.y+pos.y-self.pos.y) 
+                point.Update()
+            self.pos = pos
+            
+        self.Update()
+        
+    def StartPlace(self):
+        self.placing_point = 1
+        self.points[0].Select()
 
 # angle object
 class ObjectAngle(EditorObject):
@@ -902,7 +1041,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.zoom = 1
         self.canvas = FootprintCanvas()
         self.selection = []
-
+        self.magnet = 10
+        
         self.component_object = EditorObject([])
         self.build_objects = EditorObject([])
         
@@ -986,6 +1126,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         elif len(objs)==1 and isinstance(objs[0], ObjectPad):
             self.current_panel = EditPadFrame(self.panel_edit_object, self.Render, objs[0])
             self.last_pad = objs[0]
+        elif len(objs)==1 and isinstance(objs[0], ObjectLine):
+            self.current_panel = EditLineFrame(self.panel_edit_object, self.Render, objs[0])
             
     def keyPressed( self, event):
         print "keyPressed", type(event), event.GetKeyCode(), event.GetRawKeyFlags(), event.ControlDown()
@@ -1004,7 +1146,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
 
         [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas, self.state.GetMovingObjects())
         if anchor:
-            self.cursor.pos = anchor.pos
+            self.cursor.pos = anchor.Pos(Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y)))
             pos = Point(self.canvas.xmm2px(self.cursor.pos.x), self.canvas.ymm2px(self.cursor.pos.y))
         else:
             self.cursor.pos = Position(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
@@ -1030,7 +1172,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
         
         [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas, self.state.GetMovingObjects())
         if anchor:
-            self.cursor.pos = anchor.pos
+            self.cursor.pos = anchor.Pos(Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y)))
             pos = Point(self.canvas.xmm2px(self.cursor.pos.x), self.canvas.ymm2px(self.cursor.pos.y))
         else:
             self.cursor.pos = Position(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
@@ -1064,6 +1206,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
+        if self.current_panel:
+            self.current_panel.Destroy()
         self.current_panel = EditPadFrame(self.panel_edit_object, self.Render, node)
 
     def onMenuToolDimensionSelection( self, event ):
@@ -1074,6 +1218,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
+        if self.current_panel:
+            self.current_panel.Destroy()
         self.current_panel = EditDimensionFrame(self.panel_edit_object, self.Render, node)
     
     def onMenuToolGridSelection( self, event ):
@@ -1087,11 +1233,52 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
+        if self.current_panel:
+            self.current_panel.Destroy()
         self.current_panel = EditGridFrame(self.panel_edit_object, self.Render, node)
         self.last_grid = node
         
     def onMenuToolRulerSelection( self, event ):
         event.Skip()
+
+    def onMenuToolAngleSelection( self, event ):
+        event.Skip()
+    
+    def onMenuToolVerticalSelection( self, event ):
+        node = ObjectVerticalLine()
+            
+        self.build_objects.AddNode(node)
+        obj = self.tree_objects_manager.AppendObject('Drawing', node)
+        self.tree_objects_manager.Select(obj)
+        self.state.DoPlace(node)
+
+        if self.current_panel:
+            self.current_panel.Destroy()
+        self.current_panel = EditLineFrame(self.panel_edit_object, self.Render, node)
+    
+    def onMenuToolHorizontalSelection( self, event ):
+        node = ObjectHorizontalLine()
+            
+        self.build_objects.AddNode(node)
+        obj = self.tree_objects_manager.AppendObject('Drawing', node)
+        self.tree_objects_manager.Select(obj)
+        self.state.DoPlace(node)
+
+        if self.current_panel:
+            self.current_panel.Destroy()
+        self.current_panel = EditLineFrame(self.panel_edit_object, self.Render, node)
+    
+    def onMenuToolLineSelection( self, event ):
+        node = ObjectLine()
+            
+        self.build_objects.AddNode(node)
+        obj = self.tree_objects_manager.AppendObject('Drawing', node)
+        self.tree_objects_manager.Select(obj)
+        self.state.DoPlace(node)
+
+        if self.current_panel:
+            self.current_panel.Destroy()
+        self.current_panel = EditLineFrame(self.panel_edit_object, self.Render, node)
     
     def onMenuZoomResetSelection( self, event ):
         event.Skip()

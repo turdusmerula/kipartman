@@ -82,8 +82,20 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.menu_tool_dimension = wx.MenuItem( self.menu_tool, wx.ID_ANY, u"Dimension", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_tool.Append( self.menu_tool_dimension )
 		
+		self.menu_tool_angle = wx.MenuItem( self.menu_tool, wx.ID_ANY, u"Angle", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_tool.Append( self.menu_tool_angle )
+		
 		self.menu_tool_grid = wx.MenuItem( self.menu_tool, wx.ID_ANY, u"Grid", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_tool.Append( self.menu_tool_grid )
+		
+		self.menu_tool_vertical = wx.MenuItem( self.menu_tool, wx.ID_ANY, u"Vertical", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_tool.Append( self.menu_tool_vertical )
+		
+		self.menu_tool_horizontal = wx.MenuItem( self.menu_tool, wx.ID_ANY, u"Horizontal", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_tool.Append( self.menu_tool_horizontal )
+		
+		self.menu_tool_line = wx.MenuItem( self.menu_tool, wx.ID_ANY, u"Line", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_tool.Append( self.menu_tool_line )
 		
 		self.menu.Append( self.menu_tool, u"Tool" ) 
 		
@@ -137,7 +149,11 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.image_draw.Bind( wx.EVT_RIGHT_UP, self.onImageDrawRightUp )
 		self.Bind( wx.EVT_MENU, self.onMenuDrawPadSelection, id = self.menu_draw_pad.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolDimensionSelection, id = self.menu_tool_dimension.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuToolAngleSelection, id = self.menu_tool_angle.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolGridSelection, id = self.menu_tool_grid.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuToolVerticalSelection, id = self.menu_tool_vertical.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuToolHorizontalSelection, id = self.menu_tool_horizontal.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuToolLineSelection, id = self.menu_tool_line.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuZoomResetSelection, id = self.menu_zoom_reset.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuEditMoveSelection, id = self.menu_edit_move.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuEditRemoveSelection, id = self.menu_edit_remove.GetId() )
@@ -190,7 +206,19 @@ class DialogDrawFootprint ( wx.Frame ):
 	def onMenuToolDimensionSelection( self, event ):
 		event.Skip()
 	
+	def onMenuToolAngleSelection( self, event ):
+		event.Skip()
+	
 	def onMenuToolGridSelection( self, event ):
+		event.Skip()
+	
+	def onMenuToolVerticalSelection( self, event ):
+		event.Skip()
+	
+	def onMenuToolHorizontalSelection( self, event ):
+		event.Skip()
+	
+	def onMenuToolLineSelection( self, event ):
 		event.Skip()
 	
 	def onMenuZoomResetSelection( self, event ):
