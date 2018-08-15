@@ -90,7 +90,17 @@ class Point(Drawing):
     def GetAngle(self, p0, p1):
         v0 = np.array([p0.x-self.x, p0.y-self.y])
         v1 = np.array([p1.x-self.x, p1.y-self.y])
-        return np.math.atan2(np.linalg.det([v0,v1]),np.dot(v0,v1))
+        angle = np.math.atan2(np.linalg.det([v0,v1]),np.dot(v0,v1))
+#         if angle<0:
+#             angle = angle
+#         else:
+        angle = math.pi-angle
+        return angle
+    
+    def Distance(self, p):
+        dx = self.x-p.x
+        dy = self.y-p.y
+        return math.sqrt(dx*dx+dy*dy)
     
 class Position(Point):
     def __init__(self, x=0., y=0., angle=0.):
@@ -101,6 +111,13 @@ class Position(Point):
         ctx.move_to(self.x, self.y)
         ctx.rotate(self.angle)
         
+    def Rotate(self, origin, angle):
+        dx = self.x-origin.x
+        dy = self.y-origin.y
+        c = math.cos(angle)
+        s = math.sin(angle)
+        return Position(origin.x+dx*c-dy*s, origin.y+dx*s+dy*c, self.angle)
+
 class Pad(Drawing):
     def __init__(self, type='smd', shape='rect', at=Position(), size=Point(), drill=0):
         super(Pad, self).__init__()
@@ -291,6 +308,24 @@ class Circle(Drawing):
         y1 = self.end.y-self.centre.y
         ctx.move_to(self.end.x, self.end.y)
         ctx.arc(self.centre.x, self.centre.y, math.sqrt(x1*x1+y1*y1), 0, 2*math.pi)
+        if self.fill:
+            ctx.fill()
+        else:
+            ctx.stroke()
+
+class Arc(Drawing):
+    def __init__(self, centre=Point(), radius=0., angle_start=0., angle_end=0., width=0, fill=False):
+        super(Arc, self).__init__()
+        self.centre = centre
+        self.radius = radius
+        self.angle_start = angle_start
+        self.angle_end = angle_end
+        self.width = width
+        self.fill = fill
+
+    def Render(self, ctx, canvas):
+        ctx.set_line_width(self.width)
+        ctx.arc(self.centre.x, self.centre.y, self.radius, self.angle_start, self.angle_end)
         if self.fill:
             ctx.fill()
         else:

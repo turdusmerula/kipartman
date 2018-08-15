@@ -637,7 +637,7 @@ class ObjectAngle(EditorObject):
         self.width = 1 # px
         self.font = Font(Point(15, 15), 1)
         
-        self.points = [ObjectPoint(), ObjectPoint(), ObjectPoint()]
+        self.points = [ObjectPoint(), ObjectPoint(), ObjectPoint(), ObjectPoint()]
         for point in self.points:
             self.AddNode(point)
         
@@ -649,95 +649,58 @@ class ObjectAngle(EditorObject):
 
     def Update(self):
         self.Clear()
-        self.AddAnchor(Point((self.points[0].pos.x+self.points[1].pos.x)/2., (self.points[0].pos.y+self.points[1].pos.y)/2.))
-             
-    def get_p0p1_center(self):
-        p0 = self.points[0].pos
-        p1 = self.points[1].pos
-        
-        pcx = math.fabs(p0.x+p1.x)
-        pcy = math.fabs(p0.y+p1.y)
-        
-        return Point(pcx, pcy)
-    
-    def get_ab(self, p0, p1):
-        a = (p1.y-p0.y)/(p1.x-p0.x)
-        b = p0.y-a*p0.x
-        return [a, b]
-    
-    def get_b(self, a, p0):
-        b = p0.y-a*p0.x
-        return b
-
-    def get_projection(self, p0, a, b):
-        p1 = Point()
-        a1 = -1/a
-        b1 = p0.y-a1*p0.x
-        
-        p1.x = (b-b1)/(a1-a)
-        p1.y = (b*a1-a*b1)/(a1-a)
-                
-        return p1
-    
+                 
     def Render(self, canvas):
-        super(ObjectDimension, self).Render(canvas)
-
-        # p0-p1 center
-        p0 = Point(canvas.xmm2px(self.points[0].pos.x), canvas.ymm2px(self.points[0].pos.y))
-        p1 = Point(canvas.xmm2px(self.points[1].pos.x), canvas.ymm2px(self.points[1].pos.y))
-        p2 = Point(canvas.xmm2px(self.pos.x), canvas.ymm2px(self.pos.y))
-        
-        pc = self.get_p0p1_center()
-        
-        # p0 p1 line equation
-        
-        if math.fabs(p1.x-p0.x)<epsilon:
-            p3 = Point(p2.x, p0.y)
-            p4 = Point(p2.x, p1.y)
-        else:
-            [p0p1a, p0p1b] = self.get_ab(p0, p1)
-            # parralel to p0p1 passing by p2
-            p2b = self.get_b(p0p1a, p2)
-            
-            if math.fabs(p0p1a)<epsilon:
-                # projection of p0 and p1 on parallel
-                p3 = Point(p0.x, p2b)
-                p4 = Point(p1.x, p2b)
-            else:
-                # projection of p0 and p1 on parallel
-                p3 = self.get_projection(p0, p0p1a, p2b)
-                p4 = self.get_projection(p1, p0p1a, p2b)
-                
-        # compute angle for p0p1
-        angle = -math.atan2( p1.x-p0.x,  p1.y-p0.y)+math.pi/2.
-
-        # distance
-        distance = self.Size()
+        super(ObjectAngle, self).Render(canvas)
 
         canvas.SetFont(self.font)
         
+        p0 = Point(canvas.xmm2px(self.points[0].pos.x), canvas.ymm2px(self.points[0].pos.y))
+        p1 = Point(canvas.xmm2px(self.points[1].pos.x), canvas.ymm2px(self.points[1].pos.y))
+        p2 = Point(canvas.xmm2px(self.points[2].pos.x), canvas.ymm2px(self.points[2].pos.y))
+        p3 = Point(canvas.xmm2px(self.points[3].pos.x), canvas.ymm2px(self.points[3].pos.y))
+
         if self.placed==False and self.placing_point is None:
             return
-        if self.placing_point and self.placing_point==1:
-            p5 = Point((p0.x+p1.x)/2., (p0.y+p1.y)/2.)
-            canvas.Draw(Arrow(p0, p1, 1), self.layers)
-            canvas.Draw(Text(format(distance), Position(p5.x, p5.y, angle), 'center', 'bottom', 5), self.layers)
-        if self.placed or self.placing_point==2:
-            p5 = Point((p3.x+p4.x)/2., (p3.y+p4.y)/2.)
-            canvas.Draw(Line(p0, p3, 1), self.layers)
-            canvas.Draw(Line(p1, p4, 1), self.layers)
-            canvas.Draw(Arrow(p3, p4, 1), self.layers)
-            canvas.Draw(Text(format(distance), Position(p5.x, p5.y, angle), 'center', 'bottom', 5), self.layers)
+        if self.placing_point and self.placing_point>0 and self.placing_point<3:
+            canvas.Draw(Line(p0, p1, 1), self.layers)
+        if self.placing_point and self.placing_point>1 and self.placing_point<3:
+            canvas.Draw(Line(p0, p2, 1), self.layers)
+        if self.placing_point and self.placing_point==3:
+            canvas.Draw(Line(p0, p1, 1), self.layers)
+            canvas.Draw(Line(p0, p2, 1), self.layers)
+        if self.placed or ( self.placing_point and self.placing_point>=2 ):
+            pref = Point(p0.x+1, p0.y)
+            d1 = p0.Distance(p1)
+            d2 = p0.Distance(p2)
+            d3 = p0.Distance(p3)
             
-            for anchor in self.anchors:
-                pm = Point(canvas.xmm2px(anchor.pos.x), canvas.ymm2px(anchor.pos.y))
-                pml = 5
-                canvas.Draw(Line(Point(pm.x-pml, pm.y), Point(pm.x+pml, pm.y), 1), self.layers)
-                canvas.Draw(Line(Point(pm.x, pm.y-pml), Point(pm.x, pm.y+pml), 1), self.layers)
+            angle_start = pref.GetAngle(p0, p2)
+            angle_end = pref.GetAngle(p0, p1)
+            angle = 2*math.pi-divmod(angle_end-angle_start+2*math.pi, 2*math.pi)[1]
+            
+            print "--", angle_start*180./math.pi, angle_end*180./math.pi
+            ptext = Position(p1.x, p1.y, math.pi/2-angle/2-angle_start).Rotate(p0, -angle/2)
+#            ptext = Position(p1.x, p1.y, math.pi/2-angle/2-(2*math.pi-angle_start)).Rotate(p0, -angle/2)
+            
+#            d = 10
+#            if d1<d:
+#                d = d1
+            d = d1
+            if d2<d:
+                d = d2
+#            if math.fabs(d3)>epsilon:
+#                d = d3
+            canvas.Draw(Arc(p0, d, -angle_start, -angle_end, 1), self.layers)
+            canvas.Draw(Text("{:8.3f}".format(angle*180./math.pi), ptext, anchor_x='center', anchor_y='center'), self.layers)            
+#            if d>d1 or d>d2:
+#                canvas.Draw(Line(p0, p1, 1), self.layers)
+#                canvas.Draw(Line(p0, p2, 1), self.layers)
+
         
     def Move(self, pos):
         if not self.placing_point is None:
-            if self.placing_point<2:
+            if self.placing_point<4:
                 self.points[self.placing_point].Move(pos)
             else:
                 self.pos = pos
@@ -756,14 +719,14 @@ class ObjectAngle(EditorObject):
     # return True if placement is complete
     def Place(self, pos):
         self.placing_point = self.placing_point+1
-        if self.placing_point>0 and self.placing_point<2:
+        if self.placing_point>0 and self.placing_point<4:
             self.points[self.placing_point].pos = self.points[self.placing_point-1].pos
             self.points[self.placing_point].Update()
         if self.placing_point==2:
             self.pos = self.points[1].pos
-        if self.placing_point<2:
+        if self.placing_point<4:
             self.points[self.placing_point].Select()
-        if self.placing_point>2:
+        if self.placing_point==4:
             self.placing_point = None
             self.placed = True
             return True
@@ -1142,8 +1105,9 @@ class DrawFootprintFrame(DialogDrawFootprint):
         event.Skip()
     
     def onImageDrawLeftDown( self, event ):
-        pos = event.GetPosition()
-
+        pospx = event.GetPosition()
+        pos = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
+        
         [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas, self.state.GetMovingObjects())
         if anchor:
             self.cursor.pos = anchor.Pos(Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y)))
@@ -1242,7 +1206,16 @@ class DrawFootprintFrame(DialogDrawFootprint):
         event.Skip()
 
     def onMenuToolAngleSelection( self, event ):
-        event.Skip()
+        node = ObjectAngle()
+            
+        self.build_objects.AddNode(node)
+        obj = self.tree_objects_manager.AppendObject('Drawing', node)
+        self.tree_objects_manager.Select(obj)
+        self.state.DoPlace(node)
+
+        if self.current_panel:
+            self.current_panel.Destroy()
+        self.current_panel = EditLineFrame(self.panel_edit_object, self.Render, node)
     
     def onMenuToolVerticalSelection( self, event ):
         node = ObjectVerticalLine()
