@@ -122,7 +122,7 @@
                         <property name="gripper">0</property>
                         <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
-                        <property name="label">Angle (°)</property>
+                        <property name="label">Angle (degree)</property>
                         <property name="max_size"></property>
                         <property name="maximize_button">0</property>
                         <property name="maximum_size"></property>
@@ -257,8 +257,8 @@
                         <event name="OnRightUp"></event>
                         <event name="OnSetFocus"></event>
                         <event name="OnSize"></event>
-                        <event name="OnText">onAngleText</event>
-                        <event name="OnTextEnter"></event>
+                        <event name="OnText"></event>
+                        <event name="OnTextEnter">onAngleTextEnter</event>
                         <event name="OnTextMaxLen"></event>
                         <event name="OnTextURL"></event>
                         <event name="OnUpdateUI"></event>

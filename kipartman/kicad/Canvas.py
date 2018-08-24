@@ -90,13 +90,18 @@ class Point(Drawing):
     def GetAngle(self, p0, p1):
         v0 = np.array([p0.x-self.x, p0.y-self.y])
         v1 = np.array([p1.x-self.x, p1.y-self.y])
-        angle = np.math.atan2(np.linalg.det([v0,v1]),np.dot(v0,v1))
-#         if angle<0:
-#             angle = angle
-#         else:
-        angle = math.pi-angle
+        angle = np.math.atan2(np.linalg.det([v0,v1]), np.dot(v0,v1))
         return angle
     
+    # set angle of p1 relative to p0 with self as origin in [-pi, pi]
+    def SetAngle(self, p0, p1, angle):
+        d1x = p1.x-self.x
+        d1y = p1.y-self.y
+        d1 = math.sqrt(d1x*d1x+d1y*d1y)
+        angle_start = self.GetAngle(Point(self.x+1, self.y), p0)
+        p1.x = self.x+d1*math.cos(angle+angle_start)
+        p1.y = self.y+d1*math.sin(angle+angle_start)
+ 
     def Distance(self, p):
         dx = self.x-p.x
         dy = self.y-p.y
@@ -472,14 +477,14 @@ class Canvas(object):
     def px2mm(self, pixels):
         px = float(wx.GetDisplaySize()[1])
         mm = float(wx.GetDisplaySizeMM()[1])
-        mmperpx = mm/self.zoom/px
-        return mmperpx*float(pixels)
+        mmperpx = mm/px
+        return mmperpx*float(pixels)/self.zoom
     
     def mm2px(self, millimeters):
         px = float(wx.GetDisplaySize()[1])
         mm = float(wx.GetDisplaySizeMM()[1])
-        pxpermm = px/mm/self.zoom
-        return float(pxpermm)*millimeters
+        pxpermm = px/mm
+        return pxpermm*millimeters*self.zoom
 
     # get x position in pixels from mm
     def xmm2px(self, posmm):
@@ -571,9 +576,6 @@ class FootprintCanvas(Canvas):
     def __init__(self):
         super(FootprintCanvas, self).__init__()
                 
-        # add default layers
-        self.AddLayer("editor", ColorRGB.Grey())
-
         self.AddLayer("B.Cu", ColorRGB.Blue())
         self.AddLayer("F.Cu", ColorRGB.Red())
 #        self.AddLayer("B.Adhes")
@@ -595,6 +597,8 @@ class FootprintCanvas(Canvas):
         self.AddLayer("B.Fab", ColorRGB.Grey())
         self.AddLayer("F.Fab", ColorRGB.Grey())
 
+        # add default layers
+        self.AddLayer("editor", ColorRGB.Grey())
         self.AddLayer("selection", ColorRGB.Yellow())
         self.AddLayer("anchor", ColorRGB.Yellow())
 

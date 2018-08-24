@@ -44,35 +44,42 @@ class PanelEditPad ( wx.Panel ):
 		self.m_staticText5.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_name = wx.TextCtrl( self, wx.ID_ANY, u"1", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_name = wx.TextCtrl( self, wx.ID_ANY, u"1", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		fgSizer1.Add( self.text_name, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		self.m_staticText6 = wx.StaticText( self, wx.ID_ANY, u"Position X", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText51 = wx.StaticText( self, wx.ID_ANY, u"Angle (degree)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText51.Wrap( -1 )
+		fgSizer1.Add( self.m_staticText51, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.text_angle = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		fgSizer1.Add( self.text_angle, 0, wx.ALL, 5 )
+		
+		self.m_staticText6 = wx.StaticText( self, wx.ID_ANY, u"Position X (mm)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_position_x = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_position_x = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		fgSizer1.Add( self.text_position_x, 0, wx.ALL, 5 )
 		
-		self.m_staticText63 = wx.StaticText( self, wx.ID_ANY, u"Position Y", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText63 = wx.StaticText( self, wx.ID_ANY, u"Position Y (mm)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText63.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText63, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_size_x11 = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.text_size_x11, 0, wx.ALL, 5 )
+		self.text_position_y = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		fgSizer1.Add( self.text_position_y, 0, wx.ALL, 5 )
 		
-		self.m_staticText62 = wx.StaticText( self, wx.ID_ANY, u"Size X", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText62 = wx.StaticText( self, wx.ID_ANY, u"Size X (mm)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText62.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText62, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_size_x = wx.TextCtrl( self, wx.ID_ANY, u"1", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_size_x = wx.TextCtrl( self, wx.ID_ANY, u"1", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		fgSizer1.Add( self.text_size_x, 0, wx.ALL|wx.EXPAND, 5 )
 		
-		self.m_staticText61 = wx.StaticText( self, wx.ID_ANY, u"Size Y", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText61 = wx.StaticText( self, wx.ID_ANY, u"Size Y (mm)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText61.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText61, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_size_y = wx.TextCtrl( self, wx.ID_ANY, u"1", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_size_y = wx.TextCtrl( self, wx.ID_ANY, u"1", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		fgSizer1.Add( self.text_size_y, 0, wx.ALL, 5 )
 		
 		
@@ -85,11 +92,12 @@ class PanelEditPad ( wx.Panel ):
 		# Connect Events
 		self.radio_shape.Bind( wx.EVT_RADIOBOX, self.onRadioShapeRadioBox )
 		self.radio_type.Bind( wx.EVT_RADIOBOX, self.onRadioTypeRadioBox )
-		self.text_name.Bind( wx.EVT_TEXT, self.onPadText )
-		self.text_position_x.Bind( wx.EVT_TEXT, self.onPositionXText )
-		self.text_size_x11.Bind( wx.EVT_TEXT, self.onPositionYText )
-		self.text_size_x.Bind( wx.EVT_TEXT, self.onSizeXText )
-		self.text_size_y.Bind( wx.EVT_TEXT, self.onSizeYText )
+		self.text_name.Bind( wx.EVT_TEXT_ENTER, self.onPadTextEnter )
+		self.text_angle.Bind( wx.EVT_TEXT_ENTER, self.onAngleTextEnter )
+		self.text_position_x.Bind( wx.EVT_TEXT_ENTER, self.onPositionXTextEnter )
+		self.text_position_y.Bind( wx.EVT_TEXT_ENTER, self.onPositionYTextEnter )
+		self.text_size_x.Bind( wx.EVT_TEXT_ENTER, self.onSizeXTextEnter )
+		self.text_size_y.Bind( wx.EVT_TEXT_ENTER, self.onSizeYTextEnter )
 	
 	def __del__( self ):
 		pass
@@ -102,19 +110,22 @@ class PanelEditPad ( wx.Panel ):
 	def onRadioTypeRadioBox( self, event ):
 		event.Skip()
 	
-	def onPadText( self, event ):
+	def onPadTextEnter( self, event ):
 		event.Skip()
 	
-	def onPositionXText( self, event ):
+	def onAngleTextEnter( self, event ):
 		event.Skip()
 	
-	def onPositionYText( self, event ):
+	def onPositionXTextEnter( self, event ):
 		event.Skip()
 	
-	def onSizeXText( self, event ):
+	def onPositionYTextEnter( self, event ):
 		event.Skip()
 	
-	def onSizeYText( self, event ):
+	def onSizeXTextEnter( self, event ):
+		event.Skip()
+	
+	def onSizeYTextEnter( self, event ):
 		event.Skip()
 	
 

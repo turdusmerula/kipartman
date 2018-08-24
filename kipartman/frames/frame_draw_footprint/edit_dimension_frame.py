@@ -6,18 +6,26 @@ class EditDimensionFrame(PanelEditDimension):
         super(EditDimensionFrame, self).__init__(parent)
         self.render = render
         self.dimension = dimension
-        self.ShowDimension(dimension)
+        self.ShowDimension()
         
     def SetDimension(self, dimension):
         self.dimension = dimension
         self.ShowDimension(dimension)
 
-    def ShowDimension(self, symbol):
+    def ShowDimension(self):
         if self.dimension:
             self.text_size.Value = str(self.dimension.Size())
         
-    def onTextSizeText( self, event ):
-        self.dimension.Value = str(math.fabs(float(self.text_size.Value)))
-        self.dimension.SetSize(float(self.text_size.Value))
+    def Update(self):
+        self.ShowDimension()
+
+    def onSizeTextEnter( self, event ):
+        try:
+            size = math.fabs(float(self.text_size.Value))
+        except Exception as e:
+            print format(e)
+            return
+        self.dimension.Value = str(size)
+        self.dimension.SetSize(size)
         self.dimension.Update()
         self.render()

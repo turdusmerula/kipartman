@@ -30,7 +30,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.m_panel1 = wx.Panel( self.m_splitter1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.image_draw = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.image_draw = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL|wx.VSCROLL )
 		self.image_draw.SetForegroundColour( wx.Colour( 255, 255, 255 ) )
 		self.image_draw.SetBackgroundColour( wx.Colour( 255, 255, 255 ) )
 		
@@ -76,6 +76,12 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.menu_draw_pad = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_draw.Append( self.menu_draw_pad )
 		
+		self.menu_draw_pad_row = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw.Append( self.menu_draw_pad_row )
+		
+		self.menu_draw_pad_array = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw.Append( self.menu_draw_pad_array )
+		
 		self.menu.Append( self.menu_draw, u"Draw" ) 
 		
 		self.menu_tool = wx.Menu()
@@ -103,9 +109,18 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.menu_zoom_reset = wx.MenuItem( self.menu_zoom, wx.ID_ANY, u"Reset", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_zoom.Append( self.menu_zoom_reset )
 		
+		self.menu_zoom_in = wx.MenuItem( self.menu_zoom, wx.ID_ANY, u"Zoom in", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_zoom.Append( self.menu_zoom_in )
+		
+		self.menu_zoom_out = wx.MenuItem( self.menu_zoom, wx.ID_ANY, u"Zoom out", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_zoom.Append( self.menu_zoom_out )
+		
 		self.menu.Append( self.menu_zoom, u"Zoom" ) 
 		
 		self.menu_edit = wx.Menu()
+		self.menu_edit_duplicate = wx.MenuItem( self.menu_edit, wx.ID_ANY, u"Duplicate", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_edit.Append( self.menu_edit_duplicate )
+		
 		self.menu_edit_move = wx.MenuItem( self.menu_edit, wx.ID_ANY, u"Move", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_edit.Append( self.menu_edit_move )
 		
@@ -148,6 +163,8 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.image_draw.Bind( wx.EVT_RIGHT_DOWN, self.onImageDrawRightDown )
 		self.image_draw.Bind( wx.EVT_RIGHT_UP, self.onImageDrawRightUp )
 		self.Bind( wx.EVT_MENU, self.onMenuDrawPadSelection, id = self.menu_draw_pad.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDrawPadRowSelection, id = self.menu_draw_pad_row.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDrawPadArraySelection, id = self.menu_draw_pad_array.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolDimensionSelection, id = self.menu_tool_dimension.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolAngleSelection, id = self.menu_tool_angle.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolGridSelection, id = self.menu_tool_grid.GetId() )
@@ -155,6 +172,9 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.onMenuToolHorizontalSelection, id = self.menu_tool_horizontal.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolLineSelection, id = self.menu_tool_line.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuZoomResetSelection, id = self.menu_zoom_reset.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuZoomInSelection, id = self.menu_zoom_in.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuZoomOutSelection, id = self.menu_zoom_out.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuEditDuplicateSelection, id = self.menu_edit_duplicate.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuEditMoveSelection, id = self.menu_edit_move.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuEditRemoveSelection, id = self.menu_edit_remove.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuEditRotateSelection, id = self.menu_edit_rotate.GetId() )
@@ -203,6 +223,12 @@ class DialogDrawFootprint ( wx.Frame ):
 	def onMenuDrawPadSelection( self, event ):
 		event.Skip()
 	
+	def onMenuDrawPadRowSelection( self, event ):
+		event.Skip()
+	
+	def onMenuDrawPadArraySelection( self, event ):
+		event.Skip()
+	
 	def onMenuToolDimensionSelection( self, event ):
 		event.Skip()
 	
@@ -222,6 +248,15 @@ class DialogDrawFootprint ( wx.Frame ):
 		event.Skip()
 	
 	def onMenuZoomResetSelection( self, event ):
+		event.Skip()
+	
+	def onMenuZoomInSelection( self, event ):
+		event.Skip()
+	
+	def onMenuZoomOutSelection( self, event ):
+		event.Skip()
+	
+	def onMenuEditDuplicateSelection( self, event ):
 		event.Skip()
 	
 	def onMenuEditMoveSelection( self, event ):

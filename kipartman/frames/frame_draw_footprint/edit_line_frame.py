@@ -16,6 +16,9 @@ class EditLineFrame(PanelEditLine):
         if self.line:
             self.text_angle.Value = str(self.line.angle)
     
+    def Update(self):
+        self.ShowLine(self.line)
+        
     def onAngleText( self, event ):
         self.line.angle = float(self.text_angle.Value)
         self.line.Update()

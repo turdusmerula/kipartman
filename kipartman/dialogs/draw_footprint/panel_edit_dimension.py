@@ -27,7 +27,7 @@ class PanelEditDimension ( wx.Panel ):
 		self.m_staticText5.Wrap( -1 )
 		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_size = wx.TextCtrl( self, wx.ID_ANY, u"1", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.text_size = wx.TextCtrl( self, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		fgSizer1.Add( self.text_size, 0, wx.ALL|wx.EXPAND, 5 )
 		
 		
@@ -35,14 +35,14 @@ class PanelEditDimension ( wx.Panel ):
 		self.Layout()
 		
 		# Connect Events
-		self.text_size.Bind( wx.EVT_TEXT, self.onTextSizeText )
+		self.text_size.Bind( wx.EVT_TEXT_ENTER, self.onSizeTextEnter )
 	
 	def __del__( self ):
 		pass
 	
 	
 	# Virtual event handlers, overide them in your derived class
-	def onTextSizeText( self, event ):
+	def onSizeTextEnter( self, event ):
 		event.Skip()
 	
 
