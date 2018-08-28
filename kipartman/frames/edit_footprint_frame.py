@@ -246,5 +246,9 @@ class EditFootprintFrame(PanelEditFootprint):
         wx.PostEvent(self, event)
 
     def onButtonEditFootprintClick( self, event ):
-        draw_frame = DrawFootprintFrame(self)
+        configuration = Configuration()
+        if self.footprint:
+            draw_frame = DrawFootprintFrame(self, os.path.join(configuration.kicad_footprints_path, self.footprint.source_path))
+        else:
+            draw_frame = DrawFootprintFrame(self, None)            
         draw_frame.Show(True)

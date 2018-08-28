@@ -18,7 +18,7 @@ import wx.dataview
 class DialogDrawFootprint ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1118,762 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1155,851 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -49,8 +49,31 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.m_panel3 = wx.Panel( self.splitter_edit_object, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer8 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.tree_objects = wx.dataview.DataViewCtrl( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer8.Add( self.tree_objects, 1, wx.ALL|wx.EXPAND, 5 )
+		self.m_notebook1 = wx.Notebook( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_panel5 = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer5 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.tree_objects = wx.dataview.DataViewCtrl( self.m_panel5, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer5.Add( self.tree_objects, 1, wx.ALL|wx.EXPAND, 5 )
+		
+		
+		self.m_panel5.SetSizer( bSizer5 )
+		self.m_panel5.Layout()
+		bSizer5.Fit( self.m_panel5 )
+		self.m_notebook1.AddPage( self.m_panel5, u"Objects", True )
+		self.m_panel6 = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer61 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.tree_layers = wx.dataview.DataViewCtrl( self.m_panel6, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer61.Add( self.tree_layers, 1, wx.ALL|wx.EXPAND, 5 )
+		
+		
+		self.m_panel6.SetSizer( bSizer61 )
+		self.m_panel6.Layout()
+		bSizer61.Fit( self.m_panel6 )
+		self.m_notebook1.AddPage( self.m_panel6, u"Layers", False )
+		
+		bSizer8.Add( self.m_notebook1, 1, wx.EXPAND |wx.ALL, 5 )
 		
 		
 		self.m_panel3.SetSizer( bSizer8 )
@@ -72,15 +95,33 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.Layout()
 		self.status_bar = self.CreateStatusBar( 3, wx.STB_SIZEGRIP, wx.ID_ANY )
 		self.menu = wx.MenuBar( 0 )
+		self.menu_file = wx.Menu()
+		self.menu_file_save = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Save", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_file.Append( self.menu_file_save )
+		
+		self.menu_file_save_as = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Save as ...", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_file.Append( self.menu_file_save_as )
+		
+		self.menu.Append( self.menu_file, u"File" ) 
+		
 		self.menu_draw = wx.Menu()
 		self.menu_draw_pad = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_draw.Append( self.menu_draw_pad )
 		
-		self.menu_draw_pad_row = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw_pad_row = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Extend pad to row", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_draw.Append( self.menu_draw_pad_row )
 		
-		self.menu_draw_pad_array = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw_pad_array = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Extend pad to array", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_draw.Append( self.menu_draw_pad_array )
+		
+		self.menu_draw_polyline = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Polyline", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw.Append( self.menu_draw_polyline )
+		
+		self.menu_draw_arc = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Arc", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw.Append( self.menu_draw_arc )
+		
+		self.menu_draw_circle = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Circle", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw.Append( self.menu_draw_circle )
 		
 		self.menu.Append( self.menu_draw, u"Draw" ) 
 		
@@ -162,9 +203,14 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.image_draw.Bind( wx.EVT_RIGHT_DCLICK, self.onImageDrawRightDClick )
 		self.image_draw.Bind( wx.EVT_RIGHT_DOWN, self.onImageDrawRightDown )
 		self.image_draw.Bind( wx.EVT_RIGHT_UP, self.onImageDrawRightUp )
+		self.Bind( wx.EVT_MENU, self.onMenuFileSaveSelection, id = self.menu_file_save.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFileSaveAsSelection, id = self.menu_file_save_as.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDrawPadSelection, id = self.menu_draw_pad.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDrawPadRowSelection, id = self.menu_draw_pad_row.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDrawPadArraySelection, id = self.menu_draw_pad_array.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDrawPolylineSelection, id = self.menu_draw_polyline.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDrawArcSelection, id = self.menu_draw_arc.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDrawCircleSelection, id = self.menu_draw_circle.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolDimensionSelection, id = self.menu_tool_dimension.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolAngleSelection, id = self.menu_tool_angle.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolGridSelection, id = self.menu_tool_grid.GetId() )
@@ -220,6 +266,12 @@ class DialogDrawFootprint ( wx.Frame ):
 	def onImageDrawRightUp( self, event ):
 		event.Skip()
 	
+	def onMenuFileSaveSelection( self, event ):
+		event.Skip()
+	
+	def onMenuFileSaveAsSelection( self, event ):
+		event.Skip()
+	
 	def onMenuDrawPadSelection( self, event ):
 		event.Skip()
 	
@@ -227,6 +279,15 @@ class DialogDrawFootprint ( wx.Frame ):
 		event.Skip()
 	
 	def onMenuDrawPadArraySelection( self, event ):
+		event.Skip()
+	
+	def onMenuDrawPolylineSelection( self, event ):
+		event.Skip()
+	
+	def onMenuDrawArcSelection( self, event ):
+		event.Skip()
+	
+	def onMenuDrawCircleSelection( self, event ):
 		event.Skip()
 	
 	def onMenuToolDimensionSelection( self, event ):

@@ -55,7 +55,7 @@ class KicadLibFile(object):
         
     def Render(self, filename, width=256, height=256):
         canvas = Canvas.LibraryCanvas()
-        surface = canvas.Render(self.parent, width, height)
+        surface = canvas.Render(self.parent)
         surface.write_to_png (filename)
     
     def SaveAs(self, filename):
@@ -201,7 +201,7 @@ class KicadF(KicadLibObject):
         if len(self.attributes)<5:
             return 
 
-        font = Canvas.Font(Canvas.Point(float(self.Attribute(3)), float(self.Attribute(3))), canvas.to_view_width(2))
+        font = Canvas.Font(Canvas.Point(canvas.xmm2px(float(self.Attribute(3))), canvas.ymm2px(float(self.Attribute(3)))), canvas.to_view_width(2))
         text = Canvas.Text(self.Attribute(0))
         if self.Attribute(4)=='V':
             angle = 3*math.pi/2
@@ -209,10 +209,9 @@ class KicadF(KicadLibObject):
             angle = 0
         text.anchor_x = 'center'
         text.anchor_y = 'center'
-        text.at = Canvas.Position(float(self.Attribute(1)), -float(self.Attribute(2)), angle)
-        canvas.SelectLayer("Label")
+        text.at = Canvas.Position(canvas.xmm2px(float(self.Attribute(1))), canvas.ymm2px(-float(self.Attribute(2))), angle)
         canvas.SetFont(font)
-        canvas.Draw(text)
+        canvas.Draw(text, ["Label"])
 
 class KicadDRAW(KicadLibObject):
     def __init__(self):
@@ -228,14 +227,13 @@ class KicadC(KicadLibObject):
         if len(self.attributes)<3:
             return 
 
-        canvas.SelectLayer("Drawing")
-        start = Canvas.Point(float(self.Attribute(0)), -float(self.Attribute(1)))
-        end = Canvas.Point(float(self.Attribute(0))+float(self.Attribute(2)), -float(self.Attribute(1)))
+        start = Canvas.Point(canvas.xmm2px(float(self.Attribute(0))), canvas.ymm2px(-float(self.Attribute(1))))
+        end = Canvas.Point(canvas.xmm2px(float(self.Attribute(0))+float(self.Attribute(2))), canvas.ymm2px(-float(self.Attribute(1))))
         if self.Attribute(len(self.attributes)-1)=='F':
-            circle = Canvas.Circle(start, end, canvas.to_view_width(2), True)
+            circle = Canvas.Circle(start, end, 2, True)
         else:
-            circle = Canvas.Circle(start, end, canvas.to_view_width(2), False)
-        canvas.Draw(circle)
+            circle = Canvas.Circle(start, end, 2, False)
+        canvas.Draw(circle, ["Drawing"])
 
 class KicadA(KicadLibObject):
     def __init__(self):
@@ -251,7 +249,7 @@ class KicadT(KicadLibObject):
     def Render(self, canvas, obj):
         if len(self.attributes)<4:
             return
-        font = Canvas.Font(Canvas.Point(float(self.Attribute(3)), float(self.Attribute(3))), canvas.to_view_width(2))
+        font = Canvas.Font(Canvas.Point(canvas.xmm2px(float(self.Attribute(3))), canvas.ymm2px(float(self.Attribute(3)))), 2)
         text = Canvas.Text(self.Attribute(7))
         if int(self.Attribute(0))>0:
             angle = 3*math.pi/2
@@ -259,10 +257,9 @@ class KicadT(KicadLibObject):
             angle = 0
         text.anchor_x = 'center'
         text.anchor_y = 'center'
-        text.at = Canvas.Position(float(self.Attribute(1)), -float(self.Attribute(2)), angle)
-        canvas.SelectLayer("Label")
+        text.at = Canvas.Position(canvas.xmm2px(float(self.Attribute(1))), canvas.ymm2px(-float(self.Attribute(2))), angle)
         canvas.SetFont(font)
-        canvas.Draw(text)
+        canvas.Draw(text, ["Label"])
 
 class KicadP(KicadLibObject):
     def __init__(self):
@@ -276,18 +273,17 @@ class KicadP(KicadLibObject):
         num = int(self.Attribute(0))
         points = []
         for p in range(0, num*2, 2):
-            points.append(Canvas.Point(float(self.Attribute(4+p)), -float(self.Attribute(5+p))))
+            points.append(Canvas.Point(canvas.xmm2px(float(self.Attribute(4+p))), canvas.ymm2px(-float(self.Attribute(5+p)))))
 
-        canvas.SelectLayer("Drawing")
         if float(self.Attribute(3))>0:
             width = float(self.Attribute(3))
         else:
-            width = canvas.to_view_width(2)
+            width = 2
         if self.Attribute(len(self.attributes)-1)=='F':
             polyline = Canvas.PolyLine(points, width, True)
         else:
             polyline = Canvas.PolyLine(points, width, False)
-        canvas.Draw(polyline)
+        canvas.Draw(polyline, ["Drawing"])
 
 class KicadX(KicadLibObject):
     def __init__(self):
@@ -298,46 +294,44 @@ class KicadX(KicadLibObject):
         if len(self.attributes)<6:
             return 
 
-        canvas.SelectLayer("Drawing")
-        width = canvas.to_view_width(2)
-        length = float(self.Attribute(4))
+        width = 2
+        length = canvas.mm2px(float(self.Attribute(4)))
         if self.Attribute(5)=='U':
             angle = 3*math.pi/2
             text_angle = angle
-            text_dx = -canvas.to_view_width(10)
+            text_dx = -10
             text_dy = -length/2
         elif self.Attribute(5)=='D':
             angle = math.pi/2
             text_angle = 3*math.pi/2
-            text_dx = -canvas.to_view_width(10)
+            text_dx = -10
             text_dy = length/2
         elif self.Attribute(5)=='R':
             angle = 0
             text_angle = 0
             text_dx = length/2
-            text_dy = -canvas.to_view_width(10)
+            text_dy = -10
         else:
             angle = math.pi
             text_angle = 0
             text_dx = -length/2
-            text_dy = -canvas.to_view_width(10)
+            text_dy = -10
             
-        start = Canvas.Point(float(self.Attribute(2)), -float(self.Attribute(3)))
-        end = Canvas.Point(start.x+length*math.cos(angle), start.y+length*math.sin(angle))
+        start = Canvas.Point(canvas.xmm2px(float(self.Attribute(2))), canvas.ymm2px(-float(self.Attribute(3))))
+        end = Canvas.Point(canvas.xmm2px(start.x+length*math.cos(angle)), canvas.ymm2px(start.y+length*math.sin(angle)))
         line = Canvas.Line(start, end, width)
-        canvas.Draw(line)
+        canvas.Draw(line, ["Drawing"])
 
-        font = Canvas.Font(Canvas.Point(float(self.Attribute(6)), float(self.Attribute(7))), canvas.to_view_width(2))
+        font = Canvas.Font(Canvas.Point(canvas.xmm2px(float(self.Attribute(6))), canvas.ymm2px(float(self.Attribute(7)))), 2)
         text = Canvas.Text(self.Attribute(1))
         text.anchor_x = 'center'
         text.anchor_y = ''
-        text.at = Canvas.Position(start.x+text_dx, start.y+text_dy, text_angle)
-        canvas.SelectLayer("Label")
+        text.at = Canvas.Position(canvas.xmm2px(start.x+text_dx), canvas.ymm2px(start.y+text_dy), text_angle)
         canvas.SetFont(font)
-        canvas.Draw(text)
+        canvas.Draw(text, ["Label"])
 
-        circle = Canvas.Circle(start, Canvas.Point(start.x+10, start.y), canvas.to_view_width(1), False)
-        canvas.Draw(circle)
+        circle = Canvas.Circle(start, Canvas.Point(canvas.xmm2px(start.x+10), canvas.ymm2px(start.y)), 1, False)
+        canvas.Draw(circle, ["Label"])
 
 class KicadS(KicadLibObject):
     def __init__(self):
@@ -347,15 +341,14 @@ class KicadS(KicadLibObject):
     def Render(self, canvas, obj):
         if len(self.attributes)<4:
             return
-        canvas.SelectLayer("Drawing")
-        start = Canvas.Point(float(self.Attribute(0)), -float(self.Attribute(1)))
-        end = Canvas.Point(float(self.Attribute(2)), -float(self.Attribute(3)))
-        width = canvas.to_view_width(2)
+        start = Canvas.Point(canvas.xmm2px(float(self.Attribute(0))), canvas.ymm2px(-float(self.Attribute(1))))
+        end = Canvas.Point(canvas.xmm2px(float(self.Attribute(2))), canvas.ymm2px(-float(self.Attribute(3))))
+        width = 2
         if self.Attribute(len(self.attributes)-1)=='F':
             rect = Canvas.Rect(start, end, width, True)
         else:
             rect = Canvas.Rect(start, end, width, False)
-        canvas.Draw(rect)
+        canvas.Draw(rect, ["Drawing"])
 
 """
 Instanciate at least one time to force objects registration

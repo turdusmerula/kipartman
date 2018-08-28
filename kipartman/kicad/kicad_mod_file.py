@@ -2,6 +2,7 @@ import wx
 import os
 from kicad_object import KicadObject
 import Canvas
+import math
 
 def tab(level):
     res = ''
@@ -36,7 +37,7 @@ class KicadModFile(object):
 
     def Render(self, filename, width=256, height=256):
         canvas = Canvas.FootprintCanvas()
-        surface = canvas.Render(self.parent, width, height)
+        surface = canvas.Render(self.parent)
         surface.write_to_png (filename)
         
     def Write(self, obj, level=0):
@@ -168,22 +169,29 @@ class KicadPad(KicadObject):
         super(KicadPad, self).__init__('pad')
         KicadObject._register(self.header, KicadPad)
 
+    def GetType(self):
+        if self.Attribute(1)=='smd':
+            return 'smd'
+        elif self.Attribute(1)=='np_thru_hole':
+            return 'thru_hole'
+        elif self.Attribute(1)=='thru_hole':
+            return 'thru_hole'
+        return None
+
+    def GetShape(self):
+        if self.Attribute(2)=='rect':
+            return 'rect'
+        elif self.Attribute(2)=='oval':
+            return 'oval'
+        elif self.Attribute(2)=='circle':
+            return 'oval'
+        return None
+    
     def Render(self, canvas, obj):
         pad = Canvas.Pad()
-        if self.Attribute(1)=='smd':
-            pad.smd = True
-        elif self.Attribute(1)=='np_thru_hole':
-            pad.thru_hole = True
-        elif self.Attribute(1)=='thru_hole':
-            pad.thru_hole = True
-            
-        if self.Attribute(2)=='rect':
-            pad.rect = True
-        elif self.Attribute(2)=='oval':
-            pad.oval = True
-        elif self.Attribute(2)=='circle':
-            pad.oval = True
-            
+        pad.type = self.GetType()
+        pad.shape = self.GetShape()
+                        
         super(KicadPad, self).Render(canvas, pad)
         canvas.Draw(pad)
 
@@ -192,10 +200,13 @@ class KicadFPText(KicadObject):
         super(KicadFPText, self).__init__('fp_text')
         KicadObject._register(self.header, KicadFPText)
 
+    def GetKind(self):
+        return self.Attribute(0)
+    
     def Render(self, canvas, obj):
         text = Canvas.Text(self.Attribute(1))
         super(KicadFPText, self).Render(canvas, text)
-        if self.Attribute(0)=='value':
+        if self.GetKind()=='value':
             canvas.Draw(text)
 
 class KicadFPCircle(KicadObject):
@@ -208,19 +219,35 @@ class KicadFPCircle(KicadObject):
         super(KicadFPCircle, self).Render(canvas, circle)
         canvas.Draw(circle)
 
+class KicadFPArc(KicadObject):
+    def __init__(self):
+        super(KicadFPArc, self).__init__('fp_arc')
+        KicadObject._register(self.header, KicadFPArc)
+
+    def Render(self, canvas, obj):
+        arc = Canvas.Arc()
+        super(KicadFPArc, self).Render(canvas, arc)
+        canvas.Draw(arc)
+
 class KicadAt(KicadObject):
     def __init__(self):
         super(KicadAt, self).__init__('at')
         KicadObject._register(self.header, KicadAt)
 
+    def GetAt(self):
+        if self.Attribute(0)=='':
+            at = Canvas.Position()
+        else:
+            at = Canvas.Position(float(self.Attribute(0)), float(self.Attribute(1)))
+            if self.Attribute(2)!='':
+                at.angle = float(self.Attribute(2))
+        return at
+    
     def Render(self, canvas, obj):
         if obj:
-            if self.Attribute(0)=='':
-                obj.at = Canvas.Position()
-            else:
-                obj.at = Canvas.Position(float(self.Attribute(0)), float(self.Attribute(1)))
-                if self.Attribute(2)!='':
-                    obj.at.angle = float(self.Attribute(2))
+            at = self.GetAt()
+            obj.at.x = canvas.xmm2px(at.x)
+            obj.at.y = canvas.ymm2px(at.y)
         super(KicadAt, self).Render(canvas, obj)
 
 class KicadStart(KicadObject):
@@ -228,9 +255,15 @@ class KicadStart(KicadObject):
         super(KicadStart, self).__init__('start')
         KicadObject._register(self.header, KicadStart)
 
+    def GetStart(self):
+        return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
+    
     def Render(self, canvas, obj):
-        if obj:
-            obj.start = Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
+        # TODO
+#         if obj:
+#             start = self.GetStart()
+#             obj.start.x = canvas.xmm2px(start.x)
+#             obj.start.y = canvas.ymm2px(start.y)
         super(KicadStart, self).Render(canvas, obj)
         
 class KicadEnd(KicadObject):
@@ -238,9 +271,15 @@ class KicadEnd(KicadObject):
         super(KicadEnd, self).__init__('end')
         KicadObject._register(self.header, KicadEnd)
 
+    def GetEnd(self):
+        return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
+
     def Render(self, canvas, obj):
-        if obj:
-            obj.end = Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
+        #TODO
+#         if obj:
+#             end = self.GetEnd()
+#             obj.end.x = canvas.xmm2px(end.x)
+#             obj.end.y = canvas.ymm2px(end.y)
         super(KicadEnd, self).Render(canvas, obj)
 
 class KicadLayer(KicadObject):
@@ -248,6 +287,9 @@ class KicadLayer(KicadObject):
         super(KicadLayer, self).__init__('layer')
         KicadObject._register(self.header, KicadLayer)
 
+    def GetLayer(self):
+        return self.Attribute(0)
+    
     def Render(self, canvas, obj):
         canvas.SelectLayer(self.Attribute(0))
         super(KicadLayer, self).Render(canvas, obj)
@@ -257,6 +299,9 @@ class KicadLayers(KicadObject):
         super(KicadLayers, self).__init__('layers')
         KicadObject._register(self.header, KicadLayers)
 
+    def GetLayers(self):
+        return self.attributes
+    
     def Render(self, canvas, obj):
         canvas.SelectLayers(self.attributes)
         super(KicadLayers, self).Render(canvas, obj)
@@ -266,9 +311,12 @@ class KicadWidth(KicadObject):
         super(KicadWidth, self).__init__('width')
         KicadObject._register(self.header, KicadWidth)
 
+    def GetWidth(self):
+        return float(self.Attribute(0))
+    
     def Render(self, canvas, obj):
         if obj:
-            obj.width = float(self.Attribute(0))
+            obj.width = self.GetWidth()
         super(KicadWidth, self).Render(canvas, obj)
 
 class KicadSize(KicadObject):
@@ -276,9 +324,12 @@ class KicadSize(KicadObject):
         super(KicadSize, self).__init__('size')
         KicadObject._register(self.header, KicadSize)
 
+    def GetSize(self):
+        return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
+    
     def Render(self, canvas, obj):
         if obj:
-            obj.size = Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
+            obj.size = self.GetSize()
         super(KicadSize, self).Render(canvas, obj)
 
 class KicadDrill(KicadObject):
@@ -306,6 +357,9 @@ class KicadThickness(KicadObject):
         super(KicadThickness, self).__init__('thickness')
         KicadObject._register(self.header, KicadThickness)
 
+    def GetThickness(self):
+        return float(self.Attribute(0))
+    
     def Render(self, canvas, obj):
         if obj:
             obj.thickness = float(self.Attribute(0))
@@ -316,10 +370,25 @@ class KicadCenter(KicadObject):
         super(KicadCenter, self).__init__('center')
         KicadObject._register(self.header, KicadCenter)
 
+    def GetCenter(self):
+        return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
+    
     def Render(self, canvas, obj):
         if obj:
             obj.size = Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
         super(KicadCenter, self).Render(canvas, obj)
+
+class KicadAngle(KicadObject):
+    def __init__(self):
+        super(KicadAngle, self).__init__('angle')
+        KicadObject._register(self.header, KicadAngle)
+
+    def GetAngle(self):
+        return float(self.Attribute(0))*math.pi/180.
+    
+    def Render(self, canvas, obj):
+        # TODO
+        pass
 
 """
 Instanciate at least one time to force objects registration
@@ -339,4 +408,6 @@ KicadDrill()
 KicadFont()
 KicadThickness()
 KicadFPCircle()
+KicadFPArc()
 KicadCenter()
+KicadAngle()

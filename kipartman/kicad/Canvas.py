@@ -39,11 +39,13 @@ class ColorRGB(object):
         return ColorRGB(0.5, 0.5, 0.5)
 
 class Layer(object):    
-    def __init__(self, canvas, name, color):
+    def __init__(self, canvas, name, color, layer_type='', active=True):
         self.canvas = canvas
         self.name = name
         self.color = color
-
+        self.layer_type = layer_type
+        self.active = active
+        
         self.Resize()
 
     def Resize(self):
@@ -311,13 +313,23 @@ class Circle(Drawing):
         ctx.set_line_width(self.width)
         x1 = self.end.x-self.centre.x
         y1 = self.end.y-self.centre.y
-        ctx.move_to(self.end.x, self.end.y)
-        ctx.arc(self.centre.x, self.centre.y, math.sqrt(x1*x1+y1*y1), 0, 2*math.pi)
+        radius = math.sqrt(x1*x1+y1*y1)
+        ctx.move_to(self.centre.x+radius, self.centre.y)
+        ctx.arc(self.centre.x, self.centre.y, radius, 0, 2.*math.pi)
         if self.fill:
             ctx.fill()
         else:
             ctx.stroke()
 
+    def get_projection(self, p):
+        pref = Point(self.centre.x+1, self.centre.y)
+        angle = pref.GetAngle(self.centre, p)
+        dx = self.centre.x-self.end.x
+        dy = self.centre.y-self.end.y
+        radius = math.sqrt(dx*dx+dy*dy)
+        return Point(self.centre.x+radius*math.cos(angle), self.centre.y+radius*math.sin(angle))
+
+    
 class Arc(Drawing):
     def __init__(self, centre=Point(), radius=0., angle_start=0., angle_end=0., width=0, fill=False):
         super(Arc, self).__init__()
@@ -330,12 +342,72 @@ class Arc(Drawing):
 
     def Render(self, ctx, canvas):
         ctx.set_line_width(self.width)
+        ctx.move_to(self.centre.x+self.radius*math.cos(self.angle_start), self.centre.y+self.radius*math.sin(self.angle_start))
         ctx.arc(self.centre.x, self.centre.y, self.radius, self.angle_start, self.angle_end)
         if self.fill:
             ctx.fill()
         else:
             ctx.stroke()
 
+    def norm(self, angle):
+        while angle>2.*math.pi:
+            angle = angle-2.*math.pi
+        while angle<0:
+            angle = angle+2.*math.pi
+        return angle
+    
+    def angle_len(self, start, end):
+        if start<end:
+            return end-start
+        else:
+            return 2.*math.pi-math.fabs(start-end)
+    
+    # get projection of point on line
+    def get_projection(self, p):
+        pref = Point(self.centre.x+1, self.centre.y)
+        angle = self.norm(self.centre.GetAngle(pref, p)+math.pi)
+        angle_point = self.centre.GetAngle(pref, p)
+
+        angle_start = self.norm(self.angle_start)
+        angle_end = self.norm(self.angle_end)
+        angle_len = self.angle_len(angle_start, angle_end)
+
+        if angle<angle_start:
+            angle = angle+2.*math.pi
+        print "**", self.norm(angle)*180./math.pi, self.norm(self.angle_start)*180./math.pi, self.norm(self.angle_end)*180./math.pi, self.angle_len(self.angle_start, self.angle_end)*180./math.pi
+        if angle>=angle_start and angle<=angle_start+angle_len:
+            return Point(self.centre.x+self.radius*math.cos(angle_point), self.centre.y+self.radius*math.sin(angle_point))            
+
+#        print "**", angle*180./math.pi, self.angle_start*180./math.pi, self.angle_end*180./math.pi
+#         print "**", math.cos(angle), math.cos(self.angle_start), math.cos(self.angle_end)
+#         print "--", math.sin(angle), math.sin(self.angle_start), math.sin(self.angle_end)
+#         
+#         isinc = False
+#         c = math.cos(angle)
+#         cs = math.cos(self.angle_start)
+#         ce = math.cos(self.angle_end)
+#         if cs<=ce and c>=cs and c<=ce:
+#             isinc = True
+#         elif ce<cs and c>=ce and c<=cs:
+#             isinc = True
+#         
+#         isins = False
+#         s = math.sin(angle)
+#         ss = math.sin(self.angle_start)
+#         se = math.sin(self.angle_end)
+#         if ss<=se and s>=ss and s<=se:
+#             isins = True
+#         elif se<ss and s>=se and s<=ss:
+#             isins = True
+#             
+#         if isinc and isins:
+#             return Point(self.centre.x+self.radius*math.cos(angle_point), self.centre.y+self.radius*math.sin(angle_point))
+#         if angle_start<=angle_end and angle>=angle_start and angle<angle_end:
+#             return Point(self.centre.x+self.radius*math.cos(angle_point), self.centre.y+self.radius*math.sin(angle_point))
+#         elif angle_end<=angle_start and angle>=angle_end and angle<angle_start:
+#             return Point(self.centre.x+self.radius*math.cos(angle_point), self.centre.y+self.radius*math.sin(angle_point))
+        return None
+    
 class Rect(Drawing):
     def __init__(self, start=Point(), end=Point(), width=0, fill=False):
         super(Rect, self).__init__()
@@ -442,6 +514,7 @@ class Canvas(object):
     def __init__(self):
         self.layers = []
         self.layer_names = {}
+        self.selected_layers = []
         
         self.background = ColorRGB.Black()
         self.font = Font()
@@ -461,15 +534,21 @@ class Canvas(object):
         for layer in self.layers:
             layer.Resize()
             
-    def AddLayer(self, name, color=ColorRGB.Black()):
+    def AddLayer(self, name, color=ColorRGB.Black(), layer_type='', active=True):
         if name in self.layer_names:
             return self.layer_names[name]
         
-        layer = Layer(self, name, color)
+        layer = Layer(self, name, color, layer_type, active)
         self.layers.append(layer)
         self.layer_names[name] = layer
         
         return layer
+
+    def SelectLayer(self, layer):
+        self.selected_layers = [layer]
+        
+    def SelectLayers(self, layers):
+        self.selected_layers = layers
 
     def SetFont(self, font):
         self.font = font
@@ -510,7 +589,10 @@ class Canvas(object):
             for layer in self.layers:
                 layer.Clear()
             
-    def Draw(self, obj, layer_names):
+    def Draw(self, obj, layer_names=None):
+        if not layer_names:
+            layer_names = self.selected_layers
+            
         for name in layer_names:
             layer = self.layer_names[name]
             
@@ -576,31 +658,38 @@ class FootprintCanvas(Canvas):
     def __init__(self):
         super(FootprintCanvas, self).__init__()
                 
-        self.AddLayer("B.Cu", ColorRGB.Blue())
-        self.AddLayer("F.Cu", ColorRGB.Red())
-#        self.AddLayer("B.Adhes")
-#        self.AddLayer("F.Adhes")
-#        self.AddLayer("B.Paste")
-#        self.AddLayer("F.Paste")
-        self.AddLayer("B.SilkS", ColorRGB.Grey())
-        self.AddLayer("F.SilkS", ColorRGB.Grey())
-#        self.AddLayer("B.Mask")
-#        self.AddLayer("F.Mask")
-        self.AddLayer("Dwgs.User", ColorRGB.Grey())
-        self.AddLayer("Cmts.User", ColorRGB.Grey())
-#        self.AddLayer("Eco1.User")
-#        self.AddLayer("Eco2.User")
-#        self.AddLayer("Edge.Cuts", ColorRGB.Grey())
-#        self.AddLayer("Margin")
-#        self.AddLayer("B.CrtYd", ColorRGB.Grey())
-#        self.AddLayer("F.CrtYd", ColorRGB.Grey())
-        self.AddLayer("B.Fab", ColorRGB.Grey())
-        self.AddLayer("F.Fab", ColorRGB.Grey())
+        self.AddLayer("B.Cu", ColorRGB.Blue(), layer_type='Layer', active=False)
+        self.AddLayer("F.Cu", ColorRGB.Red(), layer_type='Layer', active=False)
+        self.AddLayer("B.Adhes", layer_type='Layer')
+        self.AddLayer("F.Adhes", layer_type='Layer')
+        self.AddLayer("B.Paste", layer_type='Layer')
+        self.AddLayer("F.Paste", layer_type='Layer')
+        self.AddLayer("B.SilkS", ColorRGB.Grey(), layer_type='Layer')
+        self.AddLayer("F.SilkS", ColorRGB.Grey(), layer_type='Layer')
+        self.AddLayer("B.Mask", layer_type='Layer')
+        self.AddLayer("F.Mask", layer_type='Layer')
+        self.AddLayer("Dwgs.User", ColorRGB.Grey(), layer_type='Layer', active=False)
+        self.AddLayer("Cmts.User", ColorRGB.Grey(), layer_type='Layer', active=False)
+        self.AddLayer("Eco1.User", layer_type='Layer', active=False)
+        self.AddLayer("Eco2.User", layer_type='Layer', active=False)
+        self.AddLayer("Edge.Cuts", ColorRGB.Grey(), layer_type='Layer', active=False)
+        self.AddLayer("Margin", layer_type='Layer', active=False)
+        self.AddLayer("B.CrtYd", ColorRGB.Grey(), layer_type='Layer')
+        self.AddLayer("F.CrtYd", ColorRGB.Grey(), layer_type='Layer')
+        self.AddLayer("B.Fab", ColorRGB.Grey(), layer_type='Layer')
+        self.AddLayer("F.Fab", ColorRGB.Grey(), layer_type='Layer')
 
         # add default layers
-        self.AddLayer("editor", ColorRGB.Grey())
-        self.AddLayer("selection", ColorRGB.Yellow())
-        self.AddLayer("anchor", ColorRGB.Yellow())
+        self.AddLayer("Pads Front", ColorRGB.Yellow(), layer_type='Render', active=False)
+        self.AddLayer("Pads Back", ColorRGB.Yellow(), layer_type='Render', active=False)
+        self.AddLayer("Hidden Text", ColorRGB.Yellow(), layer_type='Render', active=False)
+        self.AddLayer("Grid", ColorRGB.Yellow(), layer_type='Render', active=False)
+        self.AddLayer("Values", ColorRGB.Yellow(), layer_type='Render', active=False)
+        self.AddLayer("References", ColorRGB.Yellow(), layer_type='Render', active=False)
+
+        self.AddLayer("Editor", ColorRGB.Grey(), layer_type='Render', active=False)
+        self.AddLayer("Selection", ColorRGB.Yellow(), layer_type='Render', active=False)
+        self.AddLayer("Anchor", ColorRGB.Yellow(), layer_type='Render', active=False)
 
 class LibraryCanvas(Canvas):
     def __init__(self):

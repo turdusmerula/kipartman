@@ -33,7 +33,6 @@ class EditPadFrame(PanelEditPad):
     
     def onPadTextEnter( self, event ):
         self.pad.name = self.text_name.Value
-        self.pad.UpdatePoints()
         self.pad.Update()
         self.render()
     
@@ -44,7 +43,6 @@ class EditPadFrame(PanelEditPad):
             print format(e)
             return
         self.pad.angle = angle
-        self.pad.UpdatePoints()
         self.pad.Update()
         self.render()
             
@@ -55,7 +53,6 @@ class EditPadFrame(PanelEditPad):
             print format(e)
             return
         self.pad.pos.x = posx
-        self.pad.UpdatePoints()
         self.pad.Update()
         self.render()
     
@@ -66,7 +63,6 @@ class EditPadFrame(PanelEditPad):
             print format(e)
             return
         self.pad.pos.y = posy
-        self.pad.UpdatePoints()
         self.pad.Update()
         self.render()
     
@@ -77,7 +73,6 @@ class EditPadFrame(PanelEditPad):
             print format(e)
             return
         self.pad.size.x = sizex
-        self.pad.UpdatePoints()
         self.pad.Update()
         self.render()
     
@@ -88,7 +83,6 @@ class EditPadFrame(PanelEditPad):
             print format(e)
             return
         self.pad.size.y = sizey
-        self.pad.UpdatePoints()
         self.pad.Update()
         self.render()
     
