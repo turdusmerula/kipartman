@@ -35,24 +35,41 @@ class KicadModFile(object):
         if self.onChanged:
             self.onChanged()
 
+    def SaveFile(self, filename):
+        with open(filename, 'w') as file:
+            file.write(self.Write(self.parent))
+
     def Render(self, filename, width=256, height=256):
         canvas = Canvas.FootprintCanvas()
         surface = canvas.Render(self.parent)
         surface.write_to_png (filename)
         
     def Write(self, obj, level=0):
-        line = "%s(%s"%(tab(level), obj.header)
+        line = ""
+        if obj.inline==False:
+            line = "%s"%(tab(level))
+        else:
+            line = " "
+        line = line+"(%s"%(obj.header)
+        
         for attr in obj.attributes:
-            line = line+" "+attr
+            if ' ' in attr:
+                line = line+' "'+attr+'"'
+            elif attr=='':
+                line = line+' ""'
+            else:
+                line = line+" "+attr
         
         if len(obj.nodes)>0:
-            print(line)
             for node in obj.nodes:
-                self.Write(node, level+1)
-            print("%s)"%tab(level))
-        else:
-            line = line+")"
-            print(line)
+                if node.inline==False:
+                    line = line+'\n'
+                line = line+self.Write(node, level+1)
+#            print("%s)"%tab(level))
+
+        line = line+")"
+#            print(line)
+        return line
     
     def read_blocks(self, parent):
         block_header = self._read_block_header()
@@ -145,48 +162,58 @@ class KicadModFile(object):
 
         return field
 
+class KicadModuleObject(KicadObject):
+    def __init__(self, header, inline=False):
+        super(KicadModuleObject, self).__init__(header)
+        self.inline = inline
 
-class KicadModule(KicadObject):
+class KicadModule(KicadModuleObject):
     def __init__(self):
         super(KicadModule, self).__init__('module')
-        KicadObject._register(self.header, KicadModule)
+        KicadModuleObject._register(self.header, KicadModule)
 
+    def GetName(self):
+        return self.Attribute(0)
+
+    def SetName(self, name):
+        self.SetAttribute(0, name, '')
+        
     def footprint(self):
         return self.Attribute(0)
 
-class KicadFPLine(KicadObject):
+class KicadFPLine(KicadModuleObject):
     def __init__(self):
         super(KicadFPLine, self).__init__('fp_line')
-        KicadObject._register(self.header, KicadFPLine)
+        KicadModuleObject._register(self.header, KicadFPLine)
 
     def Render(self, canvas, obj):
         line = Canvas.Line()
         super(KicadFPLine, self).Render(canvas, line)
         canvas.Draw(line)
         
-class KicadPad(KicadObject):
+class KicadPad(KicadModuleObject):
     def __init__(self):
         super(KicadPad, self).__init__('pad')
-        KicadObject._register(self.header, KicadPad)
+        KicadModuleObject._register(self.header, KicadPad)
 
     def GetType(self):
-        if self.Attribute(1)=='smd':
-            return 'smd'
-        elif self.Attribute(1)=='np_thru_hole':
-            return 'thru_hole'
-        elif self.Attribute(1)=='thru_hole':
-            return 'thru_hole'
-        return None
+        return self.Attribute(1)
 
+    def SetType(self, pad_type):
+        self.SetAttribute(1, pad_type)
+        
     def GetShape(self):
-        if self.Attribute(2)=='rect':
-            return 'rect'
-        elif self.Attribute(2)=='oval':
-            return 'oval'
-        elif self.Attribute(2)=='circle':
-            return 'oval'
-        return None
+        return self.Attribute(2)
+
+    def SetShape(self, shape):
+        self.SetAttribute(2, shape)
     
+    def GetName(self):
+        return self.Attribute(0)
+
+    def SetName(self, name):
+        self.SetAttribute(0, name)
+        
     def Render(self, canvas, obj):
         pad = Canvas.Pad()
         pad.type = self.GetType()
@@ -195,10 +222,10 @@ class KicadPad(KicadObject):
         super(KicadPad, self).Render(canvas, pad)
         canvas.Draw(pad)
 
-class KicadFPText(KicadObject):
+class KicadFPText(KicadModuleObject):
     def __init__(self):
         super(KicadFPText, self).__init__('fp_text')
-        KicadObject._register(self.header, KicadFPText)
+        KicadModuleObject._register(self.header, KicadFPText)
 
     def GetKind(self):
         return self.Attribute(0)
@@ -209,30 +236,30 @@ class KicadFPText(KicadObject):
         if self.GetKind()=='value':
             canvas.Draw(text)
 
-class KicadFPCircle(KicadObject):
+class KicadFPCircle(KicadModuleObject):
     def __init__(self):
         super(KicadFPCircle, self).__init__('fp_circle')
-        KicadObject._register(self.header, KicadFPCircle)
+        KicadModuleObject._register(self.header, KicadFPCircle)
 
     def Render(self, canvas, obj):
         circle = Canvas.Circle()
         super(KicadFPCircle, self).Render(canvas, circle)
         canvas.Draw(circle)
 
-class KicadFPArc(KicadObject):
+class KicadFPArc(KicadModuleObject):
     def __init__(self):
         super(KicadFPArc, self).__init__('fp_arc')
-        KicadObject._register(self.header, KicadFPArc)
+        KicadModuleObject._register(self.header, KicadFPArc)
 
     def Render(self, canvas, obj):
         arc = Canvas.Arc()
         super(KicadFPArc, self).Render(canvas, arc)
         canvas.Draw(arc)
 
-class KicadAt(KicadObject):
+class KicadAt(KicadModuleObject):
     def __init__(self):
-        super(KicadAt, self).__init__('at')
-        KicadObject._register(self.header, KicadAt)
+        super(KicadAt, self).__init__('at', True)
+        KicadModuleObject._register(self.header, KicadAt)
 
     def GetAt(self):
         if self.Attribute(0)=='':
@@ -250,10 +277,10 @@ class KicadAt(KicadObject):
             obj.at.y = canvas.ymm2px(at.y)
         super(KicadAt, self).Render(canvas, obj)
 
-class KicadStart(KicadObject):
+class KicadStart(KicadModuleObject):
     def __init__(self):
-        super(KicadStart, self).__init__('start')
-        KicadObject._register(self.header, KicadStart)
+        super(KicadStart, self).__init__('start', True)
+        KicadModuleObject._register(self.header, KicadStart)
 
     def GetStart(self):
         return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
@@ -266,10 +293,10 @@ class KicadStart(KicadObject):
 #             obj.start.y = canvas.ymm2px(start.y)
         super(KicadStart, self).Render(canvas, obj)
         
-class KicadEnd(KicadObject):
+class KicadEnd(KicadModuleObject):
     def __init__(self):
-        super(KicadEnd, self).__init__('end')
-        KicadObject._register(self.header, KicadEnd)
+        super(KicadEnd, self).__init__('end', True)
+        KicadModuleObject._register(self.header, KicadEnd)
 
     def GetEnd(self):
         return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
@@ -282,22 +309,41 @@ class KicadEnd(KicadObject):
 #             obj.end.y = canvas.ymm2px(end.y)
         super(KicadEnd, self).Render(canvas, obj)
 
-class KicadLayer(KicadObject):
+class KicadOffset(KicadModuleObject):
     def __init__(self):
-        super(KicadLayer, self).__init__('layer')
-        KicadObject._register(self.header, KicadLayer)
+        super(KicadOffset, self).__init__('offset', True)
+        KicadModuleObject._register(self.header, KicadOffset)
+
+    def GetOffset(self):
+        return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
+
+    def Render(self, canvas, obj):
+        #TODO
+#         if obj:
+#             end = self.GetEnd()
+#             obj.end.x = canvas.xmm2px(end.x)
+#             obj.end.y = canvas.ymm2px(end.y)
+        super(KicadOffset, self).Render(canvas, obj)
+
+class KicadLayer(KicadModuleObject):
+    def __init__(self):
+        super(KicadLayer, self).__init__('layer', True)
+        KicadModuleObject._register(self.header, KicadLayer)
 
     def GetLayer(self):
         return self.Attribute(0)
+    
+    def SetLayer(self, layer):
+        self.AddAttribute(layer)
     
     def Render(self, canvas, obj):
         canvas.SelectLayer(self.Attribute(0))
         super(KicadLayer, self).Render(canvas, obj)
 
-class KicadLayers(KicadObject):
+class KicadLayers(KicadModuleObject):
     def __init__(self):
-        super(KicadLayers, self).__init__('layers')
-        KicadObject._register(self.header, KicadLayers)
+        super(KicadLayers, self).__init__('layers', True)
+        KicadModuleObject._register(self.header, KicadLayers)
 
     def GetLayers(self):
         return self.attributes
@@ -306,10 +352,10 @@ class KicadLayers(KicadObject):
         canvas.SelectLayers(self.attributes)
         super(KicadLayers, self).Render(canvas, obj)
 
-class KicadWidth(KicadObject):
+class KicadWidth(KicadModuleObject):
     def __init__(self):
-        super(KicadWidth, self).__init__('width')
-        KicadObject._register(self.header, KicadWidth)
+        super(KicadWidth, self).__init__('width', True)
+        KicadModuleObject._register(self.header, KicadWidth)
 
     def GetWidth(self):
         return float(self.Attribute(0))
@@ -319,10 +365,10 @@ class KicadWidth(KicadObject):
             obj.width = self.GetWidth()
         super(KicadWidth, self).Render(canvas, obj)
 
-class KicadSize(KicadObject):
+class KicadSize(KicadModuleObject):
     def __init__(self):
-        super(KicadSize, self).__init__('size')
-        KicadObject._register(self.header, KicadSize)
+        super(KicadSize, self).__init__('size', True)
+        KicadModuleObject._register(self.header, KicadSize)
 
     def GetSize(self):
         return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
@@ -332,30 +378,50 @@ class KicadSize(KicadObject):
             obj.size = self.GetSize()
         super(KicadSize, self).Render(canvas, obj)
 
-class KicadDrill(KicadObject):
+class KicadDrill(KicadModuleObject):
     def __init__(self):
-        super(KicadDrill, self).__init__('drill')
-        KicadObject._register(self.header, KicadDrill)
+        super(KicadDrill, self).__init__('drill', True)
+        KicadModuleObject._register(self.header, KicadDrill)
 
+    def IsOval(self):
+        if self.HasAttribute(0) and self.Attribute(0)=='oval':
+            return True
+        return False
+    
+    def GetDrill(self):
+        drill = Canvas.Point()
+        if self.IsOval():
+            if self.HasAttribute(1):
+                drill.x = float(self.Attribute(1))
+            if self.HasAttribute(2):
+                drill.y = float(self.Attribute(2))
+        else:
+            if self.HasAttribute(0):
+                drill.x = float(self.Attribute(0))
+        return drill
+    
     def Render(self, canvas, obj):
-        if obj:
-            obj.drill = float(self.Attribute(0))
+        #TODO
+#         if obj:
+#             if self.GetDrill():
+#                 obj.drill = self.GetDrill()
+            
         super(KicadDrill, self).Render(canvas, obj)
 
-class KicadFont(KicadObject):
+class KicadFont(KicadModuleObject):
     def __init__(self):
         super(KicadFont, self).__init__('font')
-        KicadObject._register(self.header, KicadFont)
+        KicadModuleObject._register(self.header, KicadFont)
 
     def Render(self, canvas, obj):
         font = Canvas.Font()
         canvas.SetFont(font)
         super(KicadFont, self).Render(canvas, font)
 
-class KicadThickness(KicadObject):
+class KicadThickness(KicadModuleObject):
     def __init__(self):
-        super(KicadThickness, self).__init__('thickness')
-        KicadObject._register(self.header, KicadThickness)
+        super(KicadThickness, self).__init__('thickness', True)
+        KicadModuleObject._register(self.header, KicadThickness)
 
     def GetThickness(self):
         return float(self.Attribute(0))
@@ -365,10 +431,10 @@ class KicadThickness(KicadObject):
             obj.thickness = float(self.Attribute(0))
         super(KicadThickness, self).Render(canvas, obj)
 
-class KicadCenter(KicadObject):
+class KicadCenter(KicadModuleObject):
     def __init__(self):
-        super(KicadCenter, self).__init__('center')
-        KicadObject._register(self.header, KicadCenter)
+        super(KicadCenter, self).__init__('center', True)
+        KicadModuleObject._register(self.header, KicadCenter)
 
     def GetCenter(self):
         return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
@@ -378,16 +444,195 @@ class KicadCenter(KicadObject):
             obj.size = Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
         super(KicadCenter, self).Render(canvas, obj)
 
-class KicadAngle(KicadObject):
+class KicadAngle(KicadModuleObject):
     def __init__(self):
-        super(KicadAngle, self).__init__('angle')
-        KicadObject._register(self.header, KicadAngle)
+        super(KicadAngle, self).__init__('angle', True)
+        KicadModuleObject._register(self.header, KicadAngle)
 
     def GetAngle(self):
         return float(self.Attribute(0))*math.pi/180.
     
     def Render(self, canvas, obj):
         # TODO
+        pass
+
+class KicadTEdit(KicadModuleObject):
+    def __init__(self):
+        super(KicadTEdit, self).__init__('tedit', True)
+        KicadModuleObject._register(self.header, KicadTEdit)
+
+    def GetTimestamp(self):
+        return self.Attribute(0)
+    
+    def SetTimestamp(self, timestamp):
+        self.SetAttribute(0, timestamp)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadDescr(KicadModuleObject):
+    def __init__(self):
+        super(KicadDescr, self).__init__('descr')
+        KicadModuleObject._register(self.header, KicadDescr)
+
+    def GetDescr(self):
+        return self.Attribute(0)
+    
+    def SetDescr(self, descr):
+        self.SetAttribute(0, descr)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadTags(KicadModuleObject):
+    def __init__(self):
+        super(KicadTags, self).__init__('tags')
+        KicadModuleObject._register(self.header, KicadTags)
+
+    def GetTags(self):
+        return self.attributes
+    
+    def AddTag(self, tag):
+        self.AddAttribute(tag)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadAttr(KicadModuleObject):
+    def __init__(self):
+        super(KicadAttr, self).__init__('attr')
+        KicadModuleObject._register(self.header, KicadAttr)
+
+    def GetAttr(self):
+        return self.Attribute(0)
+    
+    def SetAttr(self, attr):
+        self.SetAttribute(0, attr)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadDieLength(KicadModuleObject):
+    def __init__(self):
+        super(KicadDieLength, self).__init__('die_length')
+        KicadModuleObject._register(self.header, KicadDieLength)
+
+    def GetDieLength(self):
+        return float(self.Attribute(0))
+    
+    def SetDieLength(self, die_length):
+        self.SetAttribute(0, die_length)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadRectDelta(KicadModuleObject):
+    def __init__(self):
+        super(KicadRectDelta, self).__init__('rect_delta', True)
+        KicadModuleObject._register(self.header, KicadRectDelta)
+
+    def GetRectDelta(self):
+        return Canvas.Point(float(self.Attribute(0)), float(self.Attribute(1)))
+    
+    def Render(self, canvas, obj):
+        pass
+
+class KicadSolderMaskMargin(KicadModuleObject):
+    def __init__(self):
+        super(KicadSolderMaskMargin, self).__init__('solder_mask_margin')
+        KicadModuleObject._register(self.header, KicadSolderMaskMargin)
+
+    def GetSolderMaskMargin(self):
+        return float(self.Attribute(0))
+    
+    def SetSolderMaskMargin(self, solder_mask_margin):
+        self.SetAttribute(0, solder_mask_margin)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadSolderPasteMargin(KicadModuleObject):
+    def __init__(self):
+        super(KicadSolderPasteMargin, self).__init__('solder_paste_margin')
+        KicadModuleObject._register(self.header, KicadSolderPasteMargin)
+
+    def GetSolderPasteMargin(self):
+        return float(self.Attribute(0))
+    
+    def SetSolderPasteMargin(self, solder_paste_margin):
+        self.SetAttribute(0, solder_paste_margin)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadClearance(KicadModuleObject):
+    def __init__(self):
+        super(KicadClearance, self).__init__('clearance')
+        KicadModuleObject._register(self.header, KicadClearance)
+
+    def GetClearance(self):
+        return float(self.Attribute(0))
+    
+    def SetClearance(self, clearance):
+        self.SetAttribute(0, clearance)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadThermalWidth(KicadModuleObject):
+    def __init__(self):
+        super(KicadThermalWidth, self).__init__('thermal_width')
+        KicadModuleObject._register(self.header, KicadThermalWidth)
+
+    def GetThermalWidth(self):
+        return float(self.Attribute(0))
+    
+    def SetThermalWidth(self, thermal_width):
+        self.SetAttribute(0, thermal_width)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadThermalGap(KicadModuleObject):
+    def __init__(self):
+        super(KicadThermalGap, self).__init__('thermal_gap')
+        KicadModuleObject._register(self.header, KicadThermalGap)
+
+    def GetThermalGap(self):
+        return float(self.Attribute(0))
+    
+    def SetThermalGap(self, thermal_gap):
+        self.SetAttribute(0, thermal_gap)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadZoneConnect(KicadModuleObject):
+    def __init__(self):
+        super(KicadZoneConnect, self).__init__('zone_connect')
+        KicadModuleObject._register(self.header, KicadZoneConnect)
+
+    def GetZoneConnect(self):
+        return float(self.Attribute(0))
+    
+    def SetZoneConnect(self, zone_connect):
+        self.SetAttribute(0, zone_connect)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadSolderPasteMarginRatio(KicadModuleObject):
+    def __init__(self):
+        super(KicadSolderPasteMarginRatio, self).__init__('solder_paste_margin_ratio')
+        KicadModuleObject._register(self.header, KicadSolderPasteMarginRatio)
+
+    def GetSolderPasteMarginRatio(self):
+        return float(self.Attribute(0))
+    
+    def SetSolderPasteMarginRatio(self, solder_paste_margin_ratio):
+        self.SetAttribute(0, solder_paste_margin_ratio)
+
+    def Render(self, canvas, obj):
         pass
 
 """
@@ -411,3 +656,16 @@ KicadFPCircle()
 KicadFPArc()
 KicadCenter()
 KicadAngle()
+KicadTEdit()
+KicadDescr()
+KicadTags()
+KicadAttr()
+KicadOffset()
+KicadDieLength()
+KicadRectDelta()
+KicadSolderMaskMargin()
+KicadSolderPasteMargin()
+KicadClearance()
+KicadThermalWidth()
+KicadThermalGap()
+KicadSolderPasteMarginRatio()

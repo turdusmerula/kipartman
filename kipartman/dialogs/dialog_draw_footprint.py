@@ -18,7 +18,7 @@ import wx.dataview
 class DialogDrawFootprint ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1155,851 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1155,851 ), style = wx.DEFAULT_FRAME_STYLE|wx.MINIMIZE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -80,7 +80,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.m_panel3.Layout()
 		bSizer8.Fit( self.m_panel3 )
 		self.panel_edit_object = wx.Panel( self.splitter_edit_object, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.splitter_edit_object.SplitHorizontally( self.m_panel3, self.panel_edit_object, 438 )
+		self.splitter_edit_object.SplitHorizontally( self.m_panel3, self.panel_edit_object, 294 )
 		bSizer7.Add( self.splitter_edit_object, 1, wx.EXPAND, 5 )
 		
 		
@@ -334,7 +334,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.m_splitter1.Unbind( wx.EVT_IDLE )
 	
 	def splitter_edit_objectOnIdle( self, event ):
-		self.splitter_edit_object.SetSashPosition( 438 )
+		self.splitter_edit_object.SetSashPosition( 294 )
 		self.splitter_edit_object.Unbind( wx.EVT_IDLE )
 	
 

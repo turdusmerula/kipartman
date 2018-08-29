@@ -35,6 +35,7 @@ encoding//kipartman/dialogs/draw_footprint/panel_edit_angle.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_arc.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_circle.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_dimension.py=utf-8
+encoding//kipartman/dialogs/draw_footprint/panel_edit_footprint.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_grid.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_line.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_pad.py=utf-8

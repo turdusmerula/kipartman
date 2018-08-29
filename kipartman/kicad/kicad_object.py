@@ -47,7 +47,7 @@ class KicadObject(object):
         return node
 
     def AddAttribute(self, attr, attr_type=''):
-        self.attributes.append(attr)
+        self.attributes.append(str(attr))
         self.attribute_types.append(attr_type)
         return attr
     
@@ -63,6 +63,9 @@ class KicadObject(object):
             return self.attributes[index]
         return ''
 
+    def HasAttribute(self, index):
+        return index<len(self.attributes)
+            
     def Render(self, canvas, obj=None):
         for node in self.nodes:
             node.Render(canvas, obj)

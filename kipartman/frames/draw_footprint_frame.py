@@ -7,6 +7,7 @@ from frames.frame_draw_footprint.edit_pad_frame import EditPadFrame
 from frames.frame_draw_footprint.edit_polyline_frame import EditPolylineFrame
 from frames.frame_draw_footprint.edit_arc_frame import EditArcFrame
 from frames.frame_draw_footprint.edit_circle_frame import EditCircleFrame
+from frames.frame_draw_footprint.edit_footprint_frame import EditFootprintFrame
 from kicad.Canvas import *
 import wx.lib.wxcairo
 import helper.tree
@@ -209,10 +210,8 @@ class AnchorArc(object):
          
     def Distance(self, pos):
         p = self.arc.get_projection(pos)
-        print "--"
         if p is None:
             return None
-        print "--", p.Distance(pos), p.x, p.y
         return p.Distance(pos)
  
     # return projection of point on line
@@ -924,11 +923,26 @@ class ObjectAngle(EditorObject):
 class ObjectPad(EditorObject):
     def __init__(self):
         super(ObjectPad, self).__init__(["F.Cu"], Point())
-        self.type = 'smd' # smd or thru_hole
-        self.shape = 'rect' # rect or oval
+        self.type = 'smd' # smd thru_hole, connect, np_thru_hole
+        self.shape = 'rect' # rect, trapezoid, oval, circular
         self.size = Point()
-        self.drill = 0.
+        self.offset = Point()
+        self.drill = Point()
+        self.drill_type = 'circle'
+        self.die_length = 0.
         self.name = ''
+        
+        self.solder_mask_margin = 0.
+        self.solder_paste_margin = 0.
+        self.clearance = 0.
+        self.solder_paste_margin_ratio = 0.
+        
+        self.thermal_width = 0.
+        self.thermal_gap = 0.
+        self.zone_connect = None
+        
+        self.trapezoidal_delta = 0.
+        self.trapezoidal_direction = 'vert' # vert or horz
         
         self.font = Font(Point(15, 15), 1)
 
@@ -969,9 +983,9 @@ class ObjectPad(EditorObject):
     def Update(self):
         dx = self.size.x/2.
         dy = self.size.y/2.
-
+                
         self.points[0].Move(self.pos)
-        if self.shape=='rect':
+        if self.shape=='rect' or self.shape=='trapezoid' or self.shape=='oval':
             self.points[1].Move(Point(self.pos.x-dx, self.pos.y-dy))
             self.points[2].Move(Point(self.pos.x+dx, self.pos.y-dy))
             self.points[3].Move(Point(self.pos.x+dx, self.pos.y+dy))
@@ -980,12 +994,12 @@ class ObjectPad(EditorObject):
             self.points[6].Move(Point(self.pos.x+dx, self.pos.y))
             self.points[7].Move(Point(self.pos.x,    self.pos.y+dy))
             self.points[8].Move(Point(self.pos.x-dx, self.pos.y))
-        elif self.shape=='oval':
-            self.points[1].Move(Point(self.pos.x,    self.pos.y-dy))
+        elif self.shape=='circle':
+            self.points[1].Move(Point(self.pos.x,    self.pos.y-dx))
             self.points[2].Move(Point(self.pos.x+dx, self.pos.y))
-            self.points[3].Move(Point(self.pos.x,    self.pos.y+dy))
+            self.points[3].Move(Point(self.pos.x,    self.pos.y+dx))
             self.points[4].Move(Point(self.pos.x-dx, self.pos.y))
-        
+                
         if math.fabs(self.angle)>epsilon:
             for p in self.points:
                 p.StartRotate()
@@ -994,20 +1008,76 @@ class ObjectPad(EditorObject):
     def Render(self, canvas):
         super(ObjectPad, self).Render(canvas)
         
+        offset = Point(canvas.mm2px(self.offset.x), canvas.mm2px(self.offset.y)) #.Rotate(Point(0, 0), self.angle)
         pos = Position(canvas.xmm2px(self.pos.x), canvas.ymm2px(self.pos.y), self.angle)
         size = Point(canvas.mm2px(self.size.x), canvas.mm2px(self.size.y))
-        drill = canvas.mm2px(self.drill)
+        drill = Point(canvas.mm2px(self.drill.x), canvas.mm2px(self.drill.y))
+        
+        angle = -self.angle
         
         canvas.SetFont(self.font)
         
         if self.placed or ( self.placing_point is not None and self.placing_point==1):
-            if self.shape=='rect':
+            if self.shape=='rect' or self.shape=='trapezoid' or self.shape=='oval':
+                dx = size.x/2.
+                dy = size.y/2.
+                    
+                tx = 0.
+                ty = 0.
+                if self.shape=='trapezoid' and self.trapezoidal_direction=='vert':
+                    ty = canvas.mm2px(self.trapezoidal_delta/2.)
+                if ty>dy:
+                    ty = dy
+                elif self.shape=='trapezoid' and self.trapezoidal_direction=='horz':
+                    tx = canvas.mm2px(self.trapezoidal_delta/2.)
+                if tx>dx:
+                    tx = dx
+
                 points = []
-                for p in range(1, 5):
-                    points.append(Point(canvas.xmm2px(self.points[p].pos.x), canvas.ymm2px(self.points[p].pos.y)))
-                points.append(points[0])
+                if self.shape=='oval':
+                    points.append(Point(pos.x-dx, pos.y-dy+dx))
+                    points.append(Point(pos.x+dx, pos.y-dy+dx))
+                    points.append(Point(pos.x+dx, pos.y+dy-dx))
+                    points.append(Point(pos.x-dx, pos.y+dy-dx))
+                else:
+                    points.append(Point(pos.x-dx+tx, pos.y-dy-ty))
+                    points.append(Point(pos.x+dx-tx, pos.y-dy+ty))
+                    points.append(Point(pos.x+dx+tx,    pos.y+dy-ty))
+                    points.append(Point(pos.x-dx-tx,    pos.y+dy+ty))
+                
+                for p in points:
+                    pr = Point(p.x+offset.x, p.y+offset.y).Rotate(pos, angle)
+                    p.x = pr.x
+                    p.y = pr.y
                 canvas.Draw(PolyLine(points, width=1, fill=True), ["F.Cu", "B.Cu"])
             
+                if self.shape=='oval':
+                    canvas.Draw(Arc(Point(pos.x+offset.x, pos.y-dy+dx+offset.y).Rotate(pos, angle), dx, math.pi+angle, 2.*math.pi+angle, width=1, fill=True), ["F.Cu", "B.Cu"])
+                    canvas.Draw(Arc(Point(pos.x+offset.x, pos.y+dy-dx+offset.y).Rotate(pos, angle), dx, 0+angle, math.pi+angle, width=1, fill=True), ["F.Cu", "B.Cu"])
+            elif self.shape=='circle':
+                radius = canvas.mm2px(self.size.x/2.)
+                canvas.Draw(Circle(Point(pos.x, pos.y), Point(pos.x+radius, pos.y), width=1, fill=True), ["F.Cu", "B.Cu"])
+
+            if self.type=='thru_hole' or self.type=='np_thru_hole':
+                if self.drill_type=='circle':
+                    radius = drill.x/2.
+                    canvas.Draw(Circle(Point(pos.x, pos.y), Point(pos.x+radius, pos.y), width=1, fill=True), ["Hole"])
+                else:
+                    dx = drill.x/2.
+                    dy = drill.y/2.
+                    points = []
+                    points.append(Point(pos.x-dx, pos.y-dy+dx))
+                    points.append(Point(pos.x+dx, pos.y-dy+dx))
+                    points.append(Point(pos.x+dx, pos.y+dy-dx))
+                    points.append(Point(pos.x-dx, pos.y+dy-dx))
+                    for p in points:
+                        pr = p.Rotate(pos, self.angle)
+                        p.x = pr.x
+                        p.y = pr.y
+                    canvas.Draw(PolyLine(points, width=1, fill=True), ["Hole"])
+                    canvas.Draw(Arc(Point(pos.x, pos.y-dy+dx).Rotate(pos, angle), dx, math.pi+angle, 2.*math.pi+angle, width=0, fill=True), ["Hole"])
+                    canvas.Draw(Arc(Point(pos.x, pos.y+dy-dx).Rotate(pos, angle), dx, 0+angle, math.pi+angle, width=0, fill=True), ["Hole"])
+
             canvas.Draw(Text(self.name, pos, anchor_x='center', anchor_y='center'), ["Editor"])            
 
     def Select(self):
@@ -1275,7 +1345,10 @@ class ObjectArc(EditorObject):
         p0 = self.points[0].pos
         p1 = self.points[1].pos
         p2 = self.points[2].pos
-        return p0.GetAngle(p1, p2) 
+        angle = p0.GetAngle(p1, p2)
+        if angle<0:
+            angle = angle+2.*math.pi
+        return angle 
     
     def SetAngle(self, angle):
         p0 = self.points[0].pos
@@ -1315,7 +1388,7 @@ class ObjectCircle(EditorObject):
             for p in self.points:
                 self.AddAnchor(p.pos)
             r = self.points[0].pos.Distance(self.points[1].pos)
-            self.AddAnchorCircle(self.points[0].pos, self.points[0].pos)
+            self.AddAnchorCircle(self.points[0].pos, self.points[1].pos)
             
     def Render(self, canvas):
         super(ObjectCircle, self).Render(canvas)
@@ -1497,6 +1570,12 @@ class DrawFootprintFrame(DialogDrawFootprint):
 
         self.current_pad_name = None
         
+        # module elements
+        self.footprint_name = ''
+        self.footprint_timestamp = ''
+        self.footprint_descr = ''
+        self.footprint_tags = []
+        
         # create manufacturers list
         self.tree_objects_manager = TreeManagerObjects(self.tree_objects, context_menu=self.menu_edit)
         self.tree_objects_manager.AddTextColumn("name")
@@ -1540,6 +1619,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.Load()
         self.LoadLayers()
         
+        self.SelectObjects([])
+        
     def Render(self):
         self.canvas.Viewport(self.image_draw.GetRect().width, self.image_draw.GetRect().height)
         self.canvas.Origin(self.image_draw.GetRect().width/2, self.image_draw.GetRect().height/2)
@@ -1559,6 +1640,38 @@ class DrawFootprintFrame(DialogDrawFootprint):
             
             self.load_object(mod.parent)
         self.UpdateAll(self.all_objects)
+    
+    def Save(self):
+        mod = kicad_mod_file.KicadModFile()
+        
+        module = kicad_mod_file.KicadModule()
+        module.SetName(self.footprint_name)
+        
+        node = kicad_mod_file.KicadLayer()
+        node.SetLayer("F.Cu")
+        module.AddNode(node)
+        
+        node = kicad_mod_file.KicadTEdit()
+        node.SetTimestamp(self.footprint_timestamp)
+        module.AddNode(node)
+
+        node = kicad_mod_file.KicadDescr()
+        node.SetDescr(self.footprint_descr)
+        module.AddNode(node)
+
+        node = kicad_mod_file.KicadTags()
+        for tag in self.footprint_tags:
+            node.AddTag(tag)
+        module.AddNode(node)
+
+        node = kicad_mod_file.KicadAttr()
+        node.SetAttr('smd')
+        module.AddNode(node)
+
+        mod.parent = module
+        
+        self.save_object(self.component_objects, module)
+        mod.SaveFile("test.kicad_mod")
         
     def UpdateAll(self, obj):
         obj.Update()
@@ -1581,8 +1694,10 @@ class DrawFootprintFrame(DialogDrawFootprint):
             current = ObjectPad()
             pop = True
             stack.append(current)
+            current.name = obj.GetName()
             current.type = obj.GetType()
             current.shape = obj.GetShape()
+            print "---", current.shape
             current.placed = True
             self.component_objects.AddNode(current)
             self.tree_objects_manager.AppendObject('Part', current)
@@ -1604,6 +1719,13 @@ class DrawFootprintFrame(DialogDrawFootprint):
             self.tree_objects_manager.AppendObject('Part', current)
         elif isinstance(obj, kicad_mod_file.KicadFPCircle):
             current = ObjectCircle()
+            pop = True
+            stack.append(current)
+            current.placed = True
+            self.component_objects.AddNode(current)
+            self.tree_objects_manager.AppendObject('Part', current)
+        elif isinstance(obj, kicad_mod_file.KicadFPLine):
+            current = ObjectPolyline()
             pop = True
             stack.append(current)
             current.placed = True
@@ -1654,6 +1776,10 @@ class DrawFootprintFrame(DialogDrawFootprint):
                 angle_start = current.points[0].pos.GetAngle(pref, current.points[1].pos)
                 angle = obj.GetAngle()
                 current.points[2].pos = Point(current.points[0].pos.x+radius*math.cos(angle_start+angle), current.points[0].pos.y+radius*math.sin(angle_start+angle))
+        elif isinstance(obj, kicad_mod_file.KicadOffset) and current:
+            if isinstance(current, ObjectPad):
+                current.offset = obj.GetOffset()
+            self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
         elif isinstance(obj, kicad_mod_file.KicadWidth) and current:
             width = obj.GetWidth()
             current.width = width
@@ -1663,25 +1789,161 @@ class DrawFootprintFrame(DialogDrawFootprint):
         elif isinstance(obj, kicad_mod_file.KicadFont) and current:
             stack.append(current.font)
             pop = True
-        elif isinstance(obj, kicad_mod_file.KicadFPLine):
-            current = ObjectPolyline()
-            pop = True
-            stack.append(current)
-            current.placed = True
-            self.component_objects.AddNode(current)
-            self.tree_objects_manager.AppendObject('Part', current)
         elif isinstance(obj, kicad_mod_file.KicadLayer) and current:
             current.layers.append(obj.GetLayer())
         elif isinstance(obj, kicad_mod_file.KicadLayers) and current:
             for layer in obj.GetLayers():
                 current.layers.append(layer)
-        
+        elif isinstance(obj, kicad_mod_file.KicadModule):
+            self.SetFootprintName(obj.GetName())
+        elif isinstance(obj, kicad_mod_file.KicadTEdit):
+            self.SetFootprintTimestamp(obj.GetTimestamp())
+        elif isinstance(obj, kicad_mod_file.KicadDescr):
+            self.SetFootprintDescr(obj.GetDescr())
+        elif isinstance(obj, kicad_mod_file.KicadTags):
+            self.SetFootprintTags(obj.GetTags())
+        elif isinstance(obj, kicad_mod_file.KicadDrill) and current:
+            if obj.GetDrill() is not None:
+                current.drill = obj.GetDrill()
+                if obj.IsOval():
+                    current.drill_type = 'oval'
+        elif isinstance(obj, kicad_mod_file.KicadDieLength) and current:
+            current.die_length = obj.GetDieLength()
+        elif isinstance(obj, kicad_mod_file.KicadRectDelta) and current:
+            rect = obj.GetRectDelta()
+            if math.fabs(rect.x)>epsilon:
+                current.trapezoidal_delta = rect.x
+                current.trapezoidal_direction = 'vert'
+            elif math.fabs(rect.y)>epsilon:
+                current.trapezoidal_delta = rect.y
+                current.trapezoidal_direction = 'horz'
+    
         for node in obj.nodes:
             self.load_object(node, stack, level+1)
         
         if pop:
             stack.pop()
-        
+    
+    def save_object(self, obj, parent):
+        if isinstance(obj, ObjectArc):
+            arc = kicad_mod_file.KicadFPArc()
+            parent.AddNode(arc)
+            node = kicad_mod_file.KicadStart()
+            node.AddAttribute(str(obj.points[0].pos.x))
+            node.AddAttribute(str(obj.points[0].pos.y))
+            arc.AddNode(node)
+            node = kicad_mod_file.KicadEnd()
+            node.AddAttribute(str(obj.points[1].pos.x))
+            node.AddAttribute(str(obj.points[1].pos.y))
+            arc.AddNode(node)
+            node = kicad_mod_file.KicadAngle()
+            node.AddAttribute(str(obj.Angle()*180./math.pi))
+            arc.AddNode(node)
+            node = kicad_mod_file.KicadLayer()
+            node.AddAttribute(obj.layers[0])
+            arc.AddNode(node)
+            node = kicad_mod_file.KicadWidth()
+            node.AddAttribute(str(obj.width))
+            arc.AddNode(node)
+        elif isinstance(obj, ObjectCircle):
+            circle = kicad_mod_file.KicadFPCircle()
+            parent.AddNode(circle)
+            node = kicad_mod_file.KicadCenter()
+            node.AddAttribute(str(obj.points[0].pos.x))
+            node.AddAttribute(str(obj.points[0].pos.y))
+            circle.AddNode(node)
+            node = kicad_mod_file.KicadEnd()
+            node.AddAttribute(str(obj.points[1].pos.x))
+            node.AddAttribute(str(obj.points[1].pos.y))
+            circle.AddNode(node)
+            node = kicad_mod_file.KicadLayer()
+            node.AddAttribute(obj.layers[0])
+            circle.AddNode(node)
+            node = kicad_mod_file.KicadWidth()
+            node.AddAttribute(str(obj.width))
+            circle.AddNode(node)
+        elif isinstance(obj, ObjectPad):
+            pad = kicad_mod_file.KicadPad()
+            parent.AddNode(pad)
+            pad.SetName(obj.name)
+            pad.SetType(obj.type)
+            pad.SetShape(obj.shape)
+            node = kicad_mod_file.KicadAt()
+            node.AddAttribute(str(obj.pos.x))
+            node.AddAttribute(str(obj.pos.y))
+            node.AddAttribute(str(obj.angle*180./math.pi))
+            pad.AddNode(node)
+            node = kicad_mod_file.KicadSize()
+            node.AddAttribute(str(obj.size.x))
+            node.AddAttribute(str(obj.size.y))
+            pad.AddNode(node)
+            if math.fabs(obj.trapezoidal_delta)>epsilon:
+                node = kicad_mod_file.KicadRectDelta()
+                if obj.trapezoidal_direction=='vert':
+                    node.AddAttribute(str(obj.trapezoidal_delta))
+                    node.AddAttribute(str(0))
+                else:
+                    node.AddAttribute(str(0))
+                    node.AddAttribute(str(obj.trapezoidal_delta))
+                pad.AddNode(node)
+            drill = None
+            if obj.type=='thru_hole' or obj.type=='np_thru_hole':
+                drill = kicad_mod_file.KicadDrill()
+                if obj.drill_type=='oval':
+                    drill.AddAttribute('oval')
+                    drill.AddAttribute(obj.drill.x)
+                    drill.AddAttribute(obj.drill.y)
+                else:
+                    drill.AddAttribute(obj.drill.x)
+                pad.AddNode(drill)
+            if math.fabs(obj.offset.x)>epsilon or math.fabs(obj.offset.y)>epsilon:
+                if drill is None:
+                    drill = kicad_mod_file.KicadDrill()
+                    pad.AddNode(drill)
+                node = kicad_mod_file.KicadOffset()
+                node.AddAttribute(str(obj.offset.x))
+                node.AddAttribute(str(obj.offset.y))
+                drill.AddNode(node)
+            if math.fabs(obj.die_length)>epsilon:
+                node = kicad_mod_file.KicadDieLength()
+                node.AddAttribute(str(obj.die_length))
+                pad.AddNode(node)
+                
+                
+            node = kicad_mod_file.KicadLayers()
+            for layer in obj.layers:
+                if layer!='Selection':
+                    node.AddAttribute(layer)
+            pad.AddNode(node)
+            
+        elif isinstance(obj, ObjectPolyline):
+            pass
+        elif isinstance(obj, ObjectText):
+            pass
+        elif isinstance(obj, ObjectTextReference):
+            pass
+        elif isinstance(obj, ObjectTextUser):
+            pass
+        elif isinstance(obj, ObjectTextValue):
+            pass
+
+        for node in obj.nodes:
+            self.save_object(node, parent)
+    
+    def SetFootprintName(self, name):
+        self.footprint_name = name
+        self.part_value.value = name
+        self.part_value.Update()
+
+    def SetFootprintTimestamp(self, timestamp):
+        self.footprint_timestamp = timestamp
+
+    def SetFootprintDescr(self, descr):
+        self.footprint_descr = descr
+
+    def SetFootprintTags(self, tags):
+        self.footprint_tags = tags
+
     def SelectObjects(self, objs):
 #         for obj in self.state.GetObjects():
 #             if obj.Placed()==False:
@@ -1714,7 +1976,9 @@ class DrawFootprintFrame(DialogDrawFootprint):
             self.current_panel = EditPolylineFrame(self.panel_edit_object, self.Render, objs[0])
         elif len(objs)==1 and isinstance(objs[0], ObjectCircle):
             self.current_panel = EditCircleFrame(self.panel_edit_object, self.Render, objs[0])
-         
+        else:
+            self.current_panel = EditFootprintFrame(self.panel_edit_object, self.Render, self)
+            
         if len(objs)==1:
             print "**", objs[0].Description()
                  
@@ -1947,10 +2211,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
     
     def onImageDrawMouseEvents( self, event ):
         event.Skip()
-        
-    def onMenuFileSaveSelection( self, event ):
-        event.Skip()
-    
+            
     def onMenuDrawPadRowSelection( self, event ):
         event.Skip()
     
@@ -2014,3 +2275,9 @@ class DrawFootprintFrame(DialogDrawFootprint):
         if self.current_panel:
             self.current_panel.Destroy()
         self.current_panel = EditCircleFrame(self.panel_edit_object, self.Render, node)
+    
+    def onMenuFileSaveAsSelection( self, event ):
+        event.Skip()
+
+    def onMenuFileSaveSelection( self, event ):
+        self.Save()

@@ -322,8 +322,8 @@ class Circle(Drawing):
             ctx.stroke()
 
     def get_projection(self, p):
-        pref = Point(self.centre.x+1, self.centre.y)
-        angle = pref.GetAngle(self.centre, p)
+        pref = Point(self.centre.x+1., self.centre.y)
+        angle = self.centre.GetAngle(pref, p)
         dx = self.centre.x-self.end.x
         dy = self.centre.y-self.end.y
         radius = math.sqrt(dx*dx+dy*dy)
@@ -374,38 +374,8 @@ class Arc(Drawing):
 
         if angle<angle_start:
             angle = angle+2.*math.pi
-        print "**", self.norm(angle)*180./math.pi, self.norm(self.angle_start)*180./math.pi, self.norm(self.angle_end)*180./math.pi, self.angle_len(self.angle_start, self.angle_end)*180./math.pi
         if angle>=angle_start and angle<=angle_start+angle_len:
             return Point(self.centre.x+self.radius*math.cos(angle_point), self.centre.y+self.radius*math.sin(angle_point))            
-
-#        print "**", angle*180./math.pi, self.angle_start*180./math.pi, self.angle_end*180./math.pi
-#         print "**", math.cos(angle), math.cos(self.angle_start), math.cos(self.angle_end)
-#         print "--", math.sin(angle), math.sin(self.angle_start), math.sin(self.angle_end)
-#         
-#         isinc = False
-#         c = math.cos(angle)
-#         cs = math.cos(self.angle_start)
-#         ce = math.cos(self.angle_end)
-#         if cs<=ce and c>=cs and c<=ce:
-#             isinc = True
-#         elif ce<cs and c>=ce and c<=cs:
-#             isinc = True
-#         
-#         isins = False
-#         s = math.sin(angle)
-#         ss = math.sin(self.angle_start)
-#         se = math.sin(self.angle_end)
-#         if ss<=se and s>=ss and s<=se:
-#             isins = True
-#         elif se<ss and s>=se and s<=ss:
-#             isins = True
-#             
-#         if isinc and isins:
-#             return Point(self.centre.x+self.radius*math.cos(angle_point), self.centre.y+self.radius*math.sin(angle_point))
-#         if angle_start<=angle_end and angle>=angle_start and angle<angle_end:
-#             return Point(self.centre.x+self.radius*math.cos(angle_point), self.centre.y+self.radius*math.sin(angle_point))
-#         elif angle_end<=angle_start and angle>=angle_end and angle<angle_start:
-#             return Point(self.centre.x+self.radius*math.cos(angle_point), self.centre.y+self.radius*math.sin(angle_point))
         return None
     
 class Rect(Drawing):
@@ -592,10 +562,16 @@ class Canvas(object):
     def Draw(self, obj, layer_names=None):
         if not layer_names:
             layer_names = self.selected_layers
-            
+        
+        layers = []
         for name in layer_names:
-            layer = self.layer_names[name]
-            
+            if name.startswith('*'):
+                layers.append(self.layer_names[name.replace("*", "F")])
+                layers.append(self.layer_names[name.replace("*", "B")])
+            else:
+                layers.append(self.layer_names[name])
+                
+        for layer in layers:
             layer.Apply(layer.ctx)
             self.font.Apply(layer.ctx)
             obj.Render(layer.ctx, self)
@@ -686,6 +662,7 @@ class FootprintCanvas(Canvas):
         self.AddLayer("Grid", ColorRGB.Yellow(), layer_type='Render', active=False)
         self.AddLayer("Values", ColorRGB.Yellow(), layer_type='Render', active=False)
         self.AddLayer("References", ColorRGB.Yellow(), layer_type='Render', active=False)
+        self.AddLayer("Hole", layer_type='Render', active=False)
 
         self.AddLayer("Editor", ColorRGB.Grey(), layer_type='Render', active=False)
         self.AddLayer("Selection", ColorRGB.Yellow(), layer_type='Render', active=False)
