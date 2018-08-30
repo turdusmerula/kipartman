@@ -23,7 +23,7 @@ class PanelEditPad ( wx.Panel ):
 		
 		bSizer7 = wx.BoxSizer( wx.VERTICAL )
 		
-		radio_shapeChoices = [ u"Rectangle", u"Trapezoidal", u"Oval", u"Circular" ]
+		radio_shapeChoices = [ u"Rectangular", u"Trapezoidal", u"Oval", u"Circular" ]
 		self.radio_shape = wx.RadioBox( self, wx.ID_ANY, u"Shape", wx.DefaultPosition, wx.DefaultSize, radio_shapeChoices, 1, 0 )
 		self.radio_shape.SetSelection( 0 )
 		bSizer7.Add( self.radio_shape, 0, wx.ALL|wx.EXPAND, 5 )
@@ -219,12 +219,12 @@ class PanelEditPad ( wx.Panel ):
 		self.text_thermal_relief_width = wx.TextCtrl( self.panel_copper, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		fgSizer112.Add( self.text_thermal_relief_width, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.m_staticText3412 = wx.StaticText( self.panel_copper, wx.ID_ANY, u"Thermal relief height (mm)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText3412 = wx.StaticText( self.panel_copper, wx.ID_ANY, u"Thermal relief gap (mm)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3412.Wrap( -1 )
 		fgSizer112.Add( self.m_staticText3412, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_thermal_relief_height = wx.TextCtrl( self.panel_copper, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
-		fgSizer112.Add( self.text_thermal_relief_height, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
+		self.text_thermal_relief_gap = wx.TextCtrl( self.panel_copper, wx.ID_ANY, u"0", wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		fgSizer112.Add( self.text_thermal_relief_gap, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.EXPAND, 5 )
 		
 		
 		self.panel_copper.SetSizer( fgSizer112 )
@@ -369,7 +369,7 @@ class PanelEditPad ( wx.Panel ):
 		self.text_solder_paste_ratio_clearance.Bind( wx.EVT_TEXT_ENTER, self.onSolderPasteRatioClearanceTextEnter )
 		self.choice_pad_connection.Bind( wx.EVT_CHOICE, self.onPadConnectionChoice )
 		self.text_thermal_relief_width.Bind( wx.EVT_TEXT_ENTER, self.onThermalReliefWidthTextEnter )
-		self.text_thermal_relief_height.Bind( wx.EVT_TEXT_ENTER, self.onTextThermalReliefHeightTextEnter )
+		self.text_thermal_relief_gap.Bind( wx.EVT_TEXT_ENTER, self.onTextThermalReliefGapTextEnter )
 		self.choice_copper_layer.Bind( wx.EVT_CHOICE, self.onCopperLayerChoice )
 		self.check_f_adhes.Bind( wx.EVT_CHECKBOX, self.onFAdhesCheckBox )
 		self.check_b_adhes.Bind( wx.EVT_CHECKBOX, self.onBAdhesCheckBox )
@@ -454,7 +454,7 @@ class PanelEditPad ( wx.Panel ):
 	def onThermalReliefWidthTextEnter( self, event ):
 		event.Skip()
 	
-	def onTextThermalReliefHeightTextEnter( self, event ):
+	def onTextThermalReliefGapTextEnter( self, event ):
 		event.Skip()
 	
 	def onCopperLayerChoice( self, event ):

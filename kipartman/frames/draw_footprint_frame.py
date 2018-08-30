@@ -962,12 +962,12 @@ class ObjectPad(EditorObject):
         
         self.points = []
         self.ClearNodes()
-        if self.shape=='rect':
+        if self.shape=='rect' or self.shape=='trapezoid' or self.shape=='oval':
             self.points = [ ObjectPoint(),
                             ObjectPoint(), ObjectPoint(), ObjectPoint(), ObjectPoint(),
                             ObjectPoint(), ObjectPoint(), ObjectPoint(), ObjectPoint()
                         ]
-        elif self.shape=='oval':
+        elif self.shape=='circle':
             self.points = [ObjectPoint(), 
                            ObjectPoint(), ObjectPoint(), ObjectPoint(), ObjectPoint()]
         
@@ -1003,7 +1003,7 @@ class ObjectPad(EditorObject):
         if math.fabs(self.angle)>epsilon:
             for p in self.points:
                 p.StartRotate()
-                p.Rotate(self.pos, self.angle)
+                p.Rotate(self.pos, -self.angle)
         
     def Render(self, canvas):
         super(ObjectPad, self).Render(canvas)
@@ -1015,7 +1015,6 @@ class ObjectPad(EditorObject):
         
         angle = -self.angle
         
-        canvas.SetFont(self.font)
         
         if self.placed or ( self.placing_point is not None and self.placing_point==1):
             if self.shape=='rect' or self.shape=='trapezoid' or self.shape=='oval':
@@ -1078,7 +1077,9 @@ class ObjectPad(EditorObject):
                     canvas.Draw(Arc(Point(pos.x, pos.y-dy+dx).Rotate(pos, angle), dx, math.pi+angle, 2.*math.pi+angle, width=0, fill=True), ["Hole"])
                     canvas.Draw(Arc(Point(pos.x, pos.y+dy-dx).Rotate(pos, angle), dx, 0+angle, math.pi+angle, width=0, fill=True), ["Hole"])
 
-            canvas.Draw(Text(self.name, pos, anchor_x='center', anchor_y='center'), ["Editor"])            
+            if self.type!='np_thru_hole':
+                canvas.SetFont(self.font)
+                canvas.Draw(Text(self.name, pos, anchor_x='center', anchor_y='center'), ["Editor"])            
 
     def Select(self):
         if "Selection" not in self.layers:
@@ -1125,7 +1126,7 @@ class ObjectPad(EditorObject):
         return self.placed
 
     def Description(self):
-        return "Pad {} x={} y={} width={} height={} angle={}".format(self.name, self.pos.x, self.pos.y, self.size.x, self.size.y, self.angle)
+        return "Pad {} {} {} x={} y={} width={} height={} angle={}".format(self.type, self.shape, self.name, self.pos.x, self.pos.y, self.size.x, self.size.y, self.angle)
             
 class ObjectPolyline(EditorObject):
     def __init__(self, layers=[]):
@@ -1455,6 +1456,7 @@ class EditorState(object):
     StateStartRotating = 4
     StateRotatingInitRef = 5
     StateRotating = 6
+    StateMovingCanvas = 7
     
     def __init__(self, canvas, anchors_obj):
         self.canvas = canvas
@@ -1464,6 +1466,9 @@ class EditorState(object):
         
         self.initial_pos = None
         self.initial_angle_ref = None
+        
+        self.initial_origin = None
+        self.initial_origin_pos = None
         
     def Cancel(self):
         self.state = self.StateNone
@@ -1496,7 +1501,7 @@ class EditorState(object):
     def DoRotate(self):
         self.state = self.StateStartRotating
         
-    def SetCursorPos(self, x, y):
+    def SetCursorPos(self, x, y, screenx, screeny):
         if self.state==self.StateMoving:
             for obj in self.objs:
                 obj.Move(Point(obj.origin_pos.x+(x-self.initial_pos.x), obj.origin_pos.y+(y-self.initial_pos.y)))
@@ -1506,8 +1511,22 @@ class EditorState(object):
             angle = self.initial_pos.GetAngle(self.initial_angle_ref, Point(x, y))
             for obj in self.objs:
                 obj.Rotate(self.initial_pos, angle)
-
-    def DoClick(self, x, y):
+        elif self.state==self.StateMovingCanvas and self.initial_origin is not None:
+            self.canvas.Origin(self.initial_origin.x+(screenx-self.initial_origin_pos.x), self.initial_origin.y+(screeny-self.initial_origin_pos.y))
+            
+    def DoLeftDown(self, x, y, screenx, screeny):
+        if self.state==self.StateNone:
+            self.state = self.StateMovingCanvas
+            self.initial_origin = self.canvas.origin
+            self.initial_origin_pos = Point(screenx, screeny)
+            
+    def DoLeftUp(self, x, y, screenx, screeny):
+        if self.state==self.StateMovingCanvas:
+            self.state = self.StateNone
+            self.initial_origin = None
+            self.initial_origin_pos = None
+            
+    def DoClick(self, x, y, screenx, screeny):
         if self.state==self.StateStartMoving:
             self.initial_pos = Point(x, y)
             self.state = self.StateMoving
@@ -1529,7 +1548,7 @@ class EditorState(object):
         elif self.state==self.StateRotating:
             self.Validate()
 
-    def DoDClick(self, x, y):
+    def DoDClick(self, x, y, screenx, screeny):
         if self.state==self.StatePlacing:
             self.Validate()
             self.state = self.StateNone
@@ -1616,16 +1635,16 @@ class DrawFootprintFrame(DialogDrawFootprint):
         
         self.Bind(wx.EVT_CHAR_HOOK, self.keyPressed)
 
+        self.canvas.Viewport(self.image_draw.GetRect().width, self.image_draw.GetRect().height)
+        self.canvas.Origin(self.image_draw.GetRect().width/2, self.image_draw.GetRect().height/2)
+
         self.Load()
         self.LoadLayers()
         
         self.SelectObjects([])
         
-    def Render(self):
-        self.canvas.Viewport(self.image_draw.GetRect().width, self.image_draw.GetRect().height)
-        self.canvas.Origin(self.image_draw.GetRect().width/2, self.image_draw.GetRect().height/2)
-        
-        self.canvas.Clear(["Editor"])
+    def Render(self):        
+        self.canvas.Clear() #(["Editor"])
         img = self.canvas.Render(self.all_objects)
         self.image_draw.SetBitmap(wx.lib.wxcairo.BitmapFromImageSurface(img))
 
@@ -1695,9 +1714,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
             pop = True
             stack.append(current)
             current.name = obj.GetName()
-            current.type = obj.GetType()
-            current.shape = obj.GetShape()
-            print "---", current.shape
+            current.SetType(obj.GetType())
+            current.SetShape(obj.GetShape())
             current.placed = True
             self.component_objects.AddNode(current)
             self.tree_objects_manager.AppendObject('Part', current)
@@ -1817,6 +1835,20 @@ class DrawFootprintFrame(DialogDrawFootprint):
             elif math.fabs(rect.y)>epsilon:
                 current.trapezoidal_delta = rect.y
                 current.trapezoidal_direction = 'horz'
+        elif isinstance(obj, kicad_mod_file.KicadSolderMaskMargin) and current:
+            current.solder_mask_margin = obj.GetSolderMaskMargin()
+        elif isinstance(obj, kicad_mod_file.KicadSolderPasteMargin) and current:
+            current.solder_paste_margin = obj.GetSolderPasteMargin()
+        elif isinstance(obj, kicad_mod_file.KicadClearance) and current:
+            current.clearance = obj.GetClearance()
+        elif isinstance(obj, kicad_mod_file.KicadThermalWidth) and current:
+            current.thermal_width = obj.GetThermalWidth()
+        elif isinstance(obj, kicad_mod_file.KicadThermalGap) and current:
+            current.thermal_gap = obj.GetThermalGap()
+        elif isinstance(obj, kicad_mod_file.KicadSolderPasteMarginRatio) and current:
+            current.solder_paste_margin_ratio = obj.GetSolderPasteMarginRatio()
+        elif isinstance(obj, kicad_mod_file.KicadZoneConnect) and current:
+            current.zone_connect = obj.GetZoneConnect()
     
         for node in obj.nodes:
             self.load_object(node, stack, level+1)
@@ -1896,6 +1928,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
                 else:
                     drill.AddAttribute(obj.drill.x)
                 pad.AddNode(drill)
+            
             if math.fabs(obj.offset.x)>epsilon or math.fabs(obj.offset.y)>epsilon:
                 if drill is None:
                     drill = kicad_mod_file.KicadDrill()
@@ -1907,6 +1940,34 @@ class DrawFootprintFrame(DialogDrawFootprint):
             if math.fabs(obj.die_length)>epsilon:
                 node = kicad_mod_file.KicadDieLength()
                 node.AddAttribute(str(obj.die_length))
+                pad.AddNode(node)
+            if math.fabs(obj.solder_mask_margin)>epsilon:
+                node = kicad_mod_file.KicadSolderMaskMargin()
+                node.AddAttribute(str(obj.solder_mask_margin))
+                pad.AddNode(node)
+            if math.fabs(obj.solder_paste_margin)>epsilon:
+                node = kicad_mod_file.KicadSolderPasteMargin()
+                node.AddAttribute(str(obj.solder_paste_margin))
+                pad.AddNode(node)
+            if math.fabs(obj.clearance)>epsilon:
+                node = kicad_mod_file.KicadClearance()
+                node.AddAttribute(str(obj.clearance))
+                pad.AddNode(node)
+            if math.fabs(obj.thermal_width)>epsilon:
+                node = kicad_mod_file.KicadThermalWidth()
+                node.AddAttribute(str(obj.thermal_width))
+                pad.AddNode(node)
+            if math.fabs(obj.thermal_gap)>epsilon:
+                node = kicad_mod_file.KicadThermalGap()
+                node.AddAttribute(str(obj.thermal_gap))
+                pad.AddNode(node)
+            if math.fabs(obj.solder_paste_margin_ratio)>epsilon:
+                node = kicad_mod_file.KicadSolderPasteMarginRatio()
+                node.AddAttribute(str(obj.solder_paste_margin_ratio))
+                pad.AddNode(node)
+            if obj.zone_connect is not None:
+                node = kicad_mod_file.KicadZoneConnect()
+                node.AddAttribute(str(obj.zone_connect))
                 pad.AddNode(node)
                 
                 
@@ -2001,19 +2062,23 @@ class DrawFootprintFrame(DialogDrawFootprint):
             [distance, anchor] = self.anchor_objects.FindAnchor(t, pos, self.state.GetMovingObjects())
             if not distance is None and self.canvas.mm2px(distance)<self.magnet:
                 pos = anchor.Pos(pos)
-                pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
+                #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
                 self.cursor.pos = pos
                 break
         self.cursor.Update()
         
-        self.state.DoDClick(pos.x, pos.y)
+        self.state.DoDClick(pos.x, pos.y, pospx.x, pospx.y)
         self.Render()
     
         if self.current_panel:
             self.current_panel.Update()
     
     def onImageDrawLeftDown( self, event ):
-        pass
+        pospx = event.GetPosition()
+        pos = Point(self.canvas.xpx2mm(pospx.x), self.canvas.ypx2mm(pospx.y))
+                
+        self.state.DoLeftDown(pos.x, pos.y, pospx.x, pospx.y)
+        self.Render()
     
     def onImageDrawLeftUp( self, event ):
         pospx = event.GetPosition()
@@ -2025,12 +2090,13 @@ class DrawFootprintFrame(DialogDrawFootprint):
             [distance, anchor] = self.anchor_objects.FindAnchor(t, pos, self.state.GetMovingObjects())
             if not distance is None and self.canvas.mm2px(distance)<self.magnet:
                 pos = anchor.Pos(pos)
-                pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
+                #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
                 self.cursor.pos = pos
                 break
         self.cursor.Update()
         
-        self.state.DoClick(pos.x, pos.y)
+        self.state.DoLeftUp(pos.x, pos.y, pospx.x, pospx.y)
+        self.state.DoClick(pos.x, pos.y, pospx.x, pospx.y)
         self.Render()
     
         if self.current_panel:
@@ -2055,12 +2121,12 @@ class DrawFootprintFrame(DialogDrawFootprint):
             [distance, anchor] = self.anchor_objects.FindAnchor(t, pos, self.state.GetMovingObjects())
             if not distance is None and self.canvas.mm2px(distance)<self.magnet:
                 pos = anchor.Pos(pos)
-                pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
+                #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
                 self.cursor.pos = pos
                 break
         self.cursor.Update()
 
-        self.state.SetCursorPos(pos.x, pos.y)
+        self.state.SetCursorPos(pos.x, pos.y, pospx.x, pospx.y)
         self.Render()
         
         status = self.GetStatusBar()

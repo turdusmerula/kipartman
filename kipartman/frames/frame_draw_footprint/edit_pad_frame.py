@@ -63,14 +63,26 @@ class EditPadFrame(PanelEditPad):
 
             if self.pad.shape=='circle':
                 self.text_size_y.Enable(False)
+                self.text_offset_x.Enable(False)
+                self.text_offset_x.Value = '0'
+                self.text_offset_y.Enable(False)
+                self.text_offset_y.Value = '0'
             else:
                 self.text_size_y.Enable(True)
+                self.text_offset_x.Enable(True)
+                self.text_offset_y.Enable(True)
             
             if self.pad.type=='np_thru_hole':
                 self.text_pad_to_die.Enable(False)
             else:
                 self.text_pad_to_die.Enable(True)
 
+            if self.pad.type=='np_thru_hole':
+                self.text_name.Enable(False)
+                self.text_name.Value = ''
+            else:
+                self.text_name.Enable(True)
+                
 
             if self.pad.drill_type=='circle':
                 self.choice_drill_shape.SetSelection(0)
@@ -90,48 +102,59 @@ class EditPadFrame(PanelEditPad):
                 self.choice_drill_shape.Enable(False)
                 self.text_drill_size_x.Enable(False)
                 self.text_drill_size_y.Enable(False)
-                
+            
+            self.text_pad_clearance.value = str(self.pad.clearance)
+            self.text_solder_mask_clearance.Value = str(self.pad.solder_mask_margin)
+            self.text_solder_paste_clearance.Value = str(self.pad.solder_paste_margin)
+            self.text_solder_paste_ratio_clearance.Value = str(self.pad.solder_paste_margin_ratio)
+            
+            if self.pad.zone_connect is None:
+                self.choice_pad_connection.SetSelection(1)
+            elif self.pad.zone_connect==0:
+                self.choice_pad_connection.SetSelection(0)
+            elif self.pad.zone_connect==1:
+                self.choice_pad_connection.SetSelection(3)
+            elif self.pad.zone_connect==2:
+                self.choice_pad_connection.SetSelection(2)
+
+            self.text_thermal_relief_width.Value = str(self.pad.thermal_width)
+            self.text_thermal_relief_gap.Value = str(self.pad.thermal_gap)
+            
     def UpdatePad(self):
         self.pad.name = self.text_name.Value
 
         try:
-            angle = float(self.text_angle.Value)*math.pi/180.
-            self.pad.angle = angle
+            self.pad.angle = float(self.text_angle.Value)*math.pi/180.
         except Exception as e:
             print format(e)
             return
 
         try:
-            posx = float(self.text_position_x.Value)
-            self.pad.pos.x = posx
+            self.pad.pos.x = float(self.text_position_x.Value)
         except Exception as e:
             print format(e)
             return
 
         try:
-            posy = float(self.text_position_y.Value)
-            self.pad.pos.y = posy
+            self.pad.pos.y = float(self.text_position_y.Value)
         except Exception as e:
             print format(e)
             return
 
         try:
-            sizex = float(self.text_size_x.Value)
-            self.pad.size.x = sizex
+            self.pad.size.x = float(self.text_size_x.Value)
         except Exception as e:
             print format(e)
             return
 
         try:
-            sizey = float(self.text_size_y.Value)
-            self.pad.size.y = sizey
+            self.pad.size.y = float(self.text_size_y.Value)
         except Exception as e:
             print format(e)
             return
 
         try:
-            offsetx = float(self.text_offset_x.Value)
-            self.pad.offset.x = offsetx
+            self.pad.offset.x = float(self.text_offset_x.Value)
         except Exception as e:
             print format(e)
             return
@@ -144,15 +167,13 @@ class EditPadFrame(PanelEditPad):
             return
 
         try:
-            die_length = float(self.text_pad_to_die.Value)
-            self.pad.die_length = die_length
+            self.pad.die_length = float(self.text_pad_to_die.Value)
         except Exception as e:
             print format(e)
             return
 
         try:
-            trapezoid_delta = float(self.text_pad_trapezoidal_delta.Value)
-            self.pad.trapezoid_delta = trapezoid_delta
+            self.pad.trapezoid_delta = float(self.text_pad_trapezoidal_delta.Value)
         except Exception as e:
             print format(e)
             return
@@ -176,15 +197,60 @@ class EditPadFrame(PanelEditPad):
             self.pad.type = 'np_thru_hole'
 
         try:
-            drill_size_x = float(self.text_drill_size_x.Value)
-            self.pad.drill.x = drill_size_x
+            self.pad.drill.x = float(self.text_drill_size_x.Value)
         except Exception as e:
             print format(e)
             return
 
         try:
-            drill_size_y = float(self.text_drill_size_y.Value)
-            self.pad.drill.y = drill_size_y
+            self.pad.drill.y = float(self.text_drill_size_y.Value)
+        except Exception as e:
+            print format(e)
+            return
+
+
+        try:
+            self.pad.clearance = float(self.text_pad_clearance.Value)
+        except Exception as e:
+            print format(e)
+            return
+
+        try:
+            self.pad.solder_mask_margin = float(self.text_solder_mask_clearance.Value)
+        except Exception as e:
+            print format(e)
+            return
+
+        try:
+            self.pad.solder_paste_margin = float(self.text_solder_paste_clearance.Value)
+        except Exception as e:
+            print format(e)
+            return
+
+        try:
+            self.pad.solder_paste_margin_ratio = float(self.text_solder_paste_ratio_clearance.Value)
+        except Exception as e:
+            print format(e)
+            return
+
+
+        if self.choice_pad_connection.GetSelection()==0:
+            self.pad.zone_connect = 0
+        elif self.choice_pad_connection.GetSelection()==1:
+            self.pad.zone_connect = None
+        elif self.choice_pad_connection.GetSelection()==2:
+            self.pad.zone_connect = 2
+        elif self.choice_pad_connection.GetSelection()==3:
+            self.pad.zone_connect = 1
+
+        try:
+            self.pad.thermal_width = float(self.text_thermal_relief_width.Value)
+        except Exception as e:
+            print format(e)
+            return
+
+        try:
+            self.pad.thermal_gap = float(self.text_thermal_relief_gap.Value)
         except Exception as e:
             print format(e)
             return
@@ -268,7 +334,7 @@ class EditPadFrame(PanelEditPad):
     def onThermalReliefWidthTextEnter( self, event ):
         self.UpdatePad()
     
-    def onTextThermalReliefHeightTextEnter( self, event ):
+    def onTextThermalReliefGapTextEnter( self, event ):
         self.UpdatePad()
     
     def onCopperLayerChoice( self, event ):

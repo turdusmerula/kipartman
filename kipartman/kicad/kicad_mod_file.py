@@ -539,7 +539,7 @@ class KicadRectDelta(KicadModuleObject):
 
 class KicadSolderMaskMargin(KicadModuleObject):
     def __init__(self):
-        super(KicadSolderMaskMargin, self).__init__('solder_mask_margin')
+        super(KicadSolderMaskMargin, self).__init__('solder_mask_margin', True)
         KicadModuleObject._register(self.header, KicadSolderMaskMargin)
 
     def GetSolderMaskMargin(self):
@@ -553,7 +553,7 @@ class KicadSolderMaskMargin(KicadModuleObject):
 
 class KicadSolderPasteMargin(KicadModuleObject):
     def __init__(self):
-        super(KicadSolderPasteMargin, self).__init__('solder_paste_margin')
+        super(KicadSolderPasteMargin, self).__init__('solder_paste_margin', True)
         KicadModuleObject._register(self.header, KicadSolderPasteMargin)
 
     def GetSolderPasteMargin(self):
@@ -567,7 +567,7 @@ class KicadSolderPasteMargin(KicadModuleObject):
 
 class KicadClearance(KicadModuleObject):
     def __init__(self):
-        super(KicadClearance, self).__init__('clearance')
+        super(KicadClearance, self).__init__('clearance', True)
         KicadModuleObject._register(self.header, KicadClearance)
 
     def GetClearance(self):
@@ -581,7 +581,7 @@ class KicadClearance(KicadModuleObject):
 
 class KicadThermalWidth(KicadModuleObject):
     def __init__(self):
-        super(KicadThermalWidth, self).__init__('thermal_width')
+        super(KicadThermalWidth, self).__init__('thermal_width', True)
         KicadModuleObject._register(self.header, KicadThermalWidth)
 
     def GetThermalWidth(self):
@@ -595,7 +595,7 @@ class KicadThermalWidth(KicadModuleObject):
 
 class KicadThermalGap(KicadModuleObject):
     def __init__(self):
-        super(KicadThermalGap, self).__init__('thermal_gap')
+        super(KicadThermalGap, self).__init__('thermal_gap', True)
         KicadModuleObject._register(self.header, KicadThermalGap)
 
     def GetThermalGap(self):
@@ -609,11 +609,11 @@ class KicadThermalGap(KicadModuleObject):
 
 class KicadZoneConnect(KicadModuleObject):
     def __init__(self):
-        super(KicadZoneConnect, self).__init__('zone_connect')
+        super(KicadZoneConnect, self).__init__('zone_connect', True)
         KicadModuleObject._register(self.header, KicadZoneConnect)
 
     def GetZoneConnect(self):
-        return float(self.Attribute(0))
+        return int(self.Attribute(0))
     
     def SetZoneConnect(self, zone_connect):
         self.SetAttribute(0, zone_connect)
@@ -623,7 +623,7 @@ class KicadZoneConnect(KicadModuleObject):
 
 class KicadSolderPasteMarginRatio(KicadModuleObject):
     def __init__(self):
-        super(KicadSolderPasteMarginRatio, self).__init__('solder_paste_margin_ratio')
+        super(KicadSolderPasteMarginRatio, self).__init__('solder_paste_margin_ratio', True)
         KicadModuleObject._register(self.header, KicadSolderPasteMarginRatio)
 
     def GetSolderPasteMarginRatio(self):
@@ -634,6 +634,7 @@ class KicadSolderPasteMarginRatio(KicadModuleObject):
 
     def Render(self, canvas, obj):
         pass
+
 
 """
 Instanciate at least one time to force objects registration
@@ -669,3 +670,4 @@ KicadClearance()
 KicadThermalWidth()
 KicadThermalGap()
 KicadSolderPasteMarginRatio()
+KicadZoneConnect()
