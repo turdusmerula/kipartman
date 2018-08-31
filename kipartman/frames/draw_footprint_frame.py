@@ -197,7 +197,6 @@ class AnchorSegment(AnchorLine):
         p = self.line.get_projection(pos)
 
         if self.IsIn(p)==True:            
-            #print "** ({}, {}), ({}, {})-({}, {})", p.x, p.y, self.line.start.x, self.line.start.y, self.line.end.x, self.line.end.y
             return p.Distance(pos)
         return None
 
@@ -924,7 +923,7 @@ class ObjectAngle(EditorObject):
     
 class ObjectPad(EditorObject):
     def __init__(self):
-        super(ObjectPad, self).__init__(["F.Cu"], Point())
+        super(ObjectPad, self).__init__([], Point())
         self.type = 'smd' # smd thru_hole, connect, np_thru_hole
         self.shape = 'rect' # rect, trapezoid, oval, circular
         self.size = Point()
@@ -1059,14 +1058,14 @@ class ObjectPad(EditorObject):
                     pr = Point(p.x+offset.x, p.y+offset.y).Rotate(pos, angle)
                     p.x = pr.x
                     p.y = pr.y
-                canvas.Draw(PolyLine(points, width=1, fill=True), ["F.Cu", "B.Cu"])
+                canvas.Draw(PolyLine(points, width=1, fill=True), self.layers)
             
                 if self.shape=='oval':
-                    canvas.Draw(Arc(Point(pos.x+offset.x, pos.y-dy+dx+offset.y).Rotate(pos, angle), dx, math.pi+angle, 2.*math.pi+angle, width=1, fill=True), ["F.Cu", "B.Cu"])
-                    canvas.Draw(Arc(Point(pos.x+offset.x, pos.y+dy-dx+offset.y).Rotate(pos, angle), dx, 0+angle, math.pi+angle, width=1, fill=True), ["F.Cu", "B.Cu"])
+                    canvas.Draw(Arc(Point(pos.x+offset.x, pos.y-dy+dx+offset.y).Rotate(pos, angle), dx, math.pi+angle, 2.*math.pi+angle, width=1, fill=True), self.layers)
+                    canvas.Draw(Arc(Point(pos.x+offset.x, pos.y+dy-dx+offset.y).Rotate(pos, angle), dx, 0+angle, math.pi+angle, width=1, fill=True), self.layers)
             elif self.shape=='circle':
                 radius = canvas.mm2px(self.size.x/2.)
-                canvas.Draw(Circle(Point(pos.x, pos.y), Point(pos.x+radius, pos.y), width=1, fill=True), ["F.Cu", "B.Cu"])
+                canvas.Draw(Circle(Point(pos.x, pos.y), Point(pos.x+radius, pos.y), width=1, fill=True), self.layers)
 
             if self.type=='thru_hole' or self.type=='np_thru_hole':
                 if self.drill_type=='circle':
@@ -1727,10 +1726,10 @@ class DrawFootprintFrame(DialogDrawFootprint):
         if len(stack)>0:
             current = stack[len(stack)-1]
         
-        tab = ""
-        for i in range(0, level):
-            tab = tab+"  "
-        print "++", tab, len(stack), type(obj), type(current)
+#         tab = ""
+#         for i in range(0, level):
+#             tab = tab+"  "
+#         print "++", tab, len(stack), type(obj), type(current)
         
         if isinstance(obj, kicad_mod_file.KicadPad):
             current = ObjectPad()
@@ -1842,6 +1841,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
         elif isinstance(obj, kicad_mod_file.KicadLayer) and current:
             current.layers.append(obj.GetLayer())
         elif isinstance(obj, kicad_mod_file.KicadLayers) and current:
+            current.layers = []
             for layer in obj.GetLayers():
                 current.layers.append(layer)
         elif isinstance(obj, kicad_mod_file.KicadModule):
@@ -2221,7 +2221,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
             self.current_panel.Update()
         
     def onImageDrawMouseWheel( self, event ):
-        print type(event)
+        #print type(event)
+        pass
     
     def onImageDrawRightDClick( self, event ):
         event.Skip()

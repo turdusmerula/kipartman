@@ -635,8 +635,6 @@ class FootprintCanvas(Canvas):
     def __init__(self):
         super(FootprintCanvas, self).__init__()
                 
-        self.AddLayer("B.Cu", ColorRGB.Blue(), layer_type='Layer', active=False)
-        self.AddLayer("F.Cu", ColorRGB.Red(), layer_type='Layer', active=False)
         self.AddLayer("B.Adhes", layer_type='Layer')
         self.AddLayer("F.Adhes", layer_type='Layer')
         self.AddLayer("B.Paste", layer_type='Layer')
@@ -655,6 +653,8 @@ class FootprintCanvas(Canvas):
         self.AddLayer("F.CrtYd", ColorRGB.Grey(), layer_type='Layer')
         self.AddLayer("B.Fab", ColorRGB.Grey(), layer_type='Layer')
         self.AddLayer("F.Fab", ColorRGB.Grey(), layer_type='Layer')
+        self.AddLayer("B.Cu", ColorRGB.Blue(), layer_type='Layer', active=False)
+        self.AddLayer("F.Cu", ColorRGB.Red(), layer_type='Layer', active=False)
 
         # add default layers
         self.AddLayer("Pads Front", ColorRGB.Yellow(), layer_type='Render', active=False)
