@@ -123,6 +123,9 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.menu_draw_circle = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Circle", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_draw.Append( self.menu_draw_circle )
 		
+		self.menu_draw_text = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Text", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw.Append( self.menu_draw_text )
+		
 		self.menu.Append( self.menu_draw, u"Draw" ) 
 		
 		self.menu_tool = wx.Menu()
@@ -211,6 +214,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.onMenuDrawPolylineSelection, id = self.menu_draw_polyline.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDrawArcSelection, id = self.menu_draw_arc.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDrawCircleSelection, id = self.menu_draw_circle.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDrawTextSelection, id = self.menu_draw_text.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolDimensionSelection, id = self.menu_tool_dimension.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolAngleSelection, id = self.menu_tool_angle.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuToolGridSelection, id = self.menu_tool_grid.GetId() )
@@ -288,6 +292,9 @@ class DialogDrawFootprint ( wx.Frame ):
 		event.Skip()
 	
 	def onMenuDrawCircleSelection( self, event ):
+		event.Skip()
+	
+	def onMenuDrawTextSelection( self, event ):
 		event.Skip()
 	
 	def onMenuToolDimensionSelection( self, event ):

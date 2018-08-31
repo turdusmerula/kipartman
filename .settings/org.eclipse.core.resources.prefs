@@ -40,6 +40,7 @@ encoding//kipartman/dialogs/draw_footprint/panel_edit_grid.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_line.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_pad.py=utf-8
 encoding//kipartman/dialogs/draw_footprint/panel_edit_polyline.py=utf-8
+encoding//kipartman/dialogs/draw_footprint/panel_edit_text.py=utf-8
 encoding//kipartman/dialogs/panel_bom.py=utf-8
 encoding//kipartman/dialogs/panel_distributors.py=utf-8
 encoding//kipartman/dialogs/panel_edit_footprint.py=utf-8

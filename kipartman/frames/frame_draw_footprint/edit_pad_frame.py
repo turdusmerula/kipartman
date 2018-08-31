@@ -120,8 +120,75 @@ class EditPadFrame(PanelEditPad):
             self.text_thermal_relief_width.Value = str(self.pad.thermal_width)
             self.text_thermal_relief_gap.Value = str(self.pad.thermal_gap)
             
+            if "*.Cu" in self.pad.layers:
+                self.choice_copper_layer.SetSelection(0)
+            elif "F.Cu" in self.pad.layers:
+                self.choice_copper_layer.SetSelection(1)
+            elif "B.Cu" in self.pad.layers:
+                self.choice_copper_layer.SetSelection(2)
+            else:
+                self.choice_copper_layer.SetSelection(3)
+            
+            self.check_f_adhes.SetValue(False) 
+            self.check_b_adhes.SetValue(False) 
+            if "*.Adhes" in self.pad.layers or "F.Adhes" in self.pad.layers:
+                self.check_f_adhes.SetValue(True) 
+            if "*.Adhes" in self.pad.layers or "B.Adhes" in self.pad.layers:
+                self.check_b_adhes.SetValue(True) 
+               
+            self.check_f_paste.SetValue(False) 
+            self.check_b_paste.SetValue(False) 
+            if "*.Paste" in self.pad.layers or "F.Paste" in self.pad.layers:
+                self.check_f_paste.SetValue(True) 
+            if "*.Paste" in self.pad.layers or "B.Paste" in self.pad.layers:
+                self.check_b_paste.SetValue(True) 
+
+            self.check_f_silk.SetValue(False) 
+            self.check_b_silk.SetValue(False) 
+            if "*.Silk" in self.pad.layers or "F.Silk" in self.pad.layers:
+                self.check_f_silk.SetValue(True) 
+            if "*.Silk" in self.pad.layers or "B.Silk" in self.pad.layers:
+                self.check_b_silk.SetValue(True) 
+
+            self.check_f_mask.SetValue(False) 
+            self.check_b_mask.SetValue(False) 
+            if "*.Mask" in self.pad.layers or "F.Mask" in self.pad.layers:
+                self.check_f_mask.SetValue(True) 
+            if "*.Mask" in self.pad.layers or "B.Mask" in self.pad.layers:
+                self.check_b_mask.SetValue(True) 
+
+            self.check_dwgs_user.SetValue(False) 
+            if "Dwgs.User" in self.pad.layers:
+                self.check_dwgs_user.SetValue(True) 
+
+            self.check_eco1_u.SetValue(False) 
+            if "Eco1.U" in self.pad.layers:
+                self.check_eco1_u.SetValue(True) 
+
+            self.check_eco2_u.SetValue(False) 
+            if "Eco2.U" in self.pad.layers:
+                self.check_eco2_u.SetValue(True) 
+                
     def UpdatePad(self):
         self.pad.name = self.text_name.Value
+
+        if self.radio_shape.GetSelection()==0:
+            self.pad.SetShape('rect')
+        elif self.radio_shape.GetSelection()==1:
+            self.pad.SetShape('trapezoid')
+        elif self.radio_shape.GetSelection()==2:
+            self.pad.SetShape('oval')
+        elif self.radio_shape.GetSelection()==3:
+            self.pad.SetShape('circle')
+
+        if self.radio_type.GetSelection()==0:
+            self.pad.SetType('smd')
+        elif self.radio_type.GetSelection()==1:
+            self.pad.SetType('thru_hole')
+        elif self.radio_type.GetSelection()==2:
+            self.pad.SetType('connect')
+        elif self.radio_type.GetSelection()==3:
+            self.pad.SetType('np_thru_hole')
 
         try:
             self.pad.angle = float(self.text_angle.Value)*math.pi/180.
@@ -177,24 +244,6 @@ class EditPadFrame(PanelEditPad):
         except Exception as e:
             print format(e)
             return
-
-        if self.radio_shape.GetSelection()==0:
-            self.pad.shape = 'rect'
-        elif self.radio_shape.GetSelection()==1:
-            self.pad.shape = 'trapezoid'
-        elif self.radio_shape.GetSelection()==2:
-            self.pad.shape = 'oval'
-        elif self.radio_shape.GetSelection()==3:
-            self.pad.shape = 'circle'
-
-        if self.radio_type.GetSelection()==0:
-            self.pad.type = 'smd'
-        elif self.radio_type.GetSelection()==1:
-            self.pad.type = 'thru_hole'
-        elif self.radio_type.GetSelection()==2:
-            self.pad.type = 'connect'
-        elif self.radio_type.GetSelection()==3:
-            self.pad.type = 'np_thru_hole'
 
         try:
             self.pad.drill.x = float(self.text_drill_size_x.Value)
@@ -254,6 +303,51 @@ class EditPadFrame(PanelEditPad):
         except Exception as e:
             print format(e)
             return
+
+        self.pad.layers = []
+        if self.choice_copper_layer.GetSelection()==0:
+            self.pad.layers.append("*.Cu")
+        elif self.choice_copper_layer.GetSelection()==1:
+            self.pad.layers.append("F.Cu")
+        elif self.choice_copper_layer.GetSelection()==2:
+            self.pad.layers.append("B.Cu")
+
+        if self.check_f_adhes.GetValue() and self.check_b_adhes.GetValue():
+            self.pad.layers.append("*.Adhes")
+        elif self.check_f_adhes.GetValue():
+            self.pad.layers.append("F.Adhes")
+        elif self.check_b_adhes.GetValue():
+            self.pad.layers.append("B.Adhes")
+            
+        if self.check_f_paste.GetValue() and self.check_b_paste.GetValue():
+            self.pad.layers.append("*.Paste")
+        elif self.check_f_paste.GetValue():
+            self.pad.layers.append("F.Paste")
+        elif self.check_b_paste.GetValue():
+            self.pad.layers.append("B.Paste")
+
+        if self.check_f_silk.GetValue() and self.check_b_silk.GetValue():
+            self.pad.layers.append("*.Silk")
+        elif self.check_f_silk.GetValue():
+            self.pad.layers.append("F.Silk")
+        elif self.check_b_silk.GetValue():
+            self.pad.layers.append("B.Silk")
+
+        if self.check_f_mask.GetValue() and self.check_b_mask.GetValue():
+            self.pad.layers.append("*.Mask")
+        elif self.check_f_mask.GetValue():
+            self.pad.layers.append("F.Mask")
+        elif self.check_b_mask.GetValue():
+            self.pad.layers.append("B.Mask")
+
+        if self.check_dwgs_user.GetValue():
+            self.pad.layers.append("Dwgs.User")
+            
+        if self.check_eco1_u.GetValue():
+            self.pad.layers.append("Eco1.U")
+
+        if self.check_eco2_u.GetValue():
+            self.pad.layers.append("Eco2.U")
 
         self.pad.Update()
         self.ShowPad()

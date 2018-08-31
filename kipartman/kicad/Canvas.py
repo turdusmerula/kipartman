@@ -434,10 +434,11 @@ class Text(Drawing):
         ctx.restore()
 
 class Font(object):
-    def __init__(self, size=Point(), thickness=0):
+    def __init__(self, size=Point(), thickness=0, style='normal'):
         self.size = size
         self.thickness = thickness
-
+        self.style = style  # normal italic
+        
     def Apply(self, ctx):
         if self.size.x>self.size.y:
             ctx.set_font_size(self.size.x)

@@ -50,7 +50,11 @@ class KicadModFile(object):
             line = "%s"%(tab(level))
         else:
             line = " "
-        line = line+"(%s"%(obj.header)
+                    
+        if obj.scoped:
+            line = line+"(%s"%(obj.header)
+        else:
+            line = line+"%s"%(obj.header)
         
         for attr in obj.attributes:
             if ' ' in attr:
@@ -66,32 +70,48 @@ class KicadModFile(object):
                     line = line+'\n'
                 line = line+self.Write(node, level+1)
 #            print("%s)"%tab(level))
-
-        line = line+")"
+        if obj.scoped:
+            line = line+")"
 #            print(line)
         return line
     
-    def read_blocks(self, parent):
+    def read_blocks(self, parent, level=0):
         block_header = self._read_block_header()
         if block_header=='':
             return None
         obj = KicadObject.Instance(block_header)        
         parent.AddNode(obj)
 
+        tab = ''
+        for i in range(0, level):
+            tab = tab+'  '
+        print "{} **".format(tab), block_header
+
         attr = self._read_field()
-        while attr!=None:
+        while attr is not None:
+            print "{}   ++".format(tab), attr
             obj.AddAttribute(attr)
             attr = self._read_field()
-        
-        node = self.read_blocks(obj)
-        while node:
-            node = self.read_blocks(obj)
+             
+        self._skip_spaces()
+        c = self.observe(1)
+        while c!=')':
+            if c=='(':
+                self.read_blocks(obj, level+1)
+            else:
+                attr = self._read_field()
+                if attr is not None:
+                    print "{}   **".format(tab), attr
+                    obj.AddNode(KicadObject.Instance(attr))
+                        
+            self._skip_spaces()
+            c = self.observe(1)
         
         self._skip_spaces()
         c = self.observe(1)
         if c==')':
             self.read(1)
-
+        
         return obj
 
     def _skip_spaces(self):
@@ -140,7 +160,7 @@ class KicadModFile(object):
         # read spaces
         self._skip_spaces()
         c = self.observe(1)
-        
+
         if c=='(' or c==')':
             return None
         
@@ -163,10 +183,11 @@ class KicadModFile(object):
         return field
 
 class KicadModuleObject(KicadObject):
-    def __init__(self, header, inline=False):
+    def __init__(self, header, inline=False, scoped=True):
         super(KicadModuleObject, self).__init__(header)
         self.inline = inline
-
+        self.scoped = scoped
+        
 class KicadModule(KicadModuleObject):
     def __init__(self):
         super(KicadModule, self).__init__('module')
@@ -230,6 +251,9 @@ class KicadFPText(KicadModuleObject):
     def GetKind(self):
         return self.Attribute(0)
     
+    def GetValue(self):
+        return self.Attribute(1)
+
     def Render(self, canvas, obj):
         text = Canvas.Text(self.Attribute(1))
         super(KicadFPText, self).Render(canvas, text)
@@ -635,6 +659,29 @@ class KicadSolderPasteMarginRatio(KicadModuleObject):
     def Render(self, canvas, obj):
         pass
 
+class KicadEffects(KicadModuleObject):
+    def __init__(self):
+        super(KicadEffects, self).__init__('effects', True)
+        KicadModuleObject._register(self.header, KicadEffects)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadHide(KicadModuleObject):
+    def __init__(self):
+        super(KicadHide, self).__init__('hide', True, False)
+        KicadModuleObject._register(self.header, KicadHide)
+
+    def Render(self, canvas, obj):
+        pass
+
+class KicadItalic(KicadModuleObject):
+    def __init__(self):
+        super(KicadItalic, self).__init__('italic', True, False)
+        KicadModuleObject._register(self.header, KicadItalic)
+
+    def Render(self, canvas, obj):
+        pass
 
 """
 Instanciate at least one time to force objects registration
@@ -671,3 +718,6 @@ KicadThermalWidth()
 KicadThermalGap()
 KicadSolderPasteMarginRatio()
 KicadZoneConnect()
+KicadEffects()
+KicadHide()
+KicadItalic()

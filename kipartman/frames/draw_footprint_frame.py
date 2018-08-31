@@ -8,6 +8,8 @@ from frames.frame_draw_footprint.edit_polyline_frame import EditPolylineFrame
 from frames.frame_draw_footprint.edit_arc_frame import EditArcFrame
 from frames.frame_draw_footprint.edit_circle_frame import EditCircleFrame
 from frames.frame_draw_footprint.edit_footprint_frame import EditFootprintFrame
+from frames.frame_draw_footprint.edit_text_frame import EditTextFrame
+
 from kicad.Canvas import *
 import wx.lib.wxcairo
 import helper.tree
@@ -953,7 +955,16 @@ class ObjectPad(EditorObject):
         
     def SetType(self, type):
         self.type = type
-            
+        
+        if type=='thru_hole':
+            self.layers = ["*.Cu", "*.Mask"]
+        elif type=='smd':
+            self.layers = ["F.Cu", "F.Paste", "F.Mask"]
+        elif type=='connect':
+            self.layers = ["F.Cu", "F.Mask"]
+        elif type=='np_thru_hole':
+            self.layers = ["*.Cu", "*.Mask"]
+             
         self.Update()
 
     def SetShape(self, shape):
@@ -983,7 +994,7 @@ class ObjectPad(EditorObject):
     def Update(self):
         dx = self.size.x/2.
         dy = self.size.y/2.
-                
+        
         self.points[0].Move(self.pos)
         if self.shape=='rect' or self.shape=='trapezoid' or self.shape=='oval':
             self.points[1].Move(Point(self.pos.x-dx, self.pos.y-dy))
@@ -1208,6 +1219,9 @@ class ObjectText(EditorObject):
         self.value = value
         self.font = font
         
+        self.visible = True
+        self.orientation = 'horizontal'
+        
         self.center = ObjectPoint(pos)
         self.AddNode(self.center)
         
@@ -1222,7 +1236,11 @@ class ObjectText(EditorObject):
 
         font = Font(Point(canvas.mm2px(self.font.size.x), canvas.mm2px(self.font.size.y)), canvas.mm2px(self.font.thickness))
         canvas.SetFont(font)
-        pos = Position(canvas.xmm2px(self.pos.x), canvas.ymm2px(self.pos.y), self.angle)
+        if self.orientation=='vertical':
+            angle = -math.pi/2.
+        else:
+            angle = 0
+        pos = Position(canvas.xmm2px(self.pos.x), canvas.ymm2px(self.pos.y), angle)
           
         canvas.Draw(Text(self.value, pos, anchor_x='center', anchor_y='center'), self.layers)            
 
@@ -1250,7 +1268,7 @@ class ObjectTextValue(ObjectText):
         return "Value {} x={} y={}".format(self.value, self.pos.x, self.pos.y)
 
 class ObjectTextUser(ObjectText):
-    def __init__(self, value, font, pos=Point()):
+    def __init__(self, value='', font=Font(), pos=Point()):
         super(ObjectTextUser, self).__init__(value, ["F.Fab"], font, pos)
 
     def Description(self):
@@ -1369,6 +1387,9 @@ class ObjectArc(EditorObject):
         for p in self.points:
             p.UnSelect()
 
+    def Description(self):
+        return "Arc x={} y={}".format(self.pos.x, self.pos.y)
+
 class ObjectCircle(EditorObject):
     def __init__(self, layers=[]):
         super(ObjectCircle, self).__init__(layers, Point())
@@ -1447,6 +1468,8 @@ class ObjectCircle(EditorObject):
         for p in self.points:
             p.UnSelect()
 
+    def Description(self):
+        return "Circle x={} y={}".format(self.pos.x, self.pos.y)
 
 class EditorState(object):
     StateNone = 0
@@ -1625,9 +1648,9 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.part_value = ObjectTextValue("<value>", Font(Point(1, 1), 0.15))
         self.component_objects.AddNode(self.part_value)
         self.tree_objects_manager.AppendObject('Part', self.part_value)
-        self.part_user = ObjectTextUser("%R", Font(Point(1, 1), 0.15))
-        self.component_objects.AddNode(self.part_user)
-        self.tree_objects_manager.AppendObject('Part', self.part_user)
+#         self.part_user = ObjectTextUser("%R", Font(Point(1, 1), 0.15))
+#         self.component_objects.AddNode(self.part_user)
+#         self.tree_objects_manager.AppendObject('Part', self.part_user)
 
         # last used objects
         self.last_grid = None
@@ -1719,14 +1742,17 @@ class DrawFootprintFrame(DialogDrawFootprint):
             current.placed = True
             self.component_objects.AddNode(current)
             self.tree_objects_manager.AppendObject('Part', current)
-        elif isinstance(obj, kicad_mod_file.KicadFPText) and obj.GetKind()=='value':
-            stack.append(self.part_value)
-            pop = True
-        elif isinstance(obj, kicad_mod_file.KicadFPText) and obj.GetKind()=='reference':
-            stack.append(self.part_reference)
-            pop = True
-        elif isinstance(obj, kicad_mod_file.KicadFPText) and obj.GetKind()=='user':
-            stack.append(self.part_user)
+        elif isinstance(obj, kicad_mod_file.KicadFPText):
+            if obj.GetKind()=='value':
+                current = self.part_value
+            elif obj.GetKind()=='reference':
+                current = self.part_reference
+            else:
+                current = ObjectTextUser()
+                self.component_objects.AddNode(current)
+                self.tree_objects_manager.AppendObject('Part', current)
+            current.value = obj.GetValue()
+            stack.append(current)
             pop = True
         elif isinstance(obj, kicad_mod_file.KicadFPArc):
             current = ObjectArc()
@@ -1752,9 +1778,13 @@ class DrawFootprintFrame(DialogDrawFootprint):
         elif isinstance(obj, kicad_mod_file.KicadAt) and current:
             at = obj.GetAt()
             current.Move(at)
-            current.StartRotate()
-            current.Rotate(current.pos, at.angle*math.pi/180.)
-            current.Validate()
+            if issubclass(type(current), ObjectText):
+                if math.fabs(at.angle)>epsilon:
+                    current.orientation = 'vertical'
+            else:
+                current.StartRotate()
+                current.Rotate(current.pos, at.angle*math.pi/180.)
+                current.Validate()
             self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
         elif isinstance(obj, kicad_mod_file.KicadSize) and current:
             size = obj.GetSize()
@@ -1807,6 +1837,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         elif isinstance(obj, kicad_mod_file.KicadFont) and current:
             stack.append(current.font)
             pop = True
+        elif isinstance(obj, kicad_mod_file.KicadItalic) and current:
+            current.style = 'italic'
         elif isinstance(obj, kicad_mod_file.KicadLayer) and current:
             current.layers.append(obj.GetLayer())
         elif isinstance(obj, kicad_mod_file.KicadLayers) and current:
@@ -1849,6 +1881,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
             current.solder_paste_margin_ratio = obj.GetSolderPasteMarginRatio()
         elif isinstance(obj, kicad_mod_file.KicadZoneConnect) and current:
             current.zone_connect = obj.GetZoneConnect()
+        elif isinstance(obj, kicad_mod_file.KicadHide) and current:
+            current.visible = False
     
         for node in obj.nodes:
             self.load_object(node, stack, level+1)
@@ -1969,8 +2003,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
                 node = kicad_mod_file.KicadZoneConnect()
                 node.AddAttribute(str(obj.zone_connect))
                 pad.AddNode(node)
-                
-                
+                                
             node = kicad_mod_file.KicadLayers()
             for layer in obj.layers:
                 if layer!='Selection':
@@ -1978,23 +2011,71 @@ class DrawFootprintFrame(DialogDrawFootprint):
             pad.AddNode(node)
             
         elif isinstance(obj, ObjectPolyline):
-            pass
-        elif isinstance(obj, ObjectText):
-            pass
-        elif isinstance(obj, ObjectTextReference):
-            pass
-        elif isinstance(obj, ObjectTextUser):
-            pass
-        elif isinstance(obj, ObjectTextValue):
-            pass
+            pp = None
+            for p in obj.points:
+                if pp is not None:
+                    line = kicad_mod_file.KicadFPLine()
+                    parent.AddNode(line)
+                    node = kicad_mod_file.KicadStart()
+                    node.AddAttribute(p.pos.x)
+                    node.AddAttribute(p.pos.y)
+                    line.AddNode(node)
+                    node = kicad_mod_file.KicadEnd()
+                    node.AddAttribute(pp.pos.x)
+                    node.AddAttribute(pp.pos.y)
+                    line.AddNode(node)
+                    node = kicad_mod_file.KicadLayer()
+                    node.AddAttribute(obj.layers[0])
+                    line.AddNode(node)
+                    node = kicad_mod_file.KicadWidth()
+                    node.AddAttribute(obj.width)
+                    line.AddNode(node)
+                pp = p
+        elif isinstance(obj, ObjectTextReference) or isinstance(obj, ObjectTextUser) or isinstance(obj, ObjectTextValue):
+            text = kicad_mod_file.KicadFPText()
+            parent.AddNode(text)
+            if isinstance(obj, ObjectTextReference):
+                text.AddAttribute('reference')
+            elif isinstance(obj, ObjectTextUser):
+                text.AddAttribute('user')
+            elif isinstance(obj, ObjectTextValue):
+                text.AddAttribute('value')
+            text.AddAttribute(obj.value)
+            node = kicad_mod_file.KicadAt()
+            node.AddAttribute(obj.pos.x)
+            node.AddAttribute(obj.pos.y)
+            if obj.orientation=='vertical':
+                node.AddAttribute('90')
+            text.AddNode(node)
+            node = kicad_mod_file.KicadLayer()
+            node.AddAttribute(obj.layers[0])
+            text.AddNode(node)
+            if obj.visible==False:
+                node = kicad_mod_file.KicadHide()
+                text.AddNode(node)
+            effects = kicad_mod_file.KicadEffects()
+            text.AddNode(effects)
+            
+            font = kicad_mod_file.KicadFont()
+            effects.AddNode(font)
+            node = kicad_mod_file.KicadSize()
+            node.AddAttribute(obj.font.size.x)
+            node.AddAttribute(obj.font.size.y)
+            font.AddNode(node)
+            node = kicad_mod_file.KicadThickness()
+            node.AddAttribute(obj.font.thickness)
+            font.AddNode(node)
+            if obj.font.style=='italic':
+                node = kicad_mod_file.KicadItalic()
+                font.AddNode(node)
 
         for node in obj.nodes:
             self.save_object(node, parent)
     
     def SetFootprintName(self, name):
         self.footprint_name = name
-        self.part_value.value = name
-        self.part_value.Update()
+#        self.part_value.value = name
+#        self.part_value.Update()
 
     def SetFootprintTimestamp(self, timestamp):
         self.footprint_timestamp = timestamp
@@ -2037,6 +2118,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
             self.current_panel = EditPolylineFrame(self.panel_edit_object, self.Render, objs[0])
         elif len(objs)==1 and isinstance(objs[0], ObjectCircle):
             self.current_panel = EditCircleFrame(self.panel_edit_object, self.Render, objs[0])
+        elif len(objs)==1 and issubclass(type(objs[0]), ObjectText):
+            self.current_panel = EditTextFrame(self.panel_edit_object, self.Render, objs[0])
         else:
             self.current_panel = EditFootprintFrame(self.panel_edit_object, self.Render, self)
             
@@ -2347,3 +2430,22 @@ class DrawFootprintFrame(DialogDrawFootprint):
 
     def onMenuFileSaveSelection( self, event ):
         self.Save()
+
+    def onMenuDrawTextSelection( self, event ):
+        item = self.tree_layers.GetSelection()
+        if item.IsOk()==False:
+            return
+        obj = self.tree_layers_manager.ItemToObject(item)
+        if obj.layer.active==False:
+            return
+        node = ObjectTextUser([obj.layer.name])
+            
+        self.build_objects.AddNode(node)
+        obj = self.tree_objects_manager.AppendObject('Part', node)
+        self.tree_objects_manager.Select(obj)
+        self.state.DoPlace(node)
+
+        if self.current_panel:
+            self.current_panel.Destroy()
+        self.current_panel = EditTextFrame(self.panel_edit_object, self.Render, node)
+        
