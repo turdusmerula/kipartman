@@ -448,10 +448,10 @@ class Text(Drawing):
         if self.anchor_x=='center':
             posx = posx-width/2.*math.cos(self.at.angle)
             posy = posy-width/2.*math.sin(self.at.angle)
-        
+         
         if self.anchor_y=='center':
-            posx = posx-height/2.*math.sin(self.at.angle)
-            posy = posy-height/2.*math.cos(self.at.angle)
+            posx = posx+height/2.*math.cos(self.at.angle+math.pi/2.)
+            posy = posy+height/2.*math.sin(self.at.angle+math.pi/2.)
         
 #        posx = posx+self.anchor_margin*math.cos(self.at.angle)
 #        posY = posy+self.anchor_margin*math.sin(self.at.angle)

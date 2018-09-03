@@ -2156,6 +2156,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
                 self.component_objects.AddNode(current)
                 self.tree_objects_manager.AppendObject('Part', current)
             current.value = obj.GetValue()
+            current.placed = True
             stack.append(current)
             pop = True
         elif isinstance(obj, kicad_mod_file.KicadFPArc):
