@@ -82,14 +82,14 @@ class KicadModFile(object):
         obj = KicadObject.Instance(block_header)        
         parent.AddNode(obj)
 
-        tab = ''
-        for i in range(0, level):
-            tab = tab+'  '
-        print "{} **".format(tab), block_header
+#         tab = ''
+#         for i in range(0, level):
+#             tab = tab+'  '
+#         print "{} **".format(tab), block_header
 
         attr = self._read_field()
         while attr is not None:
-            print "{}   ++".format(tab), attr
+#             print "{}   ++".format(tab), attr
             obj.AddAttribute(attr)
             attr = self._read_field()
              
@@ -101,7 +101,7 @@ class KicadModFile(object):
             else:
                 attr = self._read_field()
                 if attr is not None:
-                    print "{}   **".format(tab), attr
+#                     print "{}   **".format(tab), attr
                     obj.AddNode(KicadObject.Instance(attr))
                         
             self._skip_spaces()

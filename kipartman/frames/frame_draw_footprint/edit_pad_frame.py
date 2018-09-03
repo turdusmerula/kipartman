@@ -37,7 +37,7 @@ class EditPadFrame(PanelEditPad):
             else:
                 self.radio_type.SetSelection(0)
 
-            self.text_angle.Value = str(self.pad.angle*180./math.pi)
+            self.text_angle.Value = str(-self.pad.angle*180./math.pi)
             self.text_name.Value = self.pad.name
             self.text_position_x.Value = str(self.pad.pos.x)
             self.text_position_y.Value = str(self.pad.pos.y)
@@ -191,7 +191,7 @@ class EditPadFrame(PanelEditPad):
             self.pad.SetType('np_thru_hole')
 
         try:
-            self.pad.angle = float(self.text_angle.Value)*math.pi/180.
+            self.pad.angle = -float(self.text_angle.Value)*math.pi/180.
         except Exception as e:
             print format(e)
             return
@@ -240,10 +240,15 @@ class EditPadFrame(PanelEditPad):
             return
 
         try:
-            self.pad.trapezoid_delta = float(self.text_pad_trapezoidal_delta.Value)
+            self.pad.trapezoidal_delta = float(self.text_pad_trapezoidal_delta.Value)
         except Exception as e:
             print format(e)
             return
+
+        if self.choice_trapezoidal_direction.GetSelection()==0:
+            self.pad.trapezoidal_direction = 'vert'
+        else:
+            self.pad.trapezoidal_direction = 'horz'
 
         try:
             self.pad.drill.x = float(self.text_drill_size_x.Value)
@@ -349,6 +354,7 @@ class EditPadFrame(PanelEditPad):
         if self.check_eco2_u.GetValue():
             self.pad.layers.append("Eco2.U")
 
+        self.pad.Select()
         self.pad.Update()
         self.ShowPad()
         self.render()

@@ -9,6 +9,8 @@ from frames.frame_draw_footprint.edit_arc_frame import EditArcFrame
 from frames.frame_draw_footprint.edit_circle_frame import EditCircleFrame
 from frames.frame_draw_footprint.edit_footprint_frame import EditFootprintFrame
 from frames.frame_draw_footprint.edit_text_frame import EditTextFrame
+import copy
+from operator import itemgetter
 
 from kicad.Canvas import *
 import wx.lib.wxcairo
@@ -159,6 +161,9 @@ class Anchor(object):
     def Pos(self, point=None):
         return self.pos
     
+    def Intersections(self, anchor):
+        return []
+    
 class AnchorLine(object):
     def __init__(self, parent, line):
         self.parent = parent
@@ -171,6 +176,17 @@ class AnchorLine(object):
     # return projection of point on line
     def Pos(self, point=None):
         return self.line.get_projection(point)
+
+    def Intersections(self, anchor):
+        if issubclass(type(anchor), AnchorLine):
+            intersection = self.line.get_intersection(anchor.line)
+            if intersection:
+                return [intersection]
+        elif issubclass(type(anchor), AnchorSegment):
+            intersection = self.line.get_intersection(anchor.line)
+            if intersection and anchor.IsIn(intersection):
+                return [intersection]
+        return []
 
 class AnchorSegment(AnchorLine):
     def __init__(self, parent, line):
@@ -199,7 +215,7 @@ class AnchorSegment(AnchorLine):
         if self.IsIn(p)==True:            
             return p.Distance(pos)
         return None
-
+    
     # return projection of point on line
     def Pos(self, point=None):
         return self.line.get_projection(point)
@@ -250,6 +266,18 @@ class EditorObject(Object):
         
         self.Clear()
     
+    def Copy(self, obj):
+        super(EditorObject, self).Copy(obj)
+        
+        obj.pos = copy.copy(self.pos)
+        obj.origin_pos = copy.copy(self.origin_pos)
+        obj.radius = self.radius
+        
+        obj.angle = self.angle
+        obj.origin_angle = self.origin_angle
+        
+        obj.placed = self.placed
+
     def Clear(self):
         self.anchors = []
 
@@ -272,47 +300,70 @@ class EditorObject(Object):
 
     # find closest anchor to position
     # if a type is given then limit search to this type
-    def FindAnchor(self, anchor_type, pos, exclude_objects=[]):
-        return self.r_find_anchor(anchor_type, self, pos, exclude_objects)
-    
-    def r_find_anchor(self, anchor_type, obj, pos, exclude_objects=[], min_distance=None, min_anchor=None):
-        if obj in exclude_objects:
+    def FindAnchor(self, pos, radius):
+        anchors = []
+        self.r_find_anchors(self, pos, radius, anchors)
+     
+        anchors.sort(key=itemgetter(0))
+        if len(anchors)==0:
+            return [None, None]
+        
+        # check points
+        for anchor in anchors:
+            if isinstance(anchor[1], Anchor):
+                return anchor
+        
+        # check intersections
+        anchor_lines = []
+        for anchor in anchors:
+            if issubclass(type(anchor[1]), AnchorLine):
+                anchor_lines.append(anchor[1])
+        min_distance = radius
+        min_anchor = None
+        while(len(anchor_lines)>0):
+            for anchor in anchor_lines:
+                if anchor!=anchor_lines[0]:
+                    intersections = anchor.Intersections(anchor_lines[0])
+                    if len(intersections)>0:
+                        distance = intersections[0].Distance(pos)
+                        if distance<min_distance:
+                            min_distance = distance
+                            min_anchor = Anchor(None, intersections[0])  
+            anchor_lines.remove(anchor_lines[0])
+        if min_anchor:
             return [min_distance, min_anchor]
-        
-        for anchor in obj.anchors:
-            if ( anchor_type and issubclass(type(anchor), anchor_type) ) or anchor_type is None:
-                distance = anchor.Distance(pos)
-                if distance is not None:
-                    if min_distance is None:
-                        min_distance = distance
-                        min_anchor = anchor
-                    if distance<min_distance:
-                        min_distance = distance
-                        min_anchor = anchor
 
-        for node in obj.nodes:
-            [min_distance, min_anchor] = self.r_find_anchor(anchor_type, node, pos, exclude_objects, min_distance, min_anchor)
-                
-        return [min_distance, min_anchor]
+        return anchors[0]
     
-    # find closest anchor to position
-    def FindAnchors(self, pos, exclude_objects=[]):
-        anchors = self.r_find_anchors(self, pos, exclude_objects, anchors=[])
-        return sorted(anchors, key=lambda distance: distance[0])
-    
-    def r_find_anchors(self, obj, pos, exclude_objects=[], anchors=[]):
-        if obj in exclude_objects:
-            return anchors
-        
+    def r_find_anchors(self, obj, pos, radius, anchors=[]):
         for anchor in obj.anchors:
             distance = anchor.Distance(pos)
-            if distance<=self.radius:
-                anchors.append([distance, anchors])
+            if distance is not None and distance<=radius:
+                anchors.append([distance, anchor])
 
         for node in obj.nodes:
-            self.r_find_anchors(node, pos, exclude_objects, anchors)
+            self.r_find_anchors(node, pos, radius, anchors)
                 
-        return anchors
+        return
+    
+#     # find closest anchor to position
+#     def FindAnchors(self, pos, exclude_objects=[]):
+#         anchors = self.r_find_anchors(self, pos, exclude_objects, anchors=[])
+#         return sorted(anchors, key=lambda distance: distance[0])
+#     
+#     def r_find_anchors(self, obj, pos, exclude_objects=[], anchors=[]):
+#         if obj in exclude_objects:
+#             return anchors
+#         
+#         for anchor in obj.anchors:
+#             distance = anchor.Distance(pos)
+#             if distance<=self.radius:
+#                 anchors.append([distance, anchors])
+# 
+#         for node in obj.nodes:
+#             self.r_find_anchors(node, pos, exclude_objects, anchors)
+#                 
+#         return anchors
 
     def Select(self):
         if "Selection" not in self.layers:
@@ -348,8 +399,8 @@ class EditorObject(Object):
     # return True if placement is complete
     def Place(self, pos):
         self.pos = pos
-        self.Update()
         self.placed = True
+        self.Update()
         return True
 
     def Placed(self):
@@ -388,7 +439,8 @@ class ObjectOrigin(EditorObject):
     
     def Update(self):
         self.Clear()
-        self.AddAnchor(self.pos)
+        if self.placed:
+            self.AddAnchor(self.pos)
          
     def Render(self, canvas):
         super(ObjectOrigin, self).Render(canvas)
@@ -414,6 +466,7 @@ class ObjectGrid(EditorObject):
         self.count = count 
         self.spacing = spacing # mm
         
+        self.points = []
         self.length = 5 # px
         self.width = 1 # px
 
@@ -421,11 +474,15 @@ class ObjectGrid(EditorObject):
     
     def Update(self):
         self.Clear()
+        self.points = []
         x = self.pos.x
         for px in range(0, self.count.x):
             y = self.pos.y
             for py in range(0, self.count.y):
-                self.AddAnchor(Point(x, y).Rotate(self.pos, self.angle))
+                point = Point(x, y).Rotate(self.pos, self.angle)
+                self.points.append(point)
+                if self.placed:
+                    self.AddAnchor(point)
                 y = y+self.spacing.y
             x = x+self.spacing.x
          
@@ -434,9 +491,9 @@ class ObjectGrid(EditorObject):
         
         lines = []
         
-        for anchor in self.anchors:
-            posx = canvas.xmm2px(anchor.pos.x)
-            posy = canvas.ymm2px(anchor.pos.y)
+        for point in self.points:
+            posx = canvas.xmm2px(point.x)
+            posy = canvas.ymm2px(point.y)
             lines.append([Point(posx-self.length, posy), Point(posx+self.length, posy)])
             lines.append([Point(posx, posy-self.length), Point(posx, posy+self.length)])
             
@@ -455,12 +512,13 @@ class ObjectPoint(EditorObject):
     
     def Update(self):
         self.Clear()
-        self.AddAnchor(self.pos)
+        if self.placed:
+            self.AddAnchor(self.pos)
         
     def Render(self, canvas):
         super(ObjectPoint, self).Render(canvas)
 
-        pos = Point(canvas.xmm2px(self.anchors[0].pos.x), canvas.ymm2px(self.anchors[0].pos.y))        
+        pos = Point(canvas.xmm2px(self.pos.x), canvas.ymm2px(self.pos.y))        
             
         canvas.Draw(Rect(Point(pos.x-self.width, pos.y-self.width), Point(pos.x+self.width, pos.y+self.width), self.width, True), self.layers)
         
@@ -490,30 +548,16 @@ class ObjectDimension(EditorObject):
         self.placing_point = None
         
         self.text_point = Point()
+        self.offset_points = [Point(), Point()]
         
         self.Update()
 
     def Update(self):
         self.Clear()
-        self.AddAnchor(Point((self.points[0].pos.x+self.points[1].pos.x)/2., (self.points[0].pos.y+self.points[1].pos.y)/2.))
-    
-    def get_projection(self, p0, a, b):
-        p1 = Point()
-        a1 = -1/a
-        b1 = p0.y-a1*p0.x
-        
-        p1.x = (b-b1)/(a1-a)
-        p1.y = (b*a1-a*b1)/(a1-a)
-                
-        return p1
-    
-    def Render(self, canvas):
-        super(ObjectDimension, self).Render(canvas)
 
-        # p0-p1 center
-        p0 = Point(canvas.xmm2px(self.points[0].pos.x), canvas.ymm2px(self.points[0].pos.y))
-        p1 = Point(canvas.xmm2px(self.points[1].pos.x), canvas.ymm2px(self.points[1].pos.y))
-        p2 = Point(canvas.xmm2px(self.pos.x), canvas.ymm2px(self.pos.y))
+        p0 = self.points[0].pos
+        p1 = self.points[1].pos
+        p2 = self.pos
         
         p0p1 = Line(p0, p1)
         pc = p0p1.get_center()
@@ -534,6 +578,56 @@ class ObjectDimension(EditorObject):
                 # projection of p0 and p1 on parallel
                 p3 = self.get_projection(p0, p0p1a, p2b)
                 p4 = self.get_projection(p1, p0p1a, p2b)
+        self.offset_points[0] = p3
+        self.offset_points[1] = p4
+        
+        if self.placed:
+            self.AddAnchor(Point((p0.x+p1.x)/2., (p0.y+p1.y)/2.))
+            self.AddAnchor(Point((p3.x+p4.x)/2., (p3.y+p4.y)/2.))
+            self.AddAnchor(p3)
+            self.AddAnchor(p4)
+            self.AddAnchorSegment(Line(p0, p3))
+            self.AddAnchorSegment(Line(p1, p4))
+            self.AddAnchorSegment(Line(p3, p4))
+    
+    def get_projection(self, p0, a, b):
+        p1 = Point()
+        a1 = -1/a
+        b1 = p0.y-a1*p0.x
+        
+        p1.x = (b-b1)/(a1-a)
+        p1.y = (b*a1-a*b1)/(a1-a)
+                
+        return p1
+    
+    def Render(self, canvas):
+        super(ObjectDimension, self).Render(canvas)
+
+        p0 = Point(canvas.xmm2px(self.points[0].pos.x), canvas.ymm2px(self.points[0].pos.y))
+        p1 = Point(canvas.xmm2px(self.points[1].pos.x), canvas.ymm2px(self.points[1].pos.y))
+        p2 = Point(canvas.xmm2px(self.pos.x), canvas.ymm2px(self.pos.y))
+        p3 = Point(canvas.xmm2px(self.offset_points[0].x), canvas.ymm2px(self.offset_points[0].y))
+        p4 = Point(canvas.xmm2px(self.offset_points[1].x), canvas.ymm2px(self.offset_points[1].y))
+#         
+#         p0p1 = Line(p0, p1)
+#         pc = p0p1.get_center()
+#         
+#         if math.fabs(p1.x-p0.x)<epsilon:
+#             p3 = Point(p2.x, p0.y)
+#             p4 = Point(p2.x, p1.y)
+#         else:
+#             [p0p1a, p0p1b] = p0p1.get_ab()
+#             # parralel to p0p1 passing by p2
+#             p2b = Line.get_b(p0p1a, p2)
+#             
+#             if math.fabs(p0p1a)<epsilon:
+#                 # projection of p0 and p1 on parallel
+#                 p3 = Point(p0.x, p2b)
+#                 p4 = Point(p1.x, p2b)
+#             else:
+#                 # projection of p0 and p1 on parallel
+#                 p3 = self.get_projection(p0, p0p1a, p2b)
+#                 p4 = self.get_projection(p1, p0p1a, p2b)
                 
         # compute angle for p0p1
         angle = -math.atan2( p1.x-p0.x,  p1.y-p0.y)+math.pi/2.
@@ -556,11 +650,15 @@ class ObjectDimension(EditorObject):
             canvas.Draw(Arrow(p3, p4, 1), self.layers)
             canvas.Draw(Text(format(distance), Position(p5.x, p5.y, angle), 'center', 'bottom', 5), self.layers)
             
-            for anchor in self.anchors:
-                pm = Point(canvas.xmm2px(anchor.pos.x), canvas.ymm2px(anchor.pos.y))
-                pml = 5
-                canvas.Draw(Line(Point(pm.x-pml, pm.y), Point(pm.x+pml, pm.y), 1), self.layers)
-                canvas.Draw(Line(Point(pm.x, pm.y-pml), Point(pm.x, pm.y+pml), 1), self.layers)
+            pm = Point((p0.x+p1.x)/2., (p0.y+p1.y)/2.)
+            pml = 5
+            canvas.Draw(Line(Point(pm.x-pml, pm.y), Point(pm.x+pml, pm.y), 1), self.layers)
+            canvas.Draw(Line(Point(pm.x, pm.y-pml), Point(pm.x, pm.y+pml), 1), self.layers)
+
+            pm = Point((p3.x+p4.x)/2., (p3.y+p4.y)/2.)
+            pml = 5
+            canvas.Draw(Line(Point(pm.x-pml, pm.y), Point(pm.x+pml, pm.y), 1), self.layers)
+            canvas.Draw(Line(Point(pm.x, pm.y-pml), Point(pm.x, pm.y+pml), 1), self.layers)
         
     def Move(self, pos):
         if not self.placing_point is None:
@@ -593,6 +691,10 @@ class ObjectDimension(EditorObject):
         if self.placing_point>2:
             self.placing_point = None
             self.placed = True
+            for point in self.points:
+                point.placed = True
+                point.Update()
+            self.Update()
             return True
         return False
 
@@ -642,7 +744,7 @@ class ObjectDimension(EditorObject):
 
     def Description(self):
         return "Dimension length={}".format(self.Size())
-
+ 
 # line object
 class ObjectLine(EditorObject):
     def __init__(self):
@@ -660,7 +762,8 @@ class ObjectLine(EditorObject):
 
     def Update(self):
         self.Clear()
-        self.AddAnchorLine(Line(self.points[0].pos, self.points[1].pos))
+        if self.placed:
+            self.AddAnchorLine(StraightLine(self.points[0].pos, self.points[1].pos))
     
     def Render(self, canvas):
         super(ObjectLine, self).Render(canvas)
@@ -706,6 +809,7 @@ class ObjectLine(EditorObject):
             self.placed = True
             for node in self.nodes:
                 node.UnSelect()
+            self.Update()
             return True
         return False
 
@@ -803,11 +907,17 @@ class ObjectAngle(EditorObject):
             
             if d3>d:
                 d = d3
-                self.AddAnchorSegment(Line(p0, Point(p0.x+d*math.cos(angle_start), p0.y+d*math.sin(angle_start))))
-                self.AddAnchorSegment(Line(p0, Point(p0.x+d*math.cos(angle_end), p0.y+d*math.sin(angle_end))))
+                ps = Point(p0.x+d*math.cos(angle_start), p0.y+d*math.sin(angle_start))
+                self.AddAnchorSegment(Line(p0, ps))
+                self.AddAnchor(ps)
+                pe = Point(p0.x+d*math.cos(angle_end), p0.y+d*math.sin(angle_end))
+                self.AddAnchor(pe)
+                self.AddAnchorSegment(Line(p0, pe))
             else:
                 self.AddAnchorSegment(Line(p0, p1))
+                self.AddAnchor(p1)
                 self.AddAnchorSegment(Line(p0, p2))
+                self.AddAnchor(p2)
                  
     def Render(self, canvas):
         super(ObjectAngle, self).Render(canvas)
@@ -875,7 +985,8 @@ class ObjectAngle(EditorObject):
                 self.pos = pos
         elif self.placed:
             for point in self.points:
-                point.pos = Point(point.pos.x+pos.x-self.pos.x, point.pos.y+pos.y-self.pos.y) 
+                point.pos = Point(point.pos.x+pos.x-self.pos.x, point.pos.y+pos.y-self.pos.y)
+                point.placed = True
                 point.Update()
             self.pos = pos
             
@@ -899,6 +1010,7 @@ class ObjectAngle(EditorObject):
         if self.placing_point==4:
             self.placing_point = None
             self.placed = True
+            self.Update()
             return True
         return False
 
@@ -951,6 +1063,7 @@ class ObjectPad(EditorObject):
         self.placing_point = None
         
         self.SetShape(self.shape)
+        self.SetType(self.type)
         
     def SetType(self, type):
         self.type = type
@@ -968,7 +1081,6 @@ class ObjectPad(EditorObject):
 
     def SetShape(self, shape):
         self.shape = shape
-            
         
         self.points = []
         self.ClearNodes()
@@ -980,17 +1092,50 @@ class ObjectPad(EditorObject):
         elif self.shape=='circle':
             self.points = [ObjectPoint(), 
                            ObjectPoint(), ObjectPoint(), ObjectPoint(), ObjectPoint()]
-        
-        self.Update()
+            
+        self.ClearNodes()
         for point in self.points:
-            self.AddNode(point)        
+            self.AddNode(point)  
+            if self.placed:
+                point.placed = True      
+        self.Update()
+    
+    def Copy(self, pad):
+        super(ObjectPad, self).Copy(pad)
         
+        pad.type = self.type
+        pad.shape = self.shape
+        pad.size = copy.copy(self.size)
+        pad.offset = copy.copy(self.offset)
+        pad.drill = copy.copy(self.drill)
+        pad.drill_type = self.drill_type
+        pad.die_length = self.die_length
+        pad.name = self.name
+         
+        pad.solder_mask_margin = self.solder_mask_margin
+        pad.solder_paste_margin = self.solder_paste_margin
+        pad.clearance = self.clearance
+        pad.solder_paste_margin_ratio = self.solder_paste_margin_ratio
+         
+        pad.thermal_width = self.thermal_width
+        pad.thermal_gap = self.thermal_gap
+        pad.zone_connect = self.zone_connect
+         
+        pad.trapezoidal_delta = self.trapezoidal_delta
+        pad.trapezoidal_direction = self.trapezoidal_direction
+         
+        pad.font = copy.copy(self.font)
+ 
+        pad.SetShape(self.shape)
+        pad.SetType(self.type)
+
     def SetSize(self, size):
         self.size = size
             
         self.Update()
         
     def Update(self):
+        self.Clear()
         dx = self.size.x/2.
         dy = self.size.y/2.
         
@@ -1009,12 +1154,26 @@ class ObjectPad(EditorObject):
             self.points[2].Move(Point(self.pos.x+dx, self.pos.y))
             self.points[3].Move(Point(self.pos.x,    self.pos.y+dx))
             self.points[4].Move(Point(self.pos.x-dx, self.pos.y))
-                
+                    
         if math.fabs(self.angle)>epsilon:
             for p in self.points:
                 p.StartRotate()
-                p.Rotate(self.pos, -self.angle)
+                p.Rotate(self.pos, self.angle)
         
+        if self.placed:
+            if self.type=='thru_hole' or self.type=='np_thru_hole':
+                if self.drill_type=='circle':
+                    self.AddAnchorCircle(self.pos, Point(self.pos.x+self.drill.x, self.pos.y))
+                else:
+                    pass
+            if self.shape=='rect' or self.shape=='trapezoid' or self.shape=='oval':        
+                self.AddAnchorSegment(Line(self.points[1].pos, self.points[2].pos))
+                self.AddAnchorSegment(Line(self.points[2].pos, self.points[3].pos))
+                self.AddAnchorSegment(Line(self.points[3].pos, self.points[4].pos))
+                self.AddAnchorSegment(Line(self.points[4].pos, self.points[1].pos))
+            elif self.shape=='circle':
+                self.AddAnchorCircle(self.pos, Point(self.pos.x+dx, self.pos.y))
+
     def Render(self, canvas):
         super(ObjectPad, self).Render(canvas)
         
@@ -1023,8 +1182,8 @@ class ObjectPad(EditorObject):
         size = Point(canvas.mm2px(self.size.x), canvas.mm2px(self.size.y))
         drill = Point(canvas.mm2px(self.drill.x), canvas.mm2px(self.drill.y))
         
-        angle = -self.angle
-        
+        #angle = -self.angle
+        angle = self.angle
         
         if self.placed or ( self.placing_point is not None and self.placing_point==1):
             if self.shape=='rect' or self.shape=='trapezoid' or self.shape=='oval':
@@ -1033,11 +1192,11 @@ class ObjectPad(EditorObject):
                     
                 tx = 0.
                 ty = 0.
-                if self.shape=='trapezoid' and self.trapezoidal_direction=='vert':
+                if self.shape=='trapezoid' and self.trapezoidal_direction=='horz':
                     ty = canvas.mm2px(self.trapezoidal_delta/2.)
                 if ty>dy:
                     ty = dy
-                elif self.shape=='trapezoid' and self.trapezoidal_direction=='horz':
+                elif self.shape=='trapezoid' and self.trapezoidal_direction=='vert':
                     tx = canvas.mm2px(self.trapezoidal_delta/2.)
                 if tx>dx:
                     tx = dx
@@ -1131,6 +1290,10 @@ class ObjectPad(EditorObject):
             self.SetSize(Point(math.fabs(dx*2), math.fabs(dy*2)))
             self.placing_point = None
             self.placed = True
+            self.Update()
+            for point in self.points:
+                point.placed = True
+                point.Update()
             self.Select()
         
         return self.placed
@@ -1153,9 +1316,10 @@ class ObjectPolyline(EditorObject):
         
         p0 = None
         for p1 in self.points:
-            if p0:
-                self.AddAnchorSegment(Line(p0.pos, p1.pos))
-            self.AddAnchor(p1.pos)
+            if p1!=self.points[len(self.points)-1]:
+                if p0:
+                    self.AddAnchorSegment(Line(p0.pos, p1.pos))
+                self.AddAnchor(p1.pos)
             p0 = p1
     
     def Render(self, canvas):
@@ -1189,6 +1353,9 @@ class ObjectPolyline(EditorObject):
     def Place(self, pos):
         p = ObjectPoint(pos)
         p.Select()
+        for point in self.points:
+            point.placed = True
+            point.Update()
         self.points.append(p)
         self.AddNode(p)
         return False
@@ -1228,7 +1395,8 @@ class ObjectText(EditorObject):
 
     def Update(self):
         self.Clear()
-        self.AddAnchor(self.pos)
+        if self.placed:
+            self.AddAnchor(self.pos)
     
     def Render(self, canvas):
         super(ObjectText, self).Render(canvas)
@@ -1356,6 +1524,10 @@ class ObjectArc(EditorObject):
         if self.placing_point==3:
             self.placing_point = None
             self.placed = True
+            self.Update()
+            for point in self.points:
+                point.placed = True
+                point.Update()
             return True
         return False
 
@@ -1452,6 +1624,10 @@ class ObjectCircle(EditorObject):
         if self.placing_point==2:
             self.placing_point = None
             self.placed = True
+            self.Update()
+            for point in self.points:
+                point.placed = True
+                point.Update()
             return True
         return False
 
@@ -1469,6 +1645,230 @@ class ObjectCircle(EditorObject):
 
     def Description(self):
         return "Circle x={} y={}".format(self.pos.x, self.pos.y)
+
+class ObjectPadRow(EditorObject):
+    def __init__(self, editor, model_pad):
+        super(ObjectPadRow, self).__init__([], Point())
+        
+        self.editor = editor
+        
+        self.placing_point = None
+        
+        self.model_pad = model_pad
+        self.pads = []
+
+        self.increment = 0.
+        
+        self.Update()
+
+    def Update(self):
+        self.Clear()
+                            
+    def Render(self, canvas):
+        super(ObjectPadRow, self).Render(canvas)
+        self.model_pad.Render(canvas)
+        for pad in self.pads:
+            pad.Render(canvas)
+            
+    def StartPlace(self):
+        if self.model_pad.placed==False:
+            self.model_pad.StartPlace()
+            self.model_pad.Select()
+        self.placing_point = 0
+        
+    # return True if placement is complete
+    def Place(self, pos):
+        if self.model_pad.placed==False:
+            self.model_pad.Place(pos)
+            self.model_pad.Update()
+        else:
+            self.placing_point = self.placing_point+1
+            if self.placing_point==1:
+                self.increment = self.model_pad.pos.Distance(pos)
+            elif self.placing_point==2:
+                self.PlacePads()
+                self.placing_point = None
+                self.placed = True
+                return True
+        return False
+
+    def Move(self, pos):
+        if self.model_pad.placed==False:
+            self.model_pad.Move(pos)
+            self.model_pad.Update()
+        else:
+            if self.placing_point==0:
+                pref = Point(self.model_pad.pos.x+1, self.model_pad.pos.y)
+                self.angle = self.model_pad.pos.GetAngle(pref, pos)
+                self.model_pad.angle = self.angle
+                self.model_pad.Update()
+
+                self.pads = []
+                pad = ObjectPad() 
+                self.model_pad.Copy(pad)
+                pad.angle = self.angle
+                increment = self.model_pad.pos.Distance(pos)
+                pad.pos = Point(self.model_pad.pos.x+increment*math.cos(self.angle), self.model_pad.pos.y+increment*math.sin(self.angle))
+                pad.Update()
+                pad.Select()
+                self.pads.append(pad)
+                self.NamePads()
+            elif self.placing_point==1:
+                distance = self.model_pad.pos.Distance(pos)
+                pad_num = int(distance/self.increment)
+                while len(self.pads)>pad_num:
+                    self.pads.remove(self.pads[len(self.pads)-1])
+                while pad_num>len(self.pads):
+                    pad = ObjectPad() 
+                    self.model_pad.Copy(pad)
+                    pad.angle = self.angle
+                    col = len(self.pads)-1
+                    pad.pos = Point(self.model_pad.pos.x+(self.increment*(col+2))*math.cos(self.angle), 
+                                    self.model_pad.pos.y+(self.increment*(col+2))*math.sin(self.angle))
+                    pad.Select()
+                    self.pads.append(pad)
+                    self.NamePads()
+                    
+        self.Update()
+
+    def NamePads(self):
+        names = []
+        for obj in self.editor.component_objects.nodes:
+            if isinstance(obj, ObjectPad) and obj.name!='':
+                try:
+                    iname = int(obj.name)
+                    names.append(iname)
+                except:
+                    pass
+
+        for pad in self.pads:    
+            names.sort()
+            pname = 0
+            for name in names:
+                if name-pname>1:
+                    break
+                pname = name
+            pad.name = str(pname+1)
+            names.append(pname+1)
+
+    def PlacePads(self):
+        for pad in self.pads:
+            self.editor.component_objects.AddNode(pad)
+            obj = self.editor.tree_objects_manager.AppendObject('Part', pad)
+            self.editor.tree_objects_manager.Select(obj)
+            pad.Update()
+            pad.UnSelect()
+        self.model_pad.UnSelect()
+        self.pads = []
+        
+class ObjectPadArray(ObjectPadRow):
+    def __init__(self, editor, model_pad):
+        super(ObjectPadArray, self).__init__(editor, model_pad)
+        
+        self.col_increment = 0.
+        self.row_increment = 0.
+        self.row_size = 0.
+        
+        self.Update()
+
+    def Render(self, canvas):
+        super(ObjectPadArray, self).Render(canvas)
+        self.model_pad.Render(canvas)
+        for pad in self.pads:
+            pad.Render(canvas)
+            
+    # return True if placement is complete
+    def Place(self, pos):
+        if self.model_pad.placed==False:
+            self.model_pad.Place(pos)
+            self.model_pad.Update()
+        else:
+            self.placing_point = self.placing_point+1
+            if self.placing_point==1:
+                self.col_increment = self.model_pad.pos.Distance(pos)
+            elif self.placing_point==2:
+                self.row_size = len(self.pads)+1
+            elif self.placing_point==3:
+                axis = Line(self.model_pad.pos, Point(self.model_pad.pos.x, self.model_pad.pos.y+1).Rotate(self.model_pad.pos, self.angle))
+                pp = axis.get_projection(pos)
+                self.row_increment = self.model_pad.pos.Distance(pp)
+            elif self.placing_point==4:
+                self.PlacePads()
+                self.placing_point = None
+                self.placed = True
+                return True
+        return False
+
+    def Move(self, pos):
+        if self.model_pad.placed==False:
+            self.model_pad.Move(pos)
+            self.model_pad.Update()
+        else:
+            if self.placing_point==0:
+                pref = Point(self.model_pad.pos.x+1, self.model_pad.pos.y)
+                self.angle = self.model_pad.pos.GetAngle(pref, pos)
+                self.model_pad.angle = self.angle
+                self.model_pad.Update()
+
+                self.pads = []
+                pad = ObjectPad() 
+                self.model_pad.Copy(pad)
+                pad.angle = self.angle
+                increment = self.model_pad.pos.Distance(pos)
+                pad.pos = Point(self.model_pad.pos.x+increment*math.cos(self.angle), self.model_pad.pos.y+increment*math.sin(self.angle))
+                pad.Select()
+                self.pads.append(pad)
+                self.NamePads()
+            elif self.placing_point==1:
+                distance = self.model_pad.pos.Distance(pos)
+                pad_num = int(distance/self.col_increment)
+                while pad_num<len(self.pads):
+                    self.pads.remove(self.pads[len(self.pads)-1])
+                while pad_num>len(self.pads):
+                    pad = ObjectPad() 
+                    self.model_pad.Copy(pad)
+                    pad.angle = self.angle
+                    i = len(self.pads)-1
+                    pad.pos = Point(self.model_pad.pos.x+(self.col_increment*(i+2))*math.cos(self.angle), self.model_pad.pos.y+(self.col_increment*(i+2))*math.sin(self.angle))
+                    pad.Select()
+                    self.pads.append(pad)
+                    self.NamePads()
+            elif self.placing_point==2:
+                axis = Line(self.model_pad.pos, Point(self.model_pad.pos.x, self.model_pad.pos.y+1).Rotate(self.model_pad.pos, self.angle))
+                pp = axis.get_projection(pos)
+                row_increment = self.model_pad.pos.Distance(pp)
+                while len(self.pads)>self.row_size-1:
+                    self.pads.remove(self.pads[len(self.pads)-1])                
+                for col in range(0, self.row_size):
+                    pad = ObjectPad() 
+                    self.model_pad.Copy(pad)
+                    pad.angle = self.angle
+                    pad.pos = Point(self.model_pad.pos.x+row_increment*math.cos(self.angle+math.pi/2.)+(self.col_increment*col)*math.cos(self.angle), 
+                                    self.model_pad.pos.y+row_increment*math.sin(self.angle+math.pi/2.)+(self.col_increment*col)*math.sin(self.angle))
+                    pad.Select()
+                    self.pads.append(pad)
+                    self.NamePads()
+            elif self.placing_point==3:
+                axis = Line(self.model_pad.pos, Point(self.model_pad.pos.x, self.model_pad.pos.y+1).Rotate(self.model_pad.pos, self.angle))
+                pp = axis.get_projection(pos)
+                distance = self.model_pad.pos.Distance(pp)
+                row_num = int(distance/self.row_increment)
+                if row_num>0:
+                    while len(self.pads)>row_num*self.row_size-1:
+                        self.pads.remove(self.pads[len(self.pads)-1])
+                    while len(self.pads)<row_num*self.row_size:
+                        row = len(self.pads)/self.row_size+1
+                        for col in range(0, self.row_size):
+                            pad = ObjectPad() 
+                            self.model_pad.Copy(pad)
+                            pad.angle = self.angle
+                            pad.pos = Point(self.model_pad.pos.x+(self.row_increment*row)*math.cos(self.angle+math.pi/2.)+(self.col_increment*col)*math.cos(self.angle), 
+                                            self.model_pad.pos.y+(self.row_increment*row)*math.sin(self.angle+math.pi/2.)+(self.col_increment*col)*math.sin(self.angle))
+                            pad.Select()
+                            self.pads.append(pad)
+                        self.NamePads()
+                
+        self.Update()
 
 class EditorState(object):
     StateNone = 0
@@ -1608,8 +2008,6 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.state = EditorState(self.canvas, self.anchor_objects)
         
         self.current_panel = None
-
-        self.current_pad_name = None
         
         # module elements
         self.footprint_name = ''
@@ -1633,6 +2031,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
 
         # add origin 
         node = ObjectOrigin(Position(0, 0))
+        node.placed = True
         self.build_objects.AddNode(node)
 
         # add cursor
@@ -1642,9 +2041,11 @@ class DrawFootprintFrame(DialogDrawFootprint):
         
         # add default text fields
         self.part_reference = ObjectTextReference("REF**", Font(Point(1, 1), 0.15))
+        self.part_reference.placed = True
         self.component_objects.AddNode(self.part_reference)
         self.tree_objects_manager.AppendObject('Part', self.part_reference)
         self.part_value = ObjectTextValue("<value>", Font(Point(1, 1), 0.15))
+        self.part_value.placed = True
         self.component_objects.AddNode(self.part_value)
         self.tree_objects_manager.AppendObject('Part', self.part_value)
 #         self.part_user = ObjectTextUser("%R", Font(Point(1, 1), 0.15))
@@ -1712,7 +2113,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
         mod.parent = module
         
         self.save_object(self.component_objects, module)
-        mod.SaveFile("test.kicad_mod")
+        mod.SaveFile(self.filename)
         
     def UpdateAll(self, obj):
         obj.Update()
@@ -1782,7 +2183,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
                     current.orientation = 'vertical'
             else:
                 current.StartRotate()
-                current.Rotate(current.pos, at.angle*math.pi/180.)
+                current.Rotate(current.pos, -at.angle*math.pi/180.)
                 current.Validate()
             self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
         elif isinstance(obj, kicad_mod_file.KicadSize) and current:
@@ -1863,10 +2264,10 @@ class DrawFootprintFrame(DialogDrawFootprint):
             rect = obj.GetRectDelta()
             if math.fabs(rect.x)>epsilon:
                 current.trapezoidal_delta = rect.x
-                current.trapezoidal_direction = 'vert'
+                current.trapezoidal_direction = 'horz'
             elif math.fabs(rect.y)>epsilon:
                 current.trapezoidal_delta = rect.y
-                current.trapezoidal_direction = 'horz'
+                current.trapezoidal_direction = 'vert'
         elif isinstance(obj, kicad_mod_file.KicadSolderMaskMargin) and current:
             current.solder_mask_margin = obj.GetSolderMaskMargin()
         elif isinstance(obj, kicad_mod_file.KicadSolderPasteMargin) and current:
@@ -1937,7 +2338,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
             node = kicad_mod_file.KicadAt()
             node.AddAttribute(str(obj.pos.x))
             node.AddAttribute(str(obj.pos.y))
-            node.AddAttribute(str(obj.angle*180./math.pi))
+            node.AddAttribute(str(-obj.angle*180./math.pi))
             pad.AddNode(node)
             node = kicad_mod_file.KicadSize()
             node.AddAttribute(str(obj.size.x))
@@ -1945,7 +2346,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
             pad.AddNode(node)
             if math.fabs(obj.trapezoidal_delta)>epsilon:
                 node = kicad_mod_file.KicadRectDelta()
-                if obj.trapezoidal_direction=='vert':
+                if obj.trapezoidal_direction=='horz':
                     node.AddAttribute(str(obj.trapezoidal_delta))
                     node.AddAttribute(str(0))
                 else:
@@ -2086,14 +2487,26 @@ class DrawFootprintFrame(DialogDrawFootprint):
     def SetFootprintTags(self, tags):
         self.footprint_tags = tags
 
-    def SelectObjects(self, objs):
-#         for obj in self.state.GetObjects():
-#             if obj.Placed()==False:
-#                 self.tree_objects_manager.DeleteObject(obj)
-#                 if obj.Parent():
-#                     obj.Parent().RemoveNode(obj)
-        self.state.Cancel()
+    def GetCurrentPadName(self):
+        names = []
+        for obj in self.component_objects.nodes:
+            if isinstance(obj, ObjectPad) and obj.name!='':
+                names.append(obj.name)
+        names.sort()
+
+        if len(names)==0:
+            return '1'
         
+        pname = '1'
+        for name in names:
+            if int(name)-int(pname)>1:
+                return str(int(pname)+1)
+            pname = name
+        return str(int(pname)+1)
+    
+    def SelectObjects(self, objs):
+        self.Cancel()
+                
         self.selection = objs
         self.state.SelectObjects(objs)
         
@@ -2131,23 +2544,29 @@ class DrawFootprintFrame(DialogDrawFootprint):
 
         if event.GetKeyCode()==27:
             # cancel any operation
-            self.SelectObjects([])
+            self.Cancel()
         
         event.Skip(True)
 
+    def Cancel(self):
+        for obj in self.state.GetObjects():
+            if obj.Placed()==False:
+                self.tree_objects_manager.DeleteObject(obj)
+                if obj.Parent():
+                    obj.Parent().RemoveNode(obj)
+
+        self.state.Cancel()
+        self.Render()
+        
     def onImageDrawLeftDClick( self, event ):
         pospx = event.GetPosition()
         pos = Point(self.canvas.xpx2mm(pospx.x), self.canvas.ypx2mm(pospx.y))
         
+        [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet))
+        if distance is not None:
+            pos = anchor.Pos(pos)
+            #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
         self.cursor.pos = pos
-        types = [Anchor, AnchorLine, AnchorArc, AnchorCircle]
-        for t in types:
-            [distance, anchor] = self.anchor_objects.FindAnchor(t, pos, self.state.GetMovingObjects())
-            if not distance is None and self.canvas.mm2px(distance)<self.magnet:
-                pos = anchor.Pos(pos)
-                #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
-                self.cursor.pos = pos
-                break
         self.cursor.Update()
         
         self.state.DoDClick(pos.x, pos.y, pospx.x, pospx.y)
@@ -2167,15 +2586,11 @@ class DrawFootprintFrame(DialogDrawFootprint):
         pospx = event.GetPosition()
         pos = Point(self.canvas.xpx2mm(pospx.x), self.canvas.ypx2mm(pospx.y))
         
+        [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet))
+        if distance is not None:
+            pos = anchor.Pos(pos)
+            #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
         self.cursor.pos = pos
-        types = [Anchor, AnchorLine, AnchorArc, AnchorCircle]
-        for t in types:
-            [distance, anchor] = self.anchor_objects.FindAnchor(t, pos, self.state.GetMovingObjects())
-            if not distance is None and self.canvas.mm2px(distance)<self.magnet:
-                pos = anchor.Pos(pos)
-                #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
-                self.cursor.pos = pos
-                break
         self.cursor.Update()
         
         self.state.DoLeftUp(pos.x, pos.y, pospx.x, pospx.y)
@@ -2198,15 +2613,11 @@ class DrawFootprintFrame(DialogDrawFootprint):
         pospx = event.GetPosition()
         pos = Point(self.canvas.xpx2mm(pospx.x), self.canvas.ypx2mm(pospx.y))
         
+        [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet))
+        if distance is not None:
+            pos = anchor.Pos(pos)
+            #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
         self.cursor.pos = pos
-        types = [Anchor, AnchorLine, AnchorArc, AnchorCircle]
-        for t in types:
-            [distance, anchor] = self.anchor_objects.FindAnchor(t, pos, self.state.GetMovingObjects())
-            if not distance is None and self.canvas.mm2px(distance)<self.magnet:
-                pos = anchor.Pos(pos)
-                #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
-                self.cursor.pos = pos
-                break
         self.cursor.Update()
 
         self.state.SetCursorPos(pos.x, pos.y, pospx.x, pospx.y)
@@ -2235,12 +2646,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
     
     def onMenuDrawPadSelection( self, event ):
         node = ObjectPad()
-        
-        if self.current_pad_name is None:
-            self.current_pad_name = 1
-        else:
-            self.current_pad_name = self.current_pad_name+1
-        node.name = str(self.current_pad_name)
+        node.name = self.GetCurrentPadName()
         
         self.component_objects.AddNode(node)
         obj = self.tree_objects_manager.AppendObject('Part', node)
@@ -2331,7 +2737,9 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.current_panel = EditLineFrame(self.panel_edit_object, self.Render, node)
     
     def onMenuZoomResetSelection( self, event ):
-        event.Skip()
+        self.canvas.Zoom(1)
+        status = self.GetStatusBar()
+        status.SetStatusText("zoom: "+str(self.zoom), 2)
 
     def onMenuEditMoveSelection( self, event ):
         self.state.DoMove()
@@ -2353,20 +2761,69 @@ class DrawFootprintFrame(DialogDrawFootprint):
     
     def onMenuZoomInSelection( self, event ):
         self.canvas.Zoom(self.canvas.zoom*2.)
+        status = self.GetStatusBar()
+        status.SetStatusText("zoom: "+str(self.zoom), 2)
         self.Render()
     
     def onMenuZoomOutSelection( self, event ):
         self.canvas.Zoom(self.canvas.zoom/2.)
+        status = self.GetStatusBar()
+        status.SetStatusText("zoom: "+str(self.zoom), 2)
         self.Render()
     
     def onImageDrawMouseEvents( self, event ):
         event.Skip()
             
     def onMenuDrawPadRowSelection( self, event ):
-        event.Skip()
+        item = self.tree_objects.GetSelection()
+        obj = None
+        if item.IsOk():
+            obj = self.tree_objects_manager.ItemToObject(item)
+        
+        if obj and isinstance(obj.obj, ObjectPad):
+            pad = obj.obj
+            self.tree_objects_manager.Select(pad)
+        else:
+            pad = ObjectPad()
+            pad.name = self.GetCurrentPadName()
+
+            self.component_objects.AddNode(pad)
+            obj = self.tree_objects_manager.AppendObject('Part', pad)
+            self.tree_objects_manager.Select(obj)
+        
+        row = ObjectPadRow(self, pad)        
+        self.build_objects.AddNode(row)
+        self.state.DoPlace(row)
+
+        if self.current_panel:
+            self.current_panel.Destroy()
+        self.current_panel = EditPadFrame(self.panel_edit_object, self.Render, pad)
+            
     
     def onMenuDrawPadArraySelection( self, event ):
-        event.Skip()
+        item = self.tree_objects.GetSelection()
+        obj = None
+        if item.IsOk():
+            obj = self.tree_objects_manager.ItemToObject(item)
+        
+        if obj and isinstance(obj.obj, ObjectPad):
+            pad = obj.obj
+            self.tree_objects_manager.Select(pad)
+        else:
+            pad = ObjectPad()
+            pad.name = self.GetCurrentPadName()
+
+            self.component_objects.AddNode(pad)
+            obj = self.tree_objects_manager.AppendObject('Part', pad)
+            self.tree_objects_manager.Select(obj)
+        
+        row = ObjectPadArray(self, pad)        
+        self.build_objects.AddNode(row)
+        self.state.DoPlace(row)
+
+        if self.current_panel:
+            self.current_panel.Destroy()
+        self.current_panel = EditPadFrame(self.panel_edit_object, self.Render, pad)
     
     def onMenuDrawPolylineSelection( self, event ):
         item = self.tree_layers.GetSelection()
@@ -2449,4 +2906,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         if self.current_panel:
             self.current_panel.Destroy()
         self.current_panel = EditTextFrame(self.panel_edit_object, self.Render, node)
+
+    def onImageDrawSize( self, event ):
+        self.canvas.Viewport(self.image_draw.GetRect().width, self.image_draw.GetRect().height)
+        self.canvas.Origin(self.image_draw.GetRect().width/2, self.image_draw.GetRect().height/2)
         

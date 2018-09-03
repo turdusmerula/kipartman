@@ -44,7 +44,7 @@
             <property name="minimum_size"></property>
             <property name="name">DialogDrawFootprint</property>
             <property name="pos"></property>
-            <property name="size">1155,851</property>
+            <property name="size">1485,851</property>
             <property name="style">wxDEFAULT_FRAME_STYLE|wxMINIMIZE</property>
             <property name="subclass">; forward_declare</property>
             <property name="title"></property>
@@ -142,7 +142,7 @@
                         <property name="pos"></property>
                         <property name="resize">Resizable</property>
                         <property name="sashgravity">0.0</property>
-                        <property name="sashpos">750</property>
+                        <property name="sashpos">1191</property>
                         <property name="sashsize">-1</property>
                         <property name="show">1</property>
                         <property name="size"></property>
@@ -338,7 +338,7 @@
                                             <event name="OnRightDown">onImageDrawRightDown</event>
                                             <event name="OnRightUp">onImageDrawRightUp</event>
                                             <event name="OnSetFocus"></event>
-                                            <event name="OnSize"></event>
+                                            <event name="OnSize">onImageDrawSize</event>
                                             <event name="OnUpdateUI"></event>
                                         </object>
                                     </object>
@@ -1225,7 +1225,7 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Extend pad to row</property>
+                        <property name="label">Pad row</property>
                         <property name="name">menu_draw_pad_row</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
@@ -1240,7 +1240,7 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Extend pad to array</property>
+                        <property name="label">Pad array</property>
                         <property name="name">menu_draw_pad_array</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>

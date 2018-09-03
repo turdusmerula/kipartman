@@ -123,7 +123,7 @@ class PanelEditPad ( wx.Panel ):
 		self.panel_pad.SetSizer( fgSizer1 )
 		self.panel_pad.Layout()
 		fgSizer1.Fit( self.panel_pad )
-		self.m_notebook1.AddPage( self.panel_pad, u"Pad", False )
+		self.m_notebook1.AddPage( self.panel_pad, u"Pad", True )
 		self.panel_drill = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		fgSizer11 = wx.FlexGridSizer( 0, 2, 0, 0 )
 		fgSizer11.AddGrowableCol( 1 )
@@ -259,7 +259,6 @@ class PanelEditPad ( wx.Panel ):
 		fgSizer1121.Add( self.m_staticText591, 0, wx.ALL, 5 )
 		
 		self.check_f_adhes = wx.CheckBox( self.panel_layers, wx.ID_ANY, u"F.Adhes", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.check_f_adhes.SetValue(True) 
 		fgSizer1121.Add( self.check_f_adhes, 0, wx.ALL, 5 )
 		
 		self.m_staticText592 = wx.StaticText( self.panel_layers, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -336,7 +335,7 @@ class PanelEditPad ( wx.Panel ):
 		self.panel_layers.SetSizer( fgSizer1121 )
 		self.panel_layers.Layout()
 		fgSizer1121.Fit( self.panel_layers )
-		self.m_notebook1.AddPage( self.panel_layers, u"Layers", True )
+		self.m_notebook1.AddPage( self.panel_layers, u"Layers", False )
 		
 		bSizer7.Add( self.m_notebook1, 1, wx.ALL|wx.EXPAND, 5 )
 		

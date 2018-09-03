@@ -18,7 +18,7 @@ import wx.dataview
 class DialogDrawFootprint ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1155,851 ), style = wx.DEFAULT_FRAME_STYLE|wx.MINIMIZE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1485,851 ), style = wx.DEFAULT_FRAME_STYLE|wx.MINIMIZE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -87,7 +87,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.m_panel2.SetSizer( bSizer7 )
 		self.m_panel2.Layout()
 		bSizer7.Fit( self.m_panel2 )
-		self.m_splitter1.SplitVertically( self.m_panel1, self.m_panel2, 750 )
+		self.m_splitter1.SplitVertically( self.m_panel1, self.m_panel2, 1191 )
 		bSizer1.Add( self.m_splitter1, 1, wx.EXPAND, 5 )
 		
 		
@@ -108,10 +108,10 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.menu_draw_pad = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_draw.Append( self.menu_draw_pad )
 		
-		self.menu_draw_pad_row = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Extend pad to row", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw_pad_row = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad row", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_draw.Append( self.menu_draw_pad_row )
 		
-		self.menu_draw_pad_array = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Extend pad to array", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_draw_pad_array = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Pad array", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_draw.Append( self.menu_draw_pad_array )
 		
 		self.menu_draw_polyline = wx.MenuItem( self.menu_draw, wx.ID_ANY, u"Polyline", wx.EmptyString, wx.ITEM_NORMAL )
@@ -206,6 +206,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.image_draw.Bind( wx.EVT_RIGHT_DCLICK, self.onImageDrawRightDClick )
 		self.image_draw.Bind( wx.EVT_RIGHT_DOWN, self.onImageDrawRightDown )
 		self.image_draw.Bind( wx.EVT_RIGHT_UP, self.onImageDrawRightUp )
+		self.image_draw.Bind( wx.EVT_SIZE, self.onImageDrawSize )
 		self.Bind( wx.EVT_MENU, self.onMenuFileSaveSelection, id = self.menu_file_save.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuFileSaveAsSelection, id = self.menu_file_save_as.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDrawPadSelection, id = self.menu_draw_pad.GetId() )
@@ -268,6 +269,9 @@ class DialogDrawFootprint ( wx.Frame ):
 		event.Skip()
 	
 	def onImageDrawRightUp( self, event ):
+		event.Skip()
+	
+	def onImageDrawSize( self, event ):
 		event.Skip()
 	
 	def onMenuFileSaveSelection( self, event ):
@@ -337,7 +341,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		event.Skip()
 	
 	def m_splitter1OnIdle( self, event ):
-		self.m_splitter1.SetSashPosition( 750 )
+		self.m_splitter1.SetSashPosition( 1191 )
 		self.m_splitter1.Unbind( wx.EVT_IDLE )
 	
 	def splitter_edit_objectOnIdle( self, event ):

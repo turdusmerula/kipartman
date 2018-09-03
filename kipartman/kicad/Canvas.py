@@ -3,6 +3,7 @@ import cairo
 import re
 import wx
 import numpy as np
+import copy
 
 epsilon=1e-9
 
@@ -211,7 +212,21 @@ class Line(Drawing):
         a1 = -1/a
         b1 = p.y-a1*p.x
         return Point((b-b1)/(a1-a), (b*a1-a*b1)/(a1-a))
+    
+    def get_intersection(self, line):
+        p1 = self.start
+        p2 = self.end
+        p3 = line.start
+        p4 = line.end
         
+        u = (p4.y-p3.y)*(p2.x-p1.x)-(p4.x-p3.x)*(p2.y-p1.y)
+        if math.fabs(u)>epsilon:
+            v = ((p4.x-p3.x)*(p1.y-p3.y)-(p4.y-p3.y)*(p1.x-p3.x))/u
+            w = ((p2.x-p1.x)*(p1.y-p3.y)-(p2.y-p1.y)*(p1.x-p3.x))/u
+            if v>0. and v<1. and w>0. and w<1.:
+                return Point(p1.x+v*(p2.x-p1.x), p1.y+w*(p2.y-p1.y))
+        return None
+    
 class StraightLine(Line):
     def __init__(self, start=Point(), end=Point(), width=0):
         super(StraightLine, self).__init__(start, end, width)
@@ -229,6 +244,20 @@ class StraightLine(Line):
             ctx.line_to(canvas.viewport.x, a*canvas.viewport.x+b)
         ctx.stroke()
 
+    def get_intersection(self, line):
+        p1 = self.start
+        p2 = self.end
+        p3 = line.start
+        p4 = line.end
+        
+        u = (p4.y-p3.y)*(p2.x-p1.x)-(p4.x-p3.x)*(p2.y-p1.y)
+        if math.fabs(u)>epsilon:
+            v = ((p4.x-p3.x)*(p1.y-p3.y)-(p4.y-p3.y)*(p1.x-p3.x))/u
+            #w = ((p2.x-p1.x)*(p1.y-p3.y)-(p2.y-p1.y)*(p1.x-p3.x))/u
+            return Point(p1.x+v*(p2.x-p1.x), p1.y+v*(p2.y-p1.y))
+
+        return None
+        
 
 class PolyLine(Drawing):
     def __init__(self, points=[], width=0, fill=False):
@@ -459,6 +488,13 @@ class Object(object):
         
         self.surface = None
     
+    def Copy(self, obj):
+        obj.parent = self.parent
+        obj.layers = copy.copy(self.layers)
+        obj.nodes = []
+        
+        obj.surface = self.surface
+        
     def Update(self):
         for node in self.nodes:
             node.Update()
@@ -663,10 +699,10 @@ class FootprintCanvas(Canvas):
         self.AddLayer("Grid", ColorRGB.Yellow(), layer_type='Render', active=False)
         self.AddLayer("Values", ColorRGB.Yellow(), layer_type='Render', active=False)
         self.AddLayer("References", ColorRGB.Yellow(), layer_type='Render', active=False)
-        self.AddLayer("Hole", layer_type='Render', active=False)
 
-        self.AddLayer("Editor", ColorRGB.Grey(), layer_type='Render', active=False)
         self.AddLayer("Selection", ColorRGB.Yellow(), layer_type='Render', active=False)
+        self.AddLayer("Hole", layer_type='Render', active=False)
+        self.AddLayer("Editor", ColorRGB.Grey(), layer_type='Render', active=False)
         self.AddLayer("Anchor", ColorRGB.Yellow(), layer_type='Render', active=False)
 
 class LibraryCanvas(Canvas):
