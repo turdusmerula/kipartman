@@ -300,10 +300,14 @@ class EditorObject(Object):
 
     # find closest anchor to position
     # if a type is given then limit search to this type
-    def FindAnchor(self, pos, radius):
+    def FindAnchor(self, pos, radius, exclude_anchors=[]):
         anchors = []
         self.r_find_anchors(self, pos, radius, anchors)
-     
+    
+        for anchor in exclude_anchors:
+            if anchor in anchors:
+                anchors.remove(anchor)
+                 
         anchors.sort(key=itemgetter(0))
         if len(anchors)==0:
             return [None, None]
@@ -1977,7 +1981,7 @@ class EditorState(object):
 
     def GetMovingObjects(self):
         res = []
-        if self.state==self.StateMoving or self.state==self.StatePlacing or self.state==self.StateRotating:
+        if self.state==self.StateMoving or self.state==self.StateRotating:
             res = self.objs
         return res
     
@@ -2612,8 +2616,16 @@ class DrawFootprintFrame(DialogDrawFootprint):
     def onImageDrawMotion( self, event ):
         pospx = event.GetPosition()
         pos = Point(self.canvas.xpx2mm(pospx.x), self.canvas.ypx2mm(pospx.y))
+
+        exclude_anchors = []
+        if len(self.state.GetMovingObjects())>0:       
+            item = self.tree_objects.GetSelection()
+            obj = None
+            if item.IsOk():
+                obj = self.tree_objects_manager.ItemToObject(item)
+            self.anchor_objects.r_find_anchors(obj.obj, pos, self.canvas.px2mm(self.magnet), exclude_anchors)
         
-        [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet))
+        [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet), exclude_anchors)
         if distance is not None:
             pos = anchor.Pos(pos)
             #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
