@@ -157,24 +157,41 @@ class DialogBuy ( wx.Frame ):
 		self.m_panel4 = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.tree_wish_parts = wx.dataview.DataViewCtrl( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_VARIABLE_LINE_HEIGHT )
-		bSizer10.Add( self.tree_wish_parts, 1, wx.ALL|wx.EXPAND, 5 )
+		bSizer15 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.pager_wish = wx.Notebook( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.panel_wish = wx.Panel( self.pager_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		bSizer16 = wx.BoxSizer( wx.VERTICAL )
+		
+		self.tree_wish_parts = wx.dataview.DataViewCtrl( self.panel_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_VARIABLE_LINE_HEIGHT )
+		bSizer16.Add( self.tree_wish_parts, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
 		
-		self.m_staticText3 = wx.StaticText( self.m_panel4, wx.ID_ANY, u"Total:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText3 = wx.StaticText( self.panel_wish, wx.ID_ANY, u"Total:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3.Wrap( -1 )
 		bSizer11.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.text_total_price = wx.TextCtrl( self.m_panel4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 150,-1 ), wx.TE_READONLY|wx.TE_RIGHT )
+		self.text_total_price = wx.TextCtrl( self.panel_wish, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 150,-1 ), wx.TE_READONLY|wx.TE_RIGHT )
 		bSizer11.Add( self.text_total_price, 0, wx.ALL, 5 )
 		
-		self.static_total_price = wx.StaticText( self.m_panel4, wx.ID_ANY, u"EUR", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.static_total_price = wx.StaticText( self.panel_wish, wx.ID_ANY, u"EUR", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.static_total_price.Wrap( -1 )
 		bSizer11.Add( self.static_total_price, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
-		bSizer10.Add( bSizer11, 0, wx.ALIGN_RIGHT, 5 )
+		bSizer16.Add( bSizer11, 0, wx.ALIGN_RIGHT, 5 )
+		
+		
+		self.panel_wish.SetSizer( bSizer16 )
+		self.panel_wish.Layout()
+		bSizer16.Fit( self.panel_wish )
+		self.pager_wish.AddPage( self.panel_wish, u"Best prices", False )
+		
+		bSizer15.Add( self.pager_wish, 1, wx.EXPAND |wx.ALL, 5 )
+		
+		
+		bSizer10.Add( bSizer15, 1, wx.EXPAND, 5 )
 		
 		
 		self.m_panel4.SetSizer( bSizer10 )
@@ -242,6 +259,7 @@ class DialogBuy ( wx.Frame ):
 		
 		# Connect Events
 		self.spin_quantity.Bind( wx.EVT_SPINCTRL, self.onSpinQuantityCtrl )
+		self.spin_quantity.Bind( wx.EVT_TEXT_ENTER, self.onSpinQuantityEnter )
 		self.Bind( wx.EVT_TOOL, self.onButtonRefreshClick, id = self.toolbar_boms_refresh.GetId() )
 		self.tree_bom_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeBomPartsSelectionChanged, id = wx.ID_ANY )
 		self.tree_part_equivalents.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreePartEquivalentsSelectionChanged, id = wx.ID_ANY )
@@ -265,6 +283,9 @@ class DialogBuy ( wx.Frame ):
 	
 	# Virtual event handlers, overide them in your derived class
 	def onSpinQuantityCtrl( self, event ):
+		event.Skip()
+	
+	def onSpinQuantityEnter( self, event ):
 		event.Skip()
 	
 	def onButtonRefreshClick( self, event ):

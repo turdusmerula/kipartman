@@ -188,6 +188,7 @@ class SchematicFrame(PanelSchematic):
         items = self.tree_parts.GetSelections()
         if items:
             for item in items:
+                print "############################"
                 partobj = self.tree_parts_manager.ItemToObject(item)
                 self.associate_part(partobj.component, part)
                     

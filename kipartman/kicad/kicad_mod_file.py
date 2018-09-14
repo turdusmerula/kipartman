@@ -41,8 +41,10 @@ class KicadModFile(object):
 
     def Render(self, filename, width=256, height=256):
         canvas = Canvas.FootprintCanvas()
-        surface = canvas.Render(self.parent)
-        surface.write_to_png (filename)
+        canvas.Origin(width/2, height/2)
+        canvas.Viewport(width, height)
+        surface = canvas.RenderFit(self.parent)
+        surface.write_to_png(filename)
         
     def Write(self, obj, level=0):
         line = ""

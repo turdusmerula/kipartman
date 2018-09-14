@@ -115,9 +115,9 @@ class SelectOctopartFrame(PanelSelectOctopart):
         # apply new filter and reload
         self.octoparts_symbol.Cleared()
         self.octoparts_symbol = OctopartDataModel(self.search_octopart.Value)
-        self.tree_octoparts.AssociateSymbol(self.octoparts_symbol)
+        self.tree_octoparts.AssociateModel(self.octoparts_symbol)
 
-   # Virtual event handlers, overide them in your derived class
+    # Virtual event handlers, overide them in your derived class
     def onSearchOctopartButton( self, event ):
         self._search()
     

@@ -66,7 +66,7 @@ if __name__ == "__main__":
 #     #sch.DebugWrite(sch.parent)
 #     exit(1)
 
-    #import cProfile
-    #cProfile.run("main()")
+#     import cProfile
+#     cProfile.run("main()")
     main()
 

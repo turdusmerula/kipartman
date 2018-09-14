@@ -7,7 +7,6 @@ import copy
 
 epsilon=1e-9
 
-
 class ColorRGB(object):
     def __init__(self, r=0, g=0, b=0, l=1):
         self.r = r
@@ -46,16 +45,35 @@ class Layer(object):
         self.color = color
         self.layer_type = layer_type
         self.active = active
+
+        self.recording = False
         
         self.Resize()
 
+    def GetCtx(self):
+        if self.recording:
+            return self.recording_ctx
+        return self.ctx
+
+    def GetSurface(self):
+        if self.recording:
+            return self.recording_surface
+        return self.surface
+    
     def Resize(self):
-        self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.canvas.viewport.x, self.canvas.viewport.y)
-        self.ctx = cairo.Context(self.surface)
+        if self.recording:
+            self.recording_surface = cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, None)
+            self.recording_ctx = cairo.Context(self.recording_surface)
+        else:
+            self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.canvas.viewport.x, self.canvas.viewport.y)
+            self.ctx = cairo.Context(self.surface)
+    
+    def Recording(self, value):
+        self.recording = value
+        self.Clear()
         
     def Clear(self):
-        self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.canvas.viewport.x, self.canvas.viewport.y)
-        self.ctx = cairo.Context(self.surface)
+        self.Resize()
 #         self.ctx.set_operator(cairo.OPERATOR_CLEAR)
 #        self.ctx.rectangle(0, 0, self.canvas.viewport.x, self.canvas.viewport.y)
 #        self.ctx.fill()
@@ -63,7 +81,7 @@ class Layer(object):
     def Apply(self, ctx):
         ctx.set_source_rgb(self.color.r, self.color.g, self.color.b)
 
-    def Render(self, ctx, canvas):
+    def Render(self, canvas):
         pass
 
 class Drawing(object):
@@ -270,13 +288,13 @@ class PolyLine(Drawing):
         ctx.set_line_width(self.width)
         ctx.set_line_cap(cairo.LINE_CAP_ROUND)
         ctx.move_to(self.points[0].x, self.points[0].y)
-        for p in range(1, len(self.points)):
-            ctx.line_to(self.points[p].x, self.points[p].y)
+        for p in self.points:
+            ctx.line_to(p.x, p.y)
         if self.fill:
             ctx.fill()  
         else:
             ctx.stroke()
-
+        
 class MultiLine(Drawing):
     def __init__(self, lines=[], width=0):
         super(MultiLine, self).__init__()
@@ -530,9 +548,13 @@ class Canvas(object):
         self.origin = Point(0, 0)   # in px
         self.viewport = Point(100, 100) # in px
     
+        # create image with whole drawing content
+        self.img_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.viewport.x, self.viewport.y)
+        self.img_ctx = cairo.Context(self.img_surface)
+
     def Zoom(self, zoom):
         self.zoom = zoom
-        
+            
     def Origin(self, x, y):
         self.origin = Point(x, y)   # in mm
 
@@ -540,6 +562,11 @@ class Canvas(object):
         self.viewport = Point(width, height)   # in mm
         for layer in self.layers:
             layer.Resize()
+        
+        # create image with whole drawing content
+        self.img_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.viewport.x, self.viewport.y)
+        self.img_ctx = cairo.Context(self.img_surface)
+
             
     def AddLayer(self, name, color=ColorRGB.Black(), layer_type='', active=True):
         if name in self.layer_names:
@@ -599,38 +626,96 @@ class Canvas(object):
     def Draw(self, obj, layer_names=None):
         if not layer_names:
             layer_names = self.selected_layers
-        
-        layers = []
-        for name in layer_names:
-            if name.startswith('*'):
-                layers.append(self.layer_names[name.replace("*", "F")])
-                layers.append(self.layer_names[name.replace("*", "B")])
+
+        for layer_name in layer_names:
+            if layer_name.startswith('*'):
+                layer = self.layer_names[layer_name.replace("*", "F")]
+                layer.Apply(layer.GetCtx())
+                self.font.Apply(layer.GetCtx())
+                obj.Render(layer.GetCtx(), self)
+
+                layer = self.layer_names[layer_name.replace("*", "B")]
+                layer.Apply(layer.GetCtx())
+                self.font.Apply(layer.GetCtx())
+                obj.Render(layer.GetCtx(), self)
             else:
-                layers.append(self.layer_names[name])
-                
-        for layer in layers:
-            layer.Apply(layer.ctx)
-            self.font.Apply(layer.ctx)
-            obj.Render(layer.ctx, self)
+                layer = self.layer_names[layer_name]
+                layer.Apply(layer.GetCtx())
+                self.font.Apply(layer.GetCtx())
+                obj.Render(layer.GetCtx(), self)
 
     def Render(self, obj):
         obj.Render(self)
+                
+        # draw background
+        self.img_ctx.rectangle(0, 0, self.viewport.x, self.viewport.y)
+        self.img_ctx.set_source_rgb(self.background.r, self.background.g, self.background.b)
+        self.img_ctx.fill() 
+
+        for layer in self.layers:
+            self.img_ctx.set_source_surface(layer.surface, 0, 0)
+            self.img_ctx.paint()
+
+        return self.img_surface
+
+    def RenderFit(self, obj):
+        for layer in self.layers:
+            layer.Recording(True)
+            
+        obj.Render(self)
+
+        s_x = None
+        s_y = None
+        s_width = None
+        s_height = None
+
+        for layer in self.layers:
+            x, y, width, height = layer.GetSurface().ink_extents()
+            if math.fabs(x)>epsilon and math.fabs(y)>epsilon and math.fabs(width)>epsilon and math.fabs(height)>epsilon:
+                if s_x is None:
+                    s_x, s_y, s_width, s_height = x, y, width, height
+                else:
+                    if x<s_x:
+                        s_x = x
+                    if y<s_y:
+                        s_y = y
+                    if width>s_width:
+                        s_width = width
+                    if height>s_height:
+                        s_height = height
+        if s_x is None:
+            s_x, s_y, s_width, s_height = 0., 0., 0., 0.
+        print "--", s_x, s_y, s_width, s_height
         
         # create image with whole drawing content
         img_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.viewport.x, self.viewport.y)
         img_ctx = cairo.Context(img_surface)
                 
+        ratio = s_width
+        decx = 0.
+        decy = math.fabs(s_width-s_height)/2.
+        if s_height>s_width:
+            ratio = s_height
+            decx = math.fabs(s_width-s_height)/2.
+            decy = 0.
+        if math.fabs(ratio)>epsilon:
+            img_ctx.scale(self.viewport.x/ratio, self.viewport.y/ratio) # Normalizing the canvas
+         
         # draw background
         img_ctx.rectangle(0, 0, self.viewport.x, self.viewport.y)
         img_ctx.set_source_rgb(self.background.r, self.background.g, self.background.b)
         img_ctx.fill() 
-
+ 
         for layer in self.layers:
-            img_ctx.set_source_surface(layer.surface, 0, 0)
+            x, y, width, height = layer.GetSurface().ink_extents()
+            img_ctx.set_source_surface(layer.GetSurface(), -x+decx, -y+decy)
             img_ctx.paint()
 
+        for layer in self.layers:
+            layer.Recording(False)
+        
         return img_surface
-    
+        
 #     def Render(self, width, height):
 #         # create drawing
 #         surface = cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, None)

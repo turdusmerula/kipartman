@@ -18,6 +18,9 @@ def serialize_PartOfferData(fpart_offer, part_offer=None):
         part_offer = PartOfferData()
     part_offer.packaging_unit = fpart_offer.packaging_unit
     part_offer.quantity = fpart_offer.quantity
+    part_offer.min_order_quantity = fpart_offer.min_order_quantity
+    part_offer.available_stock = fpart_offer.available_stock
+    part_offer.packaging = fpart_offer.packaging
     part_offer.unit_price = fpart_offer.unit_price
     part_offer.currency = fpart_offer.currency
     part_offer.sku = fpart_offer.sku
@@ -40,6 +43,13 @@ def deserialize_PartOffer(part_offer, fpart_offer=None):
     fpart_offer.unit_price = part_offer.unit_price
     fpart_offer.currency = part_offer.currency
     fpart_offer.sku = part_offer.sku
+    if part_offer.min_order_quantity is not None:
+        fpart_offer.min_order_quantity = part_offer.min_order_quantity
+    if part_offer.available_stock is not None:
+        fpart_offer.available_stock = part_offer.available_stock
+    if part_offer.packaging is not None:
+        fpart_offer.packaging = part_offer.packaging
+        
     if part_offer.updated:
         fpart_offer.updated = part_offer.updated
     else:

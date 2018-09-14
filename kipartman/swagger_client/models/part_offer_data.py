@@ -33,7 +33,10 @@ class PartOfferData(object):
     swagger_types = {
         'packaging_unit': 'int',
         'quantity': 'int',
+        'min_order_quantity': 'int',
         'unit_price': 'float',
+        'available_stock': 'int',
+        'packaging': 'str',
         'currency': 'str',
         'sku': 'str',
         'updated': 'str'
@@ -42,20 +45,26 @@ class PartOfferData(object):
     attribute_map = {
         'packaging_unit': 'packaging_unit',
         'quantity': 'quantity',
+        'min_order_quantity': 'min_order_quantity',
         'unit_price': 'unit_price',
+        'available_stock': 'available_stock',
+        'packaging': 'packaging',
         'currency': 'currency',
         'sku': 'sku',
         'updated': 'updated'
     }
 
-    def __init__(self, packaging_unit=None, quantity=None, unit_price=None, currency=None, sku=None, updated=None):
+    def __init__(self, packaging_unit=None, quantity=None, min_order_quantity=None, unit_price=None, available_stock=None, packaging=None, currency=None, sku=None, updated=None):
         """
         PartOfferData - a model defined in Swagger
         """
 
         self._packaging_unit = None
         self._quantity = None
+        self._min_order_quantity = None
         self._unit_price = None
+        self._available_stock = None
+        self._packaging = None
         self._currency = None
         self._sku = None
         self._updated = None
@@ -64,8 +73,14 @@ class PartOfferData(object):
           self.packaging_unit = packaging_unit
         if quantity is not None:
           self.quantity = quantity
+        if min_order_quantity is not None:
+          self.min_order_quantity = min_order_quantity
         if unit_price is not None:
           self.unit_price = unit_price
+        if available_stock is not None:
+          self.available_stock = available_stock
+        if packaging is not None:
+          self.packaging = packaging
         if currency is not None:
           self.currency = currency
         if sku is not None:
@@ -116,6 +131,27 @@ class PartOfferData(object):
         self._quantity = quantity
 
     @property
+    def min_order_quantity(self):
+        """
+        Gets the min_order_quantity of this PartOfferData.
+
+        :return: The min_order_quantity of this PartOfferData.
+        :rtype: int
+        """
+        return self._min_order_quantity
+
+    @min_order_quantity.setter
+    def min_order_quantity(self, min_order_quantity):
+        """
+        Sets the min_order_quantity of this PartOfferData.
+
+        :param min_order_quantity: The min_order_quantity of this PartOfferData.
+        :type: int
+        """
+
+        self._min_order_quantity = min_order_quantity
+
+    @property
     def unit_price(self):
         """
         Gets the unit_price of this PartOfferData.
@@ -135,6 +171,48 @@ class PartOfferData(object):
         """
 
         self._unit_price = unit_price
+
+    @property
+    def available_stock(self):
+        """
+        Gets the available_stock of this PartOfferData.
+
+        :return: The available_stock of this PartOfferData.
+        :rtype: int
+        """
+        return self._available_stock
+
+    @available_stock.setter
+    def available_stock(self, available_stock):
+        """
+        Sets the available_stock of this PartOfferData.
+
+        :param available_stock: The available_stock of this PartOfferData.
+        :type: int
+        """
+
+        self._available_stock = available_stock
+
+    @property
+    def packaging(self):
+        """
+        Gets the packaging of this PartOfferData.
+
+        :return: The packaging of this PartOfferData.
+        :rtype: str
+        """
+        return self._packaging
+
+    @packaging.setter
+    def packaging(self, packaging):
+        """
+        Sets the packaging of this PartOfferData.
+
+        :param packaging: The packaging of this PartOfferData.
+        :type: str
+        """
+
+        self._packaging = packaging
 
     @property
     def currency(self):

@@ -1570,6 +1570,25 @@
                                         <event name="OnMenuSelection">onMenuPartRemovePart</event>
                                         <event name="OnUpdateUI"></event>
                                     </object>
+                                    <object class="separator" expanded="1">
+                                        <property name="name">m_separator2</property>
+                                        <property name="permission">none</property>
+                                    </object>
+                                    <object class="wxMenuItem" expanded="1">
+                                        <property name="bitmap">Load From File; </property>
+                                        <property name="checked">0</property>
+                                        <property name="enabled">1</property>
+                                        <property name="help"></property>
+                                        <property name="id">wxID_ANY</property>
+                                        <property name="kind">wxITEM_NORMAL</property>
+                                        <property name="label">Refresh part from octopart</property>
+                                        <property name="name">menu_refresh_octopart_part</property>
+                                        <property name="permission">none</property>
+                                        <property name="shortcut"></property>
+                                        <property name="unchecked_bitmap"></property>
+                                        <event name="OnMenuSelection">onMenuPartRefreshOctopartPart</event>
+                                        <event name="OnUpdateUI"></event>
+                                    </object>
                                 </object>
                             </object>
                         </object>

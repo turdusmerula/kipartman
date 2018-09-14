@@ -68,9 +68,12 @@ class PartManufacturer(models.Model):
 class PartOffer(models.Model):
     part = models.ForeignKey('Part', related_name='offers', null=False, blank=False, default=None)
     distributor = models.ForeignKey('Distributor', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    packaging_unit = models.IntegerField()
+    packaging_unit = models.IntegerField(default=1)
+    min_order_quantity = models.IntegerField(default=1)
     quantity = models.IntegerField()
+    available_stock = models.IntegerField(null=True, blank=True, default=None)
     unit_price = models.FloatField()
+    packaging = models.TextField(blank=True)
     currency = models.TextField(blank=True)
     sku = models.TextField(blank=True)
     updated = models.DateTimeField()

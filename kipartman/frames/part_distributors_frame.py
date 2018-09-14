@@ -29,11 +29,12 @@ class DataModelOffer(helper.tree.TreeItem):
         vMap = { 
             0 : '',
             1 : str(self.offer.packaging_unit),
-            2 : str(self.offer.quantity),
-            3 : str(self.item_price()),
-            4 : str(self.offer.unit_price),
-            5 : self.offer.currency,
-            6 : self.offer.sku,
+            2 : str(self.offer.packaging),
+            3 : str(self.offer.quantity),
+            4 : str(self.item_price()),
+            5 : str(self.offer.unit_price),
+            6 : self.offer.currency,
+            7 : self.offer.sku,
         }
         return vMap[col]
 
@@ -51,6 +52,7 @@ class PartDistributorsFrame(PanelPartDistributors):
         self.tree_distributors_manager = helper.tree.TreeManager(self.tree_distributors)
         self.tree_distributors_manager.AddTextColumn("Distributor")
         self.tree_distributors_manager.AddIntegerColumn("Packaging Unit")
+        self.tree_distributors_manager.AddIntegerColumn("Packaging")
         self.tree_distributors_manager.AddIntegerColumn("Quantity")
         self.tree_distributors_manager.AddFloatColumn("Price")
         self.tree_distributors_manager.AddFloatColumn("Price per Item")

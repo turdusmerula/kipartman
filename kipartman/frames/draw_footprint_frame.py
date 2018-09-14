@@ -18,72 +18,73 @@ import helper.tree
 from operator import pos
 import numpy
 from kicad import kicad_mod_file
+from numpy.polynomial.polynomial import polyline
 
 epsilon=1e-9
 
-class DataModelCategoryObject(helper.tree.TreeContainerItem):
-    def __init__(self, name):
-        super(DataModelCategoryObject, self).__init__()
-        self.name = name
-        
-    def GetValue(self, col):
-        vMap = { 
-            0 : self.name,
-        }
-        return vMap[col]
-
-    def GetAttr(self, col, attr):
-        attr.Bold = True
-        return True
-
-class DataModelObject(helper.tree.TreeItem):
-    def __init__(self, name, obj):
-        super(DataModelObject, self).__init__()
-        self.name = name
-        self.obj = obj
-        
-    def GetValue(self, col):
-        vMap = { 
-            0 : self.name,
-        }
-        return vMap[col]
-
-class TreeManagerObjects(helper.tree.TreeManager):
-    def __init__(self, tree_view, *args, **kwargs):
-        super(TreeManagerObjects, self).__init__(tree_view)
-        
-    def FindCategory(self, name):
-        for data in self.data:
-            if isinstance(data, DataModelCategoryObject) and data.name==name:
-                return data
-        return None
-                
-    def FindObject(self, obj):
-        for data in self.data:
-            if isinstance(data, DataModelObject) and data.obj==obj:
-                return data
-        return None
-
-    def AppendCategory(self, name):
-        categoryobj = self.FindCategory(name)
-        if categoryobj:
-            return categoryobj
-        categoryobj = DataModelCategoryObject(name)
-        self.AppendItem(None, categoryobj)
-        return categoryobj
-    
-    def AppendObject(self, catgory_name, obj):
-        categoryobj = self.AppendCategory(catgory_name)
-        objobj = DataModelObject(obj.Description(), obj)
-        self.AppendItem(categoryobj, objobj)
-        self.Expand(categoryobj)
-        return objobj
-
-    def DeleteObject(self, obj):
-        objobj = self.FindObject(obj)
-        if objobj is None:
-            return None
-        self.DeleteItem(objobj.parent, objobj)
+# class DataModelCategoryObject(helper.tree.TreeContainerItem):
+#     def __init__(self, name):
+#         super(DataModelCategoryObject, self).__init__()
+#         self.name = name
+#         
+#     def GetValue(self, col):
+#         vMap = { 
+#             0 : self.name,
+#         }
+#         return vMap[col]
+# 
+#     def GetAttr(self, col, attr):
+#         attr.Bold = True
+#         return True
+# 
+# class DataModelObject(helper.tree.TreeItem):
+#     def __init__(self, name, obj):
+#         super(DataModelObject, self).__init__()
+#         self.name = name
+#         self.obj = obj
+#         
+#     def GetValue(self, col):
+#         vMap = { 
+#             0 : self.name,
+#         }
+#         return vMap[col]
+# 
+# class TreeManagerObjects(helper.tree.TreeManager):
+#     def __init__(self, tree_view, *args, **kwargs):
+#         super(TreeManagerObjects, self).__init__(tree_view)
+#         
+#     def FindCategory(self, name):
+#         for data in self.data:
+#             if isinstance(data, DataModelCategoryObject) and data.name==name:
+#                 return data
+#         return None
+#                 
+#     def FindObject(self, obj):
+#         for data in self.data:
+#             if isinstance(data, DataModelObject) and data.obj==obj:
+#                 return data
+#         return None
+# 
+#     def AppendCategory(self, name):
+#         categoryobj = self.FindCategory(name)
+#         if categoryobj:
+#             return categoryobj
+#         categoryobj = DataModelCategoryObject(name)
+#         self.AppendItem(None, categoryobj)
+#         return categoryobj
+#     
+#     def AppendObject(self, catgory_name, obj):
+#         categoryobj = self.AppendCategory(catgory_name)
+#         objobj = DataModelObject(obj.Description(), obj)
+#         self.AppendItem(categoryobj, objobj)
+#         self.Expand(categoryobj)
+#         return objobj
+# 
+#     def DeleteObject(self, obj):
+#         objobj = self.FindObject(obj)
+#         if objobj is None:
+#             return None
+#         self.DeleteItem(objobj.parent, objobj)
         
 
 
@@ -427,8 +428,18 @@ class EditorObject(Object):
         self.origin_pos = self.pos
         self.origin_angle = self.angle
 
+#    def Render(self, canvas):
+#        pass
+    
     def Description(self):
         return format(type(self))
+    
+    def ContainsPos(self, pos, margin):
+        for anchor in self.anchors:
+            distance = anchor.Distance(pos)
+            if distance is not None and distance<margin:
+                return True
+        return False
     
 # landmark for origin
 class ObjectOrigin(EditorObject):
@@ -1175,6 +1186,8 @@ class ObjectPad(EditorObject):
                 self.AddAnchorSegment(Line(self.points[2].pos, self.points[3].pos))
                 self.AddAnchorSegment(Line(self.points[3].pos, self.points[4].pos))
                 self.AddAnchorSegment(Line(self.points[4].pos, self.points[1].pos))
+                if self.shape=='oval':
+                    pass
             elif self.shape=='circle':
                 self.AddAnchorCircle(self.pos, Point(self.pos.x+dx, self.pos.y))
 
@@ -1304,7 +1317,51 @@ class ObjectPad(EditorObject):
 
     def Description(self):
         return "Pad {} {} {} x={} y={} width={} height={} angle={}".format(self.type, self.shape, self.name, self.pos.x, self.pos.y, self.size.x, self.size.y, self.angle)
-            
+
+    def dotcross(self, p0, p1, p2, p3):
+        v0 = Point(p1.x-p0.x, p1.y-p0.y)
+        v1 = Point(p3.x-p2.x, p3.y-p2.y)
+        return v0.x*v1.y-v0.y*v1.x
+    
+    def ContainsPos(self, pos, margin):
+        print "****"
+        for anchor in self.anchors:
+            distance = anchor.Distance(pos)
+            if distance is not None and distance<margin:
+                return True
+
+        dx = self.size.x/2.
+        dy = self.size.y/2.
+        points = []
+        points.append(Point(self.pos.x-dx, self.pos.y-dy))
+        points.append(Point(self.pos.x+dx, self.pos.y-dy))
+        points.append(Point(self.pos.x+dx, self.pos.y+dy))
+        points.append(Point(self.pos.x-dx, self.pos.y+dy))
+        
+        for p in points:
+            pr = p.Rotate(pos, self.angle)
+            p.x = pr.x
+            p.y = pr.y
+
+#        print "****", self.dotcross(points[0], points[1], points[0], pos), self.dotcross(points[1], points[2], points[1], pos), self.dotcross(points[2], points[3], points[2], pos), self.dotcross(points[3], points[0], points[3], pos)
+
+        if self.dotcross(points[0], points[1], points[0], pos)>0 and \
+            self.dotcross(points[1], points[2], points[1], pos)>0 and \
+            self.dotcross(points[2], points[3], points[2], pos)>0 and \
+            self.dotcross(points[3], points[0], points[3], pos)>0:
+            return True
+#         print "****", pos.x, pos.y, points[0].GetAngle(points[1], pos)*180./math.pi, points[1].GetAngle(points[2], pos)*180./math.pi, points[2].GetAngle(points[3], pos)*180./math.pi, points[3].GetAngle(points[0], pos)*180./math.pi
+#         if points[0].GetAngle(points[1], pos)>math.pi:
+#             return False
+#         if points[1].GetAngle(points[2], pos)>math.pi:
+#             return False
+#         if points[2].GetAngle(points[3], pos)>math.pi:
+#             return False
+#         if points[3].GetAngle(points[0], pos)>math.pi:
+#             return False
+    
+        return False
+
 class ObjectPolyline(EditorObject):
     def __init__(self, layers=[]):
         super(ObjectPolyline, self).__init__(layers, Point())
@@ -1320,7 +1377,7 @@ class ObjectPolyline(EditorObject):
         
         p0 = None
         for p1 in self.points:
-            if p1!=self.points[len(self.points)-1]:
+            if self.placed==True or p1!=self.points[len(self.points)-1]:
                 if p0:
                     self.AddAnchorSegment(Line(p0.pos, p1.pos))
                 self.AddAnchor(p1.pos)
@@ -1330,11 +1387,11 @@ class ObjectPolyline(EditorObject):
         super(ObjectPolyline, self).Render(canvas)
 
         if self.placed or len(self.points)>0:
-            for p in range(1, len(self.points)):
-                p0 = Point(canvas.xmm2px(self.points[p-1].pos.x), canvas.ymm2px(self.points[p-1].pos.y))
-                p1 = Point(canvas.xmm2px(self.points[p].pos.x), canvas.ymm2px(self.points[p].pos.y))
-                canvas.Draw(Line(p0, p1, canvas.mm2px(self.width)), self.layers)
-    
+            points = []
+            for p in self.points:
+                points.append(Point(canvas.xmm2px(p.pos.x), canvas.ymm2px(p.pos.y)))
+            canvas.Draw(PolyLine(points, canvas.mm2px(self.width), fill=False), self.layers)
+
     def Move(self, pos):
         if self.placed==False:
             self.points[len(self.points)-1].Move(pos)
@@ -1381,6 +1438,90 @@ class ObjectPolyline(EditorObject):
         for p in self.points:
             coords = coords+"({},{})".format(p.pos.x, p.pos.y)
         return "Polyline width={} ".format(self.width)+coords
+
+class ObjectMultiline(EditorObject):
+    def __init__(self, layers=[]):
+        super(ObjectMultiline, self).__init__(layers, Point())
+        
+        self.width = 1 # mm
+
+        self.points = []
+        
+        self.Update()
+
+    def Update(self):
+        self.Clear()
+        
+        p0 = None
+        for p1 in self.points:
+            if p1!=self.points[len(self.points)-1]:
+                if p0:
+                    self.AddAnchorSegment(Line(p0.pos, p1.pos))
+                self.AddAnchor(p1.pos)
+            p0 = p1
+    
+    def Render(self, canvas):
+        super(ObjectMultiline, self).Render(canvas)
+
+        if self.placed or len(self.points)>0:
+            lines = []
+            pp = None
+            for pmm in self.points:
+                p = Point(canvas.xmm2px(pmm.pos.x), canvas.ymm2px(pmm.pos.y))
+                if pp is not None:
+                    lines.append(Line(pp, p))
+                    pp = None
+                else:
+                    pp = p
+                 
+            canvas.Draw(MultiLine(lines, canvas.mm2px(self.width)), self.layers)
+                
+    def Move(self, pos):
+        if self.placed==False:
+            self.points[len(self.points)-1].Move(pos)
+            self.points[len(self.points)-1].Update()
+        elif self.placed:
+            for point in self.points:
+                point.pos = Point(point.pos.x+pos.x-self.pos.x, point.pos.y+pos.y-self.pos.y) 
+                point.Update()
+            self.pos = pos
+            
+        self.Update()
+
+    def StartPlace(self):
+        p = ObjectPoint()
+        p.Select()
+        self.points.append(p)
+        self.AddNode(p)
+        
+    # return True if placement is complete
+    def Place(self, pos):
+        p = ObjectPoint(pos)
+        p.Select()
+        for point in self.points:
+            point.placed = True
+            point.Update()
+        self.points.append(p)
+        self.AddNode(p)
+        return False
+
+    def Select(self):
+        if "Selection" not in self.layers:
+            self.layers.append("Selection")
+        for p in self.points:
+            p.Select()
+
+    def UnSelect(self):
+        if "Selection" in self.layers:
+            self.layers.remove("Selection")
+        for p in self.points:
+            p.UnSelect()
+
+    def Description(self):
+        coords = ""
+        for p in self.points:
+            coords = coords+"({},{})".format(p.pos.x, p.pos.y)
+        return "Multiline width={} ".format(self.width)+coords
 
 class ObjectText(EditorObject):
     def __init__(self, value, layers, font, pos=Point()):
@@ -1758,8 +1899,8 @@ class ObjectPadRow(EditorObject):
     def PlacePads(self):
         for pad in self.pads:
             self.editor.component_objects.AddNode(pad)
-            obj = self.editor.tree_objects_manager.AppendObject('Part', pad)
-            self.editor.tree_objects_manager.Select(obj)
+#             obj = self.editor.tree_objects_manager.AppendObject('Part', pad)
+#             self.editor.tree_objects_manager.Select(obj)
             pad.Update()
             pad.UnSelect()
         self.model_pad.UnSelect()
@@ -1973,7 +2114,10 @@ class EditorState(object):
             self.state = self.StateRotating
         elif self.state==self.StateRotating:
             self.Validate()
-
+        else:
+            return None
+        return self.state
+    
     def DoDClick(self, x, y, screenx, screeny):
         if self.state==self.StatePlacing:
             self.Validate()
@@ -2002,14 +2146,14 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.component_objects = EditorObject([])
         self.build_objects = EditorObject([])
         
-        self.anchor_objects = EditorObject([])
-        self.anchor_objects.AddNode(self.component_objects)
-        self.anchor_objects.AddNode(self.build_objects)
+        self.selectable_objects = EditorObject([])
+        self.selectable_objects.AddNode(self.component_objects)
+        self.selectable_objects.AddNode(self.build_objects)
         
         self.all_objects = EditorObject([])
-        self.all_objects.AddNode(self.anchor_objects)
+        self.all_objects.AddNode(self.selectable_objects)
         
-        self.state = EditorState(self.canvas, self.anchor_objects)
+        self.state = EditorState(self.canvas, self.selectable_objects)
         
         self.current_panel = None
         
@@ -2019,12 +2163,12 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.footprint_descr = ''
         self.footprint_tags = []
         
-        # create manufacturers list
-        self.tree_objects_manager = TreeManagerObjects(self.tree_objects, context_menu=self.menu_edit)
-        self.tree_objects_manager.AddTextColumn("name")
-        self.tree_objects_manager.OnSelectionChanged = self.onTreeMenuObjectsSelChanged
-        self.tree_objects_manager.AppendCategory('Drawing')
-        self.tree_objects_manager.AppendCategory('Part')
+#         # create manufacturers list
+#         self.tree_objects_manager = TreeManagerObjects(self.tree_objects, context_menu=self.menu_edit)
+#         self.tree_objects_manager.AddTextColumn("name")
+#         self.tree_objects_manager.OnSelectionChanged = self.onTreeMenuObjectsSelChanged
+#         self.tree_objects_manager.AppendCategory('Drawing')
+#         self.tree_objects_manager.AppendCategory('Part')
         
         # create layers list
         self.tree_layers_manager = TreeManagerLayers(self.tree_layers)
@@ -2036,10 +2180,11 @@ class DrawFootprintFrame(DialogDrawFootprint):
         # add origin 
         node = ObjectOrigin(Position(0, 0))
         node.placed = True
-        self.build_objects.AddNode(node)
+        self.all_objects.AddNode(node)
 
         # add cursor
-        node = ObjectGrid(Position(0, 0), Position(1, 1), Position(10, 10))
+        node = ObjectOrigin() 
+        #ObjectGrid(Position(0, 0), Position(1, 1), Position(10, 10))
         self.cursor = node
         self.all_objects.AddNode(self.cursor)
         
@@ -2047,11 +2192,11 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.part_reference = ObjectTextReference("REF**", Font(Point(1, 1), 0.15))
         self.part_reference.placed = True
         self.component_objects.AddNode(self.part_reference)
-        self.tree_objects_manager.AppendObject('Part', self.part_reference)
+#         self.tree_objects_manager.AppendObject('Part', self.part_reference)
         self.part_value = ObjectTextValue("<value>", Font(Point(1, 1), 0.15))
         self.part_value.placed = True
         self.component_objects.AddNode(self.part_value)
-        self.tree_objects_manager.AppendObject('Part', self.part_value)
+#         self.tree_objects_manager.AppendObject('Part', self.part_value)
 #         self.part_user = ObjectTextUser("%R", Font(Point(1, 1), 0.15))
 #         self.component_objects.AddNode(self.part_user)
 #         self.tree_objects_manager.AppendObject('Part', self.part_user)
@@ -2060,7 +2205,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.last_grid = None
         self.last_pad = None
         
-        self.Bind(wx.EVT_CHAR_HOOK, self.keyPressed)
+        self.panel_draw.Bind(wx.EVT_CHAR_HOOK, self.keyPressed)
 
         self.canvas.Viewport(self.image_draw.GetRect().width, self.image_draw.GetRect().height)
         self.canvas.Origin(self.image_draw.GetRect().width/2, self.image_draw.GetRect().height/2)
@@ -2070,7 +2215,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
         
         self.SelectObjects([])
         
-    def Render(self):        
+    def Render(self):
         self.canvas.Clear() #(["Editor"])
         img = self.canvas.Render(self.all_objects)
         self.image_draw.SetBitmap(wx.lib.wxcairo.BitmapFromImageSurface(img))
@@ -2124,9 +2269,9 @@ class DrawFootprintFrame(DialogDrawFootprint):
         for node in obj.nodes:
             self.UpdateAll(node)
             
-    def load_object(self, obj, stack=[], level=0):
+    def load_object(self, obj, stack=[], level=0, lines=None):
         pop = False
-        
+                    
         current = None
         if len(stack)>0:
             current = stack[len(stack)-1]
@@ -2140,12 +2285,12 @@ class DrawFootprintFrame(DialogDrawFootprint):
             current = ObjectPad()
             pop = True
             stack.append(current)
+            current.placed = True
             current.name = obj.GetName()
             current.SetType(obj.GetType())
             current.SetShape(obj.GetShape())
-            current.placed = True
             self.component_objects.AddNode(current)
-            self.tree_objects_manager.AppendObject('Part', current)
+#             self.tree_objects_manager.AppendObject('Part', current)
         elif isinstance(obj, kicad_mod_file.KicadFPText):
             if obj.GetKind()=='value':
                 current = self.part_value
@@ -2154,7 +2299,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
             else:
                 current = ObjectTextUser()
                 self.component_objects.AddNode(current)
-                self.tree_objects_manager.AppendObject('Part', current)
+#                 self.tree_objects_manager.AppendObject('Part', current)
             current.value = obj.GetValue()
             current.placed = True
             stack.append(current)
@@ -2165,21 +2310,21 @@ class DrawFootprintFrame(DialogDrawFootprint):
             stack.append(current)
             current.placed = True
             self.component_objects.AddNode(current)
-            self.tree_objects_manager.AppendObject('Part', current)
+#             self.tree_objects_manager.AppendObject('Part', current)
         elif isinstance(obj, kicad_mod_file.KicadFPCircle):
             current = ObjectCircle()
             pop = True
             stack.append(current)
             current.placed = True
             self.component_objects.AddNode(current)
-            self.tree_objects_manager.AppendObject('Part', current)
+#             self.tree_objects_manager.AppendObject('Part', current)
         elif isinstance(obj, kicad_mod_file.KicadFPLine):
             current = ObjectPolyline()
             pop = True
             stack.append(current)
             current.placed = True
             self.component_objects.AddNode(current)
-            self.tree_objects_manager.AppendObject('Part', current)
+#             self.tree_objects_manager.AppendObject('Part', current)
         elif isinstance(obj, kicad_mod_file.KicadAt) and current:
             at = obj.GetAt()
             current.Move(at)
@@ -2190,17 +2335,17 @@ class DrawFootprintFrame(DialogDrawFootprint):
                 current.StartRotate()
                 current.Rotate(current.pos, -at.angle*math.pi/180.)
                 current.Validate()
-            self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
+#             self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
         elif isinstance(obj, kicad_mod_file.KicadSize) and current:
             size = obj.GetSize()
             current.size.x = size.x
             current.size.y = size.y
-            self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
+#             self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
         elif isinstance(obj, kicad_mod_file.KicadCenter) and current:
             centre = obj.GetCenter()
             current.points[0].pos.x = centre.x
             current.points[1].pos.y = centre.y
-            self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
+#             self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
         elif isinstance(obj, kicad_mod_file.KicadStart) and current:
             if isinstance(current, ObjectPad):
                 current.Move(obj.GetStart())
@@ -2208,7 +2353,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
                 current.points.append(ObjectPoint(obj.GetStart()))
             elif isinstance(current, ObjectArc) or isinstance(current, ObjectCircle):
                 current.points[0].pos = obj.GetStart()
-            self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
+#             self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
         elif isinstance(obj, kicad_mod_file.KicadEnd) and current:
             if isinstance(current, ObjectPad):
                 end = obj.GetEnd()
@@ -2219,7 +2364,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
                 current.points.append(ObjectPoint(obj.GetEnd()))
             elif isinstance(current, ObjectArc) or isinstance(current, ObjectCircle):
                 current.points[1].pos = obj.GetEnd()
-            self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
+#             self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
         elif isinstance(obj, kicad_mod_file.KicadAngle) and current:
             if isinstance(current, ObjectArc):
                 dx = current.points[0].pos.x-current.points[1].pos.x
@@ -2232,7 +2377,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
         elif isinstance(obj, kicad_mod_file.KicadOffset) and current:
             if isinstance(current, ObjectPad):
                 current.offset = obj.GetOffset()
-            self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
+#             self.tree_objects_manager.UpdateItem(self.tree_objects_manager.FindObject(current))
         elif isinstance(obj, kicad_mod_file.KicadWidth) and current:
             width = obj.GetWidth()
             current.width = width
@@ -2245,6 +2390,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
         elif isinstance(obj, kicad_mod_file.KicadItalic) and current:
             current.style = 'italic'
         elif isinstance(obj, kicad_mod_file.KicadLayer) and current:
+            current.layers = []
             current.layers.append(obj.GetLayer())
         elif isinstance(obj, kicad_mod_file.KicadLayers) and current:
             current.layers = []
@@ -2290,6 +2436,43 @@ class DrawFootprintFrame(DialogDrawFootprint):
         elif isinstance(obj, kicad_mod_file.KicadHide) and current:
             current.visible = False
     
+#         # fusion lines to polylines
+#         polylines = []
+#         fusion = True
+#         while fusion:
+#             fusion = False
+#             while len(lines)>0:
+#                 line = lines[0]
+#                 line_start = line.points[0]
+#                 line_end = line.points[len(line.points)-1]
+#                 for polyline in polylines:
+#                     polyline_start = polyline.points[0]
+#                     polyline_end = polyline.points[len(polyline.points)-1]
+#                     
+#                     if math.fabs(polyline.width-line.width)<=epsilon:
+#                         if math.fabs(line_start.x-polyline_end.x)<=epsilon and math.fabs(line_start.y-polyline_end.y)<=epsilon:
+#                             for p in line.points:
+#                                 if p!=line_start:
+#                                     polyline.points.append(p)
+#                             lines.remove(line)
+#                             line = None
+#                             fusion = True
+#                         if line and math.fabs(line_end.x-polyline_start.x)<=epsilon and math.fabs(line_end.y-polyline_start.y)<=epsilon:
+#                             for p in reversed(line.points):
+#                                 if p!=line_end:
+#                                     polyline.points.insert(0, p)
+#                             lines.remove(line)
+#                             line = None
+#                             fusion = True
+#                 if line:
+#                     lines.remove(line)
+#                     polylines.append(line)
+#             lines = polylines
+#             polylines = []
+#         for polyline in polylines:
+#             self.component_objects.AddNode(polyline)
+#             self.tree_objects_manager.AppendObject('Part', polyline)
+            
         for node in obj.nodes:
             self.load_object(node, stack, level+1)
         
@@ -2417,18 +2600,21 @@ class DrawFootprintFrame(DialogDrawFootprint):
             pad.AddNode(node)
             
         elif isinstance(obj, ObjectPolyline):
+            obj.UnSelect()
+            print "#####"
             pp = None
             for p in obj.points:
                 if pp is not None:
+                    print "####", p
                     line = kicad_mod_file.KicadFPLine()
                     parent.AddNode(line)
                     node = kicad_mod_file.KicadStart()
-                    node.AddAttribute(p.pos.x)
-                    node.AddAttribute(p.pos.y)
-                    line.AddNode(node)
-                    node = kicad_mod_file.KicadEnd()
                     node.AddAttribute(pp.pos.x)
                     node.AddAttribute(pp.pos.y)
+                    line.AddNode(node)
+                    node = kicad_mod_file.KicadEnd()
+                    node.AddAttribute(p.pos.x)
+                    node.AddAttribute(p.pos.y)
                     line.AddNode(node)
                     node = kicad_mod_file.KicadLayer()
                     node.AddAttribute(obj.layers[0])
@@ -2496,18 +2682,21 @@ class DrawFootprintFrame(DialogDrawFootprint):
         names = []
         for obj in self.component_objects.nodes:
             if isinstance(obj, ObjectPad) and obj.name!='':
-                names.append(obj.name)
+                try:
+                    names.append(int(obj.name))
+                except:
+                    pass
         names.sort()
 
         if len(names)==0:
             return '1'
         
-        pname = '1'
+        pname = 0
         for name in names:
-            if int(name)-int(pname)>1:
-                return str(int(pname)+1)
+            if name-pname>1:
+                return str(pname+1)
             pname = name
-        return str(int(pname)+1)
+        return str(pname+1)
     
     def SelectObjects(self, objs):
         self.Cancel()
@@ -2543,7 +2732,15 @@ class DrawFootprintFrame(DialogDrawFootprint):
             
         if len(objs)==1:
             print "**", objs[0].Description()
-                 
+    
+    def GetObjectsOnPos(self, obj, pos, objs=[]):
+        
+        if isinstance(obj, ObjectPoint)==False and obj.ContainsPos(pos, self.canvas.px2mm(self.magnet)):
+            objs.append(obj)
+            
+        for node in obj.nodes:
+            self.GetObjectsOnPos(node, pos, objs)
+                
     def keyPressed( self, event):
         print "keyPressed", type(event), event.GetKeyCode(), event.GetRawKeyFlags(), event.ControlDown()
 
@@ -2554,20 +2751,22 @@ class DrawFootprintFrame(DialogDrawFootprint):
         event.Skip(True)
 
     def Cancel(self):
-        for obj in self.state.GetObjects():
-            if obj.Placed()==False:
-                self.tree_objects_manager.DeleteObject(obj)
-                if obj.Parent():
-                    obj.Parent().RemoveNode(obj)
+#         for obj in self.state.GetObjects():
+#             if obj.Placed()==False:
+#                 self.tree_objects_manager.DeleteObject(obj)
+#                 if obj.Parent():
+#                     obj.Parent().RemoveNode(obj)
 
         self.state.Cancel()
         self.Render()
         
     def onImageDrawLeftDClick( self, event ):
+        self.image_draw.SetFocus()
+        
         pospx = event.GetPosition()
         pos = Point(self.canvas.xpx2mm(pospx.x), self.canvas.ypx2mm(pospx.y))
         
-        [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet))
+        [distance, anchor] = self.all_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet))
         if distance is not None:
             pos = anchor.Pos(pos)
             #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
@@ -2581,17 +2780,22 @@ class DrawFootprintFrame(DialogDrawFootprint):
             self.current_panel.Update()
     
     def onImageDrawLeftDown( self, event ):
-        pospx = event.GetPosition()
+        self.image_draw.SetFocus()
+        
+        pospx = Point(event.GetPosition().x, event.GetPosition().y)
         pos = Point(self.canvas.xpx2mm(pospx.x), self.canvas.ypx2mm(pospx.y))
+        self.left_down_pospx = pospx
                 
         self.state.DoLeftDown(pos.x, pos.y, pospx.x, pospx.y)
         self.Render()
     
     def onImageDrawLeftUp( self, event ):
-        pospx = event.GetPosition()
+        self.image_draw.SetFocus()
+
+        pospx = Point(event.GetPosition().x, event.GetPosition().y)
         pos = Point(self.canvas.xpx2mm(pospx.x), self.canvas.ypx2mm(pospx.y))
         
-        [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet))
+        [distance, anchor] = self.all_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet))
         if distance is not None:
             pos = anchor.Pos(pos)
             #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
@@ -2599,19 +2803,40 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.cursor.Update()
         
         self.state.DoLeftUp(pos.x, pos.y, pospx.x, pospx.y)
-        self.state.DoClick(pos.x, pos.y, pospx.x, pospx.y)
+        
+        if self.left_down_pospx.Distance(pospx)<=2:
+            state = self.state.DoClick(pos.x, pos.y, pospx.x, pospx.y)
+            if state is None:
+                objs = []
+                self.GetObjectsOnPos(self.selectable_objects, pos, objs)
+                if len(objs)<=1:
+                    self.SelectObjects(objs)
+                elif len(objs)>1:
+                    self.popupmenu = wx.Menu()
+                    for obj in objs:
+                        item = self.popupmenu.Append(-1, obj.Description())
+                        item.obj = obj
+                        #self.Bind(wx.EVT_MENU, self.onPopupItemSelected, item)
+                        self.Bind(wx.EVT_MENU, lambda evt, obj=obj: self.onPopupItemSelected(evt, obj), item)
+                    self.panel_draw.Bind(wx.EVT_CONTEXT_MENU, self.onShowPopup)
+                    
+                    self.image_draw.PopupMenu(self.popupmenu, event.GetPosition())
+                
         self.Render()
     
         if self.current_panel:
             self.current_panel.Update()
-        
+    
     def onImageDrawMiddleDClick( self, event ):
+        self.image_draw.SetFocus()
         event.Skip()
     
     def onImageDrawMiddleDown( self, event ):
+        self.image_draw.SetFocus()
         event.Skip()
     
     def onImageDrawMiddleUp( self, event ):
+        self.image_draw.SetFocus()
         event.Skip()
 
     def onImageDrawMotion( self, event ):
@@ -2619,14 +2844,14 @@ class DrawFootprintFrame(DialogDrawFootprint):
         pos = Point(self.canvas.xpx2mm(pospx.x), self.canvas.ypx2mm(pospx.y))
 
         exclude_anchors = []
-        if len(self.state.GetMovingObjects())>0:       
-            item = self.tree_objects.GetSelection()
-            obj = None
-            if item.IsOk():
-                obj = self.tree_objects_manager.ItemToObject(item)
-            self.anchor_objects.r_find_anchors(obj.obj, pos, self.canvas.px2mm(self.magnet), exclude_anchors)
+#         if len(self.state.GetMovingObjects())>0:       
+#             item = self.tree_objects.GetSelection()
+#             obj = None
+#             if item.IsOk():
+#                 obj = self.tree_objects_manager.ItemToObject(item)
+#             self.anchor_objects.r_find_anchors(obj.obj, pos, self.canvas.px2mm(self.magnet), exclude_anchors)
         
-        [distance, anchor] = self.anchor_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet), exclude_anchors)
+        [distance, anchor] = self.all_objects.FindAnchor(pos, self.canvas.px2mm(self.magnet), exclude_anchors)
         if distance is not None:
             pos = anchor.Pos(pos)
             #pospx = Point(self.canvas.xpx2mm(pos.x), self.canvas.ypx2mm(pos.y))
@@ -2657,13 +2882,24 @@ class DrawFootprintFrame(DialogDrawFootprint):
     def onImageDrawRightUp( self, event ):
         event.Skip()
     
+    def onPopupItemSelected(self, event, obj=None):
+        #item = self.popupmenu.FindItemById(event.GetId())
+        #obj = item.obj
+        if obj:
+            self.SelectObjects([obj])
+
+            print "select: ", obj.Description()
+    
+    def onShowPopup(self, event):
+        pass
+        
     def onMenuDrawPadSelection( self, event ):
         node = ObjectPad()
         node.name = self.GetCurrentPadName()
         
         self.component_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Part', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Part', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2674,8 +2910,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         node = ObjectDimension()
             
         self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Drawing', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Drawing', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2689,8 +2925,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
             node = ObjectGrid(Position(0, 0), Position(20, 20), Position(10, 10))
             
         self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Drawing', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Drawing', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2705,8 +2941,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         node = ObjectAngle()
             
         self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Drawing', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Drawing', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2717,8 +2953,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         node = ObjectVerticalLine()
             
         self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Drawing', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Drawing', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2729,8 +2965,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         node = ObjectHorizontalLine()
             
         self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Drawing', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Drawing', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2741,8 +2977,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         node = ObjectLine()
             
         self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Drawing', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Drawing', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2758,19 +2994,23 @@ class DrawFootprintFrame(DialogDrawFootprint):
         self.state.DoMove()
     
     def onMenuEditRemoveSelection( self, event ):
-        event.Skip()
-
+        for obj in self.selection:
+            if obj.parent:
+                obj.parent.RemoveNode(obj)
+        self.selection = []
+        self.Render()
+            
     def onMenuEditRotateSelection( self, event ):
         self.state.DoRotate()
 
-    def onTreeMenuObjectsSelChanged( self, event ):
-        item = self.tree_objects.GetSelection()
-        if item.IsOk()==False:
-            return
-        obj = self.tree_objects_manager.ItemToObject(item)
-        if isinstance(obj, DataModelObject):
-            self.SelectObjects([obj.obj])
-        self.Render()
+#     def onTreeMenuObjectsSelChanged( self, event ):
+#         item = self.tree_objects.GetSelection()
+#         if item.IsOk()==False:
+#             return
+#         obj = self.tree_objects_manager.ItemToObject(item)
+#         if isinstance(obj, DataModelObject):
+#             self.SelectObjects([obj.obj])
+#         self.Render()
     
     def onMenuZoomInSelection( self, event ):
         self.canvas.Zoom(self.canvas.zoom*2.)
@@ -2788,21 +3028,21 @@ class DrawFootprintFrame(DialogDrawFootprint):
         event.Skip()
             
     def onMenuDrawPadRowSelection( self, event ):
-        item = self.tree_objects.GetSelection()
-        obj = None
-        if item.IsOk():
-            obj = self.tree_objects_manager.ItemToObject(item)
-        
-        if obj and isinstance(obj.obj, ObjectPad):
-            pad = obj.obj
-            self.tree_objects_manager.Select(pad)
-        else:
-            pad = ObjectPad()
-            pad.name = self.GetCurrentPadName()
+#         item = self.tree_objects.GetSelection()
+#         obj = None
+#         if item.IsOk():
+#             obj = self.tree_objects_manager.ItemToObject(item)
+#         
+#         if obj and isinstance(obj.obj, ObjectPad):
+#             pad = obj.obj
+#             self.tree_objects_manager.Select(pad)
+#         else:
+        pad = ObjectPad()
+        pad.name = self.GetCurrentPadName()
 
-            self.component_objects.AddNode(pad)
-            obj = self.tree_objects_manager.AppendObject('Part', pad)
-            self.tree_objects_manager.Select(obj)
+        self.component_objects.AddNode(pad)
+#        obj = self.tree_objects_manager.AppendObject('Part', pad)
+#        self.tree_objects_manager.Select(obj)
         
         row = ObjectPadRow(self, pad)        
         self.build_objects.AddNode(row)
@@ -2814,21 +3054,21 @@ class DrawFootprintFrame(DialogDrawFootprint):
             
     
     def onMenuDrawPadArraySelection( self, event ):
-        item = self.tree_objects.GetSelection()
-        obj = None
-        if item.IsOk():
-            obj = self.tree_objects_manager.ItemToObject(item)
-        
-        if obj and isinstance(obj.obj, ObjectPad):
-            pad = obj.obj
-            self.tree_objects_manager.Select(pad)
-        else:
-            pad = ObjectPad()
-            pad.name = self.GetCurrentPadName()
+#         item = self.tree_objects.GetSelection()
+#         obj = None
+#         if item.IsOk():
+#             obj = self.tree_objects_manager.ItemToObject(item)
+#         
+#         if obj and isinstance(obj.obj, ObjectPad):
+#             pad = obj.obj
+#             self.tree_objects_manager.Select(pad)
+#         else:
+        pad = ObjectPad()
+        pad.name = self.GetCurrentPadName()
 
-            self.component_objects.AddNode(pad)
-            obj = self.tree_objects_manager.AppendObject('Part', pad)
-            self.tree_objects_manager.Select(obj)
+        self.component_objects.AddNode(pad)
+#        obj = self.tree_objects_manager.AppendObject('Part', pad)
+#        self.tree_objects_manager.Select(obj)
         
         row = ObjectPadArray(self, pad)        
         self.build_objects.AddNode(row)
@@ -2848,9 +3088,9 @@ class DrawFootprintFrame(DialogDrawFootprint):
         
         node = ObjectPolyline([obj.layer.name])
             
-        self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Part', node)
-        self.tree_objects_manager.Select(obj)
+        self.component_objects.AddNode(node)
+#         obj = self.tree_objects_manager.AppendObject('Part', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2867,8 +3107,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         node = ObjectArc([obj.layer.name])
             
         self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Part', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Part', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2888,8 +3128,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         node = ObjectCircle([obj.layer.name])
             
         self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Part', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Part', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:
@@ -2912,8 +3152,8 @@ class DrawFootprintFrame(DialogDrawFootprint):
         node = ObjectTextUser([obj.layer.name])
             
         self.build_objects.AddNode(node)
-        obj = self.tree_objects_manager.AppendObject('Part', node)
-        self.tree_objects_manager.Select(obj)
+#         obj = self.tree_objects_manager.AppendObject('Part', node)
+#         self.tree_objects_manager.Select(obj)
         self.state.DoPlace(node)
 
         if self.current_panel:

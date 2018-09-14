@@ -309,10 +309,10 @@ class VersionManager(object):
 
     def delete_file(self, file):
         with VersionManagerEnabler(self) as f:
-            if self.local_files.has_key(file.source_path)==False:
-                raise VersionManagerException('File %s does not exists'%file.source_path)
+#            if self.local_files.has_key(file.source_path)==False:
+#                raise VersionManagerException('File %s does not exists'%file.source_path)
                 
-            file = self.file_manager.DeleteFile(file)
+            file = self.file_manager.DeleteFile(file, force=True)
             
             if file.id is None:
                 self.local_files.pop(file.source_path)

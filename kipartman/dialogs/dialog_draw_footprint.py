@@ -27,19 +27,19 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.m_splitter1 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
 		self.m_splitter1.Bind( wx.EVT_IDLE, self.m_splitter1OnIdle )
 		
-		self.m_panel1 = wx.Panel( self.m_splitter1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_draw = wx.Panel( self.m_splitter1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
 		
-		self.image_draw = wx.StaticBitmap( self.m_panel1, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL|wx.VSCROLL )
+		self.image_draw = wx.StaticBitmap( self.panel_draw, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL|wx.VSCROLL )
 		self.image_draw.SetForegroundColour( wx.Colour( 255, 255, 255 ) )
 		self.image_draw.SetBackgroundColour( wx.Colour( 255, 255, 255 ) )
 		
 		bSizer6.Add( self.image_draw, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
-		self.m_panel1.SetSizer( bSizer6 )
-		self.m_panel1.Layout()
-		bSizer6.Fit( self.m_panel1 )
+		self.panel_draw.SetSizer( bSizer6 )
+		self.panel_draw.Layout()
+		bSizer6.Fit( self.panel_draw )
 		self.m_panel2 = wx.Panel( self.m_splitter1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer7 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -50,17 +50,6 @@ class DialogDrawFootprint ( wx.Frame ):
 		bSizer8 = wx.BoxSizer( wx.VERTICAL )
 		
 		self.m_notebook1 = wx.Notebook( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_panel5 = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer5 = wx.BoxSizer( wx.VERTICAL )
-		
-		self.tree_objects = wx.dataview.DataViewCtrl( self.m_panel5, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer5.Add( self.tree_objects, 1, wx.ALL|wx.EXPAND, 5 )
-		
-		
-		self.m_panel5.SetSizer( bSizer5 )
-		self.m_panel5.Layout()
-		bSizer5.Fit( self.m_panel5 )
-		self.m_notebook1.AddPage( self.m_panel5, u"Objects", True )
 		self.m_panel6 = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer61 = wx.BoxSizer( wx.VERTICAL )
 		
@@ -87,7 +76,7 @@ class DialogDrawFootprint ( wx.Frame ):
 		self.m_panel2.SetSizer( bSizer7 )
 		self.m_panel2.Layout()
 		bSizer7.Fit( self.m_panel2 )
-		self.m_splitter1.SplitVertically( self.m_panel1, self.m_panel2, 1191 )
+		self.m_splitter1.SplitVertically( self.panel_draw, self.m_panel2, 1191 )
 		bSizer1.Add( self.m_splitter1, 1, wx.EXPAND, 5 )
 		
 		

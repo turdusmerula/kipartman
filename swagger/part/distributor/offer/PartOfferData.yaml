@@ -6,9 +6,17 @@ properties:
   quantity:
     type: integer
     format: int64
+  min_order_quantity:
+    type: integer
+    format: int64
   unit_price:
     type: number
     format: double
+  available_stock:
+    type: integer
+    format: int64
+  packaging:
+    type: string
   currency:
     type: string
   sku:
@@ -16,3 +24,4 @@ properties:
   updated:
     type: string
     format: dateTime
+

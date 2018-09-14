@@ -1,4 +1,4 @@
-(module 0603 (layer F.Cu) (tedit 5B892765)
+(module 0603 (layer F.Cu) (tedit 5B8D4821)
   (descr "SMD 0603, reflow soldering, AVX (see smccp.pdf)")
   (tags 0603)
   (attr smd)
@@ -71,4 +71,5 @@
   (pad 42 connect circle (at -2.6 7 135) (size 2 2) (layers F.Cu F.Mask))
   (pad "" np_thru_hole circle (at -0.4 7.1 135) (size 2 2) (drill 1) (layers *.Cu *.Mask))
   (pad 44 smd circle (at -3.9 9.3 135) (size 2 2) (layers *.Paste *.Mask F.Cu))
+  (pad 6 thru_hole circle (at 20.7 3.1 180) (size 5 5) (drill oval 2 3) (layers *.Cu *.Mask))
 )

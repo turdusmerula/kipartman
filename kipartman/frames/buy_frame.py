@@ -834,6 +834,9 @@ class BuyFrame(DialogBuy):
         self.tree_boms_manager.UpdateItem(bom_productobj)
         self.loadBomParts()
         self.loadDistributors()
+
+    def onSpinQuantityEnter( self, event ):
+        self.onSpinQuantityCtrl(event)
         
     def onTreeBomsSelectionChanged( self, event ):
         self.update_state()
@@ -843,7 +846,7 @@ class BuyFrame(DialogBuy):
             bom_productobj = self.tree_boms_manager.ItemToObject(item)
         else:
             return
-        self.spin_quantity.SetValue(bom_productobj.bom_quantity.quantity)
+        self.spin_quantity.SetValue(bom_productobj.quantity)
 
     def onToolDistributorsViewAllPrices( self, event ):
         global view_all

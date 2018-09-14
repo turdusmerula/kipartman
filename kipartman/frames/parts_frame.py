@@ -13,6 +13,7 @@ from helper.exception import print_stack
 import os, datetime
 from time import sleep
 from octopart.queries import PartsQuery
+from dateutil.parser import parse
 
 from octopart.extractor import OctopartExtractor
 import swagger_client
@@ -1043,8 +1044,20 @@ class PartsFrame(PanelParts):
 
         self.Enabled = True
         progression_frame.Destroy()
+        self.loadParts()
         
+    def onMenuPartRefreshOctopartPart(self, event):
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, DataModelCategoryPath):
+            return
+        part = obj.part
     
+        self.refresh_octopart(part)
+        self.show_part(part)
+
     def refresh_octopart(self, part):
 #        print "Refresh octopart for", part.name
         
@@ -1136,19 +1149,52 @@ class PartsFrame(PanelParts):
             
             if part_distributors.has_key(distributor_name):           
                 for price_name in offer.prices():
+                    correct_quantity = False   # correct a bug with, sometimes quantity is given for on packaging unit and not total quantity amount 
                     for quantity in offer.prices()[price_name]:
-                        part_offer = rest.model.PartOffer()
-                        part_offer.name = distributor_name
-                        part_offer.distributor = distributor
-                        part_offer.currency = price_name
-                        if offer.moq():
-                            part_offer.packaging_unit = offer.moq()
-                        else:
+                        try:
+                            part_offer = rest.model.PartOffer()
+                            part_offer.name = distributor_name
+                            part_offer.distributor = distributor
+                            part_offer.currency = price_name
+                            print "---", distributor_name, offer.sku(), price_name, quantity[0], offer.order_multiple(), offer.moq(), offer.in_stock_quantity(), offer.packaging()
+                            
                             part_offer.packaging_unit = 1
-                        part_offer.quantity = quantity[0]
-                        part_offer.unit_price = float(quantity[1])
-                        part_offer.sku = offer.sku()
-                        part_distributors[distributor_name].offers.append(part_offer)
+                            if offer.order_multiple() is not None:
+                                part_offer.packaging_unit = offer.order_multiple()
+                            elif offer.multipack_quantity() is not None:
+                                try:
+                                    part_offer.packaging_unit = int(offer.multipack_quantity())
+                                except:
+                                    pass
+                                
+                            if offer.moq() is not None:
+                                part_offer.min_order_quantity = offer.moq()
+                            else:
+                                part_offer.min_order_quantity = 1
+                            
+                            part_offer.quantity = quantity[0]
+                            part_offer.unit_price = float(quantity[1])
+                            if ( correct_quantity==False and part_offer.quantity<part_offer.packaging_unit ) or correct_quantity==True:
+                                part_offer.quantity = part_offer.quantity*part_offer.packaging_unit
+                                part_offer.min_order_quantity = part_offer.packaging_unit
+                                part_offer.unit_price = part_offer.unit_price/part_offer.quantity
+                                correct_quantity = True
+                                
+                            if offer.in_stock_quantity() is not None:
+                                part_offer.available_stock = offer.in_stock_quantity()
+                            else:
+                                part_offer.available_stock = None
+                            if offer.packaging() is not None:
+                                part_offer.packaging = offer.packaging()
+                            else:
+                                part_offer.packaging = ''
+                            part_offer.updated = parse(offer.last_updated())
+                            
+                            part_offer.sku = offer.sku()
+                            part_distributors[distributor_name].offers.append(part_offer)
+                        except Exception as e:
+                            print_stack()
+                            wx.MessageBox(format(e), 'Error with offer {}/{}/{}'.format(distributor_name, price_name, quantity[0]), wx.OK | wx.ICON_ERROR)
         # add part_distributors to part
         for distributor_name in part_distributors:
             part.distributors.append(part_distributors[distributor_name])

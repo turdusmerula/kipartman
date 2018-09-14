@@ -61,8 +61,10 @@ class SearchResult(Model):
         return self.json["has_footprint"]
 
     def short_description(self):
-        return self.json["short_description"]
-
+        if "short_description" in self.json:
+            return self.json["short_description"]
+        return ''
+    
     def has_symbol(self):
         return self.json["has_symbol"]
 

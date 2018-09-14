@@ -55,8 +55,10 @@ class KicadLibFile(object):
         
     def Render(self, filename, width=256, height=256):
         canvas = Canvas.LibraryCanvas()
-        surface = canvas.Render(self.parent)
-        surface.write_to_png (filename)
+        canvas.Origin(width/2, height/2)
+        canvas.Viewport(width, height)
+        surface = canvas.RenderFit(self.parent)
+        surface.write_to_png(filename)
     
     def SaveAs(self, filename):
         with open(filename, "w") as f:

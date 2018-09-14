@@ -241,6 +241,9 @@ class PartOffer(Model):
     def moq(self):
         return self.json['moq']
 
+    def multipack_quantity(self):
+        return self.json['multipack_quantity']
+
     def on_order_quantity(self):
         return self.json['on_order_quantity']
 

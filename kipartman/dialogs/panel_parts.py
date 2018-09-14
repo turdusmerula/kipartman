@@ -172,6 +172,12 @@ class PanelParts ( wx.Panel ):
 		self.menu_part_remove_part.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_part.Append( self.menu_part_remove_part )
 		
+		self.menu_part.AppendSeparator()
+		
+		self.menu_refresh_octopart_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Refresh part from octopart", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_refresh_octopart_part.SetBitmap( wx.NullBitmap )
+		self.menu_part.Append( self.menu_refresh_octopart_part )
+		
 		self.m_panel3.Bind( wx.EVT_RIGHT_DOWN, self.m_panel3OnContextMenu ) 
 		
 		self.m_splitter2.SplitVertically( self.m_panel6, self.m_panel3, 308 )
@@ -210,6 +216,7 @@ class PanelParts ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuPartAddPart, id = self.menu_part_add_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartEditPart, id = self.menu_part_edit_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartRemovePart, id = self.menu_part_remove_part.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuPartRefreshOctopartPart, id = self.menu_refresh_octopart_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsRefreshOctopart, id = self.menu_parts_refresh_octopart.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsImportParts, id = self.menu_parts_import_parts.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsExportParts, id = self.menu_parts_export_parts.GetId() )
@@ -259,6 +266,9 @@ class PanelParts ( wx.Panel ):
 		event.Skip()
 	
 	def onMenuPartRemovePart( self, event ):
+		event.Skip()
+	
+	def onMenuPartRefreshOctopartPart( self, event ):
 		event.Skip()
 	
 	def onMenuItemPartsRefreshOctopart( self, event ):
