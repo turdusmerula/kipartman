@@ -1,7 +1,7 @@
 import uuid
 import shutil
 import os
-import models
+import api.models
 import tempfile
 import hashlib
 
@@ -65,7 +65,7 @@ class FileStorage(object):
         file = models.File(source_name=upfile.filename, storage_path=storage_path.replace('\\','/'))
         file.save()
         
-        print "Add file", upfile.filename, "as", storage_path
+        print("Add file", upfile.filename, "as", storage_path)
         return file
     
     def get_file(self, id):

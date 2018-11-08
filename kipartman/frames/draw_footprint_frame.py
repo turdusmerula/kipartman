@@ -1324,7 +1324,7 @@ class ObjectPad(EditorObject):
         return v0.x*v1.y-v0.y*v1.x
     
     def ContainsPos(self, pos, margin):
-        print "****"
+        print("****")
         for anchor in self.anchors:
             distance = anchor.Distance(pos)
             if distance is not None and distance<margin:
@@ -2601,11 +2601,11 @@ class DrawFootprintFrame(DialogDrawFootprint):
             
         elif isinstance(obj, ObjectPolyline):
             obj.UnSelect()
-            print "#####"
+            print("#####")
             pp = None
             for p in obj.points:
                 if pp is not None:
-                    print "####", p
+                    print("####", p)
                     line = kicad_mod_file.KicadFPLine()
                     parent.AddNode(line)
                     node = kicad_mod_file.KicadStart()
@@ -2731,7 +2731,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
             self.current_panel = EditFootprintFrame(self.panel_edit_object, self.Render, self)
             
         if len(objs)==1:
-            print "**", objs[0].Description()
+            print("**", objs[0].Description())
     
     def GetObjectsOnPos(self, obj, pos, objs=[]):
         
@@ -2742,7 +2742,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
             self.GetObjectsOnPos(node, pos, objs)
                 
     def keyPressed( self, event):
-        print "keyPressed", type(event), event.GetKeyCode(), event.GetRawKeyFlags(), event.ControlDown()
+        print("keyPressed", type(event), event.GetKeyCode(), event.GetRawKeyFlags(), event.ControlDown())
 
         if event.GetKeyCode()==27:
             # cancel any operation
@@ -2888,7 +2888,7 @@ class DrawFootprintFrame(DialogDrawFootprint):
         if obj:
             self.SelectObjects([obj])
 
-            print "select: ", obj.Description()
+            print("select: ", obj.Description())
     
     def onShowPopup(self, event):
         pass

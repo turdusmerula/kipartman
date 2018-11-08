@@ -1,5 +1,5 @@
 import os
-from kicad_object import *
+from kicad.kicad_object import *
 import re 
 import tempfile
 import io
@@ -22,7 +22,7 @@ class KicadSchematicFile(object):
             raise Exception("Error: %s does not exists" % filename)
 
         self.filename = filename
-        self.file = io.open(filename, "rb")
+        self.file = io.open(filename, "rb", encoding='utf-8')
         self.line = ''
         self.buff = ''
 
@@ -86,12 +86,12 @@ class KicadSchematicFile(object):
         tmp_file = tempfile.NamedTemporaryFile()
         self.SaveAs(tmp_file.name)
         content = ''
-        with open(tmp_file.name, 'rb') as f:
+        with open(tmp_file.name, 'rb', encoding='utf-8') as f:
             content = f.read()
         src_md5 = hashlib.md5(content).hexdigest()
         
         content = ''
-        with open(self.filename, 'rb') as f:
+        with open(self.filename, 'rb', encoding='utf-8') as f:
             content = f.read()
         dst_md5 = hashlib.md5(content).hexdigest()
         
@@ -108,7 +108,7 @@ class KicadSchematicFile(object):
     @staticmethod
     def to_utf8(text):
         try:
-            return unicode(text, 'utf-8')
+            return str(text, 'utf-8')
         except TypeError:
             return text
         
@@ -126,8 +126,8 @@ class KicadSchematicFile(object):
             l = self.to_utf8(line)+u'\n'
             file.write(l)
         except Exception as e:
-            print "Error during file write:", line 
-            print format(e)
+            print("Error during file write:", line) 
+            print(format(e))
             
         if len(obj.nodes)>0:
             for node in obj.nodes:
@@ -138,7 +138,7 @@ class KicadSchematicFile(object):
         for attr in obj.attributes:
             line = line+" "+attr
         
-        print "++", line, type(obj)
+        print("++", line, type(obj))
         if len(obj.nodes)>0:
             for node in obj.nodes:
                 self.DebugWrite(node, level+1)

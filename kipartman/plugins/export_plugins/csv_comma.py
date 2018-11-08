@@ -9,7 +9,7 @@ class CsvExport(_export_base.KiPartmanExporter):
     def export(self, base_filename, components):
         file_path = '{}.{}'.format(base_filename, self.extension)
 
-        with open(file_path, 'w') as csvfile:
+        with open(file_path, 'w', encoding='utf-8') as csvfile:
             wrt = csv.writer(csvfile)
 
             wrt.writerow([key for key in 

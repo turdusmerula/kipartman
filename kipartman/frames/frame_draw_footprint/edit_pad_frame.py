@@ -193,56 +193,56 @@ class EditPadFrame(PanelEditPad):
         try:
             self.pad.angle = -float(self.text_angle.Value)*math.pi/180.
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.pos.x = float(self.text_position_x.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.pos.y = float(self.text_position_y.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.size.x = float(self.text_size_x.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.size.y = float(self.text_size_y.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.offset.x = float(self.text_offset_x.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             offsety = float(self.text_offset_y.Value)
             self.pad.offset.y = offsety
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.die_length = float(self.text_pad_to_die.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.trapezoidal_delta = float(self.text_pad_trapezoidal_delta.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         if self.choice_trapezoidal_direction.GetSelection()==0:
@@ -253,38 +253,38 @@ class EditPadFrame(PanelEditPad):
         try:
             self.pad.drill.x = float(self.text_drill_size_x.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.drill.y = float(self.text_drill_size_y.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
 
         try:
             self.pad.clearance = float(self.text_pad_clearance.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.solder_mask_margin = float(self.text_solder_mask_clearance.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.solder_paste_margin = float(self.text_solder_paste_clearance.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.solder_paste_margin_ratio = float(self.text_solder_paste_ratio_clearance.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
 
@@ -300,13 +300,13 @@ class EditPadFrame(PanelEditPad):
         try:
             self.pad.thermal_width = float(self.text_thermal_relief_width.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.pad.thermal_gap = float(self.text_thermal_relief_gap.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         self.pad.layers = []

@@ -113,7 +113,7 @@ class SelectStorageFrame(PanelSelectStorage):
             else:
                 category_name = "/"
 
-            if categories.has_key(category_name)==False:
+            if category_name not in categories:
                 categories[category_name] = DataModelCategoryPath(storage.category)
                 self.tree_storages_manager.AppendItem(None, categories[category_name])
             self.tree_storages_manager.AppendItem(categories[category_name], DataModelStorage(storage))

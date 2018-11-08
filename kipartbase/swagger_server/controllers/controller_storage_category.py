@@ -124,7 +124,7 @@ def find_storages_categories():
     # create a tree of categories
     for fcategory in api.models.StorageCategory.objects.all():
         # create category object
-        if id_category_map.has_key(fcategory.pk):
+        if fcategory.pk in id_category_map:
             category = serialize_StorageCategory(fcategory, id_category_map[fcategory.pk])
         else:
             category = serialize_StorageCategory(fcategory)
@@ -134,7 +134,7 @@ def find_storages_categories():
             categories.append(category)
         else:
             # if parent does not yet exists precreate it
-            if id_category_map.has_key(category.parent.id)==False:
+            if category.parent.id not in id_category_map:
                 id_category_map[category.parent.id] = StorageCategory()
             
             parent = id_category_map[category.parent.id]

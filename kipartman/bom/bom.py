@@ -18,7 +18,7 @@ class Bom(object):
         self.saved = True
 
     def LoadFile(self, filename):
-        print "Load BOM", filename
+        print("Load BOM", filename)
 #        for part in self.parts:
 #            self.parts.remove(part)
         self.part_components = {}
@@ -28,7 +28,7 @@ class Bom(object):
         if(os.path.isfile(filename)==False):
             raise Exception("Error: %s does not exists" % filename)
         
-        with open(filename, 'r') as infile:
+        with open(filename, 'r', encoding='utf-8') as infile:
             content = json.load(infile)
         
         # load associated schematic
@@ -43,7 +43,7 @@ class Bom(object):
                 self.part_components[part['id']] = []
             except:
                 print_stack()
-                print "Warning: part %d not found on server"%part['id']
+                print("Warning: part %d not found on server"%part['id'])
                 part_not_found.append(part)
 
         component_not_found= []
@@ -60,18 +60,18 @@ class Bom(object):
                 schematic_components = self.schematic.Components()
                 # get components from schematic
                 for component in content['components'][part_id]:
-                    if self.part_components.has_key(int(part_id)):
+                    if int(part_id) in self.part_components:
                         if self.schematic.ExistComponent(component['timestamp']):
                             self.part_components[int(part_id)].append(self.schematic.GetComponent(component['timestamp']))
                             self.component_part[component['timestamp']] = part
                         else:
-                            print "Warning: component %s does not exist in schematic"%component['timestamp']
+                            print("Warning: component %s does not exist in schematic"%component['timestamp'])
                             component_not_found.append(component)
                     else:
-                        print "Warning: part %d not found on bom"%part_id
+                        print("Warning: part %d not found on bom"%part_id)
                         part_id_not_found.append(int(part_id))
             else:
-                print "Warning: part %d from BOM does not exist on server"%int(part_id)
+                print("Warning: part %d from BOM does not exist on server"%int(part_id))
                 part_id_not_found.append(int(part_id))
             
         # TODO: show error messages from part_not_found, component_not_found and part_id_not_found
@@ -90,8 +90,8 @@ class Bom(object):
             return input
         
     def SaveFile(self, filename):
-        print "Save BOM", filename
-        with open(filename, 'w') as outfile:
+        print("Save BOM", filename)
+        with open(filename, 'w', encoding='utf-8') as outfile:
             parts = []
             for part in self.parts:
                 parts.append({'id': part.id, 'name': part.name, 'description': part.description})
@@ -143,7 +143,7 @@ class Bom(object):
                     self.AddPart(part)
                     self.AddPartComponent(part, component)
                 except Exception as e:
-                    print format(e)
+                    print(format(e))
         
     def AddPart(self, part):
         self.parts.append(part)
@@ -174,7 +174,7 @@ class Bom(object):
     
     def NumComponents(self, bom_part):
         num_components = 0
-        if self.part_components.has_key(bom_part.id):
+        if bom_part.id in self.part_components:
             num_components = num_components+len(self.part_components[bom_part.id])
         return num_components
     

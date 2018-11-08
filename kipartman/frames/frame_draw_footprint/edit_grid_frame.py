@@ -47,7 +47,7 @@ class EditGridFrame(PanelEditGrid):
         try:
             angle = float(self.text_angle.Value)*math.pi/180.
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
         self.grid.angle = angle
         self.grid.Update()

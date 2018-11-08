@@ -9,7 +9,7 @@ class LCSCImport(_import_base.KiPartmanImporter):
     def fetch(self, base_filename, importItem = object):
         file_path = '{}.{}'.format(base_filename, self.extension)
 
-        with open(file_path, 'r') as csvfile:
+        with open(file_path, 'r', encoding='utf-8') as csvfile:
             rdr = csv.reader(csvfile)
             #TODO: Implement CSV reader
             # wrt.writerow(['Quantity','Value', 'Refs', 'Footprint',

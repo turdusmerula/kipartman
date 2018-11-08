@@ -66,7 +66,7 @@ class OctopartExtractor(object):
     def ExtractParameter(self, spec_name):
         parameter = rest.model.PartParameter()
         spec = self.octopart.item().specs()[spec_name]
-        print "spec: ", spec.json
+        print("spec: ", spec.json)
         parameter.name = spec_name
         parameter.description = spec.metadata().name()
         parameter.unit = self.GetUnit(spec)

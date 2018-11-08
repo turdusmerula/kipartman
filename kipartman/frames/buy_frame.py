@@ -55,7 +55,7 @@ class DataModelBomPart(helper.tree.TreeItem):
         
         # recursive load subparts
         for child in to_add:
-            if added.has_key(child.id)==False:
+            if child.id not in added:
                 self.equivalent_parts.append(child)
                 added[child.id] = child
                 
@@ -441,7 +441,7 @@ class BuyFrame(DialogBuy):
                 bom_product.load()
             except Exception as e:
                 print_stack()
-                print format(e)
+                print(format(e))
                 
             for bom_part in bom_product.bom.Parts():
                 full_part = rest.api.find_part(bom_part.id, with_childs=True, with_storages=True)
@@ -468,7 +468,7 @@ class BuyFrame(DialogBuy):
         
         # recursive load subparts
         for child in to_add:
-            if added.has_key(child.id)==False:
+            if child.id not in added:
                 self.tree_equivalent_parts_manager.AppendItem(None, DataModelEquivalentPart(child))
                 added[child.id] = child
                 
@@ -539,7 +539,7 @@ class BuyFrame(DialogBuy):
 
         best_offers = {}
         for offer in distributorobj.distributor.offers:
-            if best_offers.has_key(offer.sku)==False:
+            if offer.sku not in best_offers:
                 best_offers[offer.sku] = offer
             
             offerobj = DataModelOffer(offer, bom_partobj)
@@ -573,7 +573,7 @@ class BuyFrame(DialogBuy):
                     if d.name==distributor.name:
                         for offer in d.offers:
                             offerobj = DataModelOffer(offer, self.tree_bom_parts_manager.FindBomPart(bom_part.id))
-                            if sku_best_offer.has_key(offer.sku)==False:
+                            if offer.sku not in sku_best_offer:
                                 sku_best_offer[offer.sku] = [part, offer]
                             if offer.quantity<=quantity and offerobj.buy_price()<DataModelOffer(sku_best_offer[offer.sku][1], self.tree_bom_parts_manager.FindBomPart(bom_part.id)).buy_price():
                                 sku_best_offer[offer.sku] = [part, offer]
@@ -600,7 +600,7 @@ class BuyFrame(DialogBuy):
         to_add = [part]
         while len(to_add)>0:
             part = rest.api.find_part(to_add.pop().id, with_distributors=True, with_childs=True, with_storages=True)
-            if parts.has_key(part.id)==False:
+            if part.id not in parts:
                 parts[part.id] = part
             if part.childs:
                 for child in part.childs:

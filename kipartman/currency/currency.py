@@ -1,5 +1,4 @@
-import json
-import urllib
+from urllib.request import urlopen
 import re
 # TODO: asynchronous load
 # TODO: store previous values in database
@@ -10,15 +9,24 @@ class Currency(object):
         self.load()
         
     def load(self):
-        data = urllib.urlopen('http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml').read()
+        data = ''
+        with urlopen('http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml') as url:
+            data = str(url.read())
+
         self.currencies = {}
-        for line in data.split('\n'):
+        for line in data.split('\\n'):
             if 'currency=' in line:
-                m = re.match(".*currency='(.*)' rate='(.*)'.*", line)
+                currency = None
+                rate = None
+                m = re.match(".*currency=.*'([A-Z][A-Z]*).*'", line)
                 if m:
                     currency = m.group(1)
-                    rate = float(m.group(2))
+                m = re.match(".*rate=.*'([0-9.][0-9.]*).*'", line)
+                if m:
+                    rate = float(m.group(1))
+                if currency and rate:
                     self.currencies[currency] = rate
+
         print("Currencies: ", self.currencies)
         return self.currencies
         

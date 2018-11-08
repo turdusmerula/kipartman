@@ -1,4 +1,4 @@
-import Canvas 
+import kicad.Canvas 
 
 def tab(level):
     res = ''
@@ -26,7 +26,7 @@ class KicadObject(object):
         """
         Register a new object type
         """
-        if KicadObject.mapping.has_key(header)==False:
+        if not header in KicadObject.mapping:
             KicadObject.mapping[header] = obj
 
     @staticmethod
@@ -34,7 +34,7 @@ class KicadObject(object):
         """
         Create an instance of object type if type registered, or KicadObject if not
         """
-        if KicadObject.mapping.has_key(header):
+        if header in KicadObject.mapping:
             return  KicadObject.mapping[header]()
         return KicadObject(header)
     

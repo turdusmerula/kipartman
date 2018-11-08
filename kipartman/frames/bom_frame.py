@@ -28,7 +28,7 @@ class DataModelBomPart(helper.tree.TreeItem):
         
     def GetValue(self, col):
         num_modules = 0
-        if self.bom.part_modules.has_key(self.bom_part.id):
+        if self.bom_part.id in self.bom.part_modules:
             num_modules = len(self.bom.part_modules[self.bom_part.id])
         vMap = { 
             0 : str(self.bom_part.id),
@@ -91,7 +91,7 @@ class BomFrame(PanelBom):
 
         if self.bom:
             for module in self.bom.pcb.GetModules():
-                if self.bom.module_part.has_key(module.timestamp)==False:
+                if module.timestamp not in self.bom.module_part:
                     self.tree_modules_manager.AppendItem(None, DataModelModule(module))
     
     def loadBomParts(self):

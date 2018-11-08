@@ -2,7 +2,7 @@ from snapeda import models
 import json
 import urllib
 import cfscrape
-from connection import snapeda_connection
+from snapeda.connection import snapeda_connection
 
 scraper = cfscrape.create_scraper()
 
@@ -19,7 +19,7 @@ class SnapedaQuery(object):
             self.args.append((arg, kwargs[arg]))
         
         url = self.baseurl+self.path+'?'+urllib.urlencode(self.args)
-        print url 
+        print(url) 
 #        data = urllib.urlopen(self.url).read()
         # use scrapper to avoid cloudflare anti-bot protection
         data = scraper.get(url).content
@@ -27,11 +27,11 @@ class SnapedaQuery(object):
         
     def post(self, *args, **kwargs):
         url = self.baseurl+self.path
-        print url 
+        print(url) 
 
         # use scrapper to avoid cloudflare anti-bot protection
         data = scraper.post(url, data=kwargs).content
-        print "--", url, kwargs
+        print("--", url, kwargs)
         return json.loads(data)
 
 

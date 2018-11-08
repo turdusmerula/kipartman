@@ -7,7 +7,7 @@ from frames.part_preview_data_frame import PartPreviewDataFrame
 import wx
 import re
 import os
-from part_parameters_frame import DataModelPartParameter
+from frames.part_parameters_frame import DataModelPartParameter
 import rest
 from bom.bom import Bom
 from helper.exception import print_stack
@@ -144,7 +144,7 @@ class SchematicFrame(PanelSchematic):
                     part = rest.api.find_part(partobj.component.kipart_id)
             except Exception as e:
                 print_stack()
-                print format(e)
+                print(format(e))
             self.data_frame.SetPart(part)
         
     def onMenuPartsLinkSelection( self, event ):
@@ -179,8 +179,8 @@ class SchematicFrame(PanelSchematic):
                     paramobj = DataModelPartParameter(part, parameter)
                     component.value = paramobj.nom_string()
         
-        component.kipart_id = unicode(part.id)
-        component.kipart_sku = unicode(part.name)
+        component.kipart_id = str(part.id)
+        component.kipart_sku = str(part.name)
     
     def onSelectPartCallback(self, part_event):
         part = part_event.data
@@ -188,7 +188,7 @@ class SchematicFrame(PanelSchematic):
         items = self.tree_parts.GetSelections()
         if items:
             for item in items:
-                print "############################"
+                print("############################")
                 partobj = self.tree_parts_manager.ItemToObject(item)
                 self.associate_part(partobj.component, part)
                     

@@ -16,7 +16,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DATA_DIR = os.getenv('KIPARTBASE_PATH', os.path.join(os.path.expanduser("~"), '.kipartman'))
-if os.environ.has_key('DATA_DIR'):
+if 'DATA_DIR' in os.environ:
     DATA_DIR = os.environ['DATA_DIR']
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/

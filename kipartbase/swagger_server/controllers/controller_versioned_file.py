@@ -58,7 +58,11 @@ def file_changed(file, ffile):
         file.metadata!=ffile.metadata         
 
 def file_updated(file, ffile):
+    print("%%%", file, ffile)
     if file.updated:
+        print("****", type(file.updated))
+        if isinstance(file.updated, datetime):
+            return file.updated>ffile.updated
         return pyrfc3339.parser.parse(file.updated)>ffile.updated
     return False
 
@@ -83,7 +87,7 @@ def update_file_state(file):
             # no id, check if file can be found by path 
             ffile = api.models.VersionedFile.objects.filter(source_path=file.source_path).latest('id')
     except Exception as e:
-        print "Error: %s"%format(e)
+        print("Error: %s"%format(e))
         pass
     
     if file.state is None:
@@ -166,8 +170,8 @@ def synchronize_versioned_files(files, root_path=None, category=None):
 
     :rtype: List[VersionedFile]
     """
-    print "===> synchronize_versioned_files----"
-    print "*", files
+    print("===> synchronize_versioned_files----")
+    print("*", files)
     sync_files = []
 
     if connexion.request.is_json:
@@ -240,7 +244,7 @@ def commit_versioned_files(files, force=None):
     if force is None:
         force = False
 
-    print "***", files
+    print("***", files)
     
     to_add = []
     to_change = []

@@ -23,7 +23,7 @@ class EditDimensionFrame(PanelEditDimension):
         try:
             size = math.fabs(float(self.text_size.Value))
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
         self.dimension.Value = str(size)
         self.dimension.SetSize(size)

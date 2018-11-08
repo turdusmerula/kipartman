@@ -58,31 +58,31 @@ class EditTextFrame(PanelEditText):
         try:
             self.text.pos.x = float(self.text_pos_x.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
     
         try:
             self.text.pos.y = float(self.text_pos_y.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.text.font.size.x = float(self.text_width.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.text.font.size.y = float(self.text_height.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         try:
             self.text.font.thickness = float(self.text_thickness.Value)
         except Exception as e:
-            print format(e)
+            print(format(e))
             return
 
         self.text.Update()

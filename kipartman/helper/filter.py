@@ -46,7 +46,7 @@ class Filter(object):
         return f
     
     def remove(self, name):
-        if self.filters.has_key(name)==False:
+        if name not in self.filters:
             return None
         f = self.filters[name]
         f['button_remove_filter'].Destroy()

@@ -6,6 +6,6 @@ class ControllerError(BaseException):
         
 def raise_on_error(value):
     if isinstance(value, Error):
-        print value
+        print(value)
         raise ControllerError(value)
     return value

@@ -32,6 +32,7 @@ class Configuration(object):
         self.kicad_footprints_path = expanduser("~")+'/.kipartman/footprints'
         self.kicad_symbols_path = expanduser("~")+'/.kipartman/symbols'
         self.kicad_3d_models_path = expanduser("~")+'/.kipartman/3d_models'
+        self.kicad_modules_path = expanduser("~")+'/.kipartman/modules'
         self.kicad_library_common_path = True
         
         self.Load()
@@ -41,7 +42,7 @@ class Configuration(object):
             print("Load configuration file failed: %s"%self.filename)
             return False
         
-        with open(self.filename, 'r') as infile:
+        with open(self.filename, 'r', encoding='utf-8') as infile:
             try:
                 content = json.load(infile)
                 #print "Load configuration:", content
@@ -56,6 +57,7 @@ class Configuration(object):
                 self.kicad_footprints_path = content['kicad_footprints_path']
                 self.kicad_symbols_path = content['kicad_symbols_path']
                 self.kicad_3d_models_path = content['kicad_3d_models_path']
+                self.kicad_modules_path = content['kicad_modules_path']
                 self.kicad_library_common_path = content['kicad_library_common_path']
             
                 self.debug = content['debug']
@@ -88,7 +90,7 @@ class Configuration(object):
     
     def Save(self):
         content = {}
-        with open(self.filename, 'w') as outfile:
+        with open(self.filename, 'w', encoding='utf-8') as outfile:
             content['kipartbase'] = self.kipartbase
             content['octopart_api_key'] = self.octopart_api_key
             content['snapeda_user'] = self.snapeda_user
@@ -100,10 +102,11 @@ class Configuration(object):
             content['logfile'] = self.LOGFILE
             content['logformat'] = self.LOGFORMAT
 
-            content['kicad_path'] = unicode(self.kicad_path)
-            content['kicad_symbols_path'] = unicode(self.kicad_symbols_path)
-            content['kicad_footprints_path'] = unicode(self.kicad_footprints_path)
-            content['kicad_3d_models_path'] = unicode(self.kicad_3d_models_path)
+            content['kicad_path'] = str(self.kicad_path)
+            content['kicad_symbols_path'] = str(self.kicad_symbols_path)
+            content['kicad_footprints_path'] = str(self.kicad_footprints_path)
+            content['kicad_3d_models_path'] = str(self.kicad_3d_models_path)
+            content['kicad_modules_path'] = str(self.kicad_modules_path)
             content['kicad_library_common_path'] = self.kicad_library_common_path
 
             content['debug'] = self.debug

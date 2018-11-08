@@ -234,7 +234,7 @@ def find_parts_parameters(search=None):
     
     try:
         for fparameter in fparameters:
-            print fparameter
+            print(fparameter)
             parameters.append(serialize_PartParameterDescription(fparameter))
     except Error as e:
         return e.error, 403

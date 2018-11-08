@@ -138,7 +138,7 @@ class KicadFileManagerPretty(KicadFileManager):
             for footprint in footprints:
                 source_path = os.path.join(library, footprint)
                 content = Path(os.path.join(self.root_path(), source_path)).read_text()
-                md5 = hashlib.md5(content).hexdigest()
+                md5 = hashlib.md5(content.encode('utf-8')).hexdigest()
  
                 file = rest.model.VersionedFile()
                 file.source_path = source_path
@@ -152,7 +152,7 @@ class KicadFileManagerPretty(KicadFileManager):
         Recurse all folders and return .pretty folders path
         @param root_path: path from which to start recursing, None starts from root
         """
-        print "===> GetLibraries----"
+        print("===> GetLibraries----")
         basepath = os.path.normpath(os.path.abspath(self.root_path()))
         to_explore = [basepath]
         libraries = []
@@ -165,11 +165,11 @@ class KicadFileManagerPretty(KicadFileManager):
                     if folder!='/':
                         folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         if re.compile("^.*\.pretty$").match(os.path.normpath(os.path.abspath(folder))):
-                            print "=>", folder 
+                            print("=>", folder) 
                             libraries.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         elif os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             to_explore.append(folder)
-        print "---------------------"
+        print("---------------------")
      
         return libraries, folders
 
@@ -177,15 +177,15 @@ class KicadFileManagerPretty(KicadFileManager):
         """
         Return all footprints in a pretty lib
         """
-        print "===> GetFootprints----"
+        print("===> GetFootprints----")
         footprints = []
  
         path = os.path.join(self.root_path(), library_path)        
         if os.path.exists(path):
             for kicad_mod in glob(os.path.join(path, "*.kicad_mod")):
-                print "==>", kicad_mod 
+                print("==>", kicad_mod) 
                 footprints.append(os.path.basename(kicad_mod))
-        print "----------------------"
+        print("----------------------")
      
         return footprints
  
@@ -200,7 +200,7 @@ class KicadFileManagerPretty(KicadFileManager):
         if not os.path.exists(os.path.dirname(fullpath)):
             os.makedirs(os.path.dirname(fullpath))
         
-        with open(fullpath, 'w') as content_file:
+        with open(fullpath, 'w', encoding='utf-8') as content_file:
             if content:
                 content_file.write(content)
             else:
@@ -228,7 +228,7 @@ class KicadFileManagerPretty(KicadFileManager):
         
         if os.path.exists(os.path.dirname(fullpath))==False:
             os.makedirs(os.path.dirname(fullpath))
-        with open(fullpath, 'w') as content_file:
+        with open(fullpath, 'w', encoding='utf-8') as content_file:
             if content:
                 content_file.write(content)
             else:
@@ -273,7 +273,7 @@ class KicadFileManagerPretty(KicadFileManager):
             raise KicadFileManagerException('File %s does not exists'%file.source_path)
         
         fullpath = os.path.join(self.root_path(), file.source_path)
-        with open(fullpath) as f:
+        with open(fullpath, encoding='utf-8') as f:
             file.content = f.read()
 
     def CreateFolder(self, path):
@@ -331,7 +331,7 @@ class KicadLibCache(object):
 
         content = ''
         name = ''
-        for line in open(lib_path, 'r'):
+        for line in open(lib_path, 'r', encoding='utf-8'):
 
             if line.startswith("EESchema-LIBRARY"):
                 pass
@@ -383,12 +383,12 @@ class KicadLibCache(object):
     def Clear(self, path=None):
         if path:
             if path.endswith('.lib'):
-                if self.libs.has_key(path):
+                if path in self.libs:
                     self.libs.pop(path)
             elif path.endswith('.mod'):
                 library = re.sub(r"\.lib.*\.mod$", ".lib", path)
                 symbol = re.sub(r"^.*\.lib.", "", path)
-                if self.libs.has_key(library) and self.libs[library].has_key(symbol):
+                if library in self.libs and symbol in self.libs[library]:
                     self.libs[library].pop(symbol)
         else:
             self.libs = {}
@@ -397,24 +397,24 @@ class KicadLibCache(object):
         library = re.sub(r"\.lib.*\.mod$", ".lib", symbol_path)
         symbol = re.sub(r"^.*\.lib.", "", symbol_path)
 
-        if self.libs.has_key(library) and self.libs[library].has_key(symbol):
+        if library in self.libs and symbol in self.libs[library]:
             return self.libs[library][symbol]
         else:
             symbols = self.read_lib_file(library)
             metadata = self.read_metadata_file(library)
             self.libs[library] = {}
             for symbol in symbols:
-                if metadata.has_key(symbol):
+                if symbol in metadata:
                     meta = metadata[symbol]
-                print "%$$$", meta
+                print("%$$$", meta)
                 self.libs[library][symbol] = KicadLibCacheElement(content=symbols[symbol], metadata=meta)
 
-        if self.libs.has_key(library) and self.libs[library].has_key(symbol):
+        if library in self.libs and symbol in self.libs[library]:
             return self.libs[library][symbol]
         return None
         
     def GetSymbols(self, lib_path):
-        if self.libs.has_key(lib_path):
+        if lib_path in self.libs:
             return self.libs[lib_path]
         else:
             symbols = self.read_lib_file(lib_path)
@@ -422,12 +422,12 @@ class KicadLibCache(object):
             self.libs[lib_path] = {}
             for symbol in symbols:
                 meta = {}
-                if metadata and metadata.has_key(symbol):
+                if metadata and symbol in metadata:
                     meta = metadata[symbol]
-                print "%$$$", symbol, meta
+                print("%$$$", symbol, meta)
                 self.libs[lib_path][symbol] = KicadLibCacheElement(content=symbols[symbol], metadata=meta)
         
-        if self.libs.has_key(lib_path):
+        if lib_path in self.libs:
             return self.libs[lib_path]
         return {}
     
@@ -466,7 +466,7 @@ class KicadLibCache(object):
         symbol_name = re.sub(r".mod$", "", os.path.basename(path))
         
         content = self.update_content(symbol_name, content)
-        if self.libs.has_key(library)==False:
+        if library not in self.libs:
             self.libs[library] = {}
         self.libs[library][symbol] = KicadLibCacheElement(content, metadata)
         
@@ -476,7 +476,7 @@ class KicadLibCache(object):
             symbol = re.sub(r"^.*\.lib.", "", path)
             
             symbols = self.GetSymbols(library)
-            if symbols and symbols.has_key(symbol):
+            if symbols and symbol in symbols:
                 return True
             return False
         elif path.endswith('.lib'):
@@ -526,7 +526,7 @@ class KicadFileManagerLib(KicadFileManager):
                 file = rest.model.VersionedFile()
                 file.source_path = symbol
                 self.LoadContent(file)
-                file.md5 = hashlib.md5(file.content).hexdigest()
+                file.md5 = hashlib.md5(file.content.encode('utf-8')).hexdigest()
                 file.category = self.category()
                 file.metadata = self.LoadMetadata(symbol)
                 
@@ -537,7 +537,7 @@ class KicadFileManagerLib(KicadFileManager):
         Recurse all folders and return .lib files path
         @param root_path: path from which to start recursing, None starts from root
         """
-        print "===> GetLibraries----"
+        print("===> GetLibraries----")
         basepath = os.path.normpath(os.path.abspath(self.root_path()))
         to_explore = [basepath]
         libraries = []
@@ -550,7 +550,7 @@ class KicadFileManagerLib(KicadFileManager):
                 for folder in glob(os.path.join(path, "*/")):
                     if folder!='/':
                         folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
-                        print "=>", folder 
+                        print("=>", folder) 
                         if os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             to_explore.append(folder)
         
@@ -559,11 +559,11 @@ class KicadFileManagerLib(KicadFileManager):
         for folder in folders:
             for lib in glob(os.path.join(basepath, folder, "*.lib")):
                 rel_folder = os.path.relpath(os.path.normpath(os.path.abspath(lib)), basepath)
-                print "=>", lib 
+                print("=>", lib) 
                 folders.append(rel_folder)
                 libraries.append(rel_folder)
         folders.remove('')
-        print "---------------------"
+        print("---------------------")
         
         return libraries, folders
     
@@ -571,7 +571,7 @@ class KicadFileManagerLib(KicadFileManager):
         """
         Return all symbols in a lib file
         """
-        print "===> GetSymbols----"
+        print("===> GetSymbols----")
         symbols = []
  
         path = os.path.join(self.root_path(), library_path)        
@@ -579,7 +579,7 @@ class KicadFileManagerLib(KicadFileManager):
             lib_symbols = self.lib_cache.GetSymbols(library_path)
             for symbol in lib_symbols:
                 symbols.append(os.path.join(library_path, symbol))
-        print "----------------------"
+        print("----------------------")
      
         return symbols
  
@@ -587,7 +587,7 @@ class KicadFileManagerLib(KicadFileManager):
         return self.lib_cache.Exists(path)
 
     def write_library(self, library, symbols):
-        with open(os.path.join(self.root_path(), library), 'w') as file:
+        with open(os.path.join(self.root_path(), library, encoding='utf-8'), 'w', encoding='utf-8') as file:
             file.write('EESchema-LIBRARY Version 2.3\n')
             file.write('#encoding utf-8\n')
 
@@ -598,7 +598,7 @@ class KicadFileManagerLib(KicadFileManager):
             file.write('# End Library\n')
     
         dcm = re.sub(r"\.lib$", ".dcm", library)
-        with open(os.path.join(self.root_path(), dcm), 'w') as file:
+        with open(os.path.join(self.root_path(), dcm), 'w', encoding='utf-8') as file:
             file.write('EESchema-DOCLIB  Version 2.0\n')
 
             for symbol in symbols:
@@ -754,3 +754,188 @@ class KicadFileManagerLib(KicadFileManager):
         
         return metadata
 
+
+class KicadFileManagerModule(KicadFileManager):
+    def __init__(self):
+        super(KicadFileManagerModule, self).__init__()
+        self.extensions = ['sch', 'kicad_pcb', 'pro']
+        
+    def root_path(self):
+        return configuration.kicad_modules_path
+
+    def version_file(self):
+        return '.kiversion_module'
+
+    def category(self):
+        return 'module'
+    
+    def Load(self):
+        """
+        fill cache files from disk
+        """
+        self.files = {}
+        modules, self.folders = self.GetModules()
+
+        for module in modules:
+            source_path = module
+            
+            content = {}
+            for filename in glob(os.path.join(self.root_path(), source_path, "*")):
+                for extension in self.extensions:
+                    if filename.endswith('.'+extension):
+                        with open(filename, 'r', encoding='utf-8') as f:
+                            content[os.path.basename(filename)] = f.read()
+
+            md5 = hashlib.md5(json.dumps(content, sort_keys=True).encode('utf-8')).hexdigest()
+            
+            file = rest.model.VersionedFile()
+            file.source_path = source_path
+            file.md5 = md5
+            
+            self.files[source_path] = file
+
+
+    def GetModules(self, root_path=None):
+        """
+        Recurse all folders and return .module folders path
+        @param root_path: path from which to start recursing, None starts from root
+        """
+        basepath = os.path.normpath(os.path.abspath(self.root_path()))
+        to_explore = [basepath]
+        modules = []
+        folders = []
+        
+        while len(to_explore)>0:
+            path = to_explore.pop()
+            if os.path.exists(path):
+                for folder in glob(os.path.join(path, "*/")):
+                    if folder!='/':
+                        if re.compile("^.*\.module$").match(os.path.normpath(os.path.abspath(folder))):
+                            print("=>", folder) 
+                            modules.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
+                        elif os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
+                            folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
+                            to_explore.append(folder)
+        print("---------------------")
+     
+        return modules, folders
+ 
+    def Exists(self, path):
+        return os.path.exists(os.path.join(self.root_path(), path))
+
+    def CreateFile(self, path, content, overwrite=False):
+        if self.Exists(path) and overwrite==False:
+            raise KicadFileManagerException('Module %s already exists'%path)
+
+        fullpath = os.path.join(self.root_path(), path)
+        if not os.path.exists(os.path.dirname(fullpath)):
+            os.makedirs(os.path.dirname(fullpath))
+        
+        files = json.loads(content)
+        if not os.path.exists(os.path.join(self.root_path(), path)):
+            os.makedirs(os.path.join(self.root_path(), path))
+        for file in files:
+            filepath = os.path.join(self.root_path(), path, file)
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(files[file].encode('utf-8'))
+        content = json.dumps(files, sort_keys=True)
+        
+        file = rest.model.VersionedFile()
+        file.source_path = path
+        file.md5 = hashlib.md5(content).hexdigest()
+        file.updated = rest.api.get_date()
+        file.category = self.category()
+
+        return file
+    
+    def EditFile(self, file, content, create=False):
+        if self.Exists(file.source_path)==False and create==False:
+            raise KicadFileManagerException('Module %s does not exists'%file.source_path)
+        
+        fullpath = os.path.join(self.root_path(), file.source_path)
+        if self.Exists(file.source_path)==True:
+            fcontent = {}
+            for filename in glob(os.path.join(fullpath, "*")):
+                for extension in self.extensions:
+                    if filename.endswith('.'+extension):
+                        with open(filename, 'r', encoding='utf-8') as f:
+                            fcontent[os.path.basename(filename)] = f.read().decode('utf-8')
+            md5file = hashlib.md5(json.dumps(fcontent, sort_keys=True)).hexdigest()
+            md5 = hashlib.md5(content).hexdigest()
+            if md5==md5file:
+                return file, False
+        
+        if os.path.exists(os.path.dirname(fullpath))==False:
+            os.makedirs(os.path.dirname(fullpath))
+        files = json.loads(content)
+        for file in files:
+            filepath = os.path.join(fullpath, file)
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(files[file].encode('utf-8'))
+        
+        file.md5 = hashlib.md5(content).hexdigest()
+        file.updated = rest.api.get_date()
+           
+        return file, True
+    
+    def MoveFile(self, file, dest_path, force=False):
+        if self.Exists(file.source_path)==False and force==False:
+            raise KicadFileManagerException('Module %s does not exists'%file.source_path)
+        if self.Exists(dest_path) and force==False:
+            raise KicadFileManagerException('Module %s already exists'%dest_path)
+        
+        os.rename(os.path.join(self.root_path(), file.source_path), 
+                         os.path.join(self.root_path(), dest_path))
+
+        file.source_path = dest_path
+        #fullpath = os.path.join(self.root_path(), file.source_path)
+        #file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        file.updated = rest.api.get_date()
+        
+        return file
+
+    def DeleteFile(self, file, force=False):
+        if self.Exists(file.source_path)==False and force==False:
+            raise KicadFileManagerException('Module %s does not exists'%file.source_path)
+        
+        fullpath = os.path.join(self.root_path(), file.source_path)
+        if os.path.exists(fullpath):
+            os.remove(fullpath)
+        #file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        file.updated = rest.api.get_date()
+    
+        return file
+    
+    def LoadContent(self, file):
+        if self.Exists(file.source_path)==False:
+            raise KicadFileManagerException('File %s does not exists'%file.source_path)
+        
+        fullpath = os.path.join(self.root_path(), file.source_path)
+        content = {}
+        for filename in glob(os.path.join(fullpath, "*")):
+            for extension in self.extensions:
+                if filename.endswith('.'+extension):
+                    with open(filename, 'r', encoding='utf-8') as f:
+                        content[os.path.basename(filename)] = f.read().decode('utf-8')
+        
+        file.content = json.dumps(content, sort_keys=True)
+
+    def CreateFolder(self, path):
+        abspath = os.path.join(self.root_path(), path)
+        if os.path.exists(abspath):
+            raise KicadFileManagerException('Folder %s already exists'%path)
+        else:
+            os.makedirs(abspath)
+    
+    def MoveFolder(self, source_path, dest_path):
+        abs_source_path = os.path.join(self.root_path(), source_path)
+        abs_dest_path = os.path.join(self.root_path(), dest_path)
+        if os.path.exists(abs_source_path)==False:
+            raise KicadFileManagerException('Folder %s does not exists'%abs_source_path)
+        if os.path.exists(abs_dest_path):
+            raise KicadFileManagerException('Folder %s already exists'%abs_dest_path)
+        shutil.move(abs_source_path, abs_dest_path)
+    
+    def DeleteFolder(self, path):
+        abspath = os.path.join(self.root_path(), path)
+        shutil.rmtree(abspath)

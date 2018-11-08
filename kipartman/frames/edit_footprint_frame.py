@@ -34,7 +34,7 @@ def NoneValue(value, default):
 def MetadataValue(metadata, value, default):
     if metadata is None:
         return default
-    if metadata.has_key(value):
+    if value in metadata:
         return metadata[value]
     return default
 
@@ -77,7 +77,7 @@ class EditFootprintFrame(PanelEditFootprint):
              
             self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
             
-            print "----", os.path.join(configuration.kicad_footprints_path, footprint.source_path)
+            print("----", os.path.join(configuration.kicad_footprints_path, footprint.source_path))
             if self.edit_footprint_name.Value!='' and os.path.exists(os.path.join(configuration.kicad_footprints_path, footprint.source_path)):
                 mod = kicad_mod_file.KicadModFile()
                 mod.LoadFile(os.path.join(configuration.kicad_footprints_path, footprint.source_path))
@@ -125,7 +125,7 @@ class EditFootprintFrame(PanelEditFootprint):
         snapeda = event.data
         if not snapeda:
             return
-        print snapeda.json
+        print(snapeda.json)
         
         self.edit_footprint_name.Value = snapeda.part_number()
         self.edit_footprint_description.Value = snapeda.short_description()
@@ -151,10 +151,10 @@ class EditFootprintFrame(PanelEditFootprint):
         # download footprint
         if download.url() and download.url()!='':
             try:
-                print "Download from:", download.url()
+                print("Download from:", download.url())
                 filename = os.path.join(tempfile.gettempdir(), os.path.basename(download.url()))
                 content = scraper.get(download.url()).content
-                with open(filename, 'wb') as outfile:
+                with open(filename, 'wb', encoding='utf-8') as outfile:
                     outfile.write(content)
                 outfile.close()
             except:
@@ -182,9 +182,9 @@ class EditFootprintFrame(PanelEditFootprint):
 
                 self.footprint.content = ''
                 if kicad_file!='':
-                    with open(kicad_file, 'r') as content_file:
+                    with open(kicad_file, 'r', encoding='utf-8') as content_file:
                         self.footprint.content = content_file.read()
-                        print "****", self.footprint.content
+                        print("****", self.footprint.content)
                     
                     mod = kicad_mod_file.KicadModFile()
                     mod.LoadFile(kicad_file)

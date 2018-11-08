@@ -17,7 +17,7 @@ import wx.xrc
 class DialogConfiguration ( wx.Dialog ):
 	
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 484,589 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 484,640 ), style = wx.DEFAULT_DIALOG_STYLE )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		
@@ -158,6 +158,13 @@ class DialogConfiguration ( wx.Dialog ):
 		
 		self.dir_3d_models_path = wx.DirPickerCtrl( sbSizer21.GetStaticBox(), wx.ID_ANY, wx.EmptyString, u"Select a folder", wx.DefaultPosition, wx.DefaultSize, wx.DIRP_DEFAULT_STYLE )
 		fgSizer21.Add( self.dir_3d_models_path, 0, wx.ALL|wx.EXPAND, 5 )
+		
+		self.m_staticText3121 = wx.StaticText( sbSizer21.GetStaticBox(), wx.ID_ANY, u"Modules path", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText3121.Wrap( -1 )
+		fgSizer21.Add( self.m_staticText3121, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.dir_modules_path = wx.DirPickerCtrl( sbSizer21.GetStaticBox(), wx.ID_ANY, wx.EmptyString, u"Select a folder", wx.DefaultPosition, wx.DefaultSize, wx.DIRP_DEFAULT_STYLE )
+		fgSizer21.Add( self.dir_modules_path, 1, wx.ALL|wx.EXPAND, 5 )
 		
 		
 		bSizer3.Add( fgSizer21, 1, wx.EXPAND, 5 )

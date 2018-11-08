@@ -4,7 +4,7 @@ import wx.lib.newevent
 import wx.dataview
 import rest
 from frames.parts_frame import DataModelCategory, DataModelCategoryPath, DataModelPart, TreeManagerParts
-from part_parameters_frame import DataModelPartParameter
+from frames.part_parameters_frame import DataModelPartParameter
 import helper.tree
 
 SelectPartOkEvent, EVT_SELECT_PART_OK_EVENT = wx.lib.newevent.NewEvent()
@@ -65,7 +65,7 @@ class SelectPartFrame(PanelSelectPart):
             else:
                 category_name = "/"
 
-            if categories.has_key(category_name)==False:
+            if category_name not in categories:
                 categories[category_name] = DataModelCategoryPath(part.category)
                 self.tree_parts_manager.AppendItem(None, categories[category_name])
             self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, {}))

@@ -49,7 +49,7 @@ def load_units(apps, schema_editor):
         try:
             Unit.objects.get(name=unit.name)
         except Unit.DoesNotExist:
-            print "Add ", unit.name
+            print("Add ", unit.name)
             unit.save()
 
 # create default values for unit prefixes
@@ -91,7 +91,7 @@ def load_unit_prefixes(apps, schema_editor):
         try:
             UnitPrefix.objects.get(name=prefix.name)
         except UnitPrefix.DoesNotExist:
-            print "Add ", prefix.name
+            print("Add ", prefix.name)
             prefix.save()
 
 # create default values for units
@@ -137,7 +137,7 @@ def load_currencies(apps, schema_editor):
         try:
             Currency.objects.get(name=currency.name)
         except Currency.DoesNotExist:
-            print "Add ", currency.name
+            print("Add ", currency.name)
             currency.save()
 
 class Migration(migrations.Migration):

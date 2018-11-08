@@ -3,6 +3,7 @@ from frames.buy_frame import BuyFrame
 from frames.parts_frame import PartsFrame
 from frames.symbols_frame import SymbolsFrame
 from frames.footprints_frame import FootprintsFrame
+from frames.modules_frame import ModulesFrame
 from frames.distributors_frame import DistributorsFrame
 from frames.manufacturers_frame import ManufacturersFrame
 from frames.configuration_frame import ConfigurationFrame
@@ -24,6 +25,7 @@ class MainFrame(DialogMain):
         self.partsframe = PartsFrame(self.notebook)
         self.symbolsframe = SymbolsFrame(self.notebook)
         self.footprintsframe = FootprintsFrame(self.notebook)
+        self.modulesframe = ModulesFrame(self.notebook)
         self.distributorsframe = DistributorsFrame(self.notebook)
         self.manufacturersframe = ManufacturersFrame(self.notebook)
         self.storageframe = StoragesFrame(self.notebook)
@@ -34,6 +36,8 @@ class MainFrame(DialogMain):
         self.notebook.AddPage(self.symbolsframe, "Symbols", False)
         self.pages.append(self.footprintsframe)
         self.notebook.AddPage(self.footprintsframe, "Footprints", False)
+        self.pages.append(self.modulesframe)
+        self.notebook.AddPage(self.modulesframe, "Modules", False)
         self.pages.append(self.distributorsframe)
         self.notebook.AddPage(self.distributorsframe, "Distributors", False)
         self.pages.append(self.manufacturersframe)

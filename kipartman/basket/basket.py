@@ -34,12 +34,12 @@ class Basket(object):
 
 
     def LoadFile(self, filename):
-        print "Load Basket", filename
+        print("Load Basket", filename)
         
         if(os.path.isfile(filename)==False):
             raise Exception("Error: %s does not exists" % filename)
         
-        with open(filename, 'r') as infile:
+        with open(filename, 'r', encoding='utf-8') as infile:
             content = json.load(infile)
 
         for bom in content['boms']:
@@ -50,8 +50,8 @@ class Basket(object):
         self.saved = True
                 
     def SaveFile(self, filename):
-        print "Save Basket", filename
-        with open(filename, 'w') as outfile:
+        print("Save Basket", filename)
+        with open(filename, 'w', encoding='utf-8') as outfile:
             boms = []
             for bom in self.boms:
                 boms.append({'path': bom, 'quantity': self.boms[bom].quantity})
@@ -82,21 +82,21 @@ class Basket(object):
 
 
     def HasBom(self, bom_file):
-        return self.boms.has_key(bom_file)
+        return bom_file in self.boms
     
     def AddBom(self, bom_file, quantity):
-        if self.boms.has_key(bom_file)==False:
+        if bom_file not in self.boms:
             self.boms[bom_file] = BomQuantity(bom_file, 1)
         else:
             self.boms[bom_file].quantity = self.boms[bom_file].quantity+quantity
         return self.boms[bom_file]
     
     def RemoveBom(self, bom_file):
-        if self.boms.has_key(bom_file):
+        if bom_file in self.boms:
             self.boms.pop(bom_file)
     
     def SetBomQuantity(self, bom_file, quantity):
-        if self.boms.has_key(bom_file)==False:
+        if bom_file not in self.boms:
             self.boms[bom_file] = BomQuantity(bom_file, 1)
         else:
             self.boms[bom_file].quantity = quantity
@@ -106,12 +106,12 @@ class Basket(object):
         self.distributors.clear()
         
     def AddWish(self, distributor, sku, quantity, unit_price):
-        if self.distributors.has_key(distributor.name)==False:
+        if distributor.name not in self.distributors:
             self.distributors[distributor.name] = []
         self.distributors[distributor.name].append(WishPart(distributor, sku, quantity, unit_price))
     
     def RemoveWish(self, distributor, sku):
-        if self.distributors.has_key(distributor.name)==False:
+        if distributor.name not in self.distributors:
             return 
         for wish in self.distributors[distributor.name]:
             if wish.sku==sku:

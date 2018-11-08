@@ -27,9 +27,11 @@ class ConfigurationFrame(DialogConfiguration):
         if configuration.kicad_library_common_path:
             self.dir_symbols_path.SetPath(configuration.kicad_footprints_path)
             self.dir_3d_models_path.SetPath(configuration.kicad_footprints_path)
+            self.dir_modules_path.SetPath(configuration.kicad_footprints_path)
         else:
             self.dir_symbols_path.SetPath(configuration.kicad_symbols_path)
             self.dir_3d_models_path.SetPath(configuration.kicad_3d_models_path)
+            self.dir_modules_path.SetPath(configuration.kicad_modules_path)
         self.onCheckCommonPath(None)
         
         try:
@@ -38,7 +40,7 @@ class ConfigurationFrame(DialogConfiguration):
             print_stack()
             currencies = Currency().load()
             
-        if currencies.has_key('error'):
+        if 'error' in currencies:
             currencies = Currency().load()
             self.choice_user_currency.Append('EUR')
         else:
@@ -96,7 +98,7 @@ class ConfigurationFrame(DialogConfiguration):
             q = OctpartPartsQuery()
             q.get('atmega328p')
             self.data = q.results()
-            print self.data
+            print(self.data)
             wx.MessageBox( 'OCTOPART CONNECTION OK', 
                 'OCTOPART CONNECTION OK', wx.OK )
         except Exception as e:

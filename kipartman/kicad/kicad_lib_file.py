@@ -1,5 +1,6 @@
 import os
-from kicad_object import *
+from kicad.kicad_object import *
+import kicad.Canvas as Canvas
 import re 
 import math
 import tempfile
@@ -20,7 +21,7 @@ class KicadLibFile(object):
             raise Exception("Error: %s does not exists" % filename)
 
         self.filename = filename
-        self.file = open(filename, 'r')
+        self.file = open(filename, 'r', encoding='utf-8')
         self.line = ''
         self.buff = ''
 
@@ -61,7 +62,7 @@ class KicadLibFile(object):
         surface.write_to_png(filename)
     
     def SaveAs(self, filename):
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding='utf-8') as f:
             if len(self.parent.nodes)>0:
                 for node in self.parent.nodes:
                     self.Write(f, node)

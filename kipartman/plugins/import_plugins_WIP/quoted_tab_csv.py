@@ -9,7 +9,7 @@ class QuotedTabExport(_import_base.KiPartmanImporter):
     def fetch(self, base_filename, components):
         file_path = '{}.{}'.format(base_filename, self.extension)
 
-        with open(file_path, 'r') as csvfile:
+        with open(file_path, 'r', encoding='utf-8') as csvfile:
             rdr = csv.reader(csvfile, dialect='excel-tab')
             #TODO: implement import reader
             # wrt.writerow(['Refs', 'Value', 'Footprint',

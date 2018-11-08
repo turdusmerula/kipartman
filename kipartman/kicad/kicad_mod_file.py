@@ -1,7 +1,6 @@
-import wx
 import os
-from kicad_object import KicadObject
-import Canvas
+from kicad.kicad_object import KicadObject
+import kicad.Canvas as Canvas
 import math
 
 def tab(level):
@@ -26,7 +25,7 @@ class KicadModFile(object):
             raise Exception("Error: %s does not exists" % filename)
 
         self.filename = filename
-        self.file = open(filename, 'r')
+        self.file = open(filename, 'r', encoding='utf-8')
         self.buff = ''
 
         self.read_blocks(self.parent) 
@@ -36,7 +35,7 @@ class KicadModFile(object):
             self.onChanged()
 
     def SaveFile(self, filename):
-        with open(filename, 'w') as file:
+        with open(filename, 'w', encoding='utf-8') as file:
             file.write(self.Write(self.parent))
 
     def Render(self, filename, width=256, height=256):

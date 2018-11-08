@@ -1,10 +1,10 @@
-from file_storage import FileStorage
+from api.file_storage import FileStorage
 from django.conf import settings
 import tempfile
 import hashlib
 import os
 import shutil
-import models
+import api.models
 from pathlib import Path
 import datetime
 
@@ -92,7 +92,7 @@ class VersionedFileStorage(object):
         version_file.category = ffile.category 
         version_file.state = ''
         
-        print "Add file", version_file.source_path, "as", storage_path
+        print("Add file", version_file.source_path, "as", storage_path)
         return version_file
     
     def delete_file(self, version_file):
@@ -107,7 +107,7 @@ class VersionedFileStorage(object):
         version_file.storage_path = None
         version_file.state = ''
         
-        print "Delete file", version_file.source_path
+        print("Delete file", version_file.source_path)
         return version_file
         
     def get_file_content(self, id):

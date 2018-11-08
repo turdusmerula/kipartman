@@ -14,7 +14,7 @@ class Pcb(object):
             raise Exception("Error: %s does not exists" % filename)
 
         self.filename = filename
-        self.file = open(filename, 'r')
+        self.file = open(filename, 'r', encoding='utf-8')
         self.buff = ''
         
         self.modules = []
@@ -142,29 +142,29 @@ class Pcb(object):
         """
         Read a module block
         """
-        print "# module"
+        print("# module")
         module = Module()
         module.footprint = self._read_field()
-        print 'tstamp', module.footprint
+        print('tstamp', module.footprint)
         
         block_header = self._read_block_header()
         while block_header!='':
             if block_header=='tstamp':
                 module.timestamp = self._read_field()
-                print 'tstamp', module.timestamp
+                print('tstamp', module.timestamp)
                 self._read_block()
             elif block_header=='path':
                 module.path = self._read_field()
-                print 'path', module.path
+                print('path', module.path)
                 self._read_block()
             elif block_header=='fp_text':
                 type = self._read_field()
                 if type=='reference':
                     module.reference = self._read_field()
-                    print 'reference', module.reference
+                    print('reference', module.reference)
                 elif type=='value':
                     module.value = self._read_field()
-                    print 'value', module.value
+                    print('value', module.value)
                 self._read_block()
             else:
                 self._read_block()

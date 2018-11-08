@@ -119,7 +119,7 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
             return param.text_value
     
     def GetParam(self, col):
-        if self.parameters.has_key(self.columns[col].parameter_name):
+        if self.columns[col].parameter_name in self.parameters:
             return self.parameters[self.columns[col].parameter_name]
         return None
         
@@ -145,7 +145,7 @@ class DataModelPart(helper.tree.TreeContainerLazyItem):
         #if columns are not yet defined
         elif not(col in self.columns):
             return ''
-        elif self.parameters.has_key(self.columns[col].parameter_name):
+        elif self.columns[col].parameter_name in self.parameters:
             return self.FormatParameter(self.parameters[self.columns[col].parameter_name])
         else:
             return ''
@@ -170,7 +170,7 @@ class TreeModelParts(TreeModel):
         self.columns = {}
 
     def Compare(self, item1, item2, column, ascending):
-        if self.columns.has_key(column)==False:
+        if column not in self.columns:
             return super(TreeModelParts, self).Compare(item1, item2, column, ascending)
         else:
             obj1 = self.ItemToObject(item1)
@@ -307,7 +307,7 @@ class TreeManagerParts(helper.tree.TreeManager):
         self.model.columns[column.GetModelColumn()] = DataColumnParameter(parameter_name)
         
     def RemoveParameterColumn(self, index):
-        if self.model.columns.has_key(index)==False:
+        if index not in self.model.columns:
             return
         self.model.columns.pop(index)
         self.RemoveColumn(index)
@@ -401,7 +401,7 @@ class PartsFrame(PanelParts):
                 else:
                     category_name = "/"
     
-                if categories.has_key(category_name)==False:
+                if category_name not in categories:
                     categories[category_name] = DataModelCategoryPath(part.category)
                     self.tree_parts_manager.AppendItem(None, categories[category_name])
                 self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, self.tree_parts_manager.model.columns))
@@ -540,7 +540,7 @@ class PartsFrame(PanelParts):
                         footprintcategoryid = {i.name: i.id
                                                for i in
                                                rest.api.find_footprints_categories()}['Uncategorized']
-                    except KeyError, e:  # Category 'Uncategorized' does not exist
+                    except KeyError as e:  # Category 'Uncategorized' does not exist
                         print_stack()
                         # Create the "Uncategorized" category
                         category = rest.model.FootprintCategoryNew()
@@ -1070,9 +1070,9 @@ class PartsFrame(PanelParts):
         sleep(1)    # only one request per second allowed
 
         for octopart in q.results():
-            print "octopart:", octopart.json
+            print("octopart:", octopart.json)
             if octopart.item().uid()==part.octopart_uid:
-                print "Refresh", part.octopart
+                print("Refresh", part.octopart)
                 self.octopart_to_part(octopart, part)
                 # update part
                 rest.api.update_part(part.id, part)
@@ -1122,7 +1122,7 @@ class PartsFrame(PanelParts):
         for offer in octopart.item().offers():
             
             distributor_name = offer.seller().name()
-            if part_distributors.has_key(distributor_name)==False:
+            if distributor_name not in part_distributors:
                 distributor = None
                 try:
                     distributors = rest.api.find_distributors(name=distributor_name)
@@ -1147,7 +1147,7 @@ class PartsFrame(PanelParts):
                     part_distributor.offers = []
                     part_distributors[distributor_name] = part_distributor
             
-            if part_distributors.has_key(distributor_name):           
+            if distributor_name in part_distributors:           
                 for price_name in offer.prices():
                     correct_quantity = False   # correct a bug with, sometimes quantity is given for on packaging unit and not total quantity amount 
                     for quantity in offer.prices()[price_name]:
@@ -1156,7 +1156,7 @@ class PartsFrame(PanelParts):
                             part_offer.name = distributor_name
                             part_offer.distributor = distributor
                             part_offer.currency = price_name
-                            print "---", distributor_name, offer.sku(), price_name, quantity[0], offer.order_multiple(), offer.moq(), offer.in_stock_quantity(), offer.packaging()
+                            print("---", distributor_name, offer.sku(), price_name, quantity[0], offer.order_multiple(), offer.moq(), offer.in_stock_quantity(), offer.packaging())
                             
                             part_offer.packaging_unit = 1
                             if offer.order_multiple() is not None:

@@ -150,7 +150,7 @@ class EditPartFrame(PanelEditPart):
             return
 
         # convert octopart to part values
-        print "octopart:", octopart.json
+        print("octopart:", octopart.json)
         octopart_extractor = OctopartExtractor(octopart)
 
         # TODO: THis looks something similar to def octopart_to_part(self, octopart, part): in parts_frame \

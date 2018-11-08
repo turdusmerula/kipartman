@@ -21,24 +21,24 @@ class TreeState:
             self.state[path].selected = selected
         if not expanded is None:
             self.state[path].expanded = expanded
-        print "state:", self.state[path].selected, self.state[path].expanded 
+        print("state:", self.state[path].selected, self.state[path].expanded) 
 
     def remove(self, path):
         self.state.pop(path)        
 
     def selected(self, path):
-        if self.state.has_key(path):
+        if path in self.state:
             return self.state[path].selected
         else:
             return False
     
     def expanded(self, path):
-        if self.state.has_key(path):
+        if path in self.state:
             return self.state[path].expanded
         else:
             return False
     
     def debug(self):
-        print "State:"
+        print("State:")
         for state in self.state:
-            print "    ", state, "selected:", self.state[state].selected, "expanded: ", self.state[state].expanded
+            print("    ", state, "selected:", self.state[state].selected, "expanded: ", self.state[state].expanded)

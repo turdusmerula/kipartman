@@ -18,7 +18,7 @@ class VersionManagerEnabler(object):
         self.manager = manager
         self.manager_stack = {}
 
-        if self.manager_stack.has_key(self.manager)==False:
+        if self.manager not in self.manager_stack:
             self.manager_stack[self.manager] = []
 
     def __enter__(self):
@@ -48,21 +48,21 @@ class VersionManager(object):
         
     def deserialize_file(self, json):
         file = rest.model.VersionedFile()
-        if json.has_key('id'):
+        if 'id' in json:
             file.id = int(json['id'])
-        if json.has_key('source_path'):
+        if 'source_path' in json:
             file.source_path = json['source_path']
-        if json.has_key('storage_path'):
+        if 'storage_path' in json:
             file.storage_path = json['storage_path']
-        if json.has_key('md5'):
+        if 'md5' in json:
             file.md5 = json['md5']
-        if json.has_key('metadata'):
-            file.metadata = unicode(json['metadata'])
-        if json.has_key('version'):
+        if 'metadata' in json:
+            file.metadata = str(json['metadata'])
+        if 'version' in json:
             file.version = int(json['version'])
-        if json.has_key('category'):
-            file.category = unicode(json['category'])
-        if json.has_key('updated'):
+        if 'category' in json:
+            file.category = str(json['category'])
+        if 'updated' in json:
             # fix wrong date format on reading
             updated = re.sub(
                        r" ", 
@@ -71,53 +71,53 @@ class VersionManager(object):
                    ) 
             file.updated = updated
         file.state = ''
-        if json.has_key('state'):
+        if 'state' in json:
             file.state = json['state']
         return file
     
     def serialize_file(self, file):
         res = {}
         if file.id:
-            res['id'] = unicode(file.id)
+            res['id'] = str(file.id)
         if file.source_path:
-            res['source_path'] = unicode(file.source_path)
+            res['source_path'] = str(file.source_path)
         if file.storage_path:
-            res['storage_path'] = unicode(file.storage_path)
+            res['storage_path'] = str(file.storage_path)
         if file.metadata:
-            res['metadata'] = unicode(file.metadata)
+            res['metadata'] = str(file.metadata)
         if file.md5:
-            res['md5'] = unicode(file.md5)
+            res['md5'] = str(file.md5)
         if file.version:
-            res['version'] = unicode(file.version)
+            res['version'] = str(file.version)
         if file.updated:
             # TODO: handle correctly timezone
-            res['updated'] = unicode(file.updated)
+            res['updated'] = str(file.updated)
         if file.category:
             # TODO: handle correctly timezone
-            res['category'] = unicode(file.category)
+            res['category'] = str(file.category)
         if file.state:
-            res['state'] = file.state
+            res['state'] = str(file.state)
         return res 
         
     def SaveState(self):
         with VersionManagerEnabler(self) as f:
-            print "===> SaveState----"
+            print("===> SaveState----")
             content = []
             for file in self.local_files:
-                print "+", file, self.local_files[file]
+                print("+", file, self.local_files[file])
                 content.append(self.serialize_file(self.local_files[file]))
     
-            with open(self.config, 'wb') as outfile:
+            with open(self.config, 'w', encoding='utf-8') as outfile:
                 json.dump(content, outfile, sort_keys=True, indent=2, separators=(',', ': '))
                 outfile.close()
-            print "------------------"
+            print("------------------")
     
     def on_file_changed(self, path):
         # integrate changes
         self.file_manager.Load()
         for filepath in self.file_manager.files:
             file = self.file_manager.files[filepath]
-            if filepath.startswith(filepath) and self.local_files.has_key(filepath):
+            if filepath.startswith(filepath) and filepath in self.local_files:
                 localfile = self.local_files[filepath]
                 if file.md5!=localfile.md5 or file.metadata!=localfile.metadata:
                     localfile.state = 'outgo_change'
@@ -147,7 +147,7 @@ class VersionManager(object):
                 self.SaveState()
         
             # load state from .kiversion state file
-            content = json.load(open(self.config))
+            content = json.load(open(self.config, encoding='utf-8'))
             for data in content:
                 file = self.deserialize_file(data)
                 state_files[file.source_path] = file
@@ -156,7 +156,7 @@ class VersionManager(object):
             self.file_manager.Load()
             for filepath in self.file_manager.files:
                 file_disk = self.file_manager.files[filepath]
-                if self.local_files.has_key(filepath)==False:
+                if filepath not in self.local_files:
                     file_disk.state = ''
                     self.local_files[filepath] = file_disk
                     
@@ -164,7 +164,7 @@ class VersionManager(object):
             for filepath in state_files:
                 state_file = state_files[filepath]
                 
-                if self.local_files.has_key(filepath):
+                if filepath in self.local_files:
                     file_disk = self.local_files[filepath]
 
                     file_disk.id = state_file.id 
@@ -193,7 +193,7 @@ class VersionManager(object):
                         file_disk.updated = state_file.updated
                     file_disk.category = self.file_manager.category()
                                                 
-                    print '$$$$', filepath, state_file.metadata
+                    print('$$$$', filepath, state_file.metadata)
                     file_disk.metadata = state_file.metadata
 
             # check if file exists on disk
@@ -212,7 +212,7 @@ class VersionManager(object):
                 file_disk = None
                 
                 # check if file exist in state
-                if self.local_files.has_key(filepath)==False and file_version.state=='outgo_del':
+                if filepath not in self.local_files and file_version.state=='outgo_del':
                     # update local file state 
                     self.local_files[filepath] = file_version
                 
@@ -276,7 +276,7 @@ class VersionManager(object):
 
     def EditFile(self, path, content, create=False):
         with VersionManagerEnabler(self) as f:
-            if self.local_files.has_key(path)==False and create==False:
+            if path not in self.local_files and create==False:
                 raise VersionManagerException('File %s does not exists'%path)
             
             file = self.local_files[path]
@@ -290,7 +290,7 @@ class VersionManager(object):
 
     def MoveFile(self, source_path, dest_path):
         with VersionManagerEnabler(self) as f:
-            if self.local_files.has_key(source_path)==False:
+            if source_path not in self.local_files:
                 raise VersionManagerException('File %s does not exists'%source_path)
             file = self.local_files[source_path]
             file = self.file_manager.MoveFile(file, dest_path)
@@ -395,7 +395,7 @@ class VersionManager(object):
                     self.local_files[file.source_path] = file
                 else:
                     # file was deleted
-                    if self.local_files.has_key(file.source_path):
+                    if file.source_path in self.local_files:
                         self.local_files.pop(file.source_path)
                 
             self.SaveState()
@@ -432,7 +432,7 @@ class VersionManager(object):
                     # check if file should be renamed
                     local_file = None
                     for local_file_name in self.local_files:
-                        print "****", self.local_files[local_file_name], "###", file
+                        print("****", self.local_files[local_file_name], "###", file)
                         if self.local_files[local_file_name].id==file.id:
                             local_file = self.local_files[local_file_name]
                             break

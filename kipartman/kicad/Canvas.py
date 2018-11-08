@@ -685,7 +685,7 @@ class Canvas(object):
                         s_height = height
         if s_x is None:
             s_x, s_y, s_width, s_height = 0., 0., 0., 0.
-        print "--", s_x, s_y, s_width, s_height
+        print("--", s_x, s_y, s_width, s_height)
         
         # create image with whole drawing content
         img_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.viewport.x, self.viewport.y)

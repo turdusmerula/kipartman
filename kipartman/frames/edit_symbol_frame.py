@@ -33,7 +33,7 @@ def NoneValue(value, default):
 def MetadataValue(metadata, value, default):
     if metadata is None:
         return default
-    if metadata.has_key(value):
+    if value in metadata:
         return metadata[value]
     return default
 
@@ -122,7 +122,7 @@ class EditSymbolFrame(PanelEditSymbol):
         snapeda = event.data
         if not snapeda:
             return
-        print snapeda.json
+        print(snapeda.json)
         
         self.edit_symbol_name.Value = snapeda.part_number()
         self.edit_symbol_description.Value = snapeda.short_description()
@@ -149,9 +149,9 @@ class EditSymbolFrame(PanelEditSymbol):
         if download.url() and download.url()!='':
             try:
                 filename = os.path.join(tempfile.gettempdir(), os.path.basename(download.url()))
-                print "Download from:", download.url()
+                print("Download from:", download.url())
                 content = scraper.get(download.url()).content
-                with open(filename, 'wb') as outfile:
+                with open(filename, 'wb', encoding='utf-8') as outfile:
                     outfile.write(content)
                 outfile.close()
             except:
@@ -171,14 +171,14 @@ class EditSymbolFrame(PanelEditSymbol):
             self.symbol.content = ''
             for file in glob.glob(filename+".tmp/*"):
                 if file.endswith(".lib"):
-                    print "---------", file
+                    print("---------", file)
                     lib = KicadLibCache(filename+".tmp")
                     symbols = lib.read_lib_file(os.path.basename(file))
                     if len(symbols)>0:
                         for symbol in symbols:
                             self.symbol.content = symbols[symbol].content
                             break
-                    print "****", self.symbol.content
+                    print("****", self.symbol.content)
                     
                     mod = kicad_lib_file.KicadLibFile()
                     mod.LoadFile(file)

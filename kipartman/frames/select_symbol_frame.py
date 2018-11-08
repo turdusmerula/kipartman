@@ -151,7 +151,7 @@ class SelectSymbolFrame(PanelSelectSymbol):
         obj = self.tree_symbols_manager.ItemToObject(item)
 
         if isinstance(obj, DataModelSymbol):
-            print "----", obj.symbol.source_path
+            print("----", obj.symbol.source_path)
             if self.lib_cache.Exists(obj.symbol.source_path):
                 self.lib_cache.LoadContent(obj.symbol)
                 lib = kicad_lib_file.KicadLibFile()

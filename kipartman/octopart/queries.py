@@ -32,7 +32,7 @@ class OctopartQuery(object):
             self.args.append((arg, kwargs[arg]))
         
         self.url = self.baseurl+self.path+'?'+urllib.urlencode(self.args)
-        print self.url 
+        print(self.url) 
         data = urllib.urlopen(self.url).read()
         return json.loads(data)
         
