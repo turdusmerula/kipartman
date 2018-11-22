@@ -60,13 +60,15 @@ setup(
          'conan',
          'pyrfc3339',
 #         # for kipart base
-         'connexion', #>1.1,<1.2',
-#         'python_dateutil',
+         'connexion',
+         'python_dateutil',
          'django<1.12',
          'django-mptt<0.9',
          'watchdog',
-         
+         'numpy',
+         'sqlalchemy',
          'setuptools',
+         'connexion[swagger-ui]'
     ],
 )
 

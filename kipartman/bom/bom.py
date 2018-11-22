@@ -84,10 +84,8 @@ class Bom(object):
                     for key, value in input.iteritems()}
         elif isinstance(input, list):
             return [self.byteify(element) for element in input]
-        elif isinstance(input, unicode):
-            return input.encode('utf-8')
         else:
-            return input
+            return input.encode('utf-8')
         
     def SaveFile(self, filename):
         print("Save BOM", filename)

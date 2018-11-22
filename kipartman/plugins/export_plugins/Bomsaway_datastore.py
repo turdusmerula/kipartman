@@ -217,9 +217,10 @@ class Datastore(object):
 
         session.commit()
 
+    @staticmethod
     def test_creation():
         eng = create_engine('sqlite://')
         Base.metadata.create_all(eng)
 
 if __name__ == '__main__':
-    test_creation()
+    Datastore.test_creation()

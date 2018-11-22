@@ -24,7 +24,7 @@ Note: kipartman is still in active development phase, some functionalities may n
 On Ubuntu systems you need to install some packages before installing kipartman:
 
 <code>
-sudo apt-get install build-essential libgtk-3-dev libwebkitgtk-3.0-dev libwxgtk3.0-dev libwxgtk-media3.0-dev libwebkitgtk-dev libboost-dev
+sudo apt-get install build-essential libgtk-3-dev libwebkitgtk-3.0-dev libwxgtk3.0-dev libwxgtk-media3.0-dev libwebkitgtk-dev libboost-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev python3-dev
 </code>
 
 ## Installing
@@ -32,10 +32,18 @@ sudo apt-get install build-essential libgtk-3-dev libwebkitgtk-3.0-dev libwxgtk3
 Kipartman is available through pip:
 
 <code>
-pip install kipartman
+pip3 install kipartman
 </code>
 
 Note: wxPython can be quite long to install as it is built from sources.
+
+Installing from sources:
+
+<code>
+pip3 install setuptools
+cd kipartman
+python3 setup.py install
+</code>
 
 ## Configuration
 

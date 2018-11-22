@@ -24,10 +24,10 @@ class CsvExport(_export_base.KiPartmanExporter):
 
 def format_csv_column_entry(fp, key):
     #return repr(fp.to_dict()[key]).encode('ascii',errors='xmlcharrefreplace')
-    field = fp.to_dict()[key]
+#     field = fp.to_dict()[key]
     #if '{}'.format(type(field)) = "<type 'dict'>":
-    if isinstance(field,unicode):
-        #print('DEBUG:{}:{}:{}'.format(type(field), key, fp.to_dict()[key].encode('ascii', errors='xmlcharrefreplace')))
-        return fp.to_dict()[key].encode('ascii', errors='xmlcharrefreplace')
-    else:
-        return fp.to_dict()[key]
+#     if isinstance(field, unicode):
+#         #print('DEBUG:{}:{}:{}'.format(type(field), key, fp.to_dict()[key].encode('ascii', errors='xmlcharrefreplace')))
+#         return fp.to_dict()[key].encode('ascii', errors='xmlcharrefreplace')
+#     else:
+    return fp.to_dict()[key]

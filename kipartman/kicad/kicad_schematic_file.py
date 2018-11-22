@@ -1,10 +1,10 @@
 import os
 from kicad.kicad_object import *
 import re 
-import tempfile
 import io
 import tempfile
 import hashlib
+import kicad.Canvas as Canvas
 
 class KicadSchematicFile(object):
     def __init__(self):

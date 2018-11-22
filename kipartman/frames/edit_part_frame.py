@@ -12,7 +12,6 @@ from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
 import wx.lib.newevent
 import datetime
-import re
 import rest
 from octopart.extractor import OctopartExtractor
 import os

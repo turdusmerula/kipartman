@@ -1,20 +1,8 @@
 from dialogs.panel_edit_module import PanelEditModule
-from frames.select_snapeda_frame import SelectSnapedaFrame, EVT_SELECT_SNAPEDA_OK_EVENT
-from frames.dropdown_dialog import DropdownDialog
-from kicad import kicad_mod_file
-from kicad import lib_convert
 import wx.lib.newevent
-import tempfile
 import os.path
-import webbrowser
 import cfscrape
 from configuration import Configuration
-from dialogs.dialog_snapeda_error import DialogSnapedaError
-from snapeda.queries import DownloadQuery
-import zipfile
-import glob
-import datetime
-import hashlib
 import json
 from helper.exception import print_stack
 
