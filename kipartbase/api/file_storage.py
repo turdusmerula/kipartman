@@ -3,7 +3,7 @@ import shutil
 import os
 import api.models
 import tempfile
-import hashlib
+import helper.hash as hash
 
 from django.conf import settings
 
@@ -39,7 +39,7 @@ class FileStorage(object):
         file.close()
         
         # get md5
-        md5 = hashlib.md5(file.name).hexdigest()
+        md5 = hash.md5(file.name).hexdigest()
         levels = self.get_sublevels(md5)
         
         # get current sublevel

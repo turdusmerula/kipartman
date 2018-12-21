@@ -7,6 +7,7 @@ import helper.tree
 import os
 from helper.tree import TreeImageList
 from helper.exception import print_stack
+from helper.connection import check_backend
 import wx
 import re
 import sync.version_manager
@@ -287,10 +288,25 @@ class FootprintsFrame(PanelFootprints):
         self.show_footprint(None)
         self.edit_state = None
 
-        self.load() 
+        self.loaded = False ;
+        
+    def activate(self):
+        if self.loaded==False:
+            self.load()
+        self.loaded = True
         
     def load(self):
         try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
+        try:
+            # update local disk state
+            self.manager_pretty.LoadState()
+
             self.footprints = self.manager_pretty.Synchronize()
         except Exception as e:
             print_stack()
@@ -303,6 +319,12 @@ class FootprintsFrame(PanelFootprints):
         self.loadFootprints()
     
     def loadLibraries(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
         
         self.tree_libraries_manager.SaveState()
         
@@ -343,6 +365,12 @@ class FootprintsFrame(PanelFootprints):
         self.tree_libraries_manager.PurgeState()
 
     def loadFootprints(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
             
         if self.previous_show_footprint_path!=self.show_footprint_path:
             # in case switch from tree to flat view 

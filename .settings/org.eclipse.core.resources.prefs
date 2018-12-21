@@ -62,6 +62,7 @@ encoding//kipartman/dialogs/panel_storages.py=utf-8
 encoding//kipartman/dialogs/panel_symbols.py=utf-8
 encoding//kipartman/swagger_client/__init__.py=utf-8
 encoding//kipartman/swagger_client/api_client.py=utf-8
+encoding//kipartman/swagger_client/apis/default_api.py=utf-8
 encoding//kipartman/swagger_client/configuration.py=utf-8
 encoding//kipartman/swagger_client/models/part.py=utf-8
 encoding//kipartman/swagger_client/models/part_category.py=utf-8

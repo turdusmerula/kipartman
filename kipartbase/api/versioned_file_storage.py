@@ -1,7 +1,7 @@
 from api.file_storage import FileStorage
 from django.conf import settings
 import tempfile
-import hashlib
+import helper.hash as hash
 import os
 import shutil
 import api.models
@@ -35,7 +35,7 @@ class VersionedFileStorage(object):
         return levels
 
     def get_storage_path(self, version_file):
-        md5 = hashlib.md5(version_file.content).hexdigest()
+        md5 = hash.md5(version_file.content).hexdigest()
         levels = self.get_sublevels(md5)
         
         # get current sublevel
@@ -56,7 +56,7 @@ class VersionedFileStorage(object):
             os.makedirs(os.path.dirname(abs_storage_path))
         
         # create file
-        md5 = hashlib.md5(version_file.content).hexdigest()
+        md5 = hash.md5(version_file.content).hexdigest()
         with open(abs_storage_path, 'wb') as outfile:
             outfile.write(version_file.content)
             outfile.close()

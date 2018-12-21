@@ -64,9 +64,12 @@ class MainFrame(DialogMain):
                 self.menu_bar.Insert(len(self.menu_bar.GetMenus())-1, menu['menu'], menu['title'])
                 for menu_item in menu['menu'].GetMenuItems():
                     self.Bind( wx.EVT_MENU, self.OnMenuItem, id = menu_item.GetId() )
+
         except:
             print_stack()
             pass
+
+        page.activate() 
 
     def onMenuFileProjetSelection( self, event ):
         dlg = wx.FileDialog(
@@ -95,3 +98,5 @@ class MainFrame(DialogMain):
     def OnMenuItem( self, event ):
         self.pages[self.notebook.GetSelection()].OnMenuItem(event)
 
+    def error_message(self, message):
+        self.info.ShowMessage(message, wx.ICON_ERROR)

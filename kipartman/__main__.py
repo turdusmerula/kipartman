@@ -20,6 +20,8 @@ import argparse
 from configuration import configuration
 import sys, time
 
+dialog_main = None
+
 def configure(value):
     pass
 
@@ -47,8 +49,9 @@ def main(args=None):
     from frames.main_frame import MainFrame
     app = wx.App()
     
-    frame = MainFrame(None)    
-    frame.Show()
+    global dialog_main
+    dialog_main = MainFrame(None)    
+    dialog_main.Show()
 
     app.MainLoop() 
 

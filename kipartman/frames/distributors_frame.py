@@ -3,6 +3,7 @@ import wx
 import rest
 import helper.tree
 from helper.exception import print_stack
+from helper.connection import check_backend
 
 def NoneValue(value, default):
     if value:
@@ -57,9 +58,21 @@ class DistributorsFrame(PanelDistributors):
         self.panel_edit_distributor.Enabled = False
         self.panel_distributors.Enabled = True
         
-        self.load() 
+        self.loaded = False ;
+        
+    def activate(self):
+        if self.loaded==False:
+            self.load()
+        self.loaded = True
         
     def loadDistributors(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
         self.tree_distributors_manager.ClearItems()
         
         # retrieve categories
@@ -70,6 +83,13 @@ class DistributorsFrame(PanelDistributors):
     
     # Virtual event handlers, overide them in your derived class
     def load(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
         try:
             self.loadDistributors()
         except Exception as e:

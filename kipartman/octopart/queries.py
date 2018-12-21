@@ -1,10 +1,8 @@
 from octopart import models
-from configuration import Configuration
+from configuration import configuration
 import json
-import urllib
-
-configuration = Configuration()   # TODO: Improve accessing Global DEFAULTS
-
+import urllib.request
+import urllib.parse
 
 class OctopartQuery(object):
     baseurl = "http://octopart.com/api/v3/"
@@ -31,9 +29,9 @@ class OctopartQuery(object):
         for arg in kwargs:
             self.args.append((arg, kwargs[arg]))
         
-        self.url = self.baseurl+self.path+'?'+urllib.urlencode(self.args)
+        self.url = self.baseurl+self.path+'?'+urllib.parse.urlencode(self.args)
         print(self.url) 
-        data = urllib.urlopen(self.url).read()
+        data = urllib.request.urlopen(self.url).read()
         return json.loads(data)
         
 

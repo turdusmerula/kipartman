@@ -1,14 +1,7 @@
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-from configuration import configuration
 from glob import glob
 import os
-import re
-import hashlib
-from pathlib2 import Path
-import shutil
-import json
-import rest
 import wx
 
 class KicadProjectException(Exception):

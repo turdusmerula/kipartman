@@ -4,7 +4,7 @@ from configuration import configuration
 from glob import glob
 import os
 import re
-import hashlib
+import helper.hash as hash
 from pathlib2 import Path
 import shutil
 import json
@@ -138,7 +138,7 @@ class KicadFileManagerPretty(KicadFileManager):
             for footprint in footprints:
                 source_path = os.path.join(library, footprint)
                 content = Path(os.path.join(self.root_path(), source_path)).read_text()
-                md5 = hashlib.md5(content.encode('utf-8')).hexdigest()
+                md5 = hash.md5(content).hexdigest()
  
                 file = rest.model.VersionedFile()
                 file.source_path = source_path
@@ -209,7 +209,7 @@ class KicadFileManagerPretty(KicadFileManager):
 
         file = rest.model.VersionedFile()
         file.source_path = path
-        file.md5 = hashlib.md5(content).hexdigest()
+        file.md5 = hash.md5(content).hexdigest()
         file.updated = rest.api.get_date()
         file.category = self.category()
 
@@ -221,8 +221,8 @@ class KicadFileManagerPretty(KicadFileManager):
 
         fullpath = os.path.join(self.root_path(), file.source_path)
         if self.Exists(file.source_path)==True:
-            md5file = hashlib.md5(Path(fullpath).read_text()).hexdigest()
-            md5 = hashlib.md5(content).hexdigest()
+            md5file = hash.md5(Path(fullpath).read_text()).hexdigest()
+            md5 = hash.md5(content).hexdigest()
             if md5==md5file:
                 return file, False
         
@@ -235,7 +235,7 @@ class KicadFileManagerPretty(KicadFileManager):
                 content_file.write('')
         content_file.close() 
  
-        file.md5 = hashlib.md5(content).hexdigest()
+        file.md5 = hash.md5(content).hexdigest()
         file.updated = rest.api.get_date()
            
         return file, True
@@ -526,7 +526,7 @@ class KicadFileManagerLib(KicadFileManager):
                 file = rest.model.VersionedFile()
                 file.source_path = symbol
                 self.LoadContent(file)
-                file.md5 = hashlib.md5(file.content.encode('utf-8')).hexdigest()
+                file.md5 = hash.md5(file.content).hexdigest()
                 file.category = self.category()
                 file.metadata = self.LoadMetadata(symbol)
                 
@@ -623,7 +623,7 @@ class KicadFileManagerLib(KicadFileManager):
         
         file = rest.model.VersionedFile()
         file.source_path = path
-        file.md5 = hashlib.md5(content).hexdigest()
+        file.md5 = hash.md5(content).hexdigest()
         file.updated = rest.api.get_date()
         file.category = self.category()
         
@@ -644,8 +644,8 @@ class KicadFileManagerLib(KicadFileManager):
 
         if self.Exists(file.source_path)==True:
             symbol = self.lib_cache.GetSymbol(file.source_path)
-            md5file = hashlib.md5(symbol.content).hexdigest()
-            md5 = hashlib.md5(content).hexdigest()
+            md5file = hash.md5(symbol.content).hexdigest()
+            md5 = hash.md5(content).hexdigest()
             if md5==md5file:
                 return file, False
             self.lib_cache.AddSymbol(file.source_path, content, symbol.metadata)  
@@ -654,7 +654,7 @@ class KicadFileManagerLib(KicadFileManager):
             self.lib_cache.AddSymbol(file.source_path, content, {})  
             self.write_library(library, self.lib_cache.GetSymbols(library))
 
-        file.md5 = hashlib.md5(content).hexdigest()
+        file.md5 = hash.md5(content).hexdigest()
         file.updated = rest.api.get_date()
             
         return file, True
@@ -786,7 +786,7 @@ class KicadFileManagerModule(KicadFileManager):
                         with open(filename, 'r', encoding='utf-8') as f:
                             content[os.path.basename(filename)] = f.read()
 
-            md5 = hashlib.md5(json.dumps(content, sort_keys=True).encode('utf-8')).hexdigest()
+            md5 = hash.md5(json.dumps(content, sort_keys=True)).hexdigest()
             
             file = rest.model.VersionedFile()
             file.source_path = source_path
@@ -837,12 +837,12 @@ class KicadFileManagerModule(KicadFileManager):
         for file in files:
             filepath = os.path.join(self.root_path(), path, file)
             with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(files[file].encode('utf-8'))
+                f.write(files[file])
         content = json.dumps(files, sort_keys=True)
         
         file = rest.model.VersionedFile()
         file.source_path = path
-        file.md5 = hashlib.md5(content).hexdigest()
+        file.md5 = hash.md5(content).hexdigest()
         file.updated = rest.api.get_date()
         file.category = self.category()
 
@@ -859,9 +859,9 @@ class KicadFileManagerModule(KicadFileManager):
                 for extension in self.extensions:
                     if filename.endswith('.'+extension):
                         with open(filename, 'r', encoding='utf-8') as f:
-                            fcontent[os.path.basename(filename)] = f.read().decode('utf-8')
-            md5file = hashlib.md5(json.dumps(fcontent, sort_keys=True)).hexdigest()
-            md5 = hashlib.md5(content).hexdigest()
+                            fcontent[os.path.basename(filename)] = f.read()
+            md5file = hash.md5(json.dumps(fcontent, sort_keys=True)).hexdigest()
+            md5 = hash.md5(content).hexdigest()
             if md5==md5file:
                 return file, False
         
@@ -871,9 +871,9 @@ class KicadFileManagerModule(KicadFileManager):
         for file in files:
             filepath = os.path.join(fullpath, file)
             with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(files[file].encode('utf-8'))
+                f.write(files[file])
         
-        file.md5 = hashlib.md5(content).hexdigest()
+        file.md5 = hash.md5(content).hexdigest()
         file.updated = rest.api.get_date()
            
         return file, True
@@ -916,7 +916,7 @@ class KicadFileManagerModule(KicadFileManager):
             for extension in self.extensions:
                 if filename.endswith('.'+extension):
                     with open(filename, 'r', encoding='utf-8') as f:
-                        content[os.path.basename(filename)] = f.read().decode('utf-8')
+                        content[os.path.basename(filename)] = f.read()
         
         file.content = json.dumps(content, sort_keys=True)
 

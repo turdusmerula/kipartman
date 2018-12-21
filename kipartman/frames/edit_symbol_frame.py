@@ -13,7 +13,7 @@ from snapeda.queries import DownloadQuery
 import zipfile
 import glob
 import datetime
-import hashlib
+import helper.hash as hash
 import json
 from kicad.kicad_file_manager import KicadLibCache, KicadFileManagerLib
 from helper.exception import print_stack
@@ -189,7 +189,7 @@ class EditSymbolFrame(PanelEditSymbol):
                     img = img.ConvertToBitmap()
                     self.bitmap_edit_symbol.SetBitmap(img)
             
-            self.symbol.md5 = hashlib.md5(self.symbol.content).hexdigest()
+            self.symbol.md5 = hash.md5(self.symbol.content).hexdigest()
 
         # download 3D symbol
         #TODO
@@ -224,7 +224,7 @@ class EditSymbolFrame(PanelEditSymbol):
         symbol.metadata = json.dumps(metadata)
         if not symbol.content:
             symbol.content = ''
-            symbol.md5 = hashlib.md5(symbol.content).hexdigest()
+            symbol.md5 = hash.md5(symbol.content).hexdigest()
             
         # send result event
         event = EditSymbolApplyEvent(

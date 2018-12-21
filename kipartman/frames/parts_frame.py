@@ -9,6 +9,7 @@ from helper.filter import Filter
 import rest
 import wx
 from helper.exception import print_stack
+from helper.connection import check_backend
 
 import os, datetime
 from time import sleep
@@ -18,7 +19,6 @@ from dateutil.parser import parse
 from octopart.extractor import OctopartExtractor
 import swagger_client
 from helper.tree import TreeModel
-
 
 from plugins import plugin_loader
 from plugins import import_plugins as import_plugins
@@ -354,10 +354,22 @@ class PartsFrame(PanelParts):
         self.show_part(None)
         self.edit_state = None
         self.show_categories = True
+    
+        self.loaded = False ;
         
-        self.load()
+    def activate(self):
+        if self.loaded==False:
+            self.load()
+        self.loaded = True
         
     def loadCategories(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
         # clear all
         self.tree_categories_manager.ClearItems()
         
@@ -386,6 +398,13 @@ class PartsFrame(PanelParts):
                     to_add.append(child)
         
     def loadParts(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
         # clear all
         self.tree_parts_manager.ClearItems()
         
@@ -412,7 +431,7 @@ class PartsFrame(PanelParts):
             for part in parts:
                 self.tree_parts_manager.AppendItem(None, DataModelPart(part, self.tree_parts_manager.model.columns))
             
-    def load(self):
+    def load(self):        
         try:
             self.loadCategories()
         except Exception as e:

@@ -3,6 +3,7 @@ import wx
 import rest
 import helper.tree
 from helper.exception import print_stack
+from helper.connection import check_backend
 
 def NoneValue(value, default):
     if value:
@@ -50,9 +51,21 @@ class ManufacturersFrame(PanelManufacturers):
         self.panel_edit_manufacturer.Enabled = False
         self.panel_manufacturers.Enabled = True
         
-        self.load() 
+        self.loaded = False ;
+        
+    def activate(self):
+        if self.loaded==False:
+            self.load()
+        self.loaded = True
         
     def loadManufacturers(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
         self.tree_manufacturers_manager.ClearItems()
         
         # retrieve categories
@@ -63,6 +76,13 @@ class ManufacturersFrame(PanelManufacturers):
     
     # Virtual event handlers, overide them in your derived class
     def load(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
         try:
             self.loadManufacturers()
         except Exception as e:

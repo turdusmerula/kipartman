@@ -3,7 +3,7 @@ import json
 import rest
 import re
 import datetime
-import hashlib
+import helper.hash as hash
 from helper.exception import print_stack
 import wx
 import wx.lib.newevent
@@ -43,8 +43,6 @@ class VersionManager(object):
         
         # files from hard drive
         self.local_files = {}
-        
-        self.LoadState()
         
     def deserialize_file(self, json):
         file = rest.model.VersionedFile()
@@ -255,7 +253,7 @@ class VersionManager(object):
         with VersionManagerEnabler(self) as f:
             metadata = self.file_manager.EditMetadata(path, metadata)
             
-            if self.local_files.has_key(path):
+            if path in self.local_files:
                 self.local_files[path].updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
                 self.local_files[path].metadata = metadata
                 # TODO: check if metadata really changed

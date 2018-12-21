@@ -40,7 +40,7 @@ class KicadLibFile(object):
             content = ''
 
         self.file = tempfile.NamedTemporaryFile()
-        self.file.write(content)
+        self.file.write(content.encode('utf-8'))
         self.file.seek(0)
 
         self.filename = self.file.name

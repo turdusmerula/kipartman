@@ -3,7 +3,7 @@ from kicad.kicad_object import *
 import re 
 import io
 import tempfile
-import hashlib
+import helper.hash as hash
 import kicad.Canvas as Canvas
 
 class KicadSchematicFile(object):
@@ -88,12 +88,12 @@ class KicadSchematicFile(object):
         content = ''
         with open(tmp_file.name, 'rb', encoding='utf-8') as f:
             content = f.read()
-        src_md5 = hashlib.md5(content).hexdigest()
+        src_md5 = hash.md5(content).hexdigest()
         
         content = ''
         with open(self.filename, 'rb', encoding='utf-8') as f:
             content = f.read()
-        dst_md5 = hashlib.md5(content).hexdigest()
+        dst_md5 = hash.md5(content).hexdigest()
         
         if src_md5!=dst_md5:
             return True

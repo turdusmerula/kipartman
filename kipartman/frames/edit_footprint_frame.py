@@ -15,7 +15,7 @@ from snapeda.queries import DownloadQuery
 import zipfile
 import glob
 import datetime
-import hashlib
+import helper.hash as hash
 import json
 from helper.exception import print_stack
 
@@ -195,7 +195,7 @@ class EditFootprintFrame(PanelEditFootprint):
                     img = img.ConvertToBitmap()
                     self.bitmap_edit_footprint.SetBitmap(img)
             
-            self.footprint.md5 = hashlib.md5(self.footprint.content).hexdigest()
+            self.footprint.md5 = hash.md5(self.footprint.content).hexdigest()
 
         # download 3D symbol
         #TODO
@@ -230,7 +230,7 @@ class EditFootprintFrame(PanelEditFootprint):
         footprint.metadata = json.dumps(metadata)
         if not footprint.content:
             footprint.content = ''
-            footprint.md5 = hashlib.md5(footprint.content).hexdigest()
+            footprint.md5 = hash.md5(footprint.content).hexdigest()
             
         # send result event
         event = EditFootprintApplyEvent(

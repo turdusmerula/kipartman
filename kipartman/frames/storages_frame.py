@@ -9,6 +9,7 @@ import rest
 import wx
 from swagger_client.models.part_storage import PartStorage
 from helper.exception import print_stack
+from helper.connection import check_backend
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -183,9 +184,21 @@ class StoragesFrame(PanelStorages):
         self.show_storage(None)
         self.edit_state = None
 
-        self.load() 
+        self.loaded = False ;
+        
+    def activate(self):
+        if self.loaded==False:
+            self.load()
+        self.loaded = True
         
     def loadCategories(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
         # clear all
         self.tree_categories_manager.ClearItems()
         
@@ -214,6 +227,13 @@ class StoragesFrame(PanelStorages):
                     to_add.append(child)
 
     def loadStorages(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
         # clear all
         self.tree_storages_manager.ClearItems()
         
@@ -238,6 +258,13 @@ class StoragesFrame(PanelStorages):
 
     # Virtual event handlers, overide them in your derived class
     def load(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
         try:
             self.loadCategories()
         except Exception as e:

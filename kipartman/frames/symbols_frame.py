@@ -12,6 +12,7 @@ import wx
 import re
 import sync
 import json
+from helper.connection import check_backend
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -299,10 +300,24 @@ class SymbolsFrame(PanelSymbols):
         self.show_symbol(None)
         self.edit_state = None
 
-        self.load() 
+        self.loaded = False
+    
+    def activate(self):
+        if self.loaded==False:
+            self.load()
+        self.loaded = True
         
     def load(self):
         try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
+
+        try:
+            # update local disk state
+            self.manager_lib.LoadState()
             self.symbols = self.manager_lib.Synchronize()
         except Exception as e:
             print_stack()
@@ -312,6 +327,12 @@ class SymbolsFrame(PanelSymbols):
         self.loadSymbols()
     
     def loadLibraries(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
         
         self.tree_libraries_manager.SaveState()
         
@@ -352,6 +373,12 @@ class SymbolsFrame(PanelSymbols):
         self.tree_libraries_manager.PurgeState()
 
     def loadSymbols(self):
+        try:
+            check_backend()
+        except Exception as e:
+            print_stack()
+            self.GetParent().GetParent().error_message(format(e))
+            return
             
         if self.previous_show_symbol_path!=self.show_symbol_path:
             # in case switch from tree to flat view 
