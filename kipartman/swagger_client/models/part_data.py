@@ -34,9 +34,6 @@ class PartData(object):
         'name': 'str',
         'description': 'str',
         'comment': 'str',
-        'octopart': 'str',
-        'octopart_uid': 'str',
-        'updated': 'datetime',
         'value_parameter': 'str'
     }
 
@@ -44,13 +41,10 @@ class PartData(object):
         'name': 'name',
         'description': 'description',
         'comment': 'comment',
-        'octopart': 'octopart',
-        'octopart_uid': 'octopart_uid',
-        'updated': 'updated',
         'value_parameter': 'value_parameter'
     }
 
-    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, value_parameter=None):
+    def __init__(self, name=None, description=None, comment=None, value_parameter=None):
         """
         PartData - a model defined in Swagger
         """
@@ -58,9 +52,6 @@ class PartData(object):
         self._name = None
         self._description = None
         self._comment = None
-        self._octopart = None
-        self._octopart_uid = None
-        self._updated = None
         self._value_parameter = None
 
         if name is not None:
@@ -69,12 +60,6 @@ class PartData(object):
           self.description = description
         if comment is not None:
           self.comment = comment
-        if octopart is not None:
-          self.octopart = octopart
-        if octopart_uid is not None:
-          self.octopart_uid = octopart_uid
-        if updated is not None:
-          self.updated = updated
         if value_parameter is not None:
           self.value_parameter = value_parameter
 
@@ -140,69 +125,6 @@ class PartData(object):
         """
 
         self._comment = comment
-
-    @property
-    def octopart(self):
-        """
-        Gets the octopart of this PartData.
-
-        :return: The octopart of this PartData.
-        :rtype: str
-        """
-        return self._octopart
-
-    @octopart.setter
-    def octopart(self, octopart):
-        """
-        Sets the octopart of this PartData.
-
-        :param octopart: The octopart of this PartData.
-        :type: str
-        """
-
-        self._octopart = octopart
-
-    @property
-    def octopart_uid(self):
-        """
-        Gets the octopart_uid of this PartData.
-
-        :return: The octopart_uid of this PartData.
-        :rtype: str
-        """
-        return self._octopart_uid
-
-    @octopart_uid.setter
-    def octopart_uid(self, octopart_uid):
-        """
-        Sets the octopart_uid of this PartData.
-
-        :param octopart_uid: The octopart_uid of this PartData.
-        :type: str
-        """
-
-        self._octopart_uid = octopart_uid
-
-    @property
-    def updated(self):
-        """
-        Gets the updated of this PartData.
-
-        :return: The updated of this PartData.
-        :rtype: datetime
-        """
-        return self._updated
-
-    @updated.setter
-    def updated(self, updated):
-        """
-        Sets the updated of this PartData.
-
-        :param updated: The updated of this PartData.
-        :type: datetime
-        """
-
-        self._updated = updated
 
     @property
     def value_parameter(self):

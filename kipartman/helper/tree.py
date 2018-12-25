@@ -102,9 +102,10 @@ class TreeContainerLazyItem(TreeItem):
 class TreeModel(wx.dataview.PyDataViewModel):
     def __init__(self):
         super(TreeModel, self).__init__()
-        self.columns_type = []
+        self.columns_type = {}
+        self.columns_name = {}
+        self.sort_function = {}
         self.root_nodes = []
-        self.sort_function = []
 
     def ClearItems(self):
         self.root_nodes = []
@@ -114,6 +115,9 @@ class TreeModel(wx.dataview.PyDataViewModel):
 
     def GetColumnType(self, col):
         return self.columns_type[col]
+
+    def GetColumnName(self, col):
+        return self.columns_name[col]
 
     def GetChildren(self, item, children):
         if not item:
@@ -596,8 +600,9 @@ class TreeManager(object):
 
     def AddTextColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
-        self.model.columns_type.append('string')
-        self.model.sort_function.append(CompareString)
+        self.model.columns_type[column.GetModelColumn()] = 'string'
+        self.model.columns_name[column.GetModelColumn()] = title
+        self.model.sort_function[column.GetModelColumn()] = CompareString
         column.Sortable = True
         column.Reorderable = True
         column.SortOrder = True
@@ -605,51 +610,73 @@ class TreeManager(object):
     
     def AddFloatColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
-        self.model.columns_type.append('float')
-        self.model.sort_function.append(CompareFloat)
+        self.model.columns_type[column.GetModelColumn()] = 'float'
+        self.model.columns_name[column.GetModelColumn()] = title
+        self.model.sort_function[column.GetModelColumn()] = CompareFloat
         column.Sortable = True
         column.Reorderable = True
         return column
 
     def AddIntegerColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
-        self.model.columns_type.append('integer')
-        self.model.sort_function.append(CompareInteger)
+        self.model.columns_type[column.GetModelColumn()] = 'integer'
+        self.model.columns_name[column.GetModelColumn()] = title
+        self.model.sort_function[column.GetModelColumn()] = CompareInteger
         column.Sortable = True
         column.Reorderable = True
         return column
 
     def AddToggleColumn(self, title):
         column = self.tree_view.AppendToggleColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE, mode=wx.dataview.DATAVIEW_CELL_ACTIVATABLE)
-        self.model.columns_type.append('integer')
-        self.model.sort_function.append(CompareString)
+        self.model.columns_type[column.GetModelColumn()] = 'integer'
+        self.model.columns_name[column.GetModelColumn()] = title
+        self.model.sort_function[column.GetModelColumn()] = CompareString
         column.Sortable = True
         column.Reorderable = True
         return column
 
     def AddCustomColumn(self, title, type, sort_function):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
-        self.model.columns_type.append(type)
-        self.model.sort_function.append(sort_function)
+        self.model.columns_type[column.GetModelColumn()] = type
+        self.model.columns_name[column.GetModelColumn()] = title
+        self.model.sort_function[column.GetModelColumn()] = sort_function
         column.Sortable = True
         column.Reorderable = True
         return column
 
     def AddBitmapColumn(self, title):
         column = self.tree_view.AppendBitmapColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
-        self.model.columns_type.append('bitmap')
+        self.model.columns_type[column.GetModelColumn()] = 'bitmap'
+        self.model.columns_name[column.GetModelColumn()] = title
         # TODO: add support for sorting bitmaps by labels
-        self.model.sort_function.append(None)
+        self.model.sort_function[column.GetModelColumn()] = None
         column.Sortable = True
         column.Reorderable = True
         return column
         
+    def RemoveColumns(self, start_index, end_index=-1):
+        to_remove = []
+        for column in self.tree_view.GetColumns():
+            if column.GetModelColumn()>=start_index and end_index==-1:
+                to_remove.append(column)
+            elif column.GetModelColumn()>=start_index and column.GetModelColumn()<=end_index:
+                to_remove.append(column)
+        for column in to_remove:
+            self.tree_view.DeleteColumn(column)
+
     def RemoveColumn(self, index):
         for column in self.tree_view.GetColumns():
             if column.GetModelColumn()==index:
+                self.model.columns_name.remove(index)
+                self.model.columns_type.remove(index)
+                self.model.sort_function.remove(index)
                 self.tree_view.DeleteColumn(column)
                 return
-        
+    
+    def ClearColumns(self):
+        while len(self.tree_view.GetColumns())>0:
+            self.tree_view.DeleteColumn(self.tree_view.GetColumns()[0])
+    
     def ClearItems(self):
         self.data = []
         self.model.ClearItems()

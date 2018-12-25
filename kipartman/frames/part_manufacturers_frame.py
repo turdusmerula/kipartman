@@ -28,9 +28,10 @@ class PartManufacturersFrame(PanelPartManufacturers):
         super(PartManufacturersFrame, self).__init__(parent)
 
         # create octoparts list
-        self.tree_manufacturers_manager = helper.tree.TreeManager(self.tree_manufacturers)
+        self.tree_manufacturers_manager = helper.tree.TreeManager(self.tree_manufacturers, context_menu=self.menu_manufacturers)
         self.tree_manufacturers_manager.AddTextColumn("Manufacturer")
         self.tree_manufacturers_manager.AddTextColumn("Part Name")
+        self.tree_manufacturers_manager.OnItemBeforeContextMenu = self.onTreeManufacturersBeforeContextMenu
 
         self.enable(False)
         
@@ -39,9 +40,7 @@ class PartManufacturersFrame(PanelPartManufacturers):
         self.showManufacturers()
 
     def enable(self, enabled=True):
-        self.button_add_manufacturer.Enabled = enabled
-        self.button_edit_manufacturer.Enabled = enabled
-        self.button_remove_manufacturer.Enabled = enabled
+        self.enabled = enabled
 
     def FindManufacturer(self, name):
         for data in self.tree_manufacturers_manager.data:
@@ -76,28 +75,47 @@ class PartManufacturersFrame(PanelPartManufacturers):
             for manufacturer in self.part.manufacturers:
                 self.tree_manufacturers_manager.AppendItem(None, DataModelPartManufacturer(manufacturer))
             
-    def onButtonAddManufacturerClick( self, event ):
+    def onTreeManufacturersBeforeContextMenu( self, event ):
+        self.menu_manufacturer_add_manufacturer.Enable(True)
+        self.menu_manufacturer_edit_manufacturer.Enable(True)
+        self.menu_manufacturer_remove_manufacturer.Enable(True)
+        if len(self.tree_manufacturers.GetSelections())==0:
+            self.menu_manufacturer_edit_manufacturer.Enable(False)
+            self.menu_manufacturer_remove_manufacturer.Enable(False)
+        if len(self.tree_manufacturers.GetSelections())>1:
+            self.menu_manufacturer_edit_manufacturer.Enable(False)
+        
+        if self.enabled==False:
+            self.menu_manufacturer_add_manufacturer.Enable(False)
+            self.menu_manufacturer_edit_manufacturer.Enable(False)
+            self.menu_manufacturer_remove_manufacturer.Enable(False)
+            
+
+    # Virtual event handlers, overide them in your derived class
+    def onMenuManufacturerAddManufacturer( self, event ):
         manufacturer = EditPartManufacturerFrame(self).AddManufacturer(self.part)
         if manufacturer:
             if self.part.manufacturers is None:
                 self.part.manufacturers = []
             self.part.manufacturers.append(manufacturer)
             self.tree_manufacturers_manager.AppendItem(None, DataModelPartManufacturer(manufacturer))
-             
-    def onButtonEditManufacturerClick( self, event ):
+
+    def onMenuManufacturerEditManufacturer( self, event ):
         item = self.tree_manufacturers.GetSelection()
         if not item.IsOk():
             return 
         manufacturerobj = self.tree_manufacturers_manager.ItemToObject(item)
         EditPartManufacturerFrame(self).EditManufacturer(self.part, manufacturerobj.manufacturer)
         self.tree_manufacturers_manager.UpdateItem(manufacturerobj)
-    
-    def onButtonRemoveManufacturerClick( self, event ):
-        item = self.tree_manufacturers.GetSelection()
-        if not item:
-            return
-        manufacturerobj = self.tree_manufacturers_manager.ItemToObject(item)
-        self.part.manufacturers.remove(manufacturerobj.manufacturer)
-        self.tree_manufacturers_manager.DeleteItem(None, manufacturerobj)
+
+    def onMenuManufacturerRemoveManufacturer( self, event ):
+        manufacturers = []
+        for item in self.tree_manufacturers.GetSelections():
+            obj = self.tree_manufacturers_manager.ItemToObject(item)
+            if isinstance(obj, DataModelPartManufacturer):
+                manufacturers.append(obj)
+        for manufacturerobj in manufacturers:
+            self.part.manufacturers.remove(manufacturerobj.manufacturer)
+            self.tree_manufacturers_manager.DeleteItem(None, manufacturerobj)
 
         

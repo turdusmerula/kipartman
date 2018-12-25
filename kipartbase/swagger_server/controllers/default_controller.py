@@ -2,6 +2,8 @@ from swagger_server.controllers.controller_part_category import *
 from swagger_server.controllers.controller_part_parameter import *
 from swagger_server.controllers.controller_part_distributor import *
 from swagger_server.controllers.controller_part_manufacturer import *
+from swagger_server.controllers.controller_part_reference import *
+from swagger_server.controllers.controller_part_attachement import *
 from swagger_server.controllers.controller_part import *
 from swagger_server.controllers.controller_unit import *
 from swagger_server.controllers.controller_distributor import *

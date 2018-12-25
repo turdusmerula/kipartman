@@ -7,6 +7,7 @@ from frames.part_manufacturers_frame import PartManufacturersFrame
 from frames.part_attachements_frame import PartAttachementsFrame
 from frames.part_storages_frame import PartStoragesFrame
 from frames.part_preview_data_frame import PartPreviewDataFrame
+from frames.part_references_frame import PartReferencesFrame
 from frames.dropdown_frame import DropdownFrame
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
@@ -16,6 +17,7 @@ import rest
 from octopart.extractor import OctopartExtractor
 import os
 from helper.exception import print_stack
+import pytz
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -47,6 +49,9 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_attachements = PartAttachementsFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_attachements, "Attachements")
 
+        self.edit_part_references = PartReferencesFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_references, "References")
+
     def SetPart(self, part):
         self.part = part
         self.ShowPart(part)
@@ -56,6 +61,7 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_storages.SetPart(part)
         self.edit_part_attachements.SetPart(part)
         self.edit_part_preview_data.SetPart(part)
+        self.edit_part_references.SetPart(part)
         
     def ShowPart(self, part):
         if part:
@@ -90,7 +96,8 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_manufacturers.enable(enabled)
         self.edit_part_storages.enable(enabled)
         self.edit_part_attachements.enable(enabled)
-        
+        self.edit_part_references.enable(enabled)
+       
     def onButtonPartFootprintClick( self, event ):
         footprint = self.part.footprint
         frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame, footprint)
@@ -119,13 +126,12 @@ class EditPartFrame(PanelEditPart):
         part = self.part
         if not part:
             part = rest.model.PartNew()
-        if part.name!=part.octopart:
-            part.octopart = None
             
         # set part content
         part.name = self.edit_part_name.Value
         part.description = self.edit_part_description.Value
         part.comment = self.edit_part_comment.Value
+        
         # send result event
         event = EditPartApplyEvent(data=part)
         wx.PostEvent(self, event)
@@ -142,98 +148,168 @@ class EditPartFrame(PanelEditPart):
         dropdown.panel.Bind( EVT_SELECT_OCTOPART_OK_EVENT, self.onSelectOctopartFrameOk )
         dropdown.Dropdown()
 
-    
-    def onSelectOctopartFrameOk(self, event):
-        octopart = event.data
-        if not octopart:
-            return
-
-        # convert octopart to part values
-        print("octopart:", octopart.json)
+    def addReferenceFromOctopart(self, octopart):
         octopart_extractor = OctopartExtractor(octopart)
 
-        # TODO: THis looks something similar to def octopart_to_part(self, octopart, part): in parts_frame \
-        # explore if this can be rationalized under module octopart. \
-        # The code is complex, there could be change sync issues
-        
-        # import part fields
-        self.part.name = octopart.item().mpn()
-        self.part.description = octopart.snippet()
-        # set field octopart to indicatethat part was imported from octopart
-        self.part.octopart = octopart.item().mpn()
-        self.part.octopart_uid = octopart.item().uid()
-        self.part.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        
+        reference = octopart_extractor.ExtractReference()
+        if octopart_extractor.has_error():
+            wx.MessageDialog(self, octopart_extractor.get_error_message(), "Octopart processing error", wx.OK | wx.ICON_WARNING)
+
+        # add references in current part
+        part_reference = next((p for p in self.part.references if p.type==reference['type'] and p.uid==reference['uid']), None)
+        if part_reference is None:
+            part_reference = rest.model.PartReference()
+            self.part.references.append(part_reference)
+        part_reference.type = reference['type']
+        part_reference.name = reference['name']
+        part_reference.uid = reference['uid']
+        part_reference.manufacturer = reference['manufacturer']
+        part_reference.description = reference['description']
+         
+    def addParametersFromOctopart(self, octopart):
+        octopart_extractor = OctopartExtractor(octopart)
+
         # import parameters
         for spec_name in octopart.item().specs():
             parameter = octopart_extractor.ExtractParameter(spec_name)            
-            self.edit_part_parameters.AddParameter(parameter)
-
-        # remove all offers from distributor prior to add new offers
-        for offer in octopart.item().offers():
-            distributor_name = offer.seller().name()
-            self.edit_part_distributors.RemoveDistributor(distributor_name)
-
-        # import distributors
-        for offer in octopart.item().offers():
             
-            distributor_name = offer.seller().name()
-            distributor = None
-            try:
-                distributors = rest.api.find_distributors(name=distributor_name)
-                if len(distributors)>0:
-                    distributor = distributors[0]
-                else:
-                    # distributor does not exists, create it
-                    distributor = rest.model.DistributorNew()
-                    distributor.name = offer.seller().name()
-                    distributor.website = offer.seller().homepage_url()
-                    distributor.allowed = True
-                    distributor = rest.api.add_distributor(distributor)
-            except Exception as e:
-                print_stack()
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-                        
-            for price_name in offer.prices():
-                for quantity in offer.prices()[price_name]:
-                    part_offer = rest.model.PartOffer()
-                    part_offer.name = distributor_name
-                    part_offer.distributor = distributor
-                    part_offer.currency = price_name
-                    if offer.moq():
-                        part_offer.packaging_unit = offer.moq()
+            part_parameter = rest.model.PartParameter()
+     
+    def addDistributorsFromOctopart(self, octopart):
+        octopart_extractor = OctopartExtractor(octopart)
+
+        octopart_distributors = octopart_extractor.ExtractDistributors()
+        for distributor_name in octopart_distributors:
+            part_distributor = next((p for p in self.part.distributors if p.name==distributor_name), None)
+            if part_distributor is None:
+                try:
+                    distributors = rest.api.find_distributors(name=distributor_name)
+                    if len(distributors)>0:
+                        distributor = distributors[0]
                     else:
-                        part_offer.packaging_unit = 1
-                    part_offer.quantity = quantity[0]
-                    part_offer.unit_price = float(quantity[1])
-                    part_offer.sku = offer.sku()
-                    self.edit_part_distributors.AddOffer(part_offer)
+                        # distributor does not exists, create it
+                        new_distributor = rest.model.DistributorNew()
+                        new_distributor.name = distributor_name
+                        new_distributor.website = octopart_distributors[distributor_name]['website']
+                        new_distributor.allowed = True
+                        new_distributor = rest.api.add_distributor(new_distributor)
+                except Exception as e:
+                    print_stack()
+                    wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                
+                part_distributor = rest.model.PartDistributor()
+                part_distributor.name = distributor_name
+                part_distributor.offers = []
+                self.part.distributors.append(part_distributor)
+            
+            for offer in octopart_distributors[distributor_name]['offers']:
+                print("====", offer)
+                part_offer = next((p for p in part_distributor.offers if p.sku==offer['sku'] and p.quantity==offer['quantity'] and p.packaging_unit==offer['packaging_unit']), None)
+                if part_offer is None:
+                    part_offer = rest.model.PartOffer()
+                    part_distributor.offers.append(part_offer)
+                part_offer.packaging_unit = offer['packaging_unit']
+                part_offer.quantity = offer['quantity']
+                part_offer.min_order_quantity = offer['min_order_quantity']
+                part_offer.unit_price = offer['unit_price']
+                part_offer.available_stock = offer['available_stock']
+                part_offer.packaging = offer['packaging']
+                part_offer.currency = offer['currency']
+                part_offer.sku = offer['sku']
+                part_offer.updated = offer['updated']
+         
+        # Cleanup old offers
+        for distributor in self.part.distributors:
+            offers_to_remove = []
+            for offer in distributor.offers:
+                utc = pytz.UTC
+                try:
+                    if offer.updated<utc.localize(datetime.datetime.now()-datetime.timedelta(days=30)):
+                        offers_to_remove.append(offer)
+                except:
+                    offers_to_remove.append(offer)
+            for offer in offers_to_remove:
+                distributor.offers.remove(offer)
+
+        distributors_to_remove = []
+        for distributor in self.part.distributors:
+            if len(distributor.offers)==0:
+                distributors_to_remove.append(distributor)
+        for distributor in distributors_to_remove:
+            self.part.distributors.remove(distributor)
+    
+    def addManufacturerFromOctopart(self, octopart):
+        octopart_extractor = OctopartExtractor(octopart)
+
+        reference = octopart_extractor.ExtractReference()
+        manufacturer_name = reference['manufacturer']
         
-        # import manufacturer
-        manufacturer_name = octopart.item().manufacturer().name()
-        manufacturer = None
+        manufacturer = None 
         try:
             manufacturers = rest.api.find_manufacturers(name=manufacturer_name)
             if len(manufacturers)>0:
                 manufacturer = manufacturers[0]
-            else:
-                # distributor does not exists, create it
-                manufacturer = rest.model.ManufacturerNew()
-                manufacturer.name = manufacturer_name
-                manufacturer.website = octopart.item().manufacturer().homepage_url()
-                manufacturer = rest.api.add_manufacturer(manufacturer)
-
-            # remove manufacturer prior to add new manufacturer
-            self.edit_part_manufacturers.RemoveManufacturer(manufacturer_name)
-
-            # add new manufacturer
-            part_manufacturer = rest.model.PartManufacturer()
-            part_manufacturer.name = manufacturer.name
-            part_manufacturer.part_name = self.part.name
-            self.edit_part_manufacturers.AddManufacturer(part_manufacturer)
         except:
             print_stack()
-            wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+            wx.MessageBox('%s: error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
+        if manufacturer is None:
+            res = wx.MessageBox("Manufacturer '%s' does not exists, create it?" % (manufacturer_name), 'Warning', wx.YES_NO | wx.ICON_QUESTION) 
+            if res==wx.YES:
+                try:
+                    manufacturer = rest.model.ManufacturerNew()
+                    manufacturer.name = manufacturer_name
+                    manufacturer.website = octopart.item().manufacturer().homepage_url()
+                    manufacturer = rest.api.add_manufacturer(manufacturer)
+                except:
+                    manufacturer = None
+                    print_stack()
+                    wx.MessageBox('%s: error creating manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_ERROR)
+        if manufacturer:
+            part_manufacturer = next((p for p in self.part.manufacturers if p.name==manufacturer_name), None)
+            if part_manufacturer is None:
+                part_manufacturer = rest.model.PartManufacturer()
+                self.part.manufacturers.append(part_manufacturer)
+            part_manufacturer.name = manufacturer.name
+            part_manufacturer.part_name = manufacturer_name
+    
+    def onSelectOctopartFrameOk(self, event):
+        octoparts = event.data
+        if not octoparts:
+            return
 
-        self.ShowPart(self.part)
+        import_choice = wx.MultiChoiceDialog(self, "Items to import", "Octopart", 
+            ["Parameters", 
+             "Distributors and prices",
+             "Attachements",
+             "Manufacturers"])
+        import_choice.SetSelections([0, 1, 2, 3])
+        if import_choice.ShowModal()!=wx.ID_OK:
+            return
+        choices = import_choice.GetSelections()
+        
+        octopart_parts = []
+        for octopart in octoparts:
+            # convert octopart to part
+            print("octopart:", octopart.json)
+            
+            # update reference
+            self.addReferenceFromOctopart(octopart)
+            
+            if 0 in choices:
+                self.addParametersFromOctopart(octopart)
+                
+            if 1 in choices:
+                self.addDistributorsFromOctopart(octopart)
+
+            if 3 in choices:
+                # update manufacturer
+                self.addManufacturerFromOctopart(octopart)
+
+        # update part
+        if len(self.part.references)==1:
+            self.part.name = self.part.references[0].name
+            self.part.description = self.part.references[0].description
+# 
+
+        self.SetPart(self.part)
 

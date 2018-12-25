@@ -28,14 +28,22 @@ class Part(models.Model):
     #manufacturers is defined inside PartManufacturer by ForeignKey part
     #storages is defined inside PartStorage by ForeignKey part
     #attachements: is defined inside PartAttachement by ForeignKey part
-    # octopart fields
-    octopart = models.TextField(null=True, blank=True, default=None)
-    octopart_uid = models.TextField(null=True, blank=True, default=None)
-    updated = models.DateTimeField(null=True, blank=True, default=None)
+    #references: is defined inside PartReference by ForeignKey part
     value_parameter = models.TextField(null=True, blank=True, default=None)
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
+class PartReference(models.Model):
+    part = models.ForeignKey('Part', related_name='references', null=False, blank=False, default=None)
+    type = models.TextField(null=False, blank=False)
+    manufacturer = models.TextField(null=False, blank=True, default="")
+    name = models.TextField(null=False, blank=False)
+    description = models.TextField(null=False, blank=True, default="")
+    uid = models.TextField(null=False, blank=False)
+    updated = models.DateTimeField(null=True, blank=True, default=None)
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.type, self.name, self.uid)
+    
 class PartParameter(models.Model):
     part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None)
     name = models.TextField()
@@ -49,6 +57,7 @@ class PartParameter(models.Model):
     nom_prefix = models.ForeignKey('UnitPrefix', related_name='nom', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     max_value = models.FloatField(null=True)
     max_prefix = models.ForeignKey('UnitPrefix', related_name='max', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+    from_reference = models.ForeignKey('PartReference', related_name='from_reference', null=True, blank=True, default=None)
     def __unicode__(self):
         if self.id:
             return '%d: %s' % (self.id, self.name)

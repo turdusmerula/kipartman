@@ -68,7 +68,7 @@ def deserialize_PartParameterData(part_parameter, fpart_parameter=None):
         try:
             fpart_parameter.unit = api.models.Unit.objects.get(pk=part_parameter.unit.id)
         except:
-            raise Error(code=1000, message='Unit %d does not exists'%part_parameter.unit.id)
+            return Error(code=1000, message='Unit %d does not exists'%part_parameter.unit.id)
     fpart_parameter.numeric = part_parameter.numeric
     if part_parameter.text_value:
         fpart_parameter.text_value = part_parameter.text_value
@@ -78,21 +78,21 @@ def deserialize_PartParameterData(part_parameter, fpart_parameter=None):
         try:
             fpart_parameter.min_prefix = api.models.UnitPrefix.objects.get(pk=part_parameter.min_prefix.id)
         except:
-            raise Error(code=1000, message='Unit prefix %d does not exists'%part_parameter.min_prefix.id)
+            return Error(code=1000, message='Unit prefix %d does not exists'%part_parameter.min_prefix.id)
     if part_parameter.nom_value:
         fpart_parameter.nom_value = part_parameter.nom_value
     if part_parameter.nom_prefix:
         try:
             fpart_parameter.nom_prefix = api.models.UnitPrefix.objects.get(pk=part_parameter.nom_prefix.id)
         except:
-            raise Error(code=1000, message='Unit prefix %d does not exists'%part_parameter.nom_prefix.id)
+            return Error(code=1000, message='Unit prefix %d does not exists'%part_parameter.nom_prefix.id)
     if part_parameter.max_value:
         fpart_parameter.max_value = part_parameter.max_value
     if part_parameter.max_prefix:
         try:
             fpart_parameter.max_prefix = api.models.UnitPrefix.objects.get(pk=part_parameter.max_prefix.id)
         except:
-            raise Error(code=1000, message='Unit prefix %d does not exists'%part_parameter.max_prefix.id)
+            return Error(code=1000, message='Unit prefix %d does not exists'%part_parameter.max_prefix.id)
     return fpart_parameter
 
 def deserialize_PartParameter(part_parameter, fpart_parameter=None):
@@ -125,7 +125,7 @@ def add_part_parameters(part_id, parameters):
             fparameters.append(deserialize_PartParameter(parameter))
         except Error as e:
             return e.error, 403
-        fpart.parameters.set(fparameters)
+    fpart.parameters.set(fparameters)
     
     return None
 

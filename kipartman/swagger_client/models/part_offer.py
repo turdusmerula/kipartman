@@ -39,7 +39,8 @@ class PartOffer(object):
         'packaging': 'str',
         'currency': 'str',
         'sku': 'str',
-        'updated': 'str'
+        'updated': 'str',
+        'id': 'int'
     }
 
     attribute_map = {
@@ -51,10 +52,11 @@ class PartOffer(object):
         'packaging': 'packaging',
         'currency': 'currency',
         'sku': 'sku',
-        'updated': 'updated'
+        'updated': 'updated',
+        'id': 'id'
     }
 
-    def __init__(self, packaging_unit=None, quantity=None, min_order_quantity=None, unit_price=None, available_stock=None, packaging=None, currency=None, sku=None, updated=None):
+    def __init__(self, packaging_unit=None, quantity=None, min_order_quantity=None, unit_price=None, available_stock=None, packaging=None, currency=None, sku=None, updated=None, id=None):
         """
         PartOffer - a model defined in Swagger
         """
@@ -68,6 +70,7 @@ class PartOffer(object):
         self._currency = None
         self._sku = None
         self._updated = None
+        self._id = None
 
         if packaging_unit is not None:
           self.packaging_unit = packaging_unit
@@ -87,6 +90,8 @@ class PartOffer(object):
           self.sku = sku
         if updated is not None:
           self.updated = updated
+        if id is not None:
+          self.id = id
 
     @property
     def packaging_unit(self):
@@ -276,6 +281,27 @@ class PartOffer(object):
         """
 
         self._updated = updated
+
+    @property
+    def id(self):
+        """
+        Gets the id of this PartOffer.
+
+        :return: The id of this PartOffer.
+        :rtype: int
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        """
+        Sets the id of this PartOffer.
+
+        :param id: The id of this PartOffer.
+        :type: int
+        """
+
+        self._id = id
 
     def to_dict(self):
         """

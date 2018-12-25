@@ -38,6 +38,8 @@ def serialize_PartOffer(fpart_offer, part_offer=None):
 def deserialize_PartOffer(part_offer, fpart_offer=None):
     if fpart_offer is None:
         fpart_offer = api.models.PartOffer()
+    if part_offer.id:
+        fpart_offer.id = part_offer.id
     fpart_offer.packaging_unit = part_offer.packaging_unit
     fpart_offer.quantity = part_offer.quantity
     fpart_offer.unit_price = part_offer.unit_price

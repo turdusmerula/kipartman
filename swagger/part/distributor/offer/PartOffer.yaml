@@ -8,3 +8,6 @@ allOf:
       - currency
       - sku
     properties:
+      id:
+        type: integer
+        format: int64

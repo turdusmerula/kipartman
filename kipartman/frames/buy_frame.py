@@ -557,7 +557,7 @@ class BuyFrame(DialogBuy):
         for bom_part in self.tree_bom_parts_manager.data:
             if bom_part.provisioning()<bom_part.needed():
                 print("-", bom_part.bom_part.id, "provisionning:", bom_part.provisioning(), "needed:", bom_part.needed())
-                parts.append(rest.api.find_part(bom_part.bom_part.id, with_distributors=True, with_offers=True, with_childs=True, with_storages=True))
+                parts.append(rest.api.find_part(bom_part.bom_part.id, with_distributors=True, with_childs=True, with_storages=True, with_references=True))
         return parts
     
     def get_distributor_matching_offers(self, bom_part, equivalent_parts, distributor, quantity):

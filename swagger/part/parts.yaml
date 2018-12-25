@@ -12,10 +12,6 @@ get:
       description: Filter by storage
       type: integer
       format: int64
-    - name: with_offers
-      in: query
-      description: Include offers in answer
-      type: boolean
     - name: with_parameters
       in: query
       description: Include parameters in answer
@@ -39,6 +35,10 @@ get:
     - name: with_attachements
       in: query
       description: Include attachements in answer
+      type: boolean
+    - name: with_references
+      in: query
+      description: Include references in answer
       type: boolean
     - name: search
       in: query

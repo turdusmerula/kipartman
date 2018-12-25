@@ -12,13 +12,18 @@ from swagger_server.controllers.controller_storage import serialize_Storage
 import api.models
 #import jsonpickle
 
-def serialize_PartStorage(fstorage, part_storage=None):
+def serialize_PartStorage(fpart_storage, part_storage=None):
     if part_storage is None:
         part_storage = PartStorage()
-    serialize_Storage(fstorage.storage, part_storage)
-    part_storage.quantity = fstorage.quantity
+    serialize_Storage(fpart_storage.storage, part_storage)
+    part_storage.quantity = fpart_storage.quantity
     return part_storage
 
+def deserialize_PartStorage(part_storage, fpart_storage=None):
+    if fpart_storage is None:
+        fpart_storage = api.models.PartStorage()
+    fpart_storage.quantity = part_storage.quantity
+    return fpart_storage
     
 def find_part_storages(part_id):
     """

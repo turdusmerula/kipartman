@@ -38,6 +38,9 @@ from .models.part_parameter import PartParameter
 from .models.part_parameter_data import PartParameterData
 from .models.part_parameter_description import PartParameterDescription
 from .models.part_ref import PartRef
+from .models.part_reference import PartReference
+from .models.part_reference_data import PartReferenceData
+from .models.part_reference_ref import PartReferenceRef
 from .models.part_storage import PartStorage
 from .models.storage import Storage
 from .models.storage_category import StorageCategory

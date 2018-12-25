@@ -25,3 +25,5 @@ properties:
     format: double
   max_prefix:
     $ref: '../../unit/UnitPrefix.yaml'
+  from_reference:
+    $ref: '../reference/PartReferenceRef.yaml'

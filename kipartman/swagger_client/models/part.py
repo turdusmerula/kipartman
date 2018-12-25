@@ -34,9 +34,6 @@ class Part(object):
         'name': 'str',
         'description': 'str',
         'comment': 'str',
-        'octopart': 'str',
-        'octopart_uid': 'str',
-        'updated': 'datetime',
         'value_parameter': 'str',
         'id': 'int',
         'category': 'PartCategory',
@@ -48,16 +45,14 @@ class Part(object):
         'distributors': 'list[PartDistributor]',
         'manufacturers': 'list[PartManufacturer]',
         'storages': 'list[PartStorage]',
-        'attachements': 'list[PartAttachement]'
+        'attachements': 'list[PartAttachement]',
+        'references': 'list[PartReference]'
     }
 
     attribute_map = {
         'name': 'name',
         'description': 'description',
         'comment': 'comment',
-        'octopart': 'octopart',
-        'octopart_uid': 'octopart_uid',
-        'updated': 'updated',
         'value_parameter': 'value_parameter',
         'id': 'id',
         'category': 'category',
@@ -69,10 +64,11 @@ class Part(object):
         'distributors': 'distributors',
         'manufacturers': 'manufacturers',
         'storages': 'storages',
-        'attachements': 'attachements'
+        'attachements': 'attachements',
+        'references': 'references'
     }
 
-    def __init__(self, name=None, description=None, comment=None, octopart=None, octopart_uid=None, updated=None, value_parameter=None, id=None, category=None, has_childs=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
+    def __init__(self, name=None, description=None, comment=None, value_parameter=None, id=None, category=None, has_childs=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None, references=None):
         """
         Part - a model defined in Swagger
         """
@@ -80,9 +76,6 @@ class Part(object):
         self._name = None
         self._description = None
         self._comment = None
-        self._octopart = None
-        self._octopart_uid = None
-        self._updated = None
         self._value_parameter = None
         self._id = None
         self._category = None
@@ -95,6 +88,7 @@ class Part(object):
         self._manufacturers = None
         self._storages = None
         self._attachements = None
+        self._references = None
 
         if name is not None:
           self.name = name
@@ -102,12 +96,6 @@ class Part(object):
           self.description = description
         if comment is not None:
           self.comment = comment
-        if octopart is not None:
-          self.octopart = octopart
-        if octopart_uid is not None:
-          self.octopart_uid = octopart_uid
-        if updated is not None:
-          self.updated = updated
         if value_parameter is not None:
           self.value_parameter = value_parameter
         self.id = id
@@ -131,6 +119,8 @@ class Part(object):
           self.storages = storages
         if attachements is not None:
           self.attachements = attachements
+        if references is not None:
+          self.references = references
 
     @property
     def name(self):
@@ -194,69 +184,6 @@ class Part(object):
         """
 
         self._comment = comment
-
-    @property
-    def octopart(self):
-        """
-        Gets the octopart of this Part.
-
-        :return: The octopart of this Part.
-        :rtype: str
-        """
-        return self._octopart
-
-    @octopart.setter
-    def octopart(self, octopart):
-        """
-        Sets the octopart of this Part.
-
-        :param octopart: The octopart of this Part.
-        :type: str
-        """
-
-        self._octopart = octopart
-
-    @property
-    def octopart_uid(self):
-        """
-        Gets the octopart_uid of this Part.
-
-        :return: The octopart_uid of this Part.
-        :rtype: str
-        """
-        return self._octopart_uid
-
-    @octopart_uid.setter
-    def octopart_uid(self, octopart_uid):
-        """
-        Sets the octopart_uid of this Part.
-
-        :param octopart_uid: The octopart_uid of this Part.
-        :type: str
-        """
-
-        self._octopart_uid = octopart_uid
-
-    @property
-    def updated(self):
-        """
-        Gets the updated of this Part.
-
-        :return: The updated of this Part.
-        :rtype: datetime
-        """
-        return self._updated
-
-    @updated.setter
-    def updated(self, updated):
-        """
-        Sets the updated of this Part.
-
-        :param updated: The updated of this Part.
-        :type: datetime
-        """
-
-        self._updated = updated
 
     @property
     def value_parameter(self):
@@ -511,6 +438,27 @@ class Part(object):
         """
 
         self._attachements = attachements
+
+    @property
+    def references(self):
+        """
+        Gets the references of this Part.
+
+        :return: The references of this Part.
+        :rtype: list[PartReference]
+        """
+        return self._references
+
+    @references.setter
+    def references(self, references):
+        """
+        Sets the references of this Part.
+
+        :param references: The references of this Part.
+        :type: list[PartReference]
+        """
+
+        self._references = references
 
     def to_dict(self):
         """

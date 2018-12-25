@@ -39,8 +39,8 @@ class KicadLibFile(object):
         if content is None:
             content = ''
 
-        self.file = tempfile.NamedTemporaryFile()
-        self.file.write(content.encode('utf-8'))
+        self.file = tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8')
+        self.file.write(str(content))
         self.file.seek(0)
 
         self.filename = self.file.name
@@ -117,7 +117,7 @@ class KicadLibFile(object):
 
     def next_line(self):
         self.buff = self.file.readline()
-        if self.buff=='':
+        if self.buff=="":
             return EOF
         return self.buff
         
@@ -129,9 +129,10 @@ class KicadLibFile(object):
         else:
             res = self.buff
             self.buff = ''
-        return res
+        return str(res)
 
     def observe(self, size):
+        print("#####", type(self.buff))
         if len(self.buff)>size:
             return self.buff[:size]
         return self.buff
@@ -147,13 +148,13 @@ class KicadLibFile(object):
             c = self.observe(1)
     
     def _read_field(self):
-        field = ''
+        field = ""
         
         # read spaces
         self._skip_spaces()
         c = self.observe(1)
 
-        if c=='':
+        if c=="":
             return EOL        
         elif c=='"':
             self.read(1)
@@ -166,7 +167,7 @@ class KicadLibFile(object):
             self.read(1)
         else:
             c = self.observe(1)
-            while c!='' and c.isspace()==False:
+            while c!="" and c.isspace()==False:
                 field = field+c
                 self.read(1)
                 c = self.observe(1)

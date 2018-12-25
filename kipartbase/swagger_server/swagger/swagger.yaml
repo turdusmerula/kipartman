@@ -140,11 +140,6 @@ paths:
         required: false
         type: "integer"
         format: "int64"
-      - name: "with_offers"
-        in: "query"
-        description: "Include offers in answer"
-        required: false
-        type: "boolean"
       - name: "with_parameters"
         in: "query"
         description: "Include parameters in answer"
@@ -173,6 +168,11 @@ paths:
       - name: "with_attachements"
         in: "query"
         description: "Include attachements in answer"
+        required: false
+        type: "boolean"
+      - name: "with_references"
+        in: "query"
+        description: "Include references in answer"
         required: false
         type: "boolean"
       - name: "search"
@@ -223,11 +223,6 @@ paths:
         required: true
         type: "integer"
         format: "int64"
-      - name: "with_offers"
-        in: "query"
-        description: "Include offers in answer"
-        required: false
-        type: "boolean"
       - name: "with_parameters"
         in: "query"
         description: "Include parameters in answer"
@@ -256,6 +251,11 @@ paths:
       - name: "with_attachements"
         in: "query"
         description: "Include attachements in answer"
+        required: false
+        type: "boolean"
+      - name: "with_references"
+        in: "query"
+        description: "Include references in answer"
         required: false
         type: "boolean"
       responses:
@@ -1100,6 +1100,10 @@ definitions:
           type: "array"
           items:
             $ref: "#/definitions/PartAttachement"
+        references:
+          type: "array"
+          items:
+            $ref: "#/definitions/PartReference"
   PartNew:
     allOf:
     - $ref: "#/definitions/PartData"
@@ -1302,13 +1306,6 @@ definitions:
         type: "string"
       comment:
         type: "string"
-      octopart:
-        type: "string"
-      octopart_uid:
-        type: "string"
-      updated:
-        type: "string"
-        format: "date-time"
       value_parameter:
         type: "string"
   PartParameter:
@@ -1362,6 +1359,13 @@ definitions:
           format: "int64"
         description:
           type: "string"
+  PartReference:
+    allOf:
+    - $ref: "#/definitions/PartReferenceData"
+    - properties:
+        id:
+          type: "integer"
+          format: "int64"
   PartRef:
     type: "object"
     required:
@@ -1494,10 +1498,39 @@ definitions:
         format: "double"
       max_prefix:
         $ref: "#/definitions/UnitPrefix"
+      from_reference:
+        $ref: "#/definitions/PartReferenceRef"
+  PartReferenceRef:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
   PartOffer:
     allOf:
     - $ref: "#/definitions/PartOfferData"
-    - {}
+    - properties:
+        id:
+          type: "integer"
+          format: "int64"
+  PartReferenceData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      manufacturer:
+        type: "string"
+      type:
+        type: "string"
+      uid:
+        type: "string"
+      updated:
+        type: "string"
+        format: "date-time"
   PartOfferData:
     type: "object"
     properties:

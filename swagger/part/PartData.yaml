@@ -6,12 +6,5 @@ properties:
     type: string
   comment:
     type: string
-  octopart:
-    type: string
-  octopart_uid:
-    type: string
-  updated:
-    type: string
-    format: date-time
   value_parameter:
     type: string

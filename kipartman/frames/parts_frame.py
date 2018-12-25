@@ -14,7 +14,6 @@ from helper.connection import check_backend
 import os, datetime
 from time import sleep
 from octopart.queries import PartsQuery
-from dateutil.parser import parse
 
 from octopart.extractor import OctopartExtractor
 import swagger_client
@@ -447,7 +446,7 @@ class PartsFrame(PanelParts):
     def load_full_part(self, partobj):
         if partobj:
             # read whole part from server
-            partobj.part = rest.api.find_part(partobj.part.id, with_offers=True, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True)
+            partobj.part = rest.api.find_part(partobj.part.id, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True, with_references=True)
         
     def show_part(self, part):
         # disable editing
@@ -1081,7 +1080,7 @@ class PartsFrame(PanelParts):
 #        print "Refresh octopart for", part.name
         
         # get full part
-        part = rest.api.find_part(part.id, with_offers=True, with_parameters=True, with_distributors=True, with_manufacturers=True)
+        part = rest.api.find_part(part.id, with_parameters=True, with_distributors=True, with_manufacturers=True, with_references=True)
         
         # get octopart data
         q = PartsQuery()
@@ -1098,150 +1097,6 @@ class PartsFrame(PanelParts):
 
         return 
     
-    def octopart_to_part(self, octopart, part):
-        # convert octopart to part values
-        octopart_extractor = OctopartExtractor(octopart)
-
-        # import part fields
-        part.name = octopart.item().mpn()
-        part.description = octopart.snippet()
-        if part.description is None:
-            part.description = ""
-            
-        # set field octopart to indicate that part was imported from octopart
-        part.octopart = octopart.item().mpn()
-        part.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        
-        # import parameters
-        for spec_name in octopart.item().specs():
-            parameter = octopart_extractor.ExtractParameter(spec_name)            
-            
-            # check if parameter already exist
-            for p in part.parameters:
-                if p.name==parameter.name:
-                    part.parameters.remove(p)
-                    break
-            part.parameters.append(parameter)
-        
-        # remove all offers from distributor prior to add new offers
-        for offer in octopart.item().offers():
-            distributor_name = offer.seller().name()
-            if part.distributors is None:
-                return 
-            to_remove = []
-            for distributor in part.distributors:
-                if distributor.name==distributor_name:
-                    to_remove.append(distributor)            
-            # don't remove in previous loop to avoid missing elements
-            for distributor in to_remove:
-                part.distributors.remove(distributor)
-
-        # import distributors
-        part_distributors = {}
-        for offer in octopart.item().offers():
-            
-            distributor_name = offer.seller().name()
-            if distributor_name not in part_distributors:
-                distributor = None
-                try:
-                    distributors = rest.api.find_distributors(name=distributor_name)
-                    if len(distributors)>0:
-                        distributor = distributors[0]
-                    else:
-                        # distributor does not exists, create it
-                        distributor = rest.model.DistributorNew()
-                        distributor.name = offer.seller().name()
-                        distributor.website = offer.seller().homepage_url()
-                        distributor.allowed = True
-                        distributor = rest.api.add_distributor(distributor)
-                        
-                except Exception as e:
-                    print_stack()
-                    wx.MessageBox(format(e), 'Error with distributor %s'%distributor_name, wx.OK | wx.ICON_ERROR)
-                
-                if distributor:
-                    part_distributor = rest.model.PartDistributor()
-                    part_distributor.id = distributor.id
-                    part_distributor.name = distributor.name
-                    part_distributor.offers = []
-                    part_distributors[distributor_name] = part_distributor
-            
-            if distributor_name in part_distributors:           
-                for price_name in offer.prices():
-                    correct_quantity = False   # correct a bug with, sometimes quantity is given for on packaging unit and not total quantity amount 
-                    for quantity in offer.prices()[price_name]:
-                        try:
-                            part_offer = rest.model.PartOffer()
-                            part_offer.name = distributor_name
-                            part_offer.distributor = distributor
-                            part_offer.currency = price_name
-                            print("---", distributor_name, offer.sku(), price_name, quantity[0], offer.order_multiple(), offer.moq(), offer.in_stock_quantity(), offer.packaging())
-                            
-                            part_offer.packaging_unit = 1
-                            if offer.order_multiple() is not None:
-                                part_offer.packaging_unit = offer.order_multiple()
-                            elif offer.multipack_quantity() is not None:
-                                try:
-                                    part_offer.packaging_unit = int(offer.multipack_quantity())
-                                except:
-                                    pass
-                                
-                            if offer.moq() is not None:
-                                part_offer.min_order_quantity = offer.moq()
-                            else:
-                                part_offer.min_order_quantity = 1
-                            
-                            part_offer.quantity = quantity[0]
-                            part_offer.unit_price = float(quantity[1])
-                            if ( correct_quantity==False and part_offer.quantity<part_offer.packaging_unit ) or correct_quantity==True:
-                                part_offer.quantity = part_offer.quantity*part_offer.packaging_unit
-                                part_offer.min_order_quantity = part_offer.packaging_unit
-                                part_offer.unit_price = part_offer.unit_price/part_offer.quantity
-                                correct_quantity = True
-                                
-                            if offer.in_stock_quantity() is not None:
-                                part_offer.available_stock = offer.in_stock_quantity()
-                            else:
-                                part_offer.available_stock = None
-                            if offer.packaging() is not None:
-                                part_offer.packaging = offer.packaging()
-                            else:
-                                part_offer.packaging = ''
-                            part_offer.updated = parse(offer.last_updated())
-                            
-                            part_offer.sku = offer.sku()
-                            part_distributors[distributor_name].offers.append(part_offer)
-                        except Exception as e:
-                            print_stack()
-                            wx.MessageBox(format(e), 'Error with offer {}/{}/{}'.format(distributor_name, price_name, quantity[0]), wx.OK | wx.ICON_ERROR)
-        # add part_distributors to part
-        for distributor_name in part_distributors:
-            part.distributors.append(part_distributors[distributor_name])
-        
-        # import manufacturer
-        manufacturer_name = octopart.item().manufacturer().name()
-        manufacturer = None
-        part.manufacturers = []
-        try:
-            manufacturers = rest.api.find_manufacturers(name=manufacturer_name)
-            if len(manufacturers)>0:
-                manufacturer = manufacturers[0]
-            else:
-                # manufacturer does not exists, create it
-                manufacturer = rest.model.ManufacturerNew()
-                manufacturer.name = manufacturer_name
-                manufacturer.website = octopart.item().manufacturer().homepage_url()
-                manufacturer = rest.api.add_manufacturer(manufacturer)
-
-            # add new manufacturer
-            part_manufacturer = rest.model.PartManufacturer()
-            part_manufacturer.name = manufacturer.name
-            part_manufacturer.part_name = part.name
-            part.manufacturers.append(part_manufacturer)
-        except:
-            print_stack()
-            wx.MessageBox('%s: unknown error retrieving manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_EXCLAMATION)
-
 class DummyFrame_import_ocotopart_lookup(wx.Frame):
     def __init__(self, parent, title=""):
         super(DummyFrame_import_ocotopart_lookup, self).__init__(parent, title=title)

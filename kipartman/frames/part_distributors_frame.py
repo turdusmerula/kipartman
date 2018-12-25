@@ -23,7 +23,7 @@ class DataModelOffer(helper.tree.TreeItem):
         self.offer = offer
 
     def item_price(self):
-        return self.offer.unit_price*self.offer.packaging_unit
+        return self.offer.unit_price*self.offer.quantity
     
     def GetValue(self, col):
         vMap = { 
@@ -49,7 +49,7 @@ class PartDistributorsFrame(PanelPartDistributors):
         super(PartDistributorsFrame, self).__init__(parent)
 
         # create distributors list
-        self.tree_distributors_manager = helper.tree.TreeManager(self.tree_distributors)
+        self.tree_distributors_manager = helper.tree.TreeManager(self.tree_distributors, context_menu=self.menu_distributors)
         self.tree_distributors_manager.AddTextColumn("Distributor")
         self.tree_distributors_manager.AddIntegerColumn("Packaging Unit")
         self.tree_distributors_manager.AddIntegerColumn("Packaging")
@@ -58,6 +58,7 @@ class PartDistributorsFrame(PanelPartDistributors):
         self.tree_distributors_manager.AddFloatColumn("Price per Item")
         self.tree_distributors_manager.AddTextColumn("Currency")
         self.tree_distributors_manager.AddTextColumn("SKU")
+        self.tree_distributors_manager.OnItemBeforeContextMenu = self.onTreeDistributorsBeforeContextMenu
 
         self.enable(False)
         
@@ -66,9 +67,7 @@ class PartDistributorsFrame(PanelPartDistributors):
         self.showDistributors()
 
     def enable(self, enabled=True):
-        self.button_add_distributor.Enabled = enabled
-        self.button_edit_distributor.Enabled = enabled
-        self.button_remove_distributor.Enabled = enabled
+        self.enabled = enabled
 
     def FindDistributor(self, name):
         for data in self.tree_distributors_manager.data:
@@ -138,14 +137,27 @@ class PartDistributorsFrame(PanelPartDistributors):
                     offerobj = DataModelOffer(offer)
                     self.tree_distributors_manager.AppendItem(distributorobj, offerobj)
                     
+    def onTreeDistributorsBeforeContextMenu( self, event ):
+        self.menu_distributor_add_distributor.Enable(True)
+        self.menu_distributor_edit_distributor.Enable(True)
+        self.menu_distributor_remove_distributor.Enable(True)
+        if len(self.tree_distributors.GetSelections())==0:
+            self.menu_distributor_edit_distributor.Enable(False)
+            self.menu_distributor_remove_distributor.Enable(False)
+        if len(self.tree_distributors.GetSelections())>1:
+            self.menu_distributor_edit_distributor.Enable(False)
         
-    def onButtonAddDistributorClick( self, event ):
+        if self.enabled==False:
+            self.menu_distributor_add_distributor.Enable(False)
+            self.menu_distributor_edit_distributor.Enable(False)
+            self.menu_distributor_remove_distributor.Enable(False)
+        
+    def onMenuDistributorAddDistributor( self, event ):
         offer = EditPartOfferFrame(self).AddOffer(self.part)
         if offer:
             self.AddOffer(offer)
-
              
-    def onButtonEditDistributorClick( self, event ):
+    def onMenuDistributorEditDistributor( self, event ):
         item = self.tree_distributors.GetSelection()
         if item is None:
             return 
@@ -156,17 +168,23 @@ class PartDistributorsFrame(PanelPartDistributors):
         offer = EditPartOfferFrame(self).EditOffer(self.part, object.offer)
         self.tree_distributors_manager.UpdateItem(object)
     
-    def onButtonRemoveDistributorClick( self, event ):
-        item = self.tree_distributors.GetSelection()
-        if not item:
-            return
-        object = self.tree_distributors_manager.ItemToObject(item)
-        if isinstance(object, DataModelDistributor):
-            self.RemoveDistributor(object.distributor.name)
-        if isinstance(object, DataModelOffer):
-            distributorobj = self.FindDistributor(object.offer.distributor.name)
-            distributorobj.distributor.offers.remove(object.offer)
-            self.tree_distributors_manager.DeleteItem(object.parent, object)
+    def onMenuDistributorRemoveDistributor( self, event ):
+        distributors = []
+        offers = []
+        for item in self.tree_distributors.GetSelections():
+            obj = self.tree_distributors_manager.ItemToObject(item)
+            if isinstance(obj, DataModelDistributor):
+                distributors.append(obj)
+            if isinstance(obj, DataModelOffer):
+                offers.append(obj)
+
+        for offer in offers:
+            distributorobj = self.FindDistributor(offer.parent.distributor.name)
+            distributorobj.distributor.offers.remove(offer.offer)
+            self.tree_distributors_manager.DeleteItem(offer.parent, offer)
             if len(distributorobj.childs)==0:
                 self.tree_distributors_manager.DeleteItem(None, distributorobj)
+        
+        for distributor in distributors:
+            self.RemoveDistributor(distributor.distributor.name)
 

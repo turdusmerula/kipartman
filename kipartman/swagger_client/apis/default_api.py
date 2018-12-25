@@ -2017,13 +2017,13 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int part_id: Part id (required)
-        :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
         :param bool with_storages: Include storages in answer
         :param bool with_attachements: Include attachements in answer
+        :param bool with_references: Include references in answer
         :return: Part
                  If the method is called asynchronously,
                  returns the request thread.
@@ -2049,19 +2049,19 @@ class DefaultApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param int part_id: Part id (required)
-        :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
         :param bool with_storages: Include storages in answer
         :param bool with_attachements: Include attachements in answer
+        :param bool with_references: Include references in answer
         :return: Part
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['part_id', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages', 'with_attachements']
+        all_params = ['part_id', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages', 'with_attachements', 'with_references']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -2088,8 +2088,6 @@ class DefaultApi(object):
             path_params['part_id'] = params['part_id']
 
         query_params = []
-        if 'with_offers' in params:
-            query_params.append(('with_offers', params['with_offers']))
         if 'with_parameters' in params:
             query_params.append(('with_parameters', params['with_parameters']))
         if 'with_childs' in params:
@@ -2102,6 +2100,8 @@ class DefaultApi(object):
             query_params.append(('with_storages', params['with_storages']))
         if 'with_attachements' in params:
             query_params.append(('with_attachements', params['with_attachements']))
+        if 'with_references' in params:
+            query_params.append(('with_references', params['with_references']))
 
         header_params = {}
 
@@ -2150,13 +2150,13 @@ class DefaultApi(object):
             for asynchronous request. (optional)
         :param int category: Filter by category
         :param int storage: Filter by storage
-        :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
         :param bool with_storages: Include storages in answer
         :param bool with_attachements: Include attachements in answer
+        :param bool with_references: Include references in answer
         :param str search: Search for parts matching pattern
         :return: list[Part]
                  If the method is called asynchronously,
@@ -2184,20 +2184,20 @@ class DefaultApi(object):
             for asynchronous request. (optional)
         :param int category: Filter by category
         :param int storage: Filter by storage
-        :param bool with_offers: Include offers in answer
         :param bool with_parameters: Include parameters in answer
         :param bool with_childs: Include childs in answer
         :param bool with_distributors: Include distributors in answer
         :param bool with_manufacturers: Include manufacturers in answer
         :param bool with_storages: Include storages in answer
         :param bool with_attachements: Include attachements in answer
+        :param bool with_references: Include references in answer
         :param str search: Search for parts matching pattern
         :return: list[Part]
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['category', 'storage', 'with_offers', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages', 'with_attachements', 'search']
+        all_params = ['category', 'storage', 'with_parameters', 'with_childs', 'with_distributors', 'with_manufacturers', 'with_storages', 'with_attachements', 'with_references', 'search']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -2223,8 +2223,6 @@ class DefaultApi(object):
             query_params.append(('category', params['category']))
         if 'storage' in params:
             query_params.append(('storage', params['storage']))
-        if 'with_offers' in params:
-            query_params.append(('with_offers', params['with_offers']))
         if 'with_parameters' in params:
             query_params.append(('with_parameters', params['with_parameters']))
         if 'with_childs' in params:
@@ -2237,6 +2235,8 @@ class DefaultApi(object):
             query_params.append(('with_storages', params['with_storages']))
         if 'with_attachements' in params:
             query_params.append(('with_attachements', params['with_attachements']))
+        if 'with_references' in params:
+            query_params.append(('with_references', params['with_references']))
         if 'search' in params:
             query_params.append(('search', params['search']))
 
