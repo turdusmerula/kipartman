@@ -29,6 +29,12 @@ def serialize_UnitPrefix(funit_prefix, unit_prefix=None):
     unit_prefix.power = funit_prefix.power
     return unit_prefix
 
+def deserialize_Unit(unit, funit=None):
+    if funit is None:
+        funit = api.models.Distributor()
+    funit.name = unit.name
+    funit.symbol = unit.symbol
+    return funit
 
 def find_unit(unit_id):
     """
@@ -104,3 +110,19 @@ def find_units(symbol=None):
     
     return units
 
+def add_unit(unit):
+    """
+    add_unit
+    Creates a new unit
+    :param unit: Unit to add
+    :type unit: dict | bytes
+
+    :rtype: Unit
+    """
+    if connexion.request.is_json:
+        unit = Unit.from_dict(connexion.request.get_json())
+
+    funit = deserialize_Unit(unit)
+    funit.save()
+    
+    return serialize_Unit(funit)

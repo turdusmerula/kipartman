@@ -5,6 +5,7 @@ import wx.lib.newevent
 import helper.tree
 from octopart.extractor import OctopartExtractor
 import helper.tree_parameters
+from helper.unit import format_unit_prefix
 
 SelectOctopartOkEvent, EVT_SELECT_OCTOPART_OK_EVENT = wx.lib.newevent.NewEvent()
 SelectOctopartCancelEvent, EVT_SELECT_OCTOPART_APPLY_EVENT = wx.lib.newevent.NewEvent()
@@ -24,7 +25,37 @@ class DataModelOctopart(helper.tree.TreeContainerItem):
         parameters = self.extractor.ExtractParameters()
         self.parameters = {}
         for param in parameters:
-            self.parameters[param['name']] = param 
+            self.parameters[self.model.GetColumnParameter(param['name'])] = param 
+
+    def HasValue(self, column):
+        if column in self.parameters:
+            return True
+        return False
+
+    def IsNumeric(self, column):
+        parameter = self.parameters[column]
+        return parameter['nom_value'] is not None and parameter['nom_value']['numeric']
+    
+    def GetUnit(self, column):
+        parameter = self.parameters[column]
+        if parameter['unit']:
+            return parameter['unit']['symbol']
+        return None
+        
+    def GetNumericValue(self, col):
+        parameter = self.parameters[col]
+        if parameter['nom_value'] and parameter['nom_value']['numeric']:
+            return parameter['nom_value']['value']
+        return None
+
+    def FormatValue(self, col):    
+        parameter = self.parameters[col]
+        if parameter['nom_value'] and parameter['nom_value']['numeric']:
+            unit = self.GetUnit(col)
+            if unit:
+                return format_unit_prefix(parameter['nom_value']['value'], unit)
+            return format_unit_prefix(parameter['nom_value']['value'])
+        return parameter['display_value']
 
     def GetValue(self, col):
         if col<7:
@@ -41,9 +72,8 @@ class DataModelOctopart(helper.tree.TreeContainerItem):
             if vMap[col] is None:
                 return ""
             return vMap[col]
-        elif self.model.GetColumnName(col) in self.parameters:
-            return self.parameters[self.model.GetColumnName(col)]['display_value']
-#            return self.FormatParameter(self.parameters[self.model.GetColumnName(col)])
+        elif col in self.parameters:
+            return self.FormatValue(col)
         else:
             return ''
 

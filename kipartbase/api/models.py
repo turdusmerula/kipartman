@@ -57,7 +57,6 @@ class PartParameter(models.Model):
     nom_prefix = models.ForeignKey('UnitPrefix', related_name='nom', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     max_value = models.FloatField(null=True)
     max_prefix = models.ForeignKey('UnitPrefix', related_name='max', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    from_reference = models.ForeignKey('PartReference', related_name='from_reference', null=True, blank=True, default=None)
     def __unicode__(self):
         if self.id:
             return '%d: %s' % (self.id, self.name)

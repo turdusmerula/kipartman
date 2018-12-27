@@ -173,8 +173,67 @@ class EditPartFrame(PanelEditPart):
         for spec_name in octopart.item().specs():
             parameter = octopart_extractor.ExtractParameter(spec_name)            
             
-            part_parameter = rest.model.PartParameter()
-     
+            part_parameter = next((p for p in self.part.parameters if p.name==spec_name), None)
+            if part_parameter is None:
+                part_parameter = rest.model.PartParameter()
+                self.part.parameters.append(part_parameter)
+            part_parameter.name = parameter['name']
+            part_parameter.description = parameter['description']
+            
+            part_parameter.unit = None
+            if parameter['unit']:
+                units = []
+                try:
+                    units = rest.api.find_units(symbol=parameter['unit']['symbol'])
+                except Exception as e:
+                    print_stack()
+                    wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+                unit = None
+                if len(units)==0:
+                    res = wx.MessageBox("Unit symbol '%s' does not exists, create it?" % (parameter['unit']['symbol']), 'Warning', wx.YES_NO | wx.ICON_QUESTION) 
+                    if res==wx.YES:
+                        try:
+                            unit = rest.model.Unit()
+                            unit.name = parameter['unit']['name']
+                            unit.symbol = parameter['unit']['symbol']
+                            unit = rest.api.add_unit(unit)
+                        except:
+                            print_stack()
+                            wx.MessageBox('%s: error creating unit' % (parameter['unit']['name']), 'Warning', wx.OK | wx.ICON_ERROR)
+                else:
+                    unit = units[0]
+                part_parameter.unit = unit        
+            
+            part_parameter.numeric = True
+            if (parameter['min_value'] and parameter['min_value']['numeric']==False) or \
+                (parameter['nom_value'] and parameter['nom_value']['numeric']==False) or \
+                (parameter['max_value'] and parameter['max_value']['numeric']==False):
+                part_parameter.numeric = False
+            
+            part_parameter.min_prefix = None
+            part_parameter.nom_prefix = None
+            part_parameter.max_prefix = None
+            part_parameter.min_value = None            
+            part_parameter.nom_value = None            
+            part_parameter.max_value = None
+            part_parameter.text_value = None   
+            if part_parameter.numeric:
+                if parameter['min_value']:
+                    part_parameter.min_prefix = None # TODO
+                    part_parameter.min_value = parameter['min_value']['value']
+                if parameter['nom_value']:
+                    part_parameter.nom_value = None # TODO
+                    part_parameter.nom_value = parameter['nom_value']['value']
+                if parameter['max_value']:
+                    part_parameter.max_value = None # TODO
+                    part_parameter.max_value = parameter['max_value']['value']
+                part_parameter.text_value = parameter['display_value']   
+            else:
+                if parameter['nom_value']:
+                    part_parameter.text_value = parameter['nom_value']['value']
+                else:
+                    part_parameter.text_value = parameter['display_value']   
+            
     def addDistributorsFromOctopart(self, octopart):
         octopart_extractor = OctopartExtractor(octopart)
 
@@ -203,7 +262,6 @@ class EditPartFrame(PanelEditPart):
                 self.part.distributors.append(part_distributor)
             
             for offer in octopart_distributors[distributor_name]['offers']:
-                print("====", offer)
                 part_offer = next((p for p in part_distributor.offers if p.sku==offer['sku'] and p.quantity==offer['quantity'] and p.packaging_unit==offer['packaging_unit']), None)
                 if part_offer is None:
                     part_offer = rest.model.PartOffer()

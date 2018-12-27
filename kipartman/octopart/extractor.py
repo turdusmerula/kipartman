@@ -5,6 +5,7 @@ from helper.exception import print_stack
 import datetime
 import dateutil.parser
 import pytz
+from helper.unit import unit_prefix_value
 
 class OctopartExtractorError(BaseException):
     def __init__(self, error):
@@ -55,19 +56,48 @@ class OctopartExtractor(object):
         prefix = display_unit[:-len(unit)]
         return prefix
     
-#     def GetPrefixedValue(self, value, prefix):
-#         if prefix is None:
-#             return float(value)
-#         return float(value)/float(prefix.power)
-
+    def GetPrefixedValue(self, spec):
+        if spec.display_value() is None:
+            return None
+        display_value = spec.display_value().split(" ")
+        if len(display_value)<1:
+            return None
+        try:
+            value = float(display_value[0])
+        except:
+            return None
+        prefix = self.GetUnitPrefixSymbol(spec)
+        print("=====", value, prefix)
+        return unit_prefix_value(value, prefix)
+    
+    def GetValue(self, value):
+        try:
+            if isinstance(value, list):
+                value = value[0]
+        except:
+            value = None
+        if value:
+            try:
+                return {
+                    'value': float(value),
+                    'numeric': True
+                }
+            except Exception as e:
+                return {
+                    'value': value,
+                    'numeric': False
+                }
+        return None    
+        
     def ExtractParameter(self, spec_name):
         spec = self.octopart.item().specs()[spec_name]
-
+        
         parameter = {
             'name': spec_name,
             'description': spec.metadata().name(),
             'unit': None,
             'display_value': '',
+            'prefix': self.GetUnitPrefix(spec),
             'min_value': None,
             'nom_value': None,
             'max_value': None
@@ -75,48 +105,32 @@ class OctopartExtractor(object):
                 
         if spec.metadata().unit():
             parameter['unit'] = {
-                'unit': spec.metadata().unit().symbol(),
-                'prefix': self.GetUnitPrefix(spec)
+                'symbol': spec.metadata().unit().symbol(),
+                'name': spec.metadata().unit().name(),
             }
         
         parameter['display_value'] = spec.display_value()
         
-        if spec.value() and len(spec.value())>0:
-            try:
+        if spec.value():
+            parameter['nom_value'] = self.GetValue(spec.value()) 
+
+        if spec.min_value():
+            parameter['min_value'] = self.GetValue(spec.min_value()) 
+
+        if spec.max_value():
+            parameter['max_value'] = self.GetValue(spec.max_value()) 
+
+        if parameter['nom_value'] is None and parameter['unit'] is not None:
+            # try to extract nominal value from display_value
+            value = self.GetPrefixedValue(spec)
+            if value is not None:
                 parameter['nom_value'] = {
-                    'value': float(spec.value()[0]),
+                    'value': value,
                     'numeric': True
                 }
-            except Exception as e:
-                parameter['nom_value'] = {
-                    'value': spec.value()[0],
-                    'numeric': True
-                }
-
-        if spec.min_value() and len(spec.min_value())>0:
-            try:
-                parameter['min_value'] = {
-                    'value': float(spec.min_value()[0]),
-                    'numeric': True
-                }
-            except Exception as e:
-                parameter['min_value'] = {
-                    'value': spec.min_value()[0],
-                    'numeric': True
-                }
-
-        if spec.max_value() and len(spec.max_value())>0:
-            try:
-                parameter['min_value'] = {
-                    'value': float(spec.max_value()[0]),
-                    'numeric': True
-                }
-            except Exception as e:
-                parameter['min_value'] = {
-                    'value': spec.max_value()[0],
-                    'numeric': True
-                }
-
+                
+        print("spec: ", spec.json)
+        print("parameter: ", parameter)
         return parameter
     
     def ExtractParameters(self):

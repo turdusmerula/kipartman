@@ -662,14 +662,17 @@ class TreeManager(object):
             elif column.GetModelColumn()>=start_index and column.GetModelColumn()<=end_index:
                 to_remove.append(column)
         for column in to_remove:
+            self.model.columns_name.pop(column.GetModelColumn())
+            self.model.columns_type.pop(column.GetModelColumn())
+            self.model.sort_function.pop(column.GetModelColumn())
             self.tree_view.DeleteColumn(column)
 
     def RemoveColumn(self, index):
         for column in self.tree_view.GetColumns():
             if column.GetModelColumn()==index:
-                self.model.columns_name.remove(index)
-                self.model.columns_type.remove(index)
-                self.model.sort_function.remove(index)
+                self.model.columns_name.pop(index)
+                self.model.columns_type.pop(index)
+                self.model.sort_function.pop(index)
                 self.tree_view.DeleteColumn(column)
                 return
     

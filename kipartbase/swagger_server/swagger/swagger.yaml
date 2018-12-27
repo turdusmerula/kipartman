@@ -356,6 +356,26 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
+    post:
+      description: "Creates a new unit"
+      operationId: "add_unit"
+      parameters:
+      - in: "body"
+        name: "unit"
+        description: "Unit to add"
+        required: true
+        schema:
+          $ref: "#/definitions/UnitNew"
+      responses:
+        200:
+          description: "Created unit"
+          schema:
+            $ref: "#/definitions/Unit"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
   /unit/{unit_id}:
     get:
       description: "Return a unit"
@@ -1150,19 +1170,18 @@ definitions:
       numeric:
         type: "boolean"
   Unit:
-    type: "object"
-    required:
-    - "id"
-    - "name"
-    - "symbol"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-      symbol:
-        type: "string"
+    allOf:
+    - $ref: "#/definitions/UnitData"
+    - required:
+      - "id"
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+  UnitNew:
+    allOf:
+    - $ref: "#/definitions/UnitData"
+    - {}
   UnitPrefix:
     type: "object"
     required:
@@ -1382,6 +1401,13 @@ definitions:
       id:
         type: "integer"
         format: "int64"
+  UnitData:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      symbol:
+        type: "string"
   DistributorData:
     type: "object"
     properties:
@@ -1498,16 +1524,6 @@ definitions:
         format: "double"
       max_prefix:
         $ref: "#/definitions/UnitPrefix"
-      from_reference:
-        $ref: "#/definitions/PartReferenceRef"
-  PartReferenceRef:
-    type: "object"
-    required:
-    - "id"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
   PartOffer:
     allOf:
     - $ref: "#/definitions/PartOfferData"

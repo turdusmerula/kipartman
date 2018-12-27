@@ -42,7 +42,6 @@ class PartParameter(object):
         'nom_prefix': 'UnitPrefix',
         'max_value': 'float',
         'max_prefix': 'UnitPrefix',
-        'from_reference': 'PartReferenceRef',
         'id': 'int'
     }
 
@@ -58,11 +57,10 @@ class PartParameter(object):
         'nom_prefix': 'nom_prefix',
         'max_value': 'max_value',
         'max_prefix': 'max_prefix',
-        'from_reference': 'from_reference',
         'id': 'id'
     }
 
-    def __init__(self, name=None, description=None, unit=None, numeric=None, text_value=None, min_value=None, min_prefix=None, nom_value=None, nom_prefix=None, max_value=None, max_prefix=None, from_reference=None, id=None):
+    def __init__(self, name=None, description=None, unit=None, numeric=None, text_value=None, min_value=None, min_prefix=None, nom_value=None, nom_prefix=None, max_value=None, max_prefix=None, id=None):
         """
         PartParameter - a model defined in Swagger
         """
@@ -78,7 +76,6 @@ class PartParameter(object):
         self._nom_prefix = None
         self._max_value = None
         self._max_prefix = None
-        self._from_reference = None
         self._id = None
 
         if name is not None:
@@ -103,8 +100,6 @@ class PartParameter(object):
           self.max_value = max_value
         if max_prefix is not None:
           self.max_prefix = max_prefix
-        if from_reference is not None:
-          self.from_reference = from_reference
         if id is not None:
           self.id = id
 
@@ -338,27 +333,6 @@ class PartParameter(object):
         """
 
         self._max_prefix = max_prefix
-
-    @property
-    def from_reference(self):
-        """
-        Gets the from_reference of this PartParameter.
-
-        :return: The from_reference of this PartParameter.
-        :rtype: PartReferenceRef
-        """
-        return self._from_reference
-
-    @from_reference.setter
-    def from_reference(self, from_reference):
-        """
-        Sets the from_reference of this PartParameter.
-
-        :param from_reference: The from_reference of this PartParameter.
-        :type: PartReferenceRef
-        """
-
-        self._from_reference = from_reference
 
     @property
     def id(self):

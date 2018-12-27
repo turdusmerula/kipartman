@@ -17,3 +17,23 @@ get:
       description: unexpected error
       schema:
         $ref: './Error.yaml'
+
+post:
+  description: Creates a new unit
+  operationId: addUnit
+  parameters:
+    - name: unit
+      in: body
+      description: Unit to add
+      required: true
+      schema:
+        $ref: './unit/UnitNew.yaml'
+  responses:
+    "200":
+      description: Created unit
+      schema:
+        $ref: './unit/Unit.yaml'
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'

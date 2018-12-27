@@ -41,8 +41,7 @@ class PartParameterData(object):
         'nom_value': 'float',
         'nom_prefix': 'UnitPrefix',
         'max_value': 'float',
-        'max_prefix': 'UnitPrefix',
-        'from_reference': 'PartReferenceRef'
+        'max_prefix': 'UnitPrefix'
     }
 
     attribute_map = {
@@ -56,11 +55,10 @@ class PartParameterData(object):
         'nom_value': 'nom_value',
         'nom_prefix': 'nom_prefix',
         'max_value': 'max_value',
-        'max_prefix': 'max_prefix',
-        'from_reference': 'from_reference'
+        'max_prefix': 'max_prefix'
     }
 
-    def __init__(self, name=None, description=None, unit=None, numeric=None, text_value=None, min_value=None, min_prefix=None, nom_value=None, nom_prefix=None, max_value=None, max_prefix=None, from_reference=None):
+    def __init__(self, name=None, description=None, unit=None, numeric=None, text_value=None, min_value=None, min_prefix=None, nom_value=None, nom_prefix=None, max_value=None, max_prefix=None):
         """
         PartParameterData - a model defined in Swagger
         """
@@ -76,7 +74,6 @@ class PartParameterData(object):
         self._nom_prefix = None
         self._max_value = None
         self._max_prefix = None
-        self._from_reference = None
 
         if name is not None:
           self.name = name
@@ -100,8 +97,6 @@ class PartParameterData(object):
           self.max_value = max_value
         if max_prefix is not None:
           self.max_prefix = max_prefix
-        if from_reference is not None:
-          self.from_reference = from_reference
 
     @property
     def name(self):
@@ -333,27 +328,6 @@ class PartParameterData(object):
         """
 
         self._max_prefix = max_prefix
-
-    @property
-    def from_reference(self):
-        """
-        Gets the from_reference of this PartParameterData.
-
-        :return: The from_reference of this PartParameterData.
-        :rtype: PartReferenceRef
-        """
-        return self._from_reference
-
-    @from_reference.setter
-    def from_reference(self, from_reference):
-        """
-        Sets the from_reference of this PartParameterData.
-
-        :param from_reference: The from_reference of this PartParameterData.
-        :type: PartReferenceRef
-        """
-
-        self._from_reference = from_reference
 
     def to_dict(self):
         """

@@ -40,7 +40,6 @@ from .models.part_parameter_description import PartParameterDescription
 from .models.part_ref import PartRef
 from .models.part_reference import PartReference
 from .models.part_reference_data import PartReferenceData
-from .models.part_reference_ref import PartReferenceRef
 from .models.part_storage import PartStorage
 from .models.storage import Storage
 from .models.storage_category import StorageCategory
@@ -50,6 +49,8 @@ from .models.storage_category_ref import StorageCategoryRef
 from .models.storage_data import StorageData
 from .models.storage_new import StorageNew
 from .models.unit import Unit
+from .models.unit_data import UnitData
+from .models.unit_new import UnitNew
 from .models.unit_prefix import UnitPrefix
 from .models.upload_file import UploadFile
 from .models.upload_file_data import UploadFileData

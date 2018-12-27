@@ -31,8 +31,8 @@ class DataModelOffer(helper.tree.TreeItem):
             1 : str(self.offer.packaging_unit),
             2 : str(self.offer.packaging),
             3 : str(self.offer.quantity),
-            4 : str(self.item_price()),
-            5 : str(self.offer.unit_price),
+            4 : "{0:.3f}".format(self.item_price()),
+            5 : "{0:.3f}".format(self.offer.unit_price),
             6 : self.offer.currency,
             7 : self.offer.sku,
         }
