@@ -37,7 +37,6 @@ class PartManufacturer(object):
         'email': 'str',
         'phone': 'str',
         'comment': 'str',
-        'id': 'int',
         'part_name': 'str'
     }
 
@@ -48,11 +47,10 @@ class PartManufacturer(object):
         'email': 'email',
         'phone': 'phone',
         'comment': 'comment',
-        'id': 'id',
         'part_name': 'part_name'
     }
 
-    def __init__(self, name=None, address=None, website=None, email=None, phone=None, comment=None, id=None, part_name=None):
+    def __init__(self, name=None, address=None, website=None, email=None, phone=None, comment=None, part_name=None):
         """
         PartManufacturer - a model defined in Swagger
         """
@@ -63,7 +61,6 @@ class PartManufacturer(object):
         self._email = None
         self._phone = None
         self._comment = None
-        self._id = None
         self._part_name = None
 
         if name is not None:
@@ -78,8 +75,6 @@ class PartManufacturer(object):
           self.phone = phone
         if comment is not None:
           self.comment = comment
-        if id is not None:
-          self.id = id
         if part_name is not None:
           self.part_name = part_name
 
@@ -208,27 +203,6 @@ class PartManufacturer(object):
         """
 
         self._comment = comment
-
-    @property
-    def id(self):
-        """
-        Gets the id of this PartManufacturer.
-
-        :return: The id of this PartManufacturer.
-        :rtype: int
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """
-        Sets the id of this PartManufacturer.
-
-        :param id: The id of this PartManufacturer.
-        :type: int
-        """
-
-        self._id = id
 
     @property
     def part_name(self):

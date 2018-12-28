@@ -56,7 +56,6 @@ class EditPartStorageFrame(DialogEditPartStorage):
         if self.button_storage.Label=="<None>":
             raise Exception("No storage selected")
         if self.storage:
-            self.part_storage.id = self.storage.id
             self.part_storage.name = self.storage.name
             self.part_storage.description = self.storage.description
             self.part_storage.comment = self.storage.comment

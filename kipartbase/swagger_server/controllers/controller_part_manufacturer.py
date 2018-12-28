@@ -9,7 +9,8 @@ from ..util import deserialize_date, deserialize_datetime
 
 from swagger_server.controllers.helpers import raise_on_error, ControllerError
 
-from swagger_server.controllers.controller_manufacturer import serialize_Manufacturer
+from swagger_server.controllers.controller_manufacturer import serialize_Manufacturer,\
+    deserialize_ManufacturerData
 from swagger_server.controllers.controller_manufacturer import find_manufacturer
 
 import api.models
@@ -24,8 +25,12 @@ def serialize_PartManufacturer(fpart_manufacturer, part_manufacturer=None):
 def deserialize_PartManufacturer(part_manufacturer, fpart_manufacturer=None):
     if fpart_manufacturer is None:
         fpart_manufacturer = api.models.PartManufacturer()
-    fpart_manufacturer.manufacturer = raise_on_error(find_manufacturer(part_manufacturer.name))
+    try:
+        fpart_manufacturer.manufacturer = api.models.Manufacturer.objects.get(name=part_manufacturer.name)
+    except:
+        return Error(code=1000, message='Manufacturer %s does not exists'%part_manufacturer.name), 403
     fpart_manufacturer.name = part_manufacturer.name
+    fpart_manufacturer.part_name = part_manufacturer.part_name
     return fpart_manufacturer
 
 

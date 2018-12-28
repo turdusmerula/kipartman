@@ -36,8 +36,7 @@ class PartReference(object):
         'manufacturer': 'str',
         'type': 'str',
         'uid': 'str',
-        'updated': 'datetime',
-        'id': 'int'
+        'updated': 'datetime'
     }
 
     attribute_map = {
@@ -46,11 +45,10 @@ class PartReference(object):
         'manufacturer': 'manufacturer',
         'type': 'type',
         'uid': 'uid',
-        'updated': 'updated',
-        'id': 'id'
+        'updated': 'updated'
     }
 
-    def __init__(self, name=None, description=None, manufacturer=None, type=None, uid=None, updated=None, id=None):
+    def __init__(self, name=None, description=None, manufacturer=None, type=None, uid=None, updated=None):
         """
         PartReference - a model defined in Swagger
         """
@@ -61,7 +59,6 @@ class PartReference(object):
         self._type = None
         self._uid = None
         self._updated = None
-        self._id = None
 
         if name is not None:
           self.name = name
@@ -75,8 +72,6 @@ class PartReference(object):
           self.uid = uid
         if updated is not None:
           self.updated = updated
-        if id is not None:
-          self.id = id
 
     @property
     def name(self):
@@ -203,27 +198,6 @@ class PartReference(object):
         """
 
         self._updated = updated
-
-    @property
-    def id(self):
-        """
-        Gets the id of this PartReference.
-
-        :return: The id of this PartReference.
-        :rtype: int
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """
-        Sets the id of this PartReference.
-
-        :param id: The id of this PartReference.
-        :type: int
-        """
-
-        self._id = id
 
     def to_dict(self):
         """

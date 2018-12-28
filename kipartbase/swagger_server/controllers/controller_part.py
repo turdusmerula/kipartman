@@ -165,96 +165,9 @@ def add_part(part):
         return e.error, 403
     
     fpart.save()
+
+    save_part_elements(fpart, part)
     
-    fparameters = []
-    if part.parameters:
-        for parameter in part.parameters:
-            try:
-                fparameter = raise_on_error(deserialize_PartParameter(parameter))
-            except ControllerError as e:
-                return e.error, 403
-            fparameter.part = fpart
-            fparameter.save()
-            fparameters.append(fparameter)
-        fpart.parameters.set(fparameters)
-
-# TODO: enable bulk insert
-    foffers = []
-    if part.distributors:
-        for part_distributor in part.distributors:
-            try:
-                fdistributor = api.models.Distributor.objects.get(name=part_distributor.name)
-            except:
-                return Error(code=1000, message='Distributor %s does not exists'%part_distributor.name), 403
-            for offer in part_distributor.offers:
-                try:
-                    foffer = raise_on_error(deserialize_PartOffer(offer))
-                except ControllerError as e:
-                    return e.error, 403
-                foffer.part = fpart
-                foffer.distributor = fdistributor
-                foffer.save()
-                foffers.append(foffer)
-        fpart.offers.set(foffers)
-    
-    fpart_manufacturers = []
-    if part.manufacturers:
-        for part_manufacturer in part.manufacturers:
-            try:
-                fpart_manufacturer = raise_on_error(deserialize_PartManufacturer(part_manufacturer))
-            except ControllerError as e:
-                return e.error, 403
-            fpart_manufacturer.part = fpart
-            fpart_manufacturer.save()
-            fpart_manufacturers.append(fpart_manufacturer)
-        fpart.manufacturers.set(fpart_manufacturers)
-
-    fpart_storages = []
-    if part.storages:
-        for part_storage in part.storages:
-            try:
-                fstorage = api.models.Storage.objects.get(id=part_storage.id)
-            except:
-                return Error(code=1000, message='Storage %s does not exists'%part_storage.name), 403
-            try:
-                fpart_storage = raise_on_error(deserialize_PartStorage(part_storage))
-            except ControllerError as e:
-                return e.error, 403
-            fpart_storage.part = fpart
-            fpart_storage.storage = fstorage
-            fpart_storage.save()
-            fpart_storage.append(fpart_storage)
-        fpart.storages.set(fpart_storages)
-
-    fpart_attachements = []
-    if part.attachements:
-        for part_attachement in part.attachements:
-            try:
-                fattachement = api.models.File.objects.get(id=part_attachement.id)
-            except:
-                return Error(code=1000, message='File %s does not exists'%part_attachement.id), 403
-            try:
-                fpart_attachement = raise_on_error(deserialize_PartAttachement(part_attachement))
-            except ControllerError as e:
-                return e.error, 403
-            fpart_attachement.part = fpart
-            fpart_attachement.file = fattachement
-            fpart_attachement.save()
-            fpart_attachements.append(fpart_attachement)
-        fpart.attachements.set(fpart_attachements)
-
-    fpart_references = []
-    if part.references:
-        for part_reference in part.references:
-            try:
-                fpart_reference = raise_on_error(deserialize_PartReference(part_reference))
-            except ControllerError as e:
-                return e.error, 403
-            fpart_reference.part = fpart
-            fpart_reference.save()
-            fpart_reference.append(fpart_reference)
-        fpart.references.set(fpart_references)
-
     return serialize_Part(fpart)
 
 
@@ -395,116 +308,101 @@ def update_part(part_id, part):
     
     fpart.save()
 
-    fparameters = []
+    save_part_elements(fpart, part)
+
+    return serialize_Part(fpart)
+
+def save_part_elements(fpart, part):
+    part_id = fpart.id
+    
     if not part.parameters is None:
-        # TODO:
-        #     remove deleted parameters
-        #     add new parameters
-        #     update parameters
-        
         # remove all parameters
         api.models.PartParameter.objects.filter(part=part_id).delete()
         # replace by interface ones
+        fpart_parameters = []
         for parameter in part.parameters:
-            fparameter = deserialize_PartParameter(parameter)
+            try:
+                fparameter = raise_on_error(deserialize_PartParameter(parameter))
+            except ControllerError as e:
+                return e.error, 403
             fparameter.part = fpart
-            fparameter.save()
-            fparameters.append(fparameter)
-        fpart.parameters.set(fparameters)
+            fpart_parameters.append(fparameter)
+        api.models.PartParameter.objects.bulk_create(fpart_parameters)
 
-    foffers = []
     if not part.distributors is None:
         # remove all part distributors
         api.models.PartOffer.objects.filter(part=part_id).delete()
         # import new values
+        fpart_offers = []
         for part_distributor in part.distributors:
             try:
                 fdistributor = api.models.Distributor.objects.get(name=part_distributor.name)
             except:
                 return Error(code=1000, message='Distributor %s does not exists'%part_distributor.name), 403
-                
+            
             for offer in part_distributor.offers:
-                foffer = deserialize_PartOffer(offer)
+                try:
+                    foffer = raise_on_error(deserialize_PartOffer(offer))
+                except ControllerError as e:
+                    return e.error, 403
                 foffer.part = fpart
                 foffer.distributor = fdistributor
-                foffer.save()
-                foffers.append(foffer)
-        fpart.offers.set(foffers)
-    
-    fpart_manufacturers = []
+                fpart_offers.append(foffer)
+        api.models.PartOffer.objects.bulk_create(fpart_offers)
+     
     if not part.manufacturers is None:
         # remove all part distributors
         api.models.PartManufacturer.objects.filter(part=part_id).delete()
         # import new values
+        fpart_manufacturers = []
         for part_manufacturer in part.manufacturers:
             try:
-                fmanufacturer = api.models.Manufacturer.objects.get(name=part_manufacturer.name)
-            except:
-                return Error(code=1000, message='Manufacturer %s does not exists'%part_manufacturer.name), 403
-            fpart_manufacturer = api.models.PartManufacturer()
+                fpart_manufacturer = raise_on_error(deserialize_PartManufacturer(part_manufacturer))
+            except ControllerError as e:
+                return e.error, 403
             fpart_manufacturer.part = fpart
-            fpart_manufacturer.manufacturer = fmanufacturer
-            fpart_manufacturer.part_name = part_manufacturer.part_name
-            fpart_manufacturer.save()
             fpart_manufacturers.append(fpart_manufacturer)
-        fpart.manufacturers.set(fpart_manufacturers)
-
-    fpart_storages = []
+        api.models.PartManufacturer.objects.bulk_create(fpart_manufacturers)
+ 
     if not part.storages is None:
         # remove all part distributors
         api.models.PartStorage.objects.filter(part=part_id).delete()
         # import new values
+        fpart_storages = []
         for part_storage in part.storages:
             try:
-                fstorage = api.models.Storage.objects.get(id=part_storage.id)
-            except:
-                return Error(code=1000, message='Storage %s does not exists'%part_storage.id), 403
-            fpart_storage = api.models.PartStorage()
+                fpart_storage = raise_on_error(deserialize_PartStorage(part_storage))
+            except ControllerError as e:
+                return e.error, 403
             fpart_storage.part = fpart
-            fpart_storage.storage = fstorage
-            fpart_storage.quantity = part_storage.quantity
-            if fpart_storage.quantity<0:
-                fpart_storage.quantity = 0
-                
-            fpart_storage.save()
             fpart_storages.append(fpart_storage)
-        fpart.storages.set(fpart_storages)
-
-    fpart_attachements = []
+        api.models.PartStorage.objects.bulk_create(fpart_storages)
+ 
     if not part.attachements is None:
         # remove all part distributors
         api.models.PartAttachement.objects.filter(part=part_id).delete()
         # import new values
+        fpart_attachements = []
         for part_attachement in part.attachements:
             try:
-                fattachement = api.models.File.objects.get(id=part_attachement.id)
-            except:
-                return Error(code=1000, message='File %s does not exists'%part_attachement.id), 403
-            fpart_attachement = api.models.PartAttachement()
+                fpart_attachement = raise_on_error(deserialize_PartAttachement(part_attachement))
+            except ControllerError as e:
+                return e.error, 403
             fpart_attachement.part = fpart
-            fpart_attachement.file = fattachement
-            fpart_attachement.description = part_attachement.description
-            fpart_attachement.save()
             fpart_attachements.append(fpart_attachement)
-        fpart.attachements.set(fpart_attachements)
+        api.models.PartAttachement.objects.bulk_create(fpart_attachements)
 
-    fpart_references = []
     if not part.references is None:
         # remove all part distributors
         api.models.PartReference.objects.filter(part=part_id).delete()
         # import new values
+        fpart_references = []
         for part_reference in part.references:
             try:
-                freference = api.models.File.objects.get(id=part_reference.id)
-            except:
-                return Error(code=1000, message='Reference %s does not exists'%part_reference.id), 403
-            fpart_reference = api.models.PartReference()
+                fpart_reference = raise_on_error(deserialize_PartReference(part_reference))
+            except ControllerError as e:
+                return e.error, 403
             fpart_reference.part = fpart
-            fpart_reference.type = part_reference.type
-            fpart_reference.name = part_reference.name
-            fpart_reference.uid = part_reference.uid
-            fpart_reference.save()
-            fpart_reference.append(fpart_reference)
-        fpart.references.set(fpart_references)
-
-    return serialize_Part(fpart)
+            fpart_references.append(fpart_reference)
+        api.models.PartReference.objects.bulk_create(fpart_references)
+    

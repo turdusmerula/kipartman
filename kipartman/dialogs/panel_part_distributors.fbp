@@ -109,7 +109,7 @@
                     <property name="permission">none</property>
                     <property name="shortcut"></property>
                     <property name="unchecked_bitmap"></property>
-                    <event name="OnMenuSelection">onMenuDstributorAddDistributor</event>
+                    <event name="OnMenuSelection">onMenuDistributorAddDistributor</event>
                 </object>
                 <object class="wxMenuItem" expanded="1">
                     <property name="bitmap">Load From File; resources/edit.png</property>

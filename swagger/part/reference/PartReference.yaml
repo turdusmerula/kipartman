@@ -5,7 +5,3 @@ allOf:
       - type
       - name
       - uid
-    properties:
-      id:
-        type: integer
-        format: int64

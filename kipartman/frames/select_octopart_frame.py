@@ -6,6 +6,7 @@ import helper.tree
 from octopart.extractor import OctopartExtractor
 import helper.tree_parameters
 from helper.unit import format_unit_prefix
+from helper.exception import print_stack
 
 SelectOctopartOkEvent, EVT_SELECT_OCTOPART_OK_EVENT = wx.lib.newevent.NewEvent()
 SelectOctopartCancelEvent, EVT_SELECT_OCTOPART_APPLY_EVENT = wx.lib.newevent.NewEvent()
@@ -121,8 +122,12 @@ class SelectOctopartFrame(PanelSelectOctopart):
         self.tree_octoparts_manager.RemoveColumns(7)
                 
         q = PartsQuery()
-        q.get(self.search_octopart.Value)
-
+        try:
+            q.get(self.search_octopart.Value)
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+            
         columns = {}
         for octopart in q.results():
             for spec in octopart.item().specs():

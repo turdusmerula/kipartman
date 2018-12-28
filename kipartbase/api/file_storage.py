@@ -4,24 +4,19 @@ import os
 import api.models
 import tempfile
 import helper.hash as hash
+from configuration import configuration
 
 from django.conf import settings
 
 from os.path import expanduser
 home = expanduser("~")
 
-options = {'STORAGE_PATH': os.path.join(os.environ['DATA_DIR'], 'storage'), 'SUB_LEVELS': 3, 'SUB_LEVEL_SIZE': 2}
-
-
 class FileStorage(object):
 
-    def __init__(self, option=options):
-        if not option:
-            option = settings.FILE_STORAGE_OPTIONS
-        
-        self.storage_path = option['STORAGE_PATH']
-        self.sub_levels = option['SUB_LEVELS']
-        self.sub_level_size = option['SUB_LEVEL_SIZE']
+    def __init__(self):
+        self.storage_path = configuration.storage_path
+        self.sub_levels = configuration.sub_levels
+        self.sub_level_size = configuration.sub_level_size
     
     def get_sublevels(self, id):
         levels = []
@@ -62,7 +57,7 @@ class FileStorage(object):
         #TODO: Delete file.name from temp storage
 
         # add file to db
-        file = models.File(source_name=upfile.filename, storage_path=storage_path.replace('\\','/'))
+        file = api.models.File(source_name=upfile.filename, storage_path=storage_path.replace('\\','/'))
         file.save()
         
         print("Add file", upfile.filename, "as", storage_path)

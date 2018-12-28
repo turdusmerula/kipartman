@@ -50,7 +50,7 @@ class PanelPartDistributors ( wx.Panel ):
 
 
 		# Connect Events
-		self.Bind( wx.EVT_MENU, self.onMenuDstributorAddDistributor, id = self.menu_distributor_add_distributor.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDistributorAddDistributor, id = self.menu_distributor_add_distributor.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDistributorEditDistributor, id = self.menu_distributor_edit_distributor.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDistributorRemoveDistributor, id = self.menu_distributor_remove_distributor.GetId() )
 
@@ -59,7 +59,7 @@ class PanelPartDistributors ( wx.Panel ):
 
 
 	# Virtual event handlers, overide them in your derived class
-	def onMenuDstributorAddDistributor( self, event ):
+	def onMenuDistributorAddDistributor( self, event ):
 		event.Skip()
 
 	def onMenuDistributorEditDistributor( self, event ):

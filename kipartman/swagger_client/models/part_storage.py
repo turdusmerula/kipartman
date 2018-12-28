@@ -34,7 +34,6 @@ class PartStorage(object):
         'name': 'str',
         'description': 'str',
         'comment': 'str',
-        'id': 'int',
         'quantity': 'int'
     }
 
@@ -42,11 +41,10 @@ class PartStorage(object):
         'name': 'name',
         'description': 'description',
         'comment': 'comment',
-        'id': 'id',
         'quantity': 'quantity'
     }
 
-    def __init__(self, name=None, description=None, comment=None, id=None, quantity=None):
+    def __init__(self, name=None, description=None, comment=None, quantity=None):
         """
         PartStorage - a model defined in Swagger
         """
@@ -54,7 +52,6 @@ class PartStorage(object):
         self._name = None
         self._description = None
         self._comment = None
-        self._id = None
         self._quantity = None
 
         if name is not None:
@@ -63,7 +60,6 @@ class PartStorage(object):
           self.description = description
         if comment is not None:
           self.comment = comment
-        self.id = id
         self.quantity = quantity
 
     @property
@@ -128,29 +124,6 @@ class PartStorage(object):
         """
 
         self._comment = comment
-
-    @property
-    def id(self):
-        """
-        Gets the id of this PartStorage.
-
-        :return: The id of this PartStorage.
-        :rtype: int
-        """
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        """
-        Sets the id of this PartStorage.
-
-        :param id: The id of this PartStorage.
-        :type: int
-        """
-        if id is None:
-            raise ValueError("Invalid value for `id`, must not be `None`")
-
-        self._id = id
 
     @property
     def quantity(self):

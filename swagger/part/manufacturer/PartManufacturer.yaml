@@ -4,8 +4,5 @@ allOf:
   - required:
       - name
     properties:
-      id:
-        type: integer
-        format: int64
       part_name:
         type: string

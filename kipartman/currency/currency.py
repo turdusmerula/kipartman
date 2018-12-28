@@ -14,6 +14,11 @@ class Currency(object):
             data = str(url.read())
 
         self.currencies = {}
+        
+        # add EUR
+        self.currencies['EUR'] = 1.
+        
+        # add others
         for line in data.split('\\n'):
             if 'currency=' in line:
                 currency = None

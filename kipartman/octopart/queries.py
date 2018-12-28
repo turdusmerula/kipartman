@@ -39,7 +39,6 @@ class PartsQuery(OctopartQuery):
     path = "parts/search"
     
     def get(self, pattern):
-        configuration.Load()   # TODO: Improve accessing Global DEFAULTS
         OctopartQuery.apikey = configuration.octopart_api_key
         self.json = OctopartQuery.get(self, q=pattern)
         return self.json

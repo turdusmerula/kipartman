@@ -11,13 +11,14 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from configuration import configuration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DATA_DIR = os.getenv('KIPARTBASE_PATH', os.path.join(os.path.expanduser("~"), '.kipartman'))
 if 'DATA_DIR' in os.environ:
-    DATA_DIR = os.environ['DATA_DIR']
+    configuration.set_data_dir(os.environ['DATA_DIR'])
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -80,7 +81,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(DATA_DIR, 'parts.sqlite3'),
+        'NAME': os.path.join(configuration.data_dir, 'parts.sqlite3'),
     }
 }
 
@@ -130,16 +131,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-# FILE_STORAGE_OPTIONS = {
-#     'STORAGE_PATH': '.',
-#     'SUB_LEVELS': 3,
-#     'SUB_LEVEL_SIZE': 2
-# }
-
 # STATICFILES_DIRS = [
 #     os.path.join(BASE_DIR, "static"),
 #     '/var/www/static/',
 # ]
 
-MEDIA_ROOT = os.path.join(DATA_DIR, 'files/')
+MEDIA_ROOT = os.path.join(configuration.data_dir, 'files/')
 MEDIA_URL = 'files/'

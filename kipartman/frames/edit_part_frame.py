@@ -156,7 +156,9 @@ class EditPartFrame(PanelEditPart):
             wx.MessageDialog(self, octopart_extractor.get_error_message(), "Octopart processing error", wx.OK | wx.ICON_WARNING)
 
         # add references in current part
-        part_reference = next((p for p in self.part.references if p.type==reference['type'] and p.uid==reference['uid']), None)
+        if self.part.references is None:
+            self.part.references = []
+        part_reference =  next((p for p in self.part.references if p.type==reference['type'] and p.uid==reference['uid']), None)
         if part_reference is None:
             part_reference = rest.model.PartReference()
             self.part.references.append(part_reference)
@@ -168,6 +170,9 @@ class EditPartFrame(PanelEditPart):
          
     def addParametersFromOctopart(self, octopart):
         octopart_extractor = OctopartExtractor(octopart)
+
+        if self.part.parameters is None:
+            self.part.parameters = []
 
         # import parameters
         for spec_name in octopart.item().specs():
@@ -236,6 +241,9 @@ class EditPartFrame(PanelEditPart):
             
     def addDistributorsFromOctopart(self, octopart):
         octopart_extractor = OctopartExtractor(octopart)
+
+        if self.part.distributors is None:
+            self.part.distributors = []
 
         octopart_distributors = octopart_extractor.ExtractDistributors()
         for distributor_name in octopart_distributors:
@@ -323,6 +331,9 @@ class EditPartFrame(PanelEditPart):
                     print_stack()
                     wx.MessageBox('%s: error creating manufacturer' % (manufacturer_name), 'Warning', wx.OK | wx.ICON_ERROR)
         if manufacturer:
+            if self.part.manufacturers is None:
+                self.part.manufacturers = []
+
             part_manufacturer = next((p for p in self.part.manufacturers if p.name==manufacturer_name), None)
             if part_manufacturer is None:
                 part_manufacturer = rest.model.PartManufacturer()
@@ -367,7 +378,9 @@ class EditPartFrame(PanelEditPart):
         if len(self.part.references)==1:
             self.part.name = self.part.references[0].name
             self.part.description = self.part.references[0].description
-# 
-
+        else:
+            self.part.name = self.edit_part_name.Value
+            self.part.description = self.edit_part_description.Value
+            
         self.SetPart(self.part)
 

@@ -11,20 +11,15 @@ import datetime
 import api.models
 
 from os.path import expanduser
+from configuration import configuration
 home = expanduser("~")
-
-options = {'STORAGE_PATH': os.path.join(os.environ['DATA_DIR'], 'version_storage'), 'SUB_LEVELS': 3, 'SUB_LEVEL_SIZE': 2}
-
 
 class VersionedFileStorage(object):
 
-    def __init__(self, option=options):
-        if not option:
-            option = settings.FILE_STORAGE_OPTIONS
-
-        self.storage_path = option['STORAGE_PATH']
-        self.sub_levels = option['SUB_LEVELS']
-        self.sub_level_size = option['SUB_LEVEL_SIZE']
+    def __init__(self):
+        self.storage_path = configuration.version_storage_path
+        self.sub_levels = configuration.sub_levels
+        self.sub_level_size = configuration.sub_level_size
 
     def get_sublevels(self, id):
         levels = []

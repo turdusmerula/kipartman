@@ -43,7 +43,8 @@ class PartNew(object):
         'distributors': 'list[PartDistributor]',
         'manufacturers': 'list[PartManufacturer]',
         'storages': 'list[PartStorage]',
-        'attachements': 'list[PartAttachement]'
+        'attachements': 'list[PartAttachement]',
+        'references': 'list[PartReference]'
     }
 
     attribute_map = {
@@ -59,10 +60,11 @@ class PartNew(object):
         'distributors': 'distributors',
         'manufacturers': 'manufacturers',
         'storages': 'storages',
-        'attachements': 'attachements'
+        'attachements': 'attachements',
+        'references': 'references'
     }
 
-    def __init__(self, name=None, description=None, comment=None, value_parameter=None, category=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None):
+    def __init__(self, name=None, description=None, comment=None, value_parameter=None, category=None, childs=None, footprint=None, symbol=None, parameters=None, distributors=None, manufacturers=None, storages=None, attachements=None, references=None):
         """
         PartNew - a model defined in Swagger
         """
@@ -80,6 +82,7 @@ class PartNew(object):
         self._manufacturers = None
         self._storages = None
         self._attachements = None
+        self._references = None
 
         if name is not None:
           self.name = name
@@ -107,6 +110,8 @@ class PartNew(object):
           self.storages = storages
         if attachements is not None:
           self.attachements = attachements
+        if references is not None:
+          self.references = references
 
     @property
     def name(self):
@@ -380,6 +385,27 @@ class PartNew(object):
         """
 
         self._attachements = attachements
+
+    @property
+    def references(self):
+        """
+        Gets the references of this PartNew.
+
+        :return: The references of this PartNew.
+        :rtype: list[PartReference]
+        """
+        return self._references
+
+    @references.setter
+    def references(self, references):
+        """
+        Sets the references of this PartNew.
+
+        :param references: The references of this PartNew.
+        :type: list[PartReference]
+        """
+
+        self._references = references
 
     def to_dict(self):
         """

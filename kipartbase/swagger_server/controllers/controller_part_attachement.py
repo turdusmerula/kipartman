@@ -26,7 +26,11 @@ def serialize_PartAttachement(fpart_attachement, part_attachement=None):
 
 def deserialize_PartAttachement(part_attachement, fpart_attachement=None):
     if fpart_attachement is None:
-        fpart_storage = api.models.PartAttachement()
+        fpart_attachement = api.models.PartAttachement()
+    try:
+        fpart_attachement.file = api.models.File.objects.get(id=part_attachement.id)
+    except:
+        return Error(code=1000, message='File %s does not exists'%part_attachement.id), 403
     fpart_attachement.description = part_attachement.description
     return fpart_attachement
 

@@ -113,7 +113,8 @@ class Configuration(object):
             
             json.dump(content, outfile, sort_keys=True, indent=4, separators=(',', ': '))
 #        print "Save configuration:", content
-
+        self.Load()
+        
     def FindKicad(self, hint=""):
         """
         Search for kicad in system path, On MSW it is not necessarily found through the system Path

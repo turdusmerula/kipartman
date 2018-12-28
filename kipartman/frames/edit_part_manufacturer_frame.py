@@ -34,8 +34,9 @@ class EditPartManufacturerFrame(DialogEditPartManufacturer):
         self.manufacturer = manufacturer
 
         if manufacturer:
-            manufacturer_id = rest.api.find_manufacturers(name=self.manufacturer.name)[0].id
-            self.choice_manufacturer.SetSelection(manufacturer_id)
+            manufacturer_id = self.choice_manufacturer.FindString(self.manufacturer.name, caseSensitive=True)
+            if manufacturer_id!=wx.NOT_FOUND:
+                self.choice_manufacturer.SetSelection(manufacturer_id)
         else:
             self.choice_manufacturer.SetSelection(0)
         self.edit_part_manufacturer_name.Value = str(manufacturer.part_name)
