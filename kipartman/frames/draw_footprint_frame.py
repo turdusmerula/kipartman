@@ -2601,11 +2601,9 @@ class DrawFootprintFrame(DialogDrawFootprint):
             
         elif isinstance(obj, ObjectPolyline):
             obj.UnSelect()
-            print("#####")
             pp = None
             for p in obj.points:
                 if pp is not None:
-                    print("####", p)
                     line = kicad_mod_file.KicadFPLine()
                     parent.AddNode(line)
                     node = kicad_mod_file.KicadStart()

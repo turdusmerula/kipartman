@@ -11,6 +11,7 @@ from frames.part_parameters_frame import DataModelPartParameter
 import rest
 from bom.bom import Bom
 from helper.exception import print_stack
+from helper.unit import format_unit_prefix
 
 class DataModelPart(helper.tree.TreeItem):
     def __init__(self, component):
@@ -163,7 +164,7 @@ class SchematicFrame(PanelSchematic):
     def associate_part(self, component, part):
         symbol = None
         if part.symbol:
-            symbol = self.get_symbol(part.symbol.source_path)
+            unit_symbol = self.get_symbol(part.symbol.source_path)
             
         footprint = None
         if part.footprint:
@@ -176,8 +177,13 @@ class SchematicFrame(PanelSchematic):
         if part.value_parameter:
             for parameter in part.parameters:
                 if parameter.name==part.value_parameter:
-                    paramobj = DataModelPartParameter(part, parameter)
-                    component.value = paramobj.nom_string()
+                    if parameter.nom_value:
+                        unit = ''
+                        if parameter.unit:
+                            unit = parameter.unit.symbol
+                        component.value = format_unit_prefix(parameter.nom_value, unit)
+                    else:
+                        component.value = ''
         
         component.kipart_id = str(part.id)
         component.kipart_sku = str(part.name)
@@ -188,7 +194,6 @@ class SchematicFrame(PanelSchematic):
         items = self.tree_parts.GetSelections()
         if items:
             for item in items:
-                print("############################")
                 partobj = self.tree_parts_manager.ItemToObject(item)
                 self.associate_part(partobj.component, part)
                     

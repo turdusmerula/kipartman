@@ -127,23 +127,25 @@ class EditFootprintFrame(PanelEditFootprint):
             return
         print(snapeda.json)
         
-        self.edit_footprint_name.Value = snapeda.part_number()
+        self.edit_footprint_name.Value = snapeda.name()
         self.edit_footprint_description.Value = snapeda.short_description()
         self.snapeda_uid = snapeda.uniqueid()
         
         try:
             download = DownloadQuery()
-            download.get(part_number=snapeda.part_number(), 
+            download.get(part_number=snapeda.name(), 
                                manufacturer=snapeda.manufacturer(),
                                uniqueid=snapeda.uniqueid(),
                                has_symbol=snapeda.has_symbol(),
                                has_footprint=snapeda.has_footprint())
             if download.error():
                 wx.MessageBox(download.error(), 'Error downloading footprint', wx.OK | wx.ICON_ERROR)
-                
-        except:
+                return
+            
+        except Exception as e:
             print_stack()
-            DialogSnapedaError(self).ShowModal()
+            wx.MessageBox(format(e), 'Error downloading part', wx.OK | wx.ICON_ERROR)
+            #DialogSnapedaError(self).ShowModal()
             return
         
         self.button_open_url_snapeda.Label = "https://www.snapeda.com"+snapeda._links().self().href()
@@ -154,7 +156,7 @@ class EditFootprintFrame(PanelEditFootprint):
                 print("Download from:", download.url())
                 filename = os.path.join(tempfile.gettempdir(), os.path.basename(download.url()))
                 content = scraper.get(download.url()).content
-                with open(filename, 'wb', encoding='utf-8') as outfile:
+                with open(filename, 'wb') as outfile:
                     outfile.write(content)
                 outfile.close()
             except:
@@ -171,29 +173,33 @@ class EditFootprintFrame(PanelEditFootprint):
                 print_stack()
                 wx.MessageBox(format(e), 'Error unziping footprint', wx.OK | wx.ICON_ERROR)
 
-            for file in glob.glob(filename+".tmp/*"):
-                kicad_file = ''
-                if file.endswith(".mod"):
-                    dst_libpath, list_of_parts = lib_convert.convert_mod_to_pretty(file, file.replace('.mod', '.pretty'))
-                    if len(list_of_parts)>0:
-                        kicad_file = os.path.join(dst_libpath, list_of_parts[0]+".kicad_mod")
-                elif file.endswith(".kicad_mod"):
-                    kicad_file = file
-
-                self.footprint.content = ''
-                if kicad_file!='':
-                    with open(kicad_file, 'r', encoding='utf-8') as content_file:
-                        self.footprint.content = content_file.read()
-                        print("****", self.footprint.content)
-                    
-                    mod = kicad_mod_file.KicadModFile()
-                    mod.LoadFile(kicad_file)
-                    image_file = tempfile.NamedTemporaryFile()
-                    mod.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
-                    img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
-                    image_file.close()
-                    img = img.ConvertToBitmap()
-                    self.bitmap_edit_footprint.SetBitmap(img)
+            try:
+                for file in glob.glob(filename+".tmp/*"):
+                    kicad_file = ''
+                    if file.endswith(".mod"):
+                        dst_libpath, list_of_parts = lib_convert.convert_mod_to_pretty(file, file.replace('.mod', '.pretty'))
+                        if len(list_of_parts)>0:
+                            kicad_file = os.path.join(dst_libpath, list_of_parts[0]+".kicad_mod")
+                    elif file.endswith(".kicad_mod"):
+                        kicad_file = file
+    
+                    self.footprint.content = ''
+                    if kicad_file!='':
+                        with open(kicad_file, 'r', encoding='utf-8') as content_file:
+                            self.footprint.content = content_file.read()
+                            print("****", self.footprint.content)
+                        
+                        mod = kicad_mod_file.KicadModFile()
+                        mod.LoadFile(kicad_file)
+                        image_file = tempfile.NamedTemporaryFile()
+                        mod.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
+                        img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
+                        image_file.close()
+                        img = img.ConvertToBitmap()
+                        self.bitmap_edit_footprint.SetBitmap(img)
+            except Exception as e:
+                print_stack()
+                wx.MessageBox(format(e), 'Error reading footprint', wx.OK | wx.ICON_ERROR)
             
             self.footprint.md5 = hash.md5(self.footprint.content).hexdigest()
 
@@ -206,7 +212,6 @@ class EditFootprintFrame(PanelEditFootprint):
     
     def onButtonRemoveUrlSnapedaClick( self, event ):
         self.button_open_url_snapeda.Label = "<None>"
-        self.button_open_url_snapeda = ''
 
     def onButtonFootprintEditApply( self, event ):
         footprint = self.footprint

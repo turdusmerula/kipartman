@@ -132,7 +132,6 @@ class KicadLibFile(object):
         return str(res)
 
     def observe(self, size):
-        print("#####", type(self.buff))
         if len(self.buff)>size:
             return self.buff[:size]
         return self.buff

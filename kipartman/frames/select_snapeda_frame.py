@@ -78,6 +78,7 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
             q.get(self.search_snapeda.Value)
             
             for snapeda in q.results():
+#                 if snapeda.uniqueid() and ( self.filter is None or self.filter(snapeda)==False ):
                 if self.filter is None or self.filter(snapeda)==False:
                     self.tree_snapeda_manager.AppendItem(None, DataModelSnapedaPart(snapeda))
 
@@ -111,7 +112,7 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
             try:
                 filename = os.path.join(tempfile.gettempdir(), os.path.basename(image_url))
                 content = scraper.get(image_url).content
-                with open(filename, 'wb', encoding='utf-8') as outfile:
+                with open(filename, 'wb') as outfile:
                     outfile.write(content)
                 outfile.close()
                  

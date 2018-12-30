@@ -22,7 +22,7 @@ class KicadSchematicFile(object):
             raise Exception("Error: %s does not exists" % filename)
 
         self.filename = filename
-        self.file = io.open(filename, "rb", encoding='utf-8')
+        self.file = io.open(filename, "rb")
         self.line = ''
         self.buff = ''
 
@@ -86,13 +86,13 @@ class KicadSchematicFile(object):
         tmp_file = tempfile.NamedTemporaryFile()
         self.SaveAs(tmp_file.name)
         content = ''
-        with open(tmp_file.name, 'rb', encoding='utf-8') as f:
-            content = f.read()
+        with open(tmp_file.name, 'rb') as f:
+            content = self.to_utf8(f.read())
         src_md5 = hash.md5(content).hexdigest()
         
         content = ''
-        with open(self.filename, 'rb', encoding='utf-8') as f:
-            content = f.read()
+        with open(self.filename, 'rb') as f:
+            content = self.to_utf8(f.read())
         dst_md5 = hash.md5(content).hexdigest()
         
         if src_md5!=dst_md5:
@@ -170,7 +170,7 @@ class KicadSchematicFile(object):
                 self.read_lines(obj)
 
     def next_line(self):
-        self.buff = self.file.readline()
+        self.buff = self.to_utf8(self.file.readline())
         if self.buff=='':
             return EOF
         return self.buff

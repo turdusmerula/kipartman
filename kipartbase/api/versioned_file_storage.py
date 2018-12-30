@@ -21,6 +21,13 @@ class VersionedFileStorage(object):
         self.sub_levels = configuration.sub_levels
         self.sub_level_size = configuration.sub_level_size
 
+    @staticmethod
+    def to_utf8(text):
+        try:
+            return str(text, 'utf-8')
+        except TypeError:
+            return text
+
     def get_sublevels(self, id):
         levels = []
         for level in range(self.sub_levels):
@@ -52,28 +59,28 @@ class VersionedFileStorage(object):
         
         # create file
         md5 = hash.md5(version_file.content).hexdigest()
-        with open(abs_storage_path, 'wb') as outfile:
-            outfile.write(version_file.content)
+        with open(abs_storage_path, 'w', encoding='utf-8') as outfile:
+            outfile.write(self.to_utf8(version_file.content))
             outfile.close()
 
         if version_file.id:
-            ffile = models.VersionedFile.objects.get(pk=version_file.id)
+            ffile = api.models.VersionedFile.objects.get(pk=version_file.id)
             ffile.source_path = version_file.source_path
             ffile.storage_path = storage_path.replace('\\','/')
             ffile.md5 = md5
             ffile.version = ffile.version+1                
-            ffile.state = models.VersionedFileState.created
+            ffile.state = api.models.VersionedFileState.created
             ffile.updated = datetime.datetime.now()
             ffile.metadata = version_file.metadata
             ffile.category = version_file.category
             ffile.save()   
         else:
             # add file to db
-            ffile = models.VersionedFile(source_path=version_file.source_path, 
+            ffile = api.models.VersionedFile(source_path=version_file.source_path, 
                                         storage_path=storage_path.replace('\\','/'),
                                         md5=md5,
                                         version=1,
-                                        state=models.VersionedFileState.created,
+                                        state=api.models.VersionedFileState.created,
                                         updated=datetime.datetime.now(),
                                         metadata=version_file.metadata,
                                         category=version_file.category)
@@ -93,8 +100,8 @@ class VersionedFileStorage(object):
     def delete_file(self, version_file):
         #storage_path = os.path.join(self.storage_path, version_file.storage_path)
 
-        ffile = models.VersionedFile.objects.get(pk=version_file.id)
-        ffile.state = models.VersionedFileState.deleted
+        ffile = api.models.VersionedFile.objects.get(pk=version_file.id)
+        ffile.state = api.models.VersionedFileState.deleted
         ffile.updated = datetime.datetime.now()
         ffile.version = ffile.version+1                
         ffile.save()   
@@ -106,7 +113,7 @@ class VersionedFileStorage(object):
         return version_file
         
     def get_file_content(self, id):
-        ffile = models.VersionedFile.objects.get(pk=id)
+        ffile = api.models.VersionedFile.objects.get(pk=id)
         file = os.path.join(self.storage_path, ffile.storage_path)
         with open(file, 'r') as content_file:
             return content_file.read()

@@ -587,7 +587,7 @@ class KicadFileManagerLib(KicadFileManager):
         return self.lib_cache.Exists(path)
 
     def write_library(self, library, symbols):
-        with open(os.path.join(self.root_path(), library, encoding='utf-8'), 'w', encoding='utf-8') as file:
+        with open(os.path.join(self.root_path(), library), 'w', encoding='utf-8') as file:
             file.write('EESchema-LIBRARY Version 2.3\n')
             file.write('#encoding utf-8\n')
 

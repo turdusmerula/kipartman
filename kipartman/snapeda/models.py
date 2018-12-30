@@ -13,8 +13,8 @@ class SearchResult(Model):
             return Package(self.json['package'])
         return None
 
-    def part_number(self):
-        return self.json["part_number"]
+#     def part_number(self):
+#         return self.json["part_number"]
 
     def availability_description(self):
         return self.json["availability_description"]
@@ -37,7 +37,9 @@ class SearchResult(Model):
         return list
     
     def uniqueid(self):
-        return self.json["uniqueid"]
+        if "uniqueid" in self.json:
+            return self.json["uniqueid"]
+        return ''
 
     def availability(self):
         return self.json["availability"]

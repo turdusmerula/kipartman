@@ -1,7 +1,15 @@
 
-
-def format_unit_prefix(v, unit=''):
+def format_float(v):
     epsilon = 1e-5  
+
+    dec = int(v)
+    frac = v-dec 
+    if frac<epsilon:
+        return str(dec) ;
+    else:
+        return "{:.3}".format(v)
+   
+def format_unit_prefix(v, unit=''):
     dprefix = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'] 
     fprefix = ['', 'm', 'µ', 'n', 'p', 'f', 'a', 'y'] 
 
@@ -13,16 +21,11 @@ def format_unit_prefix(v, unit=''):
         sign = -1 
         v = -v
 
-    if unit=='':
-        dec = int(v)
-        frac = v-dec 
-        if frac<epsilon:
-            return str(dec) ;
     if v>=1:
         p = False
         for si in dprefix:
             if v<1000:
-                res = "{0:.2f}".format(v*sign)+' '+si
+                res = format_float(v*sign)+' '+si
                 p = True ;
                 break ;
             else:

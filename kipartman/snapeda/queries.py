@@ -18,7 +18,7 @@ class SnapedaQuery(object):
         for arg in kwargs:
             self.args.append((arg, kwargs[arg]))
         
-        url = self.baseurl+self.path+'?'+urllib.urlencode(self.args)
+        url = self.baseurl+self.path+'?'+urllib.parse.urlencode(self.args)
         print(url) 
 #        data = urllib.urlopen(self.url).read()
         # use scrapper to avoid cloudflare anti-bot protection

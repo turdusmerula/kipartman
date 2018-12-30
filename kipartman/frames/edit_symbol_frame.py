@@ -124,13 +124,13 @@ class EditSymbolFrame(PanelEditSymbol):
             return
         print(snapeda.json)
         
-        self.edit_symbol_name.Value = snapeda.part_number()
+        self.edit_symbol_name.Value = snapeda.name()
         self.edit_symbol_description.Value = snapeda.short_description()
         self.snapeda_uid = snapeda.uniqueid()
         
         try:
             download = DownloadQuery()
-            download.get(part_number=snapeda.part_number(), 
+            download.get(part_number=snapeda.name(), 
                                manufacturer=snapeda.manufacturer(),
                                uniqueid=snapeda.uniqueid(),
                                has_symbol='True',
@@ -138,8 +138,9 @@ class EditSymbolFrame(PanelEditSymbol):
             if download.error():
                 wx.MessageBox(download.error(), 'Error downloading symbol', wx.OK | wx.ICON_ERROR)
                 
-        except:
+        except Exception as e:
             print_stack()
+            print(format(e))
             DialogSnapedaError(self).ShowModal()
             return
         
@@ -148,12 +149,12 @@ class EditSymbolFrame(PanelEditSymbol):
         # download symbol
         if download.url() and download.url()!='':
             try:
-                filename = os.path.join(tempfile.gettempdir(), os.path.basename(download.url()))
+                file =  tempfile.TemporaryFile(mode='w+b')
+                filename = file.name
                 print("Download from:", download.url())
                 content = scraper.get(download.url()).content
-                with open(filename, 'wb', encoding='utf-8') as outfile:
-                    outfile.write(content)
-                outfile.close()
+                file.write(content)
+                file.close()
             except:
                 print_stack()
                 wx.MessageBox(download.url(), 'Error loading symbol', wx.OK | wx.ICON_ERROR)
@@ -200,7 +201,6 @@ class EditSymbolFrame(PanelEditSymbol):
     
     def onButtonRemoveUrlSnapedaClick( self, event ):
         self.button_open_url_snapeda.Label = "<None>"
-        self.button_open_url_snapeda = ''
 
     def onButtonSymbolEditApply( self, event ):
         symbol = self.symbol
