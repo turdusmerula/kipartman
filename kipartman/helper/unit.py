@@ -2,8 +2,8 @@
 def format_float(v):
     epsilon = 1e-5  
 
-    dec = int(v)
-    frac = v-dec 
+    dec = int(v+0.5)
+    frac = abs(v-dec) 
     if frac<epsilon:
         return str(dec) ;
     else:
@@ -37,7 +37,7 @@ def format_unit_prefix(v, unit=''):
         p = False 
         for si in fprefix:
             if v>0.9:
-                res = "{0:.2f}".format(v*sign)+' '+si
+                res = format_float(v*sign)+' '+si
                 p = True 
                 break
             else:

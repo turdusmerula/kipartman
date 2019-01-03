@@ -67,9 +67,11 @@ class ConfigurationFrame(DialogConfiguration):
         if self.check_common_path.Value:
             configuration.kicad_symbols_path = self.dir_footprints_path.GetPath()
             configuration.kicad_3d_models_path = self.dir_footprints_path.GetPath()
+            configuration.kicad_modules_path = self.dir_footprints_path.GetPath()
         else:
             configuration.kicad_symbols_path = self.dir_symbols_path.GetPath()
             configuration.kicad_3d_models_path = self.dir_3d_models_path.GetPath()
+            configuration.kicad_modules_path = self.dir_modules_path.GetPath()
         configuration.kicad_library_common_path = self.check_common_path.Value
         
         configuration.Save()
@@ -130,8 +132,10 @@ class ConfigurationFrame(DialogConfiguration):
         if self.check_common_path.Value:
             self.dir_3d_models_path.Enabled = False
             self.dir_symbols_path.Enabled = False
+            self.dir_modules_path.Enabled = False
         else:
             self.dir_3d_models_path.Enabled = True
             self.dir_symbols_path.Enabled = True
+            self.dir_modules_path.Enabled = True
             
     
