@@ -5,7 +5,13 @@ class ControllerError(BaseException):
         self.error = error
         
 def raise_on_error(value):
-    if isinstance(value, Error):
-        print(value)
-        raise ControllerError(value)
+    v = value
+    if type(value) is tuple:
+        v = value[0]
+        
+    if isinstance(v, Error):
+        print(v)
+        raise ControllerError(v)
+
+
     return value

@@ -103,7 +103,7 @@ class Bom(object):
             
             input = { 'schematic': self.schematic.filename, 'parts': parts, 'components': part_components }
 #            json_string = json.dumps(input, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': ')).encode('utf8')
-            json_string = json.dumps(self.byteify(input), ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+            json_string = json.dumps(input, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
             outfile.write(json_string)
 #            json.dump(self.byteify(input), outfile, sort_keys=True,
 #                  indent=4, separators=(',', ': '))

@@ -444,7 +444,7 @@ class PartsFrame(PanelParts):
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def load_full_part(self, partobj):
-        if partobj:
+        if partobj and isinstance(partobj, DataModelPart):
             # read whole part from server
             partobj.part = rest.api.find_part(partobj.part.id, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True, with_references=True)
         

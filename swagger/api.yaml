@@ -92,6 +92,10 @@ paths:
     $ref: './storage/storage.yaml'
 
 
+  /stock:
+    $ref: './stock/stock.yaml'
+
+
   /currencies:
     $ref: './currency/currencies.yaml'
 

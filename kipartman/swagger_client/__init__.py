@@ -30,6 +30,7 @@ from .models.part_category_new import PartCategoryNew
 from .models.part_category_ref import PartCategoryRef
 from .models.part_data import PartData
 from .models.part_distributor import PartDistributor
+from .models.part_id import PartId
 from .models.part_manufacturer import PartManufacturer
 from .models.part_new import PartNew
 from .models.part_offer import PartOffer
@@ -41,6 +42,7 @@ from .models.part_ref import PartRef
 from .models.part_reference import PartReference
 from .models.part_reference_data import PartReferenceData
 from .models.part_storage import PartStorage
+from .models.stock import Stock
 from .models.storage import Storage
 from .models.storage_category import StorageCategory
 from .models.storage_category_data import StorageCategoryData

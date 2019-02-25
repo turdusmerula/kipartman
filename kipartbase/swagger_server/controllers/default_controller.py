@@ -14,3 +14,4 @@ from swagger_server.controllers.controller_storage import *
 from swagger_server.controllers.controller_currency import *
 from swagger_server.controllers.controller_versioned_file import *
 from swagger_server.controllers.controller_date import *
+from swagger_server.controllers.controller_stock import *

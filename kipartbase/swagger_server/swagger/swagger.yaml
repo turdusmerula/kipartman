@@ -986,6 +986,25 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /stock:
+    put:
+      description: "Add an amount of parts to stock"
+      operationId: "update_stock"
+      parameters:
+      - in: "body"
+        name: "stock"
+        description: "Storage"
+        required: true
+        schema:
+          $ref: "#/definitions/stock"
+      responses:
+        200:
+          description: "Updated storage"
+        default:
+          description: "unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
   /currencies:
     get:
       description: "Get supported currencies"
@@ -1288,6 +1307,16 @@ definitions:
     - properties:
         category:
           $ref: "#/definitions/StorageCategoryRef"
+  part_id: {}
+  PartStorage:
+    allOf:
+    - $ref: "#/definitions/StorageData"
+    - required:
+      - "quantity"
+      properties:
+        quantity:
+          type: "integer"
+          format: "int64"
   Currency:
     type: "object"
     required:
@@ -1355,15 +1384,6 @@ definitions:
     - properties:
         part_name:
           type: "string"
-  PartStorage:
-    allOf:
-    - $ref: "#/definitions/StorageData"
-    - required:
-      - "quantity"
-      properties:
-        quantity:
-          type: "integer"
-          format: "int64"
   PartAttachement:
     allOf:
     - $ref: "#/definitions/UploadFileData"
@@ -1568,3 +1588,15 @@ definitions:
       updated:
         type: "string"
         format: "dateTime"
+  stock:
+    type: "object"
+    properties:
+      part_id:
+        $ref: "#/definitions/part_id"
+      storage:
+        $ref: "#/definitions/PartStorage"
+      amount:
+        type: "integer"
+        format: "int64"
+      reason:
+        type: "string"

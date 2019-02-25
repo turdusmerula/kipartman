@@ -149,7 +149,7 @@ class EditSymbolFrame(PanelEditSymbol):
         # download symbol
         if download.url() and download.url()!='':
             try:
-                file =  tempfile.TemporaryFile(mode='w+b')
+                file =  tempfile.NamedTemporaryFile(mode='w+b', delete=False)
                 filename = file.name
                 print("Download from:", download.url())
                 content = scraper.get(download.url()).content
@@ -172,14 +172,12 @@ class EditSymbolFrame(PanelEditSymbol):
             self.symbol.content = ''
             for file in glob.glob(filename+".tmp/*"):
                 if file.endswith(".lib"):
-                    print("---------", file)
                     lib = KicadLibCache(filename+".tmp")
                     symbols = lib.read_lib_file(os.path.basename(file))
                     if len(symbols)>0:
                         for symbol in symbols:
                             self.symbol.content = symbols[symbol].content
                             break
-                    print("****", self.symbol.content)
                     
                     mod = kicad_lib_file.KicadLibFile()
                     mod.LoadFile(file)

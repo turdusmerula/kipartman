@@ -1,0 +1,27 @@
+put:
+  description: Add an amount of parts to stock
+  operationId: updateStock
+  parameters:
+    - name: stock
+      in: body
+      description: Storage
+      required: true
+      schema:
+        type: object
+        properties:
+          part_id:
+            $ref: './types/part_id.yaml'
+          storage:
+            $ref: './part/storage/PartStorage.yaml'
+          amount:
+            type: integer
+            format: int64
+          reason:
+            type: string
+  responses:
+    "200":
+      description: Updated storage
+    default:
+      description: unexpected error
+      schema:
+        $ref: './Error.yaml'
