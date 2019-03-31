@@ -942,9 +942,10 @@ class PartsFrame(PanelParts):
         part = None
         item = self.tree_parts.GetSelection()
         if item.IsOk():
-            partobj = self.tree_parts_manager.ItemToObject(item)
-            self.load_full_part(partobj)
-            part = partobj.part
+            obj = self.tree_parts_manager.ItemToObject(item)
+            if isinstance(obj, DataModelPart):
+                self.load_full_part(obj)
+                part = obj.part
         self.edit_state = None
         self.show_part(part)
 
@@ -990,9 +991,14 @@ class PartsFrame(PanelParts):
         else:
             res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
             if res==wx.ID_OK:
-                # remove part
-                rest.api.delete_part(part.id)
-                self.tree_parts_manager.DeletePart(part)
+                try:
+                    # remove part
+                    rest.api.delete_part(part.id)
+                    self.tree_parts_manager.DeletePart(part)
+                except Exception as e:
+                    print_stack()
+                    wx.MessageBox(format(e), 'Error updating stock', wx.OK | wx.ICON_ERROR)
+                    
             else:
                 return
         self.show_part(None)

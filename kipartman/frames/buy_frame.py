@@ -831,9 +831,9 @@ class BuyFrame(DialogBuy):
         else:
             return
 
-        res = wx.MessageDialog(self, "Remove BOM '%s'?" % bom_productobj.bom_quantity.path, "Remove BOM", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+        res = wx.MessageDialog(self, "Remove BOM '%s'?" % bom_productobj.bom.filename, "Remove BOM", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
         if res==wx.ID_YES:
-            self.basket.RemoveBom(bom_productobj.bom_quantity.path)
+            self.basket.RemoveBom(bom_productobj.bom.filename)
             self.tree_boms_manager.DeleteItem(None, bom_productobj)
             self.load()
     

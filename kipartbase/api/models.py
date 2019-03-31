@@ -34,7 +34,7 @@ class Part(models.Model):
         return '%d: %s' % (self.id, self.name)
 
 class PartReference(models.Model):
-    part = models.ForeignKey('Part', related_name='references', null=False, blank=False, default=None, on_delete=models.DO_NOTHING)
+    part = models.ForeignKey('Part', related_name='references', null=False, blank=False, default=None, on_delete=models.CASCADE)
     type = models.TextField(null=False, blank=False)
     manufacturer = models.TextField(null=False, blank=True, default="")
     name = models.TextField(null=False, blank=False)
@@ -45,7 +45,7 @@ class PartReference(models.Model):
         return '%d: %s' % (self.id, self.type, self.name, self.uid)
     
 class PartParameter(models.Model):
-    part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.DO_NOTHING)
+    part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)
     name = models.TextField()
     description = models.TextField(blank=True)
     unit = models.ForeignKey('Unit', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
@@ -66,7 +66,7 @@ class PartParameter(models.Model):
 
 
 class PartManufacturer(models.Model):
-    part = models.ForeignKey('Part', related_name='manufacturers', null=False, blank=False, default=None, on_delete=models.DO_NOTHING)
+    part = models.ForeignKey('Part', related_name='manufacturers', null=False, blank=False, default=None, on_delete=models.CASCADE)
     manufacturer = models.ForeignKey('Manufacturer', on_delete=models.DO_NOTHING, null=False)
     part_name = models.TextField()
     def __unicode__(self):
@@ -74,7 +74,7 @@ class PartManufacturer(models.Model):
 
 
 class PartOffer(models.Model):
-    part = models.ForeignKey('Part', related_name='offers', null=False, blank=False, default=None, on_delete=models.DO_NOTHING)
+    part = models.ForeignKey('Part', related_name='offers', null=False, blank=False, default=None, on_delete=models.CASCADE)
     distributor = models.ForeignKey('Distributor', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     packaging_unit = models.IntegerField(default=1)
     min_order_quantity = models.IntegerField(default=1)
@@ -90,14 +90,14 @@ class PartOffer(models.Model):
     
 
 class PartStorage(models.Model):
-    part = models.ForeignKey('Part', related_name='storages', null=False, blank=False, default=None, on_delete=models.DO_NOTHING)
+    part = models.ForeignKey('Part', related_name='storages', null=False, blank=False, default=None, on_delete=models.CASCADE)
     storage = models.ForeignKey('Storage', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     quantity = models.IntegerField()
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
 class PartAttachement(models.Model):
-    part = models.ForeignKey('Part', related_name='attachements', null=False, blank=False, default=None, on_delete=models.DO_NOTHING)
+    part = models.ForeignKey('Part', related_name='attachements', null=False, blank=False, default=None, on_delete=models.CASCADE)
     file = models.ForeignKey('File', on_delete=models.DO_NOTHING, null=False)
     description = models.TextField(blank=True, default='')
     def __unicode__(self):
@@ -153,7 +153,7 @@ class VersionedFile(models.Model):
         return '%d: %s' % (self.id, self.source_path)
     
 class VersionedFileHistory(models.Model):
-    file = models.ForeignKey('VersionedFile', null=False, blank=False, default=None, on_delete=models.DO_NOTHING)
+    file = models.ForeignKey('VersionedFile', null=False, blank=False, default=None, on_delete=models.CASCADE)
     source_path = models.TextField()
     storage_path = models.TextField(default='')
     md5 = models.TextField(null=False, blank=True, default='')
@@ -193,8 +193,8 @@ class Storage(models.Model):
     comment = models.TextField(blank=True, default='')
 
 class PartStorageHistory(models.Model):
-    part = models.ForeignKey('Part', null=False, blank=False, default=None, on_delete=models.DO_NOTHING)
-    location = models.ForeignKey('Storage', null=False, blank=False, default=None, on_delete=models.DO_NOTHING)
+    part = models.ForeignKey('Part', null=False, blank=False, default=None, on_delete=models.CASCADE)
+    location = models.ForeignKey('Storage', null=False, blank=False, default=None, on_delete=models.CASCADE)
     reason = models.TextField(blank=False)
     amount = models.IntegerField()
 
