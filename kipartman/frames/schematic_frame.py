@@ -24,7 +24,8 @@ class DataModelPart(helper.tree.TreeItem):
             1 : self.component.value,
             2: self.component.kipart_sku,
             3: self.component.symbol,
-            4: self.component.footprint
+            4: self.component.footprint,
+            5: self.component.kipart_id
         }
         return vMap[col]
 
@@ -55,6 +56,7 @@ class SchematicFrame(PanelSchematic):
         self.tree_parts_manager.AddTextColumn("Part")
         self.tree_parts_manager.AddTextColumn("Symbol")
         self.tree_parts_manager.AddTextColumn("Footprint")
+        self.tree_parts_manager.AddIntegerColumn("id")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
 
         self.file = file

@@ -2,8 +2,8 @@
 
 import os, sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 #sys.path.append(os.path.join(os.path.dirname(__file__), 'kipartbase'))
-
 
 import connexion
 from swagger_server.encoder import JSONEncoder
@@ -66,7 +66,7 @@ def main(args=None):
     if os.path.exists(configuration.data_dir)==False:
         os.mkdir(configuration.data_dir)
     
-    os.chdir(os.path.dirname(__file__))
+#    os.chdir(os.path.dirname(__file__))
 
     # do django migrations
     migrate()

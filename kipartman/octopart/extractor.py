@@ -40,7 +40,10 @@ class OctopartExtractor(object):
         
     def GetUnitSymbol(self, spec):
         if spec.metadata().unit():
-            return spec.metadata().unit().symbol()
+            if spec.metadata().unit().symbol():
+                return spec.metadata().unit().symbol()
+#             if spec.metadata().unit().name():
+#                 return spec.metadata().unit().name()            
         return ""
 
     def GetUnitPrefixSymbol(self, spec):
