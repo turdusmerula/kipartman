@@ -8,11 +8,12 @@ import helper.tree
 import os
 import wx
 from kicad.kicad_project import KicadProject
+from helper.profiler import TracingProfiler
 
 class DataModelFilePath(helper.tree.TreeContainerItem):
     def __init__(self, path):
         super(DataModelFilePath, self).__init__()
-        self.path = path
+        self.path = os.path.normpath(path)
         
     def GetValue(self, col):
         vMap = { 
@@ -138,16 +139,16 @@ class ProjectFrame(DialogProject):
                 folders.insert(0, path)
                 path = os.path.dirname(path)
             
-            file_path = self.kicad_project.root_path
             for folder in folders:
-                file_path = os.path.join(self.kicad_project.root_path, folder)
+                complete_path = os.path.join(self.kicad_project.root_path, folder)
                 pathobj = self.tree_project_manager.FindPath(folder)
                 if self.tree_project_manager.DropStateObject(pathobj)==False:
-                    self.tree_project_manager.AppendPath(folder)
+                    self.tree_project_manager.AppendPath(complete_path)
                      
-            fileobj = self.tree_project_manager.FindFile(file_path, file_name)
+            complete_path = os.path.join(self.kicad_project.root_path, os.path.dirname(file_path))
+            fileobj = self.tree_project_manager.FindFile(complete_path, file_name)
             if self.tree_project_manager.DropStateObject(fileobj)==False:
-                self.tree_project_manager.AppendFile(file_path, file_name)
+                self.tree_project_manager.AppendFile(complete_path, file_name)
                             
         self.tree_project_manager.PurgeState()
 
@@ -184,3 +185,8 @@ class ProjectFrame(DialogProject):
                 
     def onMenuProjectNewBomSelection( self, event ):
         pass
+
+    def onDialogProjectClose( self, event ):
+        self.kicad_project.Stop()
+        self.Destroy()
+        

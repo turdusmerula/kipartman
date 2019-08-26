@@ -79,7 +79,8 @@ class MainFrame(DialogMain):
             wildcard="Kicad project (*.pro)|*.pro",
                 style=wx.FD_OPEN |
                 wx.FD_FILE_MUST_EXIST |
-                wx.FD_PREVIEW
+                wx.FD_PREVIEW |
+                wx.FD_CHANGE_DIR
         )
         dlg.SetFilterIndex(0)
 

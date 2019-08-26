@@ -293,7 +293,7 @@ class StoragesFrame(PanelStorages):
         for part in parts:
             if part.storages:
                 for part_storage in part.storages:
-                    if part_storage.id==storage.id:
+                    if part_storage.name==storage.name:
                         storage_partobj = DataModelStoragePart(part, part_storage.quantity)
                         self.tree_storage_parts_manager.AppendItem(None, storage_partobj)
     

@@ -317,6 +317,8 @@ class TreeManager(object):
 
         self.context_menu = context_menu
         
+        self.sorting_column = None
+        
         # create drag and drop targets
         self.drop_targets = []
         self.tree_view.EnableDragSource(wx.DataFormat(wx.TextDataObject().GetFormat()))
@@ -676,6 +678,12 @@ class TreeManager(object):
                 self.tree_view.DeleteColumn(column)
                 return
     
+#     def ToggleSort(self):
+#         if self.tree_view.GetModel() is not self.model:
+#             self.tree_view.AssociateModel(self.model)
+#         else:
+#             self.tree_view.AssociateModel(TreeModel())
+            
     def ClearColumns(self):
         while len(self.tree_view.GetColumns())>0:
             self.tree_view.DeleteColumn(self.tree_view.GetColumns()[0])
@@ -828,3 +836,4 @@ class TreeManager(object):
 #                     except:
 #                         pass
 #                     obj = obj.parent
+

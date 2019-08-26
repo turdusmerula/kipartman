@@ -14,7 +14,8 @@ class KicadProject(FileSystemEventHandler):
         
         self.files = {}
         self.folders = []
-        self.extensions = ['bom', 'net', 'sch', 'kicad_pcb']
+#        self.extensions = ['bom', 'net', 'sch', 'kicad_pcb']
+        self.extensions = ['sch']
         
         self.project_file = project_file
         self.root_path = os.path.dirname(self.project_file)
@@ -25,6 +26,10 @@ class KicadProject(FileSystemEventHandler):
         self.watch = self.observer.schedule(self, self.root_path, recursive=True)
         self.observer.start()
     
+    def Stop(self):
+        self.on_change_hook = None
+        self.observer.stop()
+        
     def on_any_event(self, event):
         if self.enabled==False:
             return 

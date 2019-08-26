@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+# activate whole application profiling
+# see https://toucantoco.com/en/tech-blog/tech/python-performance-optimization
+# see https://github.com/what-studio/profiling
+
 import os
 import platform
 os.sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -7,12 +11,6 @@ os.sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 if not os.path.exists('resources'):
     # we are in an installed package, set new path
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-# configure django to use the model
-#from django.core.wsgi import get_wsgi_application
-#import os
-#os.environ['DJANGO_SETTINGS_MODULE'] = 'kipartbase.settings'
-#application = get_wsgi_application()
 
 # configure wxPython
 import sys
@@ -55,21 +53,7 @@ def main(args=None):
 
     app.MainLoop() 
 
-
 if __name__ == "__main__":
-    
-#     from kicad.kicad_schematic_file import KicadSchematicFile
-#     sch = KicadSchematicFile()
-#     sch.LoadFile('/home/seb/git/mcu_atsamd21g/MCU_ATSAMD21G/MCU_ATSAMD21G.sch')
-#     
-#     for comp in sch.Components():
-#         comp.kicad_part = 'aaa'
-#         print "**", comp.symbol, comp.reference, comp.value, comp.footprint
-#     sch.Save()
-#     #sch.DebugWrite(sch.parent)
-#     exit(1)
 
-#     import cProfile
-#     cProfile.run("main()")
     main()
 
