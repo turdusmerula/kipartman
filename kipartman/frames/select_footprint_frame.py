@@ -5,7 +5,7 @@ import os
 from kicad.kicad_file_manager import KicadFileManagerPretty
 from kicad import kicad_mod_file
 import sync.version_manager
-from configuration import Configuration
+from configuration import configuration
 import tempfile
 from helper.exception import print_stack
 
@@ -146,7 +146,6 @@ class SelectFootprintFrame(PanelSelectFootprint):
         
     # Virtual event handlers, overide them in your derived class
     def onTreeFootprintsSelectionChanged( self, event ):
-        configuration = Configuration()
 
         item = self.tree_footprints.GetSelection()
         if item.IsOk()==False:

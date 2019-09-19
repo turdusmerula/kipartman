@@ -2,6 +2,7 @@
 from profiling.tracing import TracingProfiler
 from profiling.sampling import SamplingProfiler
 
+# https://github.com/what-studio/profiling
 # To use the profiler:
 #    with Trace()
 #        # some code

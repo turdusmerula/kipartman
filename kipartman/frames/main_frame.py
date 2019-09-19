@@ -12,6 +12,7 @@ from frames.project_frame import ProjectFrame
 from helper.exception import print_stack
 import os
 import wx
+from configuration import configuration
 
 class MainFrame(DialogMain): 
     def __init__(self, parent): 
@@ -74,7 +75,7 @@ class MainFrame(DialogMain):
     def onMenuFileProjetSelection( self, event ):
         dlg = wx.FileDialog(
             self, message="Choose a kicad project file",
-            defaultDir=os.getcwd(),
+            defaultDir=configuration.project_path,
             defaultFile="",
             wildcard="Kicad project (*.pro)|*.pro",
                 style=wx.FD_OPEN |
@@ -88,6 +89,8 @@ class MainFrame(DialogMain):
         # process the data.
         if dlg.ShowModal() == wx.ID_OK:
             os.chdir(self.cwd)
+            configuration.project_path = os.path.dirname(os.path.abspath(dlg.GetPath()))
+            configuration.Save()
             project_frame = ProjectFrame(self, dlg.GetPath())
             project_frame.Show(True)
 

@@ -9,7 +9,7 @@ import tempfile
 import os.path
 import webbrowser
 import cfscrape
-from configuration import Configuration
+from configuration import configuration
 from dialogs.dialog_snapeda_error import DialogSnapedaError
 from snapeda.queries import DownloadQuery
 import zipfile
@@ -49,8 +49,6 @@ class EditFootprintFrame(PanelEditFootprint):
         self.ShowFootprint(footprint)
 
     def ShowFootprint(self, footprint):
-        configuration = Configuration()
-        
         # enable everything else
         if footprint:
             
@@ -251,7 +249,6 @@ class EditFootprintFrame(PanelEditFootprint):
         wx.PostEvent(self, event)
 
     def onButtonEditFootprintClick( self, event ):
-        configuration = Configuration()
         if self.footprint:
             draw_frame = DrawFootprintFrame(self, os.path.join(configuration.kicad_footprints_path, self.footprint.source_path))
         else:

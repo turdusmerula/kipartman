@@ -207,8 +207,8 @@ class SchematicFrame(PanelSchematic):
         path = os.getcwd()
         dlg = wx.FileDialog(
             self, message="Save a bom file",
-            defaultDir=path,
-            defaultFile="new",
+            defaultDir=os.path.dirname(os.path.abspath(self.file)),
+            defaultFile=re.sub('\..*', '.bom', os.path.basename(os.path.abspath(self.file))),
             wildcard="Kipartman bom (*.bom)|*.bom",
                 style=wx.FD_SAVE | wx.FD_CHANGE_DIR
         )

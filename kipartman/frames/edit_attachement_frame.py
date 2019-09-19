@@ -3,7 +3,7 @@ from dialogs.dialog_edit_attachement import DialogEditAttachement
 import wx
 import rest
 import os
-from configuration import Configuration
+from configuration import configuration
 import webbrowser
 from helper.exception import print_stack
 
@@ -36,7 +36,6 @@ class EditAttachementFrame(DialogEditAttachement):
         return None
 
     def onButtonOpenFileClick( self, event ):
-        configuration = Configuration()
         if self.button_open_file.Label!="<None>":
             url = os.path.join(configuration.kipartbase, 'file', self.attachement.storage_path)
             url = url.replace('\\','/') #Work around for running on Windows

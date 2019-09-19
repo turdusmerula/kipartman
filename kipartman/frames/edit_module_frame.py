@@ -2,7 +2,7 @@ from dialogs.panel_edit_module import PanelEditModule
 import wx.lib.newevent
 import os.path
 import cfscrape
-from configuration import Configuration
+from configuration import configuration
 import json
 from helper.exception import print_stack
 
@@ -36,8 +36,6 @@ class EditModuleFrame(PanelEditModule):
         self.ShowModule(module)
 
     def ShowModule(self, module):
-        configuration = Configuration()
-        
         # enable everything else
         if module:
             

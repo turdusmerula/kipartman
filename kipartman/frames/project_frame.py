@@ -9,6 +9,7 @@ import os
 import wx
 from kicad.kicad_project import KicadProject
 from helper.profiler import TracingProfiler
+from configuration import configuration
 
 class DataModelFilePath(helper.tree.TreeContainerItem):
     def __init__(self, path):

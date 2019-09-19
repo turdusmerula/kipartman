@@ -1,7 +1,7 @@
 from dialogs.dialog_buy import DialogBuy
 from frames.order_options_dialog import OrderOptionsDialog
 from currency.currency import Currency
-from configuration import Configuration
+from configuration import configuration
 import rest
 import helper.tree
 from basket.basket import Basket
@@ -15,7 +15,6 @@ from octopart.extractor import OctopartExtractor
 import pytz
 import datetime
 
-configuration = Configuration()
 currency = Currency()
 
 view_all = True

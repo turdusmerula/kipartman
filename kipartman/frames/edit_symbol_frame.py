@@ -7,7 +7,7 @@ import tempfile
 import os.path
 import webbrowser
 import cfscrape
-from configuration import Configuration
+from configuration import configuration
 from dialogs.dialog_snapeda_error import DialogSnapedaError
 from snapeda.queries import DownloadQuery
 import zipfile
@@ -49,8 +49,6 @@ class EditSymbolFrame(PanelEditSymbol):
         self.ShowSymbol(symbol)
 
     def ShowSymbol(self, symbol):
-        configuration = Configuration()
-            
         # enable everything else
         if symbol:
             

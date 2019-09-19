@@ -35,6 +35,8 @@ class Configuration(object):
         self.kicad_modules_path = expanduser("~")+'/.kipartman/modules'
         self.kicad_library_common_path = True
         
+        self.project_path = '' 
+        
         self.Load()
         
     def Load(self):
@@ -59,7 +61,11 @@ class Configuration(object):
                 self.kicad_3d_models_path = content['kicad_3d_models_path']
                 self.kicad_modules_path = content['kicad_modules_path']
                 self.kicad_library_common_path = content['kicad_library_common_path']
-            
+                
+                self.project_path = expanduser("~")
+                if 'project_path' in content:
+                    self.project_path = content['project_path']
+                
                 self.debug = content['debug']
             except Exception as e:
                 print ("Error: loading kipartman key configuration failed {}:{}".format(type(e),e.message))
@@ -108,6 +114,8 @@ class Configuration(object):
             content['kicad_3d_models_path'] = str(self.kicad_3d_models_path)
             content['kicad_modules_path'] = str(self.kicad_modules_path)
             content['kicad_library_common_path'] = self.kicad_library_common_path
+            
+            content['project_path'] = self.project_path
 
             content['debug'] = self.debug
             
