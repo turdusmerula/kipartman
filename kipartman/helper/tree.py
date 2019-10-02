@@ -315,8 +315,16 @@ class TreeManager(object):
             self.model = model
         self.tree_view.AssociateModel(self.model)
 
-        self.context_menu = context_menu
-        
+        if context_menu:
+            self.context_menu = context_menu
+            context_menu.AppendSeparator()
+        else:
+            self.context_menu = wx.Menu()
+            
+        menu_item_copy = wx.MenuItem( self.context_menu, wx.ID_ANY, u"Copy", wx.EmptyString, wx.ITEM_NORMAL )
+        self.context_menu.Append( menu_item_copy )
+        tree_view.Bind( wx.EVT_MENU, self.onMenuItemCopy, id = menu_item_copy.GetId() )
+
         self.sorting_column = None
         
         # create drag and drop targets
@@ -367,6 +375,19 @@ class TreeManager(object):
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_START_EDITING, self._onItemStartEditing, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_ITEM_VALUE_CHANGED, self._onItemValueChanged, id = wx.ID_ANY )
         self.tree_view.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self._onSelectionChanged, id = wx.ID_ANY )
+
+    def onMenuItemCopy( self, event ):
+        [ item, col ] = self.tree_view.HitTest(self.context_menu_pos)
+        index = -1
+        if col:
+            index = col.GetModelColumn() ;
+        data = ""
+        if self.context_menu_data and index!=-1:
+            data = self.context_menu_data.GetValue(index)
+        if wx.TheClipboard.Open():
+            wx.TheClipboard.SetData(wx.TextDataObject(data))
+            wx.TheClipboard.Close()
+        print("Copy", data, index)
 
     def _onColumnHeaderClick( self, event ):
         event.manager = self
@@ -453,8 +474,12 @@ class TreeManager(object):
         if self.OnItemBeforeContextMenu:
             self.OnItemBeforeContextMenu(event)
         if self.context_menu:
-            pos = event.GetPosition()
-            self.tree_view.PopupMenu(self.context_menu, pos)
+            self.context_menu_pos = self.tree_view.ScreenToClient(wx.GetMousePosition())
+            if event.GetItem():
+                self.context_menu_data = self.model.ItemToObject(event.GetItem())
+            else:
+                self.context_menu_data = None
+            self.tree_view.PopupMenu(self.context_menu, event.GetPosition())
         if self.OnItemContextMenu:
             return self.OnItemContextMenu(event)
         event.Skip()

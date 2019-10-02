@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version Aug 22 2019)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -177,6 +177,10 @@ class PanelParts ( wx.Panel ):
 		self.menu_part_remove_part.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_part.Append( self.menu_part_remove_part )
 
+		self.menu_part_duplicate_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Duplicate part", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_part_duplicate_part.SetBitmap( wx.Bitmap( u"resources/duplicate.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_part.Append( self.menu_part_duplicate_part )
+
 		self.menu_part.AppendSeparator()
 
 		self.menu_refresh_octopart_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Refresh part from octopart", wx.EmptyString, wx.ITEM_NORMAL )
@@ -221,6 +225,7 @@ class PanelParts ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuPartAddPart, id = self.menu_part_add_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartEditPart, id = self.menu_part_edit_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartRemovePart, id = self.menu_part_remove_part.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuPartDuplicatePart, id = self.menu_part_duplicate_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartRefreshOctopartPart, id = self.menu_refresh_octopart_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsRefreshOctopart, id = self.menu_parts_refresh_octopart.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuItemPartsImportParts, id = self.menu_parts_import_parts.GetId() )
@@ -271,6 +276,9 @@ class PanelParts ( wx.Panel ):
 		event.Skip()
 
 	def onMenuPartRemovePart( self, event ):
+		event.Skip()
+
+	def onMenuPartDuplicatePart( self, event ):
 		event.Skip()
 
 	def onMenuPartRefreshOctopartPart( self, event ):

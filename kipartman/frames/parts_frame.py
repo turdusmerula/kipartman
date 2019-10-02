@@ -21,6 +21,7 @@ from helper.tree import TreeModel
 
 from plugins import plugin_loader
 from plugins import import_plugins as import_plugins
+from helper.part_updater import PartReferenceUpdater
 
 
 
@@ -831,9 +832,11 @@ class PartsFrame(PanelParts):
         self.menu_part_add_part.Enable(True)
         self.menu_part_edit_part.Enable(True)
         self.menu_part_remove_part.Enable(True)
+        self.menu_part_duplicate_part.Enable(True)
         if isinstance(obj, DataModelPart)==False:
             self.menu_part_edit_part.Enable(False)
             self.menu_part_remove_part.Enable(False)
+            self.menu_part_duplicate_part.Enable(False)
 
     def onTreePartsColumnHeaderRightClick( self, event ):
         pos = event.GetPosition()
@@ -1003,6 +1006,18 @@ class PartsFrame(PanelParts):
                 return
         self.show_part(None)
 
+    def onMenuPartDuplicatePart( self, event ):
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, DataModelCategoryPath):
+            return
+        part = rest.api.find_part(obj.part.id, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True, with_references=True)
+        part.id = None
+        self.edit_state = 'add'
+        self.edit_part(obj.part)
+
     def onMenuItemPartsImportParts( self, event ):
         # TODO: Implement onButtonImportPartsClick
         self.edit_state = 'import'
@@ -1069,7 +1084,7 @@ class PartsFrame(PanelParts):
         self.Enabled = True
         progression_frame.Destroy()
         self.loadParts()
-        
+
     def onMenuPartRefreshOctopartPart(self, event):
         item = self.tree_parts.GetSelection()
         if not item.IsOk():
@@ -1083,24 +1098,11 @@ class PartsFrame(PanelParts):
         self.show_part(part)
 
     def refresh_octopart(self, part):
-#        print "Refresh octopart for", part.name
+        print("Refresh octopart for", part.name)
         
-        # get full part
-        part = rest.api.find_part(part.id, with_parameters=True, with_distributors=True, with_manufacturers=True, with_references=True)
+        updater = PartReferenceUpdater()
+        updater.refresh_distributors(part)
         
-        # get octopart data
-        q = PartsQuery()
-        q.get(part.octopart)
-        sleep(1)    # only one request per second allowed
-
-        for octopart in q.results():
-            print("octopart:", octopart.json)
-            if octopart.item().uid()==part.octopart_uid:
-                print("Refresh", part.octopart)
-                self.octopart_to_part(octopart, part)
-                # update part
-                rest.api.update_part(part.id, part)
-
         return 
     
 class DummyFrame_import_ocotopart_lookup(wx.Frame):

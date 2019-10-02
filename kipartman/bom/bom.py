@@ -3,20 +3,22 @@ import os
 import rest
 from kicad.kicad_schematic_file import KicadSchematicFile
 from helper.exception import print_stack
+from helper.parts_cache import PartsCache
 
 class BomException(BaseException):
     def __init__(self, error):
         self.error = error
         
 class Bom(object):
-    def __init__(self):
+    def __init__(self, parts_cache=PartsCache()):
         self.filename = None
         self.parts = []
         self.part_components = {}
         self.component_part = {}
         self.schematic = None
         self.saved = True
-
+        self.parts_cache = parts_cache
+        
     def LoadFile(self, filename):
         print("Load BOM", filename)
 #        for part in self.parts:
@@ -39,7 +41,7 @@ class Bom(object):
         for part in content['parts']:
             # load part from server
             try:
-                self.parts.append(rest.api.find_part(part['id']))
+                self.parts.append(self.parts_cache.Find(part['id']))
                 self.part_components[part['id']] = []
             except:
                 print_stack()
@@ -137,7 +139,7 @@ class Bom(object):
             if component.kipart_id:
                 part = None            
                 try:
-                    part = rest.api.find_part(component.kipart_id)
+                    part = self.parts_cache.Find(component.kipart_id)
                     self.AddPart(part)
                     self.AddPartComponent(part, component)
                 except Exception as e:

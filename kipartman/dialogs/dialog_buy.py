@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version Aug 22 2019)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -10,6 +10,7 @@
 import wx
 import wx.xrc
 import wx.dataview
+import wx.aui
 
 ###########################################################################
 ## Class DialogBuy
@@ -162,11 +163,11 @@ class DialogBuy ( wx.Frame ):
 
 		bSizer15 = wx.BoxSizer( wx.VERTICAL )
 
-		self.pager_wish = wx.Notebook( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.pager_wish = wx.aui.AuiNotebook( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.aui.AUI_NB_DEFAULT_STYLE )
 		self.panel_wish = wx.Panel( self.pager_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 
-		self.tree_wish_parts = wx.dataview.DataViewCtrl( self.panel_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_VARIABLE_LINE_HEIGHT )
+		self.tree_wish_parts = wx.dataview.DataViewCtrl( self.panel_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_MULTIPLE|wx.dataview.DV_VARIABLE_LINE_HEIGHT )
 		bSizer16.Add( self.tree_wish_parts, 1, wx.ALL|wx.EXPAND, 5 )
 
 		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
@@ -184,6 +185,15 @@ class DialogBuy ( wx.Frame ):
 
 		bSizer11.Add( self.static_total_price, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
+		self.m_toolBar21 = wx.ToolBar( self.panel_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
+		self.tool_export_csv = self.m_toolBar21.AddLabelTool( wx.ID_ANY, u"Export to csv", wx.Bitmap( u"resources/export-csv.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Export to csv file", wx.EmptyString, None )
+
+		self.tool_place_order = self.m_toolBar21.AddLabelTool( wx.ID_ANY, u"Place orders", wx.Bitmap( u"resources/buy.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Place orders", wx.EmptyString, None )
+
+		self.m_toolBar21.Realize()
+
+		bSizer11.Add( self.m_toolBar21, 0, wx.EXPAND, 5 )
+
 
 		bSizer16.Add( bSizer11, 0, wx.ALIGN_RIGHT, 5 )
 
@@ -191,7 +201,7 @@ class DialogBuy ( wx.Frame ):
 		self.panel_wish.SetSizer( bSizer16 )
 		self.panel_wish.Layout()
 		bSizer16.Fit( self.panel_wish )
-		self.pager_wish.AddPage( self.panel_wish, u"Best prices", False )
+		self.pager_wish.AddPage( self.panel_wish, u"Order", False, wx.NullBitmap )
 
 		bSizer15.Add( self.pager_wish, 1, wx.EXPAND |wx.ALL, 5 )
 
@@ -272,6 +282,8 @@ class DialogBuy ( wx.Frame ):
 		self.Bind( wx.EVT_TOOL, self.onToolDistributorsCollapseAll, id = self.tool_distributors_collapse_all.GetId() )
 		self.Bind( wx.EVT_TOOL, self.onToolDistributorsExpandAll, id = self.tool_distributors_expand_all.GetId() )
 		self.tree_distributors.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeDistributorsSelectionChanged, id = wx.ID_ANY )
+		self.Bind( wx.EVT_TOOL, self.onToolExportCsv, id = self.tool_export_csv.GetId() )
+		self.Bind( wx.EVT_TOOL, self.onToolPlaceOrder, id = self.tool_place_order.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuBasketOpenSelection, id = self.menu_basket_open.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuBasketSaveSelection, id = self.menu_basket_save.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuBasketSaveAsSelection, id = self.menu_basket_save_as.GetId() )
@@ -312,6 +324,12 @@ class DialogBuy ( wx.Frame ):
 		event.Skip()
 
 	def onTreeDistributorsSelectionChanged( self, event ):
+		event.Skip()
+
+	def onToolExportCsv( self, event ):
+		event.Skip()
+
+	def onToolPlaceOrder( self, event ):
 		event.Skip()
 
 	def onMenuBasketOpenSelection( self, event ):

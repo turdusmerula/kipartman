@@ -14,11 +14,15 @@ from octopart.queries import PartsQuery
 from octopart.extractor import OctopartExtractor
 import pytz
 import datetime
+from helper.part_updater import PartReferenceUpdater
+from helper.parts_cache import PartsCache
 
 currency = Currency()
 
 view_all = True
 wish_parts = []
+        
+parts_cache = PartsCache()
 
 class DataModelBomProduct(helper.tree.TreeItem):
     def __init__(self, bom, quantity):
@@ -45,7 +49,9 @@ class DataModelBomPart(helper.tree.TreeItem):
         self.bom_products = bom_products
         self.bom_part = bom_part
         self.build_equivalent_parts()
-    
+        if bom_part is None:
+            raise 1
+            
     def build_equivalent_parts(self):
         self.equivalent_parts = []
         if self.bom_part.childs is None:
@@ -343,6 +349,16 @@ class DataModelWishPart(helper.tree.TreeItem):
         }
         return vMap[col]
 
+class TreeManagerWishParts(helper.tree.TreeManager):
+    def __init__(self, tree_view):
+        super(TreeManagerWishParts, self).__init__(tree_view)
+
+    def FindWishPart(self, bom_part_id):
+        for data in self.data:
+            if data.part.id==bom_part_id:
+                return data
+        return None
+
 
 class TreeManagerDistributors(helper.tree.TreeManager):
     def __init__(self, tree_view, *args, **kwargs):
@@ -392,7 +408,7 @@ class BuyFrame(DialogBuy):
         self.tree_distributors_manager.AddTextColumn("SKU")
 
         # create wish parts list
-        self.tree_wish_parts_manager = helper.tree.TreeManager(self.tree_wish_parts)
+        self.tree_wish_parts_manager = TreeManagerWishParts(self.tree_wish_parts)
         self.tree_wish_parts_manager.AddTextColumn("Part")
         self.tree_wish_parts_manager.AddTextColumn("Distributor")
         self.tree_wish_parts_manager.AddTextColumn("SKU")
@@ -439,14 +455,17 @@ class BuyFrame(DialogBuy):
             self.tree_bom_parts_manager.UpdateItem(data)
 
     def loadBoms(self):
+        global parts_cache
         self.tree_boms_manager.ClearItems()
         for bom_quantity in self.basket.boms:
-            bom = Bom()
+            bom = Bom(parts_cache)
             bom.LoadFile(self.basket.boms[bom_quantity].path)
             quantity = self.basket.boms[bom_quantity].quantity
             self.tree_boms_manager.AppendItem(None, DataModelBomProduct(bom, quantity))
     
     def loadBomParts(self):
+        global parts_cache 
+        
         self.tree_bom_parts_manager.ClearItems()
 
         for bom_file in self.basket.boms:
@@ -459,10 +478,11 @@ class BuyFrame(DialogBuy):
                 print(format(e))
                 
             for bom_part in bom_product.bom.Parts():
-                full_part = rest.api.find_part(bom_part.id, with_childs=True, with_storages=True, with_distributors=True, with_references=True)
+                full_part = parts_cache.Find(bom_part.id)
                 self.tree_bom_parts_manager.AppendBomPart(bom_product, full_part)
 
     def loadPartEquivalents(self):
+        global parts_cache
         self.tree_equivalent_parts_manager.ClearItems()
         
         item = self.tree_bom_parts.GetSelection()
@@ -471,7 +491,7 @@ class BuyFrame(DialogBuy):
             return 
         
         part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
-        part = rest.api.find_part(part.id, with_childs=True, with_storages=True)
+        part = parts_cache.Find(part.id)
 
         if part.childs is None:
             return
@@ -505,6 +525,7 @@ class BuyFrame(DialogBuy):
         self.static_total_price.SetLabel(configuration.base_currency)
 
     def loadDistributors(self):
+        global parts_cache
         parts = []
         global view_all
     
@@ -515,13 +536,13 @@ class BuyFrame(DialogBuy):
             return 
         bom_part = self.tree_bom_parts_manager.ItemToObject(item).bom_part
         # load full part
-        bom_part = rest.api.find_part(bom_part.id, with_distributors=True, with_storages=True, with_references=True)
+        bom_part = parts_cache.Find(bom_part.id)
         parts.append(bom_part)
         
         for item in self.tree_part_equivalents.GetSelections():
             if item.IsOk():
                 equivalent_part = self.tree_equivalent_parts_manager.ItemToObject(item).equivalent_part
-                equivalent_part = rest.api.find_part(equivalent_part.id, with_distributors=True, with_storages=True)
+                equivalent_part = parts_cache.Find(equivalent_part.id)
                 parts.append(equivalent_part)
         
         self.tree_distributors_manager.ClearItems()
@@ -567,12 +588,13 @@ class BuyFrame(DialogBuy):
 
 
     def needed_bom_parts(self):
+        global parts_cache
         parts = []
         print("Needed bom parts: ")
         for bom_part in self.tree_bom_parts_manager.data:
             if bom_part.provisioning()<bom_part.needed():
                 print("-", bom_part.bom_part.id, "provisionning:", bom_part.provisioning(), "needed:", bom_part.needed())
-                parts.append(rest.api.find_part(bom_part.bom_part.id, with_distributors=True, with_childs=True, with_storages=True, with_references=True))
+                parts.append(parts_cache.Find(bom_part.bom_part.id))
         return parts
     
     def get_distributor_matching_offers(self, bom_part, equivalent_parts, distributor, quantity):
@@ -609,12 +631,13 @@ class BuyFrame(DialogBuy):
         return [best_offer_part, best_offer_offer] 
 
     def get_equivalent_parts(self, part):
+        global parts_cache
         parts = {}
         
         # recursive search childs
         to_add = [part]
         while len(to_add)>0:
-            part = rest.api.find_part(to_add.pop().id, with_distributors=True, with_childs=True, with_storages=True)
+            part = parts_cache.Find(to_add.pop().id)
             if part.id not in parts:
                 parts[part.id] = part
             if part.childs:
@@ -917,9 +940,28 @@ class BuyFrame(DialogBuy):
     def onTreeBomPartsSelectionChanged( self, event ):
         self.loadPartEquivalents()
         self.loadDistributors()
+        
+        item = self.tree_bom_parts.GetSelection()
+        if item.IsOk():
+            bom_part = self.tree_bom_parts_manager.ItemToObject(item)
+        else:
+            return
 
+        # Select items in the order view
+        self.tree_wish_parts.UnselectAll() 
+        
+        wish_part = self.tree_wish_parts_manager.FindWishPart(bom_part.bom_part.id)
+        if wish_part:
+            self.tree_wish_parts.Select(self.tree_bom_parts_manager.ObjectToItem(wish_part))
+        
+        for item in self.tree_equivalent_parts_manager.data:
+            wish_part = self.tree_wish_parts_manager.FindWishPart(item.equivalent_part.id)
+            if wish_part:
+                self.tree_wish_parts.Select(self.tree_bom_parts_manager.ObjectToItem(wish_part))
+        
     def refresh_distributors(self, part):
-        partrefs = rest.api.find_part(part.id, with_distributors=True, with_references=True)
+        global parts_cache
+        partrefs = parts_cache.Find(part.id)
         if partrefs.references:
             print("Part:", partrefs.name, "references:", len(partrefs.references))
         else:
@@ -1079,6 +1121,8 @@ class BuyFrame(DialogBuy):
 #         
 # 
     def onButtonRefreshClick(self, event):
+        global parts_cache
+        parts_cache.Clear()
         self.load()
 # 
 #     def onButtonEditWishClick( self, event ):
