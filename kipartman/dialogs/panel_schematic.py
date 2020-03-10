@@ -78,6 +78,11 @@ class PanelSchematic ( wx.Panel ):
 		self.menu_parts_show = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Show", u"Show part", wx.ITEM_NORMAL )
 		self.menu_parts.Append( self.menu_parts_show )
 
+		self.menu_parts.AppendSeparator()
+
+		self.menu_parts_remove_instance = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Remove instance", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parts.Append( self.menu_parts_remove_instance )
+
 		self.m_panel1.Bind( wx.EVT_RIGHT_DOWN, self.m_panel1OnContextMenu )
 
 		self.m_panel5 = wx.Panel( self.splitter_part, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -110,6 +115,7 @@ class PanelSchematic ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuPartsUnlinkSelection, id = self.menu_parts_unlink.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartsHideSelection, id = self.menu_parts_hide.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartsShowSelection, id = self.menu_parts_show.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuPartsRemoveInstance, id = self.menu_parts_remove_instance.GetId() )
 
 	def __del__( self ):
 		pass
@@ -135,6 +141,9 @@ class PanelSchematic ( wx.Panel ):
 		event.Skip()
 
 	def onMenuPartsShowSelection( self, event ):
+		event.Skip()
+
+	def onMenuPartsRemoveInstance( self, event ):
 		event.Skip()
 
 	def splitter_partOnIdle( self, event ):

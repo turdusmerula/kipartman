@@ -62,13 +62,15 @@ setup(
 #         # for kipart base
          'connexion',
          'python_dateutil',
-         'django<1.12',
-         'django-mptt<0.9',
+         'django',
+         'django-mptt',
          'watchdog',
          'numpy',
          'sqlalchemy',
          'setuptools',
-         'connexion[swagger-ui]'
+         'werkzeug==0.16.1',
+         'connexion[swagger-ui]',
+         'profiling'
     ],
 )
 

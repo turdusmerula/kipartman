@@ -61,7 +61,7 @@ class TreeItem(object):
 class TreeContainerItem(TreeItem):
     def __init__(self):
         super(TreeContainerItem, self).__init__()
-        self.childs = None
+        self.childs = []
         
     def HasContainerColumns(self):
         return True

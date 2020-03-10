@@ -8,7 +8,7 @@ cd $xpl_path
 if [ ! -f /tmp/swagger-codegen-cli.jar ]
 then
 #	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.2/swagger-codegen-cli-2.2.2.jar -O /tmp/swagger-codegen-cli.jar
-	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar -O /tmp/swagger-codegen-cli.jar
+	wget https://repo.maven.apache.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar -O /tmp/swagger-codegen-cli.jar
 #	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.3.1/swagger-codegen-cli-2.3.1.jar -O /tmp/swagger-codegen-cli.jar
 #	wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/3.0.0-rc0/swagger-codegen-cli-3.0.0-rc0.jar -O /tmp/swagger-codegen-cli.jar
 fi

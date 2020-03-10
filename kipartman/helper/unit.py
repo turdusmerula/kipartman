@@ -25,25 +25,25 @@ def format_unit_prefix(v, unit=''):
         p = False
         for si in dprefix:
             if v<1000:
-                res = format_float(v*sign)+' '+si
+                res = format_float(v*sign)+si
                 p = True ;
                 break ;
             else:
                 v = v/1000. ;
         if p==False:
-            res = str(vin)+' '
+            res = str(vin)
         res = res+unit
     else:
         p = False 
         for si in fprefix:
             if v>0.9:
-                res = format_float(v*sign)+' '+si
+                res = format_float(v*sign)+si
                 p = True 
                 break
             else:
                 v = v*1000.
         if p==False:
-            res = str(vin)+' '
+            res = str(vin)
         res = res+unit
     
     return res

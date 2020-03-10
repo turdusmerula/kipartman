@@ -229,11 +229,18 @@ class KicadSchematicFile(object):
 
         return field, attr_type
 
+    # Return component list of tuples, [ component, instance ]
+    # if component is its own instance, then instance is None
     def Components(self):
         components = []
         for obj in self.parent.nodes:
             if isinstance(obj, KicadComp):
-                components.append(obj)
+                ars = obj.getARList()
+                if len(ars)>0:
+                    for ar in ars:
+                        components.append([obj, ar])
+                else:
+                    components.append([obj, None])
 
             if isinstance(obj, KicadSheet):
                 for component in obj.schematic.Components():
@@ -299,7 +306,15 @@ class KicadComp(KicadSchematicObject):
                 return node
         return None
 
-
+    def getARList(self):
+        res = []
+        
+        for node in self.nodes:
+            if isinstance(node, KicadAR):
+                res.append(node)
+        return res
+        
+        
     def fget_symbol(self):
         l = self.getL()
         if l:
@@ -449,6 +464,20 @@ class KicadU(KicadSchematicObject):
         super(KicadU, self).__init__('U')
         KicadObject._register(self.header, KicadU)
 
+class KicadAR(KicadSchematicObject):
+    def __init__(self, parent=None):
+        super(KicadAR, self).__init__('AR')
+        KicadObject._register(self.header, KicadAR)
+
+    def fget_timestamp(self):
+        return self.NamedAttribute('Path')
+
+    def fget_reference(self):
+        return self.NamedAttribute('Ref')
+
+    timestamp = property(fget=fget_timestamp)
+    reference = property(fget=fget_reference)
+
 class KicadSheet(KicadSchematicObject):
     def __init__(self):
         super(KicadSheet, self).__init__('\$Sheet', True)
@@ -506,3 +535,4 @@ KicadF()
 KicadL()
 KicadU()
 KicadSheet()
+KicadAR()

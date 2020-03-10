@@ -63,6 +63,12 @@ class KicadObject(object):
             return self.attributes[index]
         return ''
 
+    def NamedAttribute(self, name):
+        for attr in self.attributes:
+            if attr.startswith(name):
+                return attr[len(name)+2:][:-1]
+        return ''
+
     def HasAttribute(self, index):
         return index<len(self.attributes)
             

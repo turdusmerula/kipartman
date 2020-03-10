@@ -13,7 +13,7 @@ import re
 import sync.version_manager
 import json
 
-from helper.profiler import Trace
+#from helper.profiler import Trace
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
