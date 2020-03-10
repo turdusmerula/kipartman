@@ -1,0 +1,34 @@
+{
+    "components": {
+        "143": [
+            {
+                "reference": "U1",
+                "timestamp": "/5E6781CF/5E678220",
+                "value": "7WB3306DTR2G"
+            },
+            {
+                "reference": "U3",
+                "timestamp": "/5E678707/5E678220",
+                "value": "7WB3306DTR2G"
+            },
+            {
+                "reference": "U2",
+                "timestamp": "/5E6781CF/5E6783CA",
+                "value": "7WB3306DTR2G"
+            },
+            {
+                "reference": "U4",
+                "timestamp": "/5E678707/5E6783CA",
+                "value": "7WB3306DTR2G"
+            }
+        ]
+    },
+    "parts": [
+        {
+            "description": "Bus Switch 2-Element 2-IN 8-Pin UDFN T/R",
+            "id": 143,
+            "name": "7WB3306"
+        }
+    ],
+    "schematic": "/home/seb/git/kipartman/test/test_board/test_board1/test_board.sch"
+}

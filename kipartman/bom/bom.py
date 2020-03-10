@@ -100,8 +100,12 @@ class Bom(object):
             for part_name in self.part_components:
                 if len(self.part_components[part_name])>0:
                     part_components[part_name] = []
-                for component in self.part_components[part_name]:
-                    part_components[part_name].append({'timestamp': component.timestamp, 'reference': component.reference, 'value': component.value}) 
+                for component, instance in self.part_components[part_name]:
+                    if instance:
+                        part_components[part_name].append({'timestamp': instance.timestamp, 'reference': instance.reference, 'value': component.value}) 
+                    else:
+                        part_components[part_name].append({'timestamp': component.timestamp, 'reference': component.reference, 'value': component.value}) 
+                        
             
             input = { 'schematic': self.schematic.filename, 'parts': parts, 'components': part_components }
 #            json_string = json.dumps(input, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': ')).encode('utf8')
@@ -135,24 +139,30 @@ class Bom(object):
         self.schematic = KicadSchematicFile()
         self.schematic.LoadFile(file)
 
-        for component in self.schematic.Components():
+        for component, ar in self.schematic.Components():
             if component.kipart_id:
-                part = None            
+                # this is an instance of component
+                part = None
                 try:
                     part = self.parts_cache.Find(component.kipart_id)
                     self.AddPart(part)
-                    self.AddPartComponent(part, component)
+                    self.AddPartComponent(part, component, ar)
                 except Exception as e:
                     print(format(e))
         
     def AddPart(self, part):
-        self.parts.append(part)
-        self.part_components[part.id] = []
+        if part not in self.parts:
+            self.parts.append(part)
+            self.part_components[part.id] = []
         self.saved = False
 
-    def AddPartComponent(self, part, component):
-        self.part_components[part.id].append(component)
-        self.component_part[component.timestamp] = part
+    def AddPartComponent(self, part, component, instance):
+        self.part_components[part.id].append([component, instance])
+        if instance:
+            self.component_part[instance.timestamp] = part
+        else:
+            self.component_part[component.timestamp] = part
+            
         self.saved = False
     
     def RemovePart(self, part):

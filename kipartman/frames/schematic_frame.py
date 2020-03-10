@@ -12,6 +12,7 @@ import rest
 from bom.bom import Bom
 from helper.exception import print_stack
 from helper.unit import format_unit_prefix
+from time import time
 
 class DataModelPart(helper.tree.TreeContainerItem):
     def __init__(self, component):
@@ -106,32 +107,37 @@ class SchematicFrame(PanelSchematic):
         # used to know if reload dialog is already shown
         self.has_reload_dialog = False
         
+        
+        self.loadParts()
         self.load()
 
     def load(self):
         self.loadSchematic()
+    
+    def loadParts(self):
+        # load one time to improve performances
+        self.parts = rest.api.find_parts(with_parameters=True)
         
     def loadSchematic(self):
         self.schematic.LoadFile(self.file)
         #self.schematic.DebugWrite(self.schematic.parent)
         
         # load parts
-        parts = rest.api.find_parts(with_parameters=True)
         for comp in self.schematic.Components():
             component = comp[0]
             instance = comp[1]
             if component.kipart_id!='':
                 part_id = int(component.kipart_id)
                 part = None
-                for p in parts:
+                for p in self.parts:
                     if p.id==part_id:
                         part = p
                         break
                 if part:
                     self.associate_part(component, part)
-                
+
         self.schematic.Save()
-        
+
         self.tree_parts_manager.SaveState()
         
         # load schematic parts
@@ -167,18 +173,19 @@ class SchematicFrame(PanelSchematic):
             if self.tree_parts_manager.DropStateObject(instanceobj)==False and instance and instanceobj is None:
                 if show==True:
                     self.tree_parts_manager.AppendInstance(component, instance)
-           
+
         self.tree_parts_manager.PurgeState()
-    
+
     def reload(self):
         if self.has_reload_dialog:
             # reload dialog already pending
             return
 
-        if self.schematic.Modified():
+        if self.schematic and self.schematic.Modified():
             self.has_reload_dialog = True
             res = wx.MessageDialog(self, "%s modified, reload it?" % self.file, "File changed", wx.YES_NO | wx.ICON_QUESTION).ShowModal()
             if res == wx.ID_YES:
+                self.loadParts()
                 self.load()
             self.has_reload_dialog = False
     
@@ -202,6 +209,7 @@ class SchematicFrame(PanelSchematic):
             self.menu_parts_show.Enable(False)
 
     def onToolRefreshSchematic( self, event ):
+        self.loadParts()
         self.load()
     
     def onTreePartsSelChanged( self, event ):

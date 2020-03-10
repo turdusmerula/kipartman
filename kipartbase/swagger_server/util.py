@@ -1,3 +1,4 @@
+from typing import GenericMeta
 from datetime import datetime, date
 from six import integer_types, iteritems
 

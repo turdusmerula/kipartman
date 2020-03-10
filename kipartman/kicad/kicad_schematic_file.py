@@ -12,14 +12,21 @@ class KicadSchematicFile(object):
         self.onChanged = None
         self.parent = KicadObject('')
 
-    def LoadFile(self, filename):
+    def LoadFile(self, filename, parent=None):
         """
         Load file
         """
+        
+        if parent:
+            self.loaded_sheets = parent.loaded_sheets
+        else:
+            self.loaded_sheets = {}
+        
+        print(f"Load file {filename}")
         if(os.path.isfile(filename)==False):
             self.filename = None
 #            wx.MessageBox("Error: %s does not exists" % filename, "File error", wx.OK | wx.ICON_ERROR)
-            raise Exception("Error: %s does not exists" % filename)
+            raise Exception(f"Error: {filename} does not exists")
 
         self.filename = filename
         self.file = io.open(filename, "rb")
@@ -29,12 +36,14 @@ class KicadSchematicFile(object):
         self.parent = KicadObject('')
         self.read_lines(self.parent) 
         #self.Write(self.parent, 0)
-        self.LoadSheets()
         
+        self.LoadSheets()
+        print(f"Loaded file {filename}")
+
         if self.onChanged:
             self.onChanged()
    
-    def Load(self, content):
+    def Load(self, content, parent=None):
         """
         Load from string
         """
@@ -51,7 +60,11 @@ class KicadSchematicFile(object):
 
         self.parent = KicadObject('')
         self.read_lines(self.parent) 
-        #self.Write(self.parent, 0)
+ 
+        if parent:
+            self.loaded_sheets = parent.loaded_sheets
+        else:
+            self.loaded_sheets = {}
         self.LoadSheets()
                     
         if self.onChanged:
@@ -60,7 +73,10 @@ class KicadSchematicFile(object):
     def LoadSheets(self):
         for obj in self.parent.nodes:
             if isinstance(obj, KicadSheet):
-                obj.Load(os.path.dirname(self.filename))
+                filename = os.path.join(os.path.dirname(self.filename), obj.file)
+                if filename not in self.loaded_sheets:
+                    self.loaded_sheets[filename] = obj
+                    obj.Load(os.path.dirname(self.filename), self)
     
     def Render(self, filename, width=256, height=256):
         canvas = Canvas.LibraryCanvas()
@@ -79,7 +95,7 @@ class KicadSchematicFile(object):
         
     def SaveSheets(self):
         for obj in self.parent.nodes:
-            if isinstance(obj, KicadSheet):
+            if isinstance(obj, KicadSheet) and obj.schematic:
                 obj.Save()
     
     def Modified(self):
@@ -99,7 +115,7 @@ class KicadSchematicFile(object):
             return True
         
         for obj in self.parent.nodes:
-            if isinstance(obj, KicadSheet):
+            if isinstance(obj, KicadSheet) and obj.schematic:
                 if obj.Modified():
                     return True
                 
@@ -243,21 +259,24 @@ class KicadSchematicFile(object):
                     components.append([obj, None])
 
             if isinstance(obj, KicadSheet):
-                for component in obj.schematic.Components():
-                    components.append(component)
+                if obj.schematic:
+                    for component in obj.schematic.Components():
+                        components.append(component)
 
         return components
         
     def GetComponent(self, timestamp):
         for component in self.Components():
-            if component.timestamp==timestamp:
-                return component
+            for instance in component:
+                if instance and instance.timestamp==timestamp:
+                    return component
         return None
     
     def ExistComponent(self, timestamp):
         for component in self.Components():
-            if component.timestamp==timestamp:
-                return True
+            for instance in component:
+                if instance and instance.timestamp==timestamp:
+                    return True
         return False
         
 class KicadSchematicObject(KicadObject):
@@ -511,11 +530,11 @@ class KicadSheet(KicadSchematicObject):
         f = self.getF(1)
         f.SetAttribute(0, value, 'string')    
 
-    def Load(self, basepath):
+    def Load(self, basepath, parent):
         self.schematic = KicadSchematicFile()
         
         file = os.path.join(basepath, self.file)
-        self.schematic.LoadFile(file)
+        self.schematic.LoadFile(file, parent)
     
     def Save(self):
         self.schematic.Save()
