@@ -6,27 +6,81 @@ import tempfile
 import helper.hash as hash
 import kicad.Canvas as Canvas
 
-class KicadSchematicFile(object):
+class KicadSchematicObjects(object):
     def __init__(self):
+        
+        # path of the folder containing the topmost shematic file
+        self.base_path = ''
+        
+        # sheets objects 
+        self.sheets = []
+        # path already loaded
+        self.loaded_sheets = []
+        # mapping sheet path / object
+        self.path_sheets = {}
+        # mapping timestamp sheet
+        self.timestamp_sheets = {}
+        
+    def sheet_loaded(self, sheet):
+        path = self.get_sheet_abspath(sheet)
+
+        if path in self.loaded_sheets:
+            return True
+        return False
+    
+    def add_sheet(self, sheet):
+        path = self.get_sheet_abspath(sheet)
+
+        self.sheets.append(sheet)
+        self.loaded_sheets.append(path)
+        self.path_sheets[path] = sheet
+        self.timestamp_sheets[sheet.timestamp] = sheet
+    
+    def get_sheet_abspath(self, sheet):
+        if os.path.isabs(sheet.file):
+            path = sheet.file
+        else:
+            path = os.path.join(self.base_path, sheet.file)
+        return path            
+        
+    def get_timestamp_path(self, timestamp):
+        path = ''
+        s = timestamp.split('/')[:-1]
+        if(len(s)==0):
+            return ''
+        for stamp in s:
+            if stamp!='':
+                if path!='':
+                    path += '.'
+                path = f"{path}{self.timestamp_sheets[stamp].name}"
+        return path
+
+    
+class KicadSchematicFile(object):
+    def __init__(self, parentsheet=None):
         self.filename = None
         self.onChanged = None
         self.parent = KicadObject('')
+        self.parentsheet = parentsheet
 
-    def LoadFile(self, filename, parent=None):
+    def LoadFile(self, filename):
         """
         Load file
         """
-        
-        if parent:
-            self.loaded_sheets = parent.loaded_sheets
+        if self.parentsheet:
+            self.objects = self.parentsheet.objects
         else:
-            self.loaded_sheets = {}
+            self.objects = KicadSchematicObjects()
         
         print(f"Load file {filename}")
         if(os.path.isfile(filename)==False):
             self.filename = None
 #            wx.MessageBox("Error: %s does not exists" % filename, "File error", wx.OK | wx.ICON_ERROR)
             raise Exception(f"Error: {filename} does not exists")
+
+        # base path is given by the topmost file
+        if self.parentsheet is None:
+            self.objects.base_path = os.path.dirname(os.path.abspath(filename))
 
         self.filename = filename
         self.file = io.open(filename, "rb")
@@ -39,11 +93,11 @@ class KicadSchematicFile(object):
         
         self.LoadSheets()
         print(f"Loaded file {filename}")
-
+        
         if self.onChanged:
             self.onChanged()
    
-    def Load(self, content, parent=None):
+    def Load(self, content):
         """
         Load from string
         """
@@ -61,10 +115,6 @@ class KicadSchematicFile(object):
         self.parent = KicadObject('')
         self.read_lines(self.parent) 
  
-        if parent:
-            self.loaded_sheets = parent.loaded_sheets
-        else:
-            self.loaded_sheets = {}
         self.LoadSheets()
                     
         if self.onChanged:
@@ -73,11 +123,10 @@ class KicadSchematicFile(object):
     def LoadSheets(self):
         for obj in self.parent.nodes:
             if isinstance(obj, KicadSheet):
-                filename = os.path.join(os.path.dirname(self.filename), obj.file)
-                if filename not in self.loaded_sheets:
-                    self.loaded_sheets[filename] = obj
+                if self.objects.sheet_loaded(obj)==False:
                     obj.Load(os.path.dirname(self.filename), self)
-    
+                self.objects.add_sheet(obj)
+        
     def Render(self, filename, width=256, height=256):
         canvas = Canvas.LibraryCanvas()
         surface = canvas.Render(self.parent, width, height)
@@ -245,24 +294,44 @@ class KicadSchematicFile(object):
 
         return field, attr_type
 
+    # return all sheets in hiererchy
+    def SheetTimetamps(self, parent=""):
+        sheet_timestamps = []
+        
+        for obj in self.parent.nodes:
+            if isinstance(obj, KicadSheet):
+                sheet_timestamps.append(f"{parent}/{obj.timestamp}")
+                if obj.schematic:
+                    sheet_timestamps += obj.schematic.SheetTimetamps(f"{parent}/{obj.timestamp}")
+        
+        return sheet_timestamps
+    
     # Return component list of tuples, [ component, instance ]
     # if component is its own instance, then instance is None
-    def Components(self):
+    def Components(self, sheet_timestamps=None):
+        if sheet_timestamps is None:
+            # build list of sheets timestamps, this list is used to filter instances that do not belong to any sheet
+            sheet_timestamps = self.SheetTimetamps()
+
         components = []
         for obj in self.parent.nodes:
             if isinstance(obj, KicadComp):
                 ars = obj.getARList()
                 if len(ars)>0:
                     for ar in ars:
-                        components.append([obj, ar])
+                        sheet_timestamp = "/".join(ar.timestamp.split('/')[:-1])
+                        if sheet_timestamp in sheet_timestamps:
+                            components.append([obj, ar])
+                        else:
+                            print(f"Ignored {ar.timestamp}")
                 else:
                     components.append([obj, None])
 
             if isinstance(obj, KicadSheet):
                 if obj.schematic:
-                    for component in obj.schematic.Components():
+                    for component in obj.schematic.Components(sheet_timestamps):
                         components.append(component)
-
+        
         return components
         
     def GetComponent(self, timestamp):
@@ -530,11 +599,17 @@ class KicadSheet(KicadSchematicObject):
         f = self.getF(1)
         f.SetAttribute(0, value, 'string')    
 
+    def fget_timestamp(self):
+        for node in self.nodes:
+            if isinstance(node, KicadU):
+                return node.Attribute(0)
+        return None
+
     def Load(self, basepath, parent):
-        self.schematic = KicadSchematicFile()
+        self.schematic = KicadSchematicFile(parent)
         
         file = os.path.join(basepath, self.file)
-        self.schematic.LoadFile(file, parent)
+        self.schematic.LoadFile(file)
     
     def Save(self):
         self.schematic.Save()
@@ -544,7 +619,8 @@ class KicadSheet(KicadSchematicObject):
 
     name = property(fget=fget_name, fset=fset_name)
     file = property(fget=fget_file, fset=fset_file)
-
+    timestamp = property(fget=fget_timestamp)
+    
 """
 Instanciate at least one time to force objects registration
 """

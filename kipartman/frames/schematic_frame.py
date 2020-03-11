@@ -15,37 +15,41 @@ from helper.unit import format_unit_prefix
 from time import time
 
 class DataModelPart(helper.tree.TreeContainerItem):
-    def __init__(self, component):
+    def __init__(self, schematic, component):
         super(DataModelPart, self).__init__()
+        self.schematic = schematic
         self.component = component
         
     def GetValue(self, col):
         vMap = { 
-            0: self.component.timestamp,
+            0: self.schematic.objects.get_timestamp_path(self.component.timestamp),
             1: self.component.reference if len(self.childs)==0 else '<'+str(len(self.childs))+' instances>',
             2: self.component.value,
             3: self.component.kipart_sku,
             4: self.component.symbol,
             5: self.component.footprint,
-            6: self.component.kipart_id
+            6: self.component.kipart_id,
+            7: self.component.timestamp,
         }
         return vMap[col]
 
 class DataModelInstance(helper.tree.TreeItem):
-    def __init__(self, component, instance):
+    def __init__(self, schematic, component, instance):
         super(DataModelInstance, self).__init__()
+        self.schematic = schematic
         self.component = component
         self.instance = instance
         
     def GetValue(self, col):
         vMap = { 
-            0 : self.instance.timestamp,
+            0 : self.schematic.objects.get_timestamp_path(self.instance.timestamp),
             1 : self.instance.reference,
             2 : self.component.value,
             3: self.component.kipart_sku,
             4: self.component.symbol,
             5: self.component.footprint,
-            6: self.component.kipart_id
+            6: self.component.kipart_id,
+            7 : self.instance.timestamp,
         }
         return vMap[col]
 
@@ -65,16 +69,16 @@ class TreeManagerParts(helper.tree.TreeManager):
                 return data
         return None
 
-    def AppendPart(self, component):
-        partobj = DataModelPart(component)
+    def AppendPart(self, schematic, component):
+        partobj = DataModelPart(schematic, component)
         self.AppendItem(None, partobj)
         return partobj
 
-    def AppendInstance(self, component, instance):
+    def AppendInstance(self, schematic, component, instance):
         partobj = self.FindPart(component)
         if partobj is None:
-            partobj = self.AppendPart(component)
-        instanceobj = DataModelInstance(component, instance)
+            partobj = self.AppendPart(schematic, component)
+        instanceobj = DataModelInstance(schematic, component, instance)
         self.AppendItem(partobj, instanceobj)
         return instanceobj
 
@@ -84,13 +88,14 @@ class SchematicFrame(PanelSchematic):
         
         # create module list
         self.tree_parts_manager = TreeManagerParts(self.tree_parts, context_menu=self.menu_parts)
-        self.tree_parts_manager.AddTextColumn("Timestamp")
+        self.tree_parts_manager.AddTextColumn("Path")
         self.tree_parts_manager.AddTextColumn("Reference")
         self.tree_parts_manager.AddTextColumn("Value")
         self.tree_parts_manager.AddTextColumn("Part")
         self.tree_parts_manager.AddTextColumn("Symbol")
         self.tree_parts_manager.AddTextColumn("Footprint")
         self.tree_parts_manager.AddIntegerColumn("id")
+        self.tree_parts_manager.AddTextColumn("Timestamp")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
         self.tree_parts_manager.OnItemBeforeContextMenu = self.onTreePartsBeforeContextMenu
 
@@ -161,7 +166,7 @@ class SchematicFrame(PanelSchematic):
             
             if self.tree_parts_manager.DropStateObject(partobj)==False and partobj is None:
                 if show==True:
-                    self.tree_parts_manager.AppendPart(component)
+                    self.tree_parts_manager.AppendPart(self.schematic, component)
 
             instanceobj = None
             if instance:
@@ -172,7 +177,7 @@ class SchematicFrame(PanelSchematic):
             
             if self.tree_parts_manager.DropStateObject(instanceobj)==False and instance and instanceobj is None:
                 if show==True:
-                    self.tree_parts_manager.AppendInstance(component, instance)
+                    self.tree_parts_manager.AppendInstance(self.schematic, component, instance)
 
         self.tree_parts_manager.PurgeState()
 

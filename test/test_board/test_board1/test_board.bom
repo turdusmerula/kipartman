@@ -1,5 +1,29 @@
 {
     "components": {
+        "51": [
+            {
+                "reference": "U5",
+                "timestamp": "/5E6781CF/5E67B4BC",
+                "value": "LIS3DH"
+            },
+            {
+                "reference": "U6",
+                "timestamp": "/5E678707/5E67B4BC",
+                "value": "LIS3DH"
+            }
+        ],
+        "139": [
+            {
+                "reference": "U9",
+                "timestamp": "/5E6781CF/5E67F299/5E67F437",
+                "value": "MMA865x"
+            },
+            {
+                "reference": "U10",
+                "timestamp": "/5E678707/5E67F299/5E67F437",
+                "value": "MMA865x"
+            }
+        ],
         "143": [
             {
                 "reference": "U1",
@@ -28,6 +52,16 @@
             "description": "Bus Switch 2-Element 2-IN 8-Pin UDFN T/R",
             "id": 143,
             "name": "7WB3306"
+        },
+        {
+            "description": "LIS3DH Series 3 Axis ±2/±4/±8/±16 g Ultra Low Power \"Nano\" Accelerometer LGA-16",
+            "id": 51,
+            "name": "LIS3DHTR"
+        },
+        {
+            "description": "MMA845x Series ±2/±4/±8 g 3-Axis 12-bit/8-bit Digital Accelerometer - QFN-16",
+            "id": 139,
+            "name": "MMA845x"
         }
     ],
     "schematic": "/home/seb/git/kipartman/test/test_board/test_board1/test_board.sch"
