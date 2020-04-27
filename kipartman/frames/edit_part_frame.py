@@ -18,6 +18,7 @@ from octopart.extractor import OctopartExtractor
 import os
 from helper.exception import print_stack
 import pytz
+from helper.log import log
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -359,7 +360,7 @@ class EditPartFrame(PanelEditPart):
         octopart_parts = []
         for octopart in octoparts:
             # convert octopart to part
-            print("octopart:", octopart.json)
+            log.debug("octopart:", octopart.json)
             
             # update reference
             self.addReferenceFromOctopart(octopart)

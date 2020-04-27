@@ -1,6 +1,8 @@
 from dialogs.draw_footprint.panel_edit_grid import PanelEditGrid
 import wx
 import math
+from helper.exception import print_stack
+from helper.log import log
 
 class EditGridFrame(PanelEditGrid): 
     def __init__(self, parent, render, grid):
@@ -47,7 +49,8 @@ class EditGridFrame(PanelEditGrid):
         try:
             angle = float(self.text_angle.Value)*math.pi/180.
         except Exception as e:
-            print(format(e))
+            print_stack()
+            log.error(format(e))
             return
         self.grid.angle = angle
         self.grid.Update()

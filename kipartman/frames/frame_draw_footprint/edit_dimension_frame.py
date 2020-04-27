@@ -1,5 +1,7 @@
 from dialogs.draw_footprint.panel_edit_dimension import PanelEditDimension
 import math
+from helper.exception import print_stack
+from helper.log import log
 
 class EditDimensionFrame(PanelEditDimension): 
     def __init__(self, parent, render, dimension):
@@ -23,8 +25,10 @@ class EditDimensionFrame(PanelEditDimension):
         try:
             size = math.fabs(float(self.text_size.Value))
         except Exception as e:
-            print(format(e))
+            print_stack()
+            log.error(format(e))
             return
+
         self.dimension.Value = str(size)
         self.dimension.SetSize(size)
         self.dimension.Update()

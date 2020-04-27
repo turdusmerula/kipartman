@@ -19,8 +19,6 @@ from octopart.extractor import OctopartExtractor
 import swagger_client
 from helper.tree import TreeModel
 
-from plugins import plugin_loader
-from plugins import import_plugins as import_plugins
 from helper.part_updater import PartReferenceUpdater
 
 
@@ -477,172 +475,11 @@ class PartsFrame(PanelParts):
                 part.category = category.category
 
         self.edit_part(part)
-
-    def export_parts(self):
-
-        # exporters = plugin_loader.load_export_plugins()
-        # wildcards = '|'.join([x.wildcard for x in exporters])
-        # wildcards
-
-        # exportpath=os.path.join(os.getcwd(),'test','TESTimportCSV.csv')
-        # exportpath
-        # base, ext = os.path.splitext(exportpath)
-
-        # TODO: implement export
-        exporters = plugin_loader.load_export_plugins()
-
-        wildcards = '|'.join([x.wildcard for x in exporters])
-
-        export_dialog = wx.FileDialog(self, "Export Parts", "", "",
-                                      wildcards,
-                                      wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
-
-        if export_dialog.ShowModal() == wx.ID_CANCEL:
-            return
-
-        base, ext = os.path.splitext(export_dialog.GetPath())
-        filt_idx = export_dialog.GetFilterIndex()
-        # load parts
-        parts = rest.api.find_parts(**self.parts_filter.query_filter())
-
-        exporters[filt_idx]().export(base, parts)     
-        self.edit_state = None
-
-    def import_parts(self):
-
-        importers = plugin_loader.load_import_plugins()
-        wildcards = '|'.join([x.wildcard for x in importers])
-        
-        import_dialog = wx.FileDialog(self, "Import Parts", "", "",
-                                      wildcards,
-                                      wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-
-        if import_dialog.ShowModal() == wx.ID_CANCEL:
-            return
-
-        base, ext = os.path.splitext(import_dialog.GetPath())
-        filt_idx = import_dialog.GetFilterIndex()
-
-
-        # set category
-        item = self.tree_categories.GetSelection()
-        if item.IsOk():
-            category = self.tree_categories_manager.ItemToObject(item)
-            if category.category:
-                import_items = importers[filt_idx]().fetch(base, category.category, rest.model)
-        progression_frame = ProgressionFrame(self, "Importing  parts ") ;
-        progression_frame.Show()
-
-        for i, importItem in enumerate(import_items):
-            wx.Yield()
-
-            part = rest.model.PartNew()
-            # SET imported Parts Fields
-            
-            part.name = importItem.name
-            part.description = importItem.description
-
-            # Update progress indicator
-            progression_frame.SetProgression(part.name, i+1, len(import_items))
-            if progression_frame.Canceled():
-                break
-
-
-            if isinstance(importItem.footprint, str) and len(importItem.footprint) == 0:  # Blank Footprint
-                part.footprint = None
-            else:  # Determine or Create correct Footprint References
-                searchparam = {'search': importItem.footprint}
-                matching_footprints = rest.api.find_footprints(**searchparam)
-                if len(matching_footprints)==0: # ADD new footprint
-                    # Check Footprint Category: "Uncatagorized" exists
-                    try:
-                        footprintcategoryid = {i.name: i.id
-                                               for i in
-                                               rest.api.find_footprints_categories()}['Uncategorized']
-                    except KeyError as e:  # Category 'Uncategorized' does not exist
-                        print_stack()
-                        # Create the "Uncategorized" category
-                        category = rest.model.FootprintCategoryNew()
-                        category.name = "Uncategorized"
-                        category.description = 'imported footprint names not already defined'
-                        category = rest.api.add_footprints_category(category)
-                        footprintcategoryid = category.id
-                    except:
-                        print_stack()
-                        # TODO: handle other errors cleanly
-                        raise
-                        pass
-
-                    part.footprint = rest.model.FootprintNew()
-                    part.footprint.category = rest.model.FootprintCategoryRef(id=footprintcategoryid)
-                    part.footprint.name = importItem.footprint
-                    part.footprint.description = u''
-                    part.footprint.comment = u''
-
-                    # update part on server
-                    part.footprint = rest.api.add_footprint(part.footprint)
-
-                elif len(matching_footprints)==1: # only 1 option so referece it
-                    part.footprint = matching_footprints[0]
-                else:  # multiple Footprint items
-                    pass  # TODO: handle if multiple Footprint options exist
-
-            part.comment = 'NEW IMPORT Timestamp:{:%y-%m-%d %H:%M:%S.%f}\n'.format(datetime.datetime.now())
-            
-            # set category
-            if category.category:
-                part.category = category.category
-            # Update edit_part panel
-            try:
-                #Lookup details in octopart
-                m_octopart = self.import_octopart_lookup(part)
-                assert len(m_octopart.data)==1,\
-                    'Import Octopart Lookup found {} matchs {}'.format(
-                        len(m_octopart.data)
-                    )
-                octopart_extractor = OctopartExtractor(m_octopart.data[0].json)
-                assert part.name == m_octopart.data[0].item().mpn(),\
-                    'Import Octopart Lookup found first part {}'.format(
-                        m_octopart.data[0].item().mpn()
-                    )
-                part.octopart_uid = m_octopart.data[0].item().uid()
-                part.parameters = []
-                part.distributors =[]
-                part.manufacturers =[]
-                self.octopart_to_part(m_octopart.data[0], part)
-                pass
-            except Exception as e:
-                print_stack()
-                part.comment = 'RESEARCH REQUIRED - FAILED OCTOPART LOOKUP - Timestamp:{:%y-%m-%d %H:%M:%S.%f}\n'.format(datetime.datetime.now()) \
-                                + part.comment
-                pass
-
-            self.edit_part(part)
-            self.show_part(part)
-
-            try:
-                if self.edit_state=='import':
-                    part = rest.api.add_part(part)
-                    self.tree_parts_manager.AppendPart(part)
-            except Exception as e:
-                print_stack()
-                wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-                return
-        self.edit_state = None
-        self.show_part(part)
-        progression_frame.Destroy()
-
   
     def import_octopart_lookup(self, part):
         df = DummyFrame_import_ocotopart_lookup(None,'Dummy')
         from frames.select_octopart_frame import SelectOctopartFrame
         r = SelectOctopartFrame(df, part.name)
-        # print('IMPORT: octopart_lookup:{} found Qty:{}, UID:{}, MPN:{}'.format(
-        #     part.name
-        #     ,len(r.Children[1].Symbol.data)
-        #     , r.Children[1].Symbol.data[0].json['item']['uid']
-        #     , r.Children[1].Symbol.data[0].json['item']['mpn']
-        #     ))
         df.Destroy()
         return r.Children[1].Symbol
 

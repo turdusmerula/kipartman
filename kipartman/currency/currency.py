@@ -1,5 +1,7 @@
 from urllib.request import urlopen
 import re
+from helper.log import log
+
 # TODO: asynchronous load
 # TODO: store previous values in database
 class Currency(object):
@@ -32,7 +34,8 @@ class Currency(object):
                 if currency and rate:
                     self.currencies[currency] = rate
 
-        print("Currencies: ", self.currencies)
+        log.debug(f"Currencies: {self.currencies}")
+        
         return self.currencies
         
     def convert(self, value, source, target):

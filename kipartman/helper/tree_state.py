@@ -1,4 +1,5 @@
 # helper to maintain a state inside a tree
+from helper.log import log
 
 class ItemState:
     def __init__(self, selected=False, expanded=True):
@@ -21,7 +22,7 @@ class TreeState:
             self.state[path].selected = selected
         if not expanded is None:
             self.state[path].expanded = expanded
-        print("state:", self.state[path].selected, self.state[path].expanded) 
+        log.debug("state:", self.state[path].selected, self.state[path].expanded) 
 
     def remove(self, path):
         self.state.pop(path)        
@@ -39,6 +40,6 @@ class TreeState:
             return False
     
     def debug(self):
-        print("State:")
+        log.debug("State:")
         for state in self.state:
-            print("    ", state, "selected:", self.state[state].selected, "expanded: ", self.state[state].expanded)
+            log.debug("    ", state, "selected:", self.state[state].selected, "expanded: ", self.state[state].expanded)

@@ -5,6 +5,7 @@ from octopart.extractor import OctopartExtractor
 import wx
 import os, datetime
 import pytz
+from helper.log import log
 
 class PartReferenceUpdater(): 
     def __init__(self):
@@ -13,9 +14,9 @@ class PartReferenceUpdater():
     def refresh_distributors(self, part):
         partrefs = rest.api.find_part(part.id, with_distributors=True, with_references=True)
         if partrefs.references:
-            print("Part:", partrefs.name, "references:", len(partrefs.references))
+            log.debug("Part:", partrefs.name, "references:", len(partrefs.references))
         else:
-            print("Part:", partrefs.name, "references: none")
+            log.debug("Part:", partrefs.name, "references: none")
         
         if partrefs.references:
             for reference in partrefs.references:

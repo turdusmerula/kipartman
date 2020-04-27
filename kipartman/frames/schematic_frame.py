@@ -13,6 +13,7 @@ from bom.bom import Bom
 from helper.exception import print_stack
 from helper.unit import format_unit_prefix
 from time import time
+from helper.log import log
 
 class DataModelPart(helper.tree.TreeContainerItem):
     def __init__(self, schematic, component):
@@ -230,7 +231,7 @@ class SchematicFrame(PanelSchematic):
                     part = rest.api.find_part(partobj.component.kipart_id)
             except Exception as e:
                 print_stack()
-                print(format(e))
+                log.error(format(e))
             self.data_frame.SetPart(part)
         
     def onMenuPartsLinkSelection( self, event ):

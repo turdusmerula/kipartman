@@ -4,6 +4,7 @@ import rest
 from kicad.kicad_schematic_file import KicadSchematicFile
 from helper.exception import print_stack
 from helper.parts_cache import PartsCache
+from helper.log import log
 
 class BomException(BaseException):
     def __init__(self, error):
@@ -20,9 +21,8 @@ class Bom(object):
         self.parts_cache = parts_cache
         
     def LoadFile(self, filename):
-        print("Load BOM", filename)
-#        for part in self.parts:
-#            self.parts.remove(part)
+        log.info(f"Load BOM {filename}")
+        
         self.part_components = {}
         self.component_part = {}
         self.parts = []
@@ -45,7 +45,7 @@ class Bom(object):
                 self.part_components[part['id']] = []
             except:
                 print_stack()
-                print("Warning: part %d not found on server"%part['id'])
+                log.warning(f"part {part['id']} not found on server")
                 part_not_found.append(part)
 
         component_not_found= []
@@ -67,13 +67,13 @@ class Bom(object):
                             self.part_components[int(part_id)].append(self.schematic.GetComponent(component['timestamp']))
                             self.component_part[component['timestamp']] = part
                         else:
-                            print("Warning: component %s does not exist in schematic"%component['timestamp'])
+                            log.warning(f"component {component['timestamp']} does not exist in schematic")
                             component_not_found.append(component)
                     else:
-                        print("Warning: part %d not found on bom"%part_id)
+                        log.warning(f"part {part_id} not found on bom")
                         part_id_not_found.append(int(part_id))
             else:
-                print("Warning: part %d from BOM does not exist on server"%int(part_id))
+                log.warning(f"part {part_id} from BOM does not exist on server")
                 part_id_not_found.append(int(part_id))
             
         # TODO: show error messages from part_not_found, component_not_found and part_id_not_found
@@ -90,7 +90,8 @@ class Bom(object):
             return input.encode('utf-8')
         
     def SaveFile(self, filename):
-        print("Save BOM", filename)
+        log.info(f"Save BOM {filename}")
+        
         with open(filename, 'w', encoding='utf-8') as outfile:
             parts = []
             for part in self.parts:
@@ -148,7 +149,8 @@ class Bom(object):
                     self.AddPart(part)
                     self.AddPartComponent(part, component, ar)
                 except Exception as e:
-                    print(format(e))
+                    print_stack()
+                    log.error(format(e))
         
     def AddPart(self, part):
         if part not in self.parts:

@@ -1,9 +1,10 @@
 from os.path import expanduser
 import os.path
 import json
-import logging, sys
+import sys
 import platform
 from distutils.spawn import find_executable
+from helper.log import log
 
 class Configuration(object):
     
@@ -19,9 +20,7 @@ class Configuration(object):
         self.snapeda_user = ''
         self.snapeda_password = ''
         
-        self.LOGLEVEL  = 10
-        self.LOGFILE   = 'stream://sys.stderr'
-        self.LOGFORMAT = '%(asctime)-15s %(levelname)-5s [%(module)s] %(message)s'
+        self.loglevel  = 'WARNING'
         
         self.debug = False
         
@@ -47,6 +46,10 @@ class Configuration(object):
         with open(self.filename, 'r', encoding='utf-8') as infile:
             try:
                 content = json.load(infile)
+                
+                # initialise logging
+                log.setLevel(content['loglevel'])
+
                 #print "Load configuration:", content
                 self.kipartbase = content['kipartbase']
                 self.octopart_api_key = content['octopart_api_key']
@@ -67,31 +70,10 @@ class Configuration(object):
                     self.project_path = content['project_path']
                 
                 self.debug = content['debug']
+
             except Exception as e:
                 print ("Error: loading kipartman key configuration failed {}:{}".format(type(e),e.message))
-            
-            try:
-                self.LOGLEVEL  = int(content['loglevelnumber'])
-                self.LOGFILE   = content['logfile']
-                self.LOGFORMAT = content['logformat']
-            except Exception as e:
-                print ("(USING DEFAULTS): loading kipartman log configuration failed  {}:{}".format(type(e),e.message))
-            
-            try:
-
-                # initialise logging
-                # Send log messages to sys.stderr by configuring "logfile = stream://sys.stderr"
-                if self.LOGFILE.startswith('stream://'):
-                    self.LOGFILE = self.LOGFILE.replace('stream://', '')
-                    logging.basicConfig(stream=eval(self.LOGFILE), level=self.LOGLEVEL, format=self.LOGFORMAT)
-                # Send log messages to file by configuring "logfile": 'kipartman.log'"
-                else:
-                    logging.basicConfig(filename=self.LOGFILE, level=self.LOGLEVEL, format=self.LOGFORMAT)
-                logging.info("Starting %s" % 'kipartman')
-                logging.info("Log level is %s" % logging.getLevelName(self.LOGLEVEL))
-            except Exception as e:
-                print ("Error: configuration of kipartman log failed {}:{}".format(type(e),e.message))
-
+                        
         return True
     
     def Save(self):
@@ -104,10 +86,6 @@ class Configuration(object):
 
             content['base_currency'] = self.base_currency
 
-            content['loglevelnumber'] = str(self.LOGLEVEL)
-            content['logfile'] = self.LOGFILE
-            content['logformat'] = self.LOGFORMAT
-
             content['kicad_path'] = str(self.kicad_path)
             content['kicad_symbols_path'] = str(self.kicad_symbols_path)
             content['kicad_footprints_path'] = str(self.kicad_footprints_path)
@@ -119,41 +97,11 @@ class Configuration(object):
 
             content['debug'] = self.debug
             
+            content['loglevel'] = self.loglevel
+            
             json.dump(content, outfile, sort_keys=True, indent=4, separators=(',', ': '))
 #        print "Save configuration:", content
         self.Load()
-        
-    def FindKicad(self, hint=""):
-        """
-        Search for kicad in system path, On MSW it is not necessarily found through the system Path
-        """
-        if platform.system()=='Windows':
-            import _winreg
-            try: # MSW 32bit check
-                key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                                   b'Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\kicad', 0,
-                                   _winreg.KEY_READ)
-                path = _winreg.QueryValueEx(key, 'InstallLocation')[0]
-            except:
-                pass
-            else:
-                try: # MSW 64bit check
-                    key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                                   b'Software\Microsoft\Windows\CurrentVersion\Uninstall\kicad', 0, _winreg.KEY_READ)
-                    path = _winreg.QueryValueEx(key, 'InstallLocation')[0]
-                except:
-                    pass
-                else:
-                    path='' # no instance of Kicad found
-            if path != '':
-                path = os.path.join(path, "bin")
-            return path
-
-        else:
-            executable = find_executable("kicad")
-            if executable:
-                return os.path.dirname(os.path.abspath(executable))
-            return None #TODO: this is not an acceptable return on Linux
 
 configuration=Configuration()
 configuration.Load()

@@ -4,7 +4,7 @@ from profiling.sampling import SamplingProfiler
 
 # https://github.com/what-studio/profiling
 # To use the profiler:
-#    with Trace()
+#    with Trace():
 #        # some code
 #        # some code
 

@@ -8,6 +8,7 @@ from helper.exception import print_stack
 import wx
 import wx.lib.newevent
 from conans.util.files import md5sum
+from helper.log import log
 
 class VersionManagerException(Exception):
     def __init__(self, error):
@@ -99,16 +100,16 @@ class VersionManager(object):
         
     def SaveState(self):
         with VersionManagerEnabler(self) as f:
-            print("===> SaveState----")
+            log.debug("===> SaveState----")
             content = []
             for file in self.local_files:
-                print("+", file, self.local_files[file])
+                #print("+", file, self.local_files[file])
                 content.append(self.serialize_file(self.local_files[file]))
     
             with open(self.config, 'w', encoding='utf-8') as outfile:
                 json.dump(content, outfile, sort_keys=True, indent=2, separators=(',', ': '))
                 outfile.close()
-            print("------------------")
+            #print("------------------")
     
     def on_file_changed(self, path):
         # integrate changes
@@ -191,7 +192,7 @@ class VersionManager(object):
                         file_disk.updated = state_file.updated
                     file_disk.category = self.file_manager.category()
                                                 
-                    print('$$$$', filepath, state_file.metadata)
+                    #print('$$$$', filepath, state_file.metadata)
                     file_disk.metadata = state_file.metadata
 
             # check if file exists on disk
@@ -430,7 +431,7 @@ class VersionManager(object):
                     # check if file should be renamed
                     local_file = None
                     for local_file_name in self.local_files:
-                        print("****", self.local_files[local_file_name], "###", file)
+                        #print("****", self.local_files[local_file_name], "###", file)
                         if self.local_files[local_file_name].id==file.id:
                             local_file = self.local_files[local_file_name]
                             break
@@ -451,7 +452,7 @@ class VersionManager(object):
     def _debug(self, files):
         for file_path in files:
             file = files[file_path]
-            if file.id:
-                print("-- %s: %d '%s'"%(file_path, file.id, file.state)) 
-            else:
-                print("-- %s: None '%s'"%(file_path, file.state)) 
+#             if file.id:
+#                 print("-- %s: %d '%s'"%(file_path, file.id, file.state)) 
+#             else:
+#                 print("-- %s: None '%s'"%(file_path, file.state)) 

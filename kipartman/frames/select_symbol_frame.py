@@ -7,6 +7,7 @@ from kicad import kicad_lib_file
 import sync.version_manager
 import tempfile
 from helper.exception import print_stack
+from helper.log import log
 
 class DataModelSymbolPath(helper.tree.TreeContainerItem):
     def __init__(self, path):
@@ -151,7 +152,7 @@ class SelectSymbolFrame(PanelSelectSymbol):
         obj = self.tree_symbols_manager.ItemToObject(item)
 
         if isinstance(obj, DataModelSymbol):
-            print("----", obj.symbol.source_path)
+            log.debug("----", obj.symbol.source_path)
             if self.lib_cache.Exists(obj.symbol.source_path):
                 self.lib_cache.LoadContent(obj.symbol)
                 lib = kicad_lib_file.KicadLibFile()

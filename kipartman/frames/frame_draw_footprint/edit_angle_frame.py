@@ -1,5 +1,7 @@
 from dialogs.draw_footprint.panel_edit_angle import PanelEditAngle
 import math
+from helper.exception import print_stack
+from helper.log import log
 
 class EditAngleFrame(PanelEditAngle): 
     def __init__(self, parent, render, angle):
@@ -23,8 +25,10 @@ class EditAngleFrame(PanelEditAngle):
         try:
             angle = float(self.text_angle.Value)*math.pi/180.
         except Exception as e:
-            print(format(e))
+            print_stack()
+            log.error(format(e))
             return
+
         self.angle.SetAngle(angle)
         self.angle.Update()
         self.render()

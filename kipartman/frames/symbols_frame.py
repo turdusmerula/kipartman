@@ -13,6 +13,7 @@ import re
 import sync
 import json
 from helper.connection import check_backend
+from helper.profiler import Trace
 
 # help pages:
 # https://wxpython.org/docs/api/wx.gizmos.TreeListCtrl-class.html
@@ -325,7 +326,7 @@ class SymbolsFrame(PanelSymbols):
         
         self.loadLibraries()
         self.loadSymbols()
-    
+
     def loadLibraries(self):
         try:
             check_backend()

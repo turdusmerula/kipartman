@@ -41,8 +41,6 @@ class TreeModelParameters(TreeModel):
             value1 = param1.GetNumericValue(column)                
             value2 = param2.GetNumericValue(column)
             
-            if value1 is None or value2 is None:
-                print(value1, value2)
             if value2>value1:
                 return -1
             elif value1>value2:

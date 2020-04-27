@@ -3,6 +3,7 @@ import os
 import wx
 import rest
 from bom.bom import Bom
+from helper.log import log
 
 class BasketException(BaseException):
     def __init__(self, error):
@@ -34,7 +35,7 @@ class Basket(object):
 
 
     def LoadFile(self, filename):
-        print("Load Basket", filename)
+        log.info("Load Basket", filename)
         
         if(os.path.isfile(filename)==False):
             raise Exception("Error: %s does not exists" % filename)
@@ -50,7 +51,8 @@ class Basket(object):
         self.saved = True
                 
     def SaveFile(self, filename):
-        print("Save Basket", filename)
+        log.info("Save Basket", filename)
+        
         with open(filename, 'w', encoding='utf-8') as outfile:
             boms = []
             for bom in self.boms:
@@ -59,17 +61,6 @@ class Basket(object):
             json.dump({ 'boms': boms}, outfile, sort_keys=True,
                   indent=4, separators=(',', ': '))
 
-#         with open(filename, 'w') as outfile:
-#             outfile.write("-- Bom files --\n")
-#             outfile.write("filename;quantity\n")
-#             for bom in self.boms:
-#                 outfile.write(self.boms[bom].bom.filename+";"+str(self.boms[bom])+"\n")
-#             
-#             for distributor in self.distributors:
-#                 outfile.write("\n-- "+distributor+" --\n")
-#                 outfile.write("sku;quantity;unit-price\n")
-#                 for wish in self.distributors[distributor]:
-#                     outfile.write(wish.sku+";"+str(wish.quantity)+";"+str(wish.unit_price[0])+"\n")
         self.filename = filename
         self.saved = True
 

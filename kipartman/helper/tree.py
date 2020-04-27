@@ -6,6 +6,7 @@ import wx.dataview
 import json
 from array import array
 from helper.exception import print_stack
+from helper.log import log
 
 class Tree:
     def __init__(self, tree):
@@ -180,7 +181,7 @@ class TreeModel(wx.dataview.PyDataViewModel):
         else:
             value1 = self.GetValue(item1, column)
             value2 = self.GetValue(item2, column)
-
+ 
             # empty element are always treated inferior
             if value1=="" and value2!="":
                 return 1
@@ -188,10 +189,10 @@ class TreeModel(wx.dataview.PyDataViewModel):
                 return -1
             elif value1=="" and value2=="":
                 return super(TreeModel, self).Compare(item1, item2, column, ascending)
-
+ 
             if not ascending: # swap sort order?
                 value2, value1 = value1, value2
-
+ 
             return self.sort_function[column](value1, value2)
         
 class TreeDropTarget(wx.TextDropTarget):
@@ -387,7 +388,7 @@ class TreeManager(object):
         if wx.TheClipboard.Open():
             wx.TheClipboard.SetData(wx.TextDataObject(data))
             wx.TheClipboard.Close()
-        print("Copy", data, index)
+        log.debug("Copy", data, index)
 
     def _onColumnHeaderClick( self, event ):
         event.manager = self

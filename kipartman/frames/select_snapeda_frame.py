@@ -6,6 +6,7 @@ import os
 import tempfile
 import cfscrape
 from helper.exception import print_stack
+from helper.log import log
 
 SelectSnapedaOkEvent, EVT_SELECT_SNAPEDA_OK_EVENT = wx.lib.newevent.NewEvent()
 SelectSnapedaCancelEvent, EVT_SELECT_SNAPEDA_APPLY_EVENT = wx.lib.newevent.NewEvent()
@@ -96,7 +97,7 @@ class SelectSnapedaFrame(PanelSelectSnapeda):
         snapedaobj = self.tree_snapeda_manager.ItemToObject(item)
         snapeda = snapedaobj.part
         
-        print("--", snapeda.json)
+        log.debug("--", snapeda.json)
         
         # download image
         image_url = ""

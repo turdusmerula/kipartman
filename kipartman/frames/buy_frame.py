@@ -1,21 +1,22 @@
 from dialogs.dialog_buy import DialogBuy
 from frames.order_options_dialog import OrderOptionsDialog
+from frames.edit_wish_frame import EditWishFrame
 from currency.currency import Currency
 from configuration import configuration
 import rest
-import helper.tree
 from basket.basket import Basket
 import os
-from frames.edit_wish_frame import EditWishFrame
-from helper.exception import print_stack
 import wx
 from bom.bom import Bom
 from octopart.queries import PartsQuery
 from octopart.extractor import OctopartExtractor
 import pytz
 import datetime
+import helper.tree
+from helper.exception import print_stack
 from helper.part_updater import PartReferenceUpdater
 from helper.parts_cache import PartsCache
+from helper.log import log
 
 currency = Currency()
 
@@ -475,7 +476,7 @@ class BuyFrame(DialogBuy):
                 bom_product.load()
             except Exception as e:
                 print_stack()
-                print(format(e))
+                log.error(format(e))
                 
             for bom_part in bom_product.bom.Parts():
                 full_part = parts_cache.Find(bom_part.id)
@@ -590,10 +591,10 @@ class BuyFrame(DialogBuy):
     def needed_bom_parts(self):
         global parts_cache
         parts = []
-        print("Needed bom parts: ")
+        log.debug("Needed bom parts: ")
         for bom_part in self.tree_bom_parts_manager.data:
             if bom_part.provisioning()<bom_part.needed():
-                print("-", bom_part.bom_part.id, "provisionning:", bom_part.provisioning(), "needed:", bom_part.needed())
+                log.debug("-", bom_part.bom_part.id, "provisionning:", bom_part.provisioning(), "needed:", bom_part.needed())
                 parts.append(parts_cache.Find(bom_part.bom_part.id))
         return parts
     
@@ -742,7 +743,7 @@ class BuyFrame(DialogBuy):
         for bom_part in bom_parts:
             equivalent_parts = self.get_equivalent_parts(bom_part)
             quantity = self.tree_bom_parts_manager.FindBomPart(bom_part.id).needed()
-            print("-", bom_part.name, quantity)
+            log.debug("-", bom_part.name, quantity)
             
             best_offer = None
             best_part = None
@@ -963,9 +964,9 @@ class BuyFrame(DialogBuy):
         global parts_cache
         partrefs = parts_cache.Find(part.id)
         if partrefs.references:
-            print("Part:", partrefs.name, "references:", len(partrefs.references))
+            log.debug("Part:", partrefs.name, "references:", len(partrefs.references))
         else:
-            print("Part:", partrefs.name, "references: none")
+            log.debug("Part:", partrefs.name, "references: none")
         
         if partrefs.references:
             for reference in partrefs.references:

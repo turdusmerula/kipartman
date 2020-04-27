@@ -10,12 +10,17 @@ import shutil
 import json
 import rest
 import wx
+from helper.log import log
+from helper.exception import print_callstack
 
 class KicadFileManagerException(Exception):
     def __init__(self, error):
         super(KicadFileManagerException, self).__init__(error)
 
 class KicadFileManager(FileSystemEventHandler):
+    # map with path / observer
+    observers = {}
+    
     def __init__(self):
         self.on_change_hook = None
         
@@ -28,9 +33,21 @@ class KicadFileManager(FileSystemEventHandler):
 
         # observer to trigger event on resource change
         self.enabled = True
-        self.observer = Observer()
+
+        if self.root_path() in KicadFileManager.observers:
+            self.observer = KicadFileManager.observers[self.root_path()]
+        else:
+            self.observer = Observer()
+            KicadFileManager.observers[self.root_path()] = self.observer
+            self.observer.start()
+        
         self.watch = self.observer.schedule(self, self.root_path(), recursive=True)
-        self.observer.start()
+        
+        log.info(f"Added file observer at {self.root_path()}")
+
+    def __del__(self):
+        self.observer.remove_handler_for_watch(self, self.watch)
+
     
     def version_file(self):
         return '.kiversion'
@@ -42,16 +59,18 @@ class KicadFileManager(FileSystemEventHandler):
         if self.enabled==False:
             return 
         
+        print_callstack() 
+        
         self.enabled = False
         for extension in self.extensions:
             if hasattr(event, 'dest_path') and os.path.isfile(event.dest_path) and os.path.basename(event.dest_path).startswith('.')==False and event.dest_path.endswith('.'+extension):
-                print("Something happend with %s" % (event.dest_path))
+                log.info("Something happend with %s" % (event.dest_path))
                 path = os.path.relpath(event.dest_path, self.root_path())
                 self.on_change_prehook(path)
                 if self.on_change_hook:
                     wx.CallAfter(self.on_change_hook, path)
             elif hasattr(event, 'src_path') and os.path.isfile(event.src_path) and os.path.basename(event.src_path).startswith('.')==False and event.src_path.endswith('.'+extension):
-                print("Something happend with %s" % (event.src_path))
+                log.info("Something happend with %s" % (event.src_path))
                 path = os.path.relpath(event.src_path, self.root_path())
                 self.on_change_prehook(path)
                 if self.on_change_hook:
@@ -152,7 +171,7 @@ class KicadFileManagerPretty(KicadFileManager):
         Recurse all folders and return .pretty folders path
         @param root_path: path from which to start recursing, None starts from root
         """
-        print("===> GetLibraries----")
+        log.debug("===> GetLibraries----")
         basepath = os.path.normpath(os.path.abspath(self.root_path()))
         to_explore = [basepath]
         libraries = []
@@ -165,11 +184,11 @@ class KicadFileManagerPretty(KicadFileManager):
                     if folder!='/':
                         folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         if re.compile("^.*\.pretty$").match(os.path.normpath(os.path.abspath(folder))):
-                            print("=>", folder) 
+                            #print("=>", folder) 
                             libraries.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         elif os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             to_explore.append(folder)
-        print("---------------------")
+        #print("---------------------")
      
         return libraries, folders
 
@@ -177,15 +196,15 @@ class KicadFileManagerPretty(KicadFileManager):
         """
         Return all footprints in a pretty lib
         """
-        print("===> GetFootprints----")
+        #log.debug("===> GetFootprints----")
         footprints = []
  
         path = os.path.join(self.root_path(), library_path)        
         if os.path.exists(path):
             for kicad_mod in glob(os.path.join(path, "*.kicad_mod")):
-                print("==>", kicad_mod) 
+                #print("==>", kicad_mod) 
                 footprints.append(os.path.basename(kicad_mod))
-        print("----------------------")
+        #print("----------------------")
      
         return footprints
  
@@ -406,7 +425,7 @@ class KicadLibCache(object):
             for symbol in symbols:
                 if symbol in metadata:
                     meta = metadata[symbol]
-                print("%$$$", meta)
+                #print("%$$$", meta)
                 self.libs[library][symbol] = KicadLibCacheElement(content=symbols[symbol], metadata=meta)
 
         if library in self.libs and symbol in self.libs[library]:
@@ -424,7 +443,7 @@ class KicadLibCache(object):
                 meta = {}
                 if metadata and symbol in metadata:
                     meta = metadata[symbol]
-                print("%$$$", symbol, meta)
+                #print("%$$$", symbol, meta)
                 self.libs[lib_path][symbol] = KicadLibCacheElement(content=symbols[symbol], metadata=meta)
         
         if lib_path in self.libs:
@@ -537,7 +556,7 @@ class KicadFileManagerLib(KicadFileManager):
         Recurse all folders and return .lib files path
         @param root_path: path from which to start recursing, None starts from root
         """
-        print("===> GetLibraries----")
+        log.debug("===> GetLibraries----")
         basepath = os.path.normpath(os.path.abspath(self.root_path()))
         to_explore = [basepath]
         libraries = []
@@ -550,7 +569,7 @@ class KicadFileManagerLib(KicadFileManager):
                 for folder in glob(os.path.join(path, "*/")):
                     if folder!='/':
                         folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
-                        print("=>", folder) 
+                        #print("=>", folder) 
                         if os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             to_explore.append(folder)
         
@@ -559,11 +578,11 @@ class KicadFileManagerLib(KicadFileManager):
         for folder in folders:
             for lib in glob(os.path.join(basepath, folder, "*.lib")):
                 rel_folder = os.path.relpath(os.path.normpath(os.path.abspath(lib)), basepath)
-                print("=>", lib) 
+                #print("=>", lib) 
                 folders.append(rel_folder)
                 libraries.append(rel_folder)
         folders.remove('')
-        print("---------------------")
+        #print("---------------------")
         
         return libraries, folders
     
@@ -571,7 +590,7 @@ class KicadFileManagerLib(KicadFileManager):
         """
         Return all symbols in a lib file
         """
-        print("===> GetSymbols----")
+        #log.debug("===> GetSymbols----")
         symbols = []
  
         path = os.path.join(self.root_path(), library_path)        
@@ -579,7 +598,7 @@ class KicadFileManagerLib(KicadFileManager):
             lib_symbols = self.lib_cache.GetSymbols(library_path)
             for symbol in lib_symbols:
                 symbols.append(os.path.join(library_path, symbol))
-        print("----------------------")
+        #print("----------------------")
      
         return symbols
  
@@ -811,7 +830,7 @@ class KicadFileManagerModule(KicadFileManager):
                 for folder in glob(os.path.join(path, "*/")):
                     if folder!='/':
                         if re.compile("^.*\.module$").match(os.path.normpath(os.path.abspath(folder))):
-                            print("=>", folder) 
+                            #print("=>", folder) 
                             modules.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         elif os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))

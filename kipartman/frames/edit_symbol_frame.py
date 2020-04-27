@@ -17,6 +17,7 @@ import helper.hash as hash
 import json
 from kicad.kicad_file_manager import KicadLibCache, KicadFileManagerLib
 from helper.exception import print_stack
+from helper.log import log
 
 EditSymbolApplyEvent, EVT_EDIT_SYMBOL_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditSymbolCancelEvent, EVT_EDIT_SYMBOL_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -120,7 +121,7 @@ class EditSymbolFrame(PanelEditSymbol):
         snapeda = event.data
         if not snapeda:
             return
-        print(snapeda.json)
+        log.debug(snapeda.json)
         
         self.edit_symbol_name.Value = snapeda.name()
         self.edit_symbol_description.Value = snapeda.short_description()
@@ -138,7 +139,7 @@ class EditSymbolFrame(PanelEditSymbol):
                 
         except Exception as e:
             print_stack()
-            print(format(e))
+            log.error(format(e))
             DialogSnapedaError(self).ShowModal()
             return
         
@@ -149,7 +150,7 @@ class EditSymbolFrame(PanelEditSymbol):
             try:
                 file =  tempfile.NamedTemporaryFile(mode='w+b', delete=False)
                 filename = file.name
-                print("Download from:", download.url())
+                log.info("Download from:", download.url())
                 content = scraper.get(download.url()).content
                 file.write(content)
                 file.close()

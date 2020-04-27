@@ -7,6 +7,7 @@ import swagger_client
 from octopart.queries import PartsQuery as OctpartPartsQuery
 from snapeda.connection import SnapedaConnection, SnapedaConnectionException
 from helper.exception import print_stack
+from helper.log import log
 
 class ConfigurationFrame(DialogConfiguration): 
     def __init__(self, parent): 
@@ -100,7 +101,7 @@ class ConfigurationFrame(DialogConfiguration):
             q = OctpartPartsQuery()
             q.get('atmega328p')
             self.data = q.results()
-            print(self.data)
+            log.debug(self.data)
             wx.MessageBox( 'OCTOPART CONNECTION OK', 
                 'OCTOPART CONNECTION OK', wx.OK )
         except Exception as e:

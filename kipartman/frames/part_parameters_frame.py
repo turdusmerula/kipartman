@@ -3,6 +3,7 @@ from frames.edit_part_parameter_frame import EditPartParameterFrame
 import helper.tree
 import helper.tree_parameters
 from helper.unit import format_unit_prefix
+from helper.log import log
 
 class DataModelPartParameter(helper.tree.TreeContainerItem):
     def __init__(self, part, parameter):
@@ -173,7 +174,7 @@ class PartParametersFrame(PanelPartParameters):
             self.menu_parameter_remove_parameter.Enable(False)
             
     def onTreeParametersItemStartEditing( self, event ):
-        print("onTreeParametersItemStartEditing")
+        log.debug("onTreeParametersItemStartEditing")
         
     def onTreeParametersItemValueChanged( self, event ):
         if self.editing==True:
