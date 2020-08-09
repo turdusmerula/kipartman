@@ -6,7 +6,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
+    atomic = False
+    
     dependencies = [
         ('api', '0033_part_model'),
     ]
@@ -14,6 +15,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RenameModel(
             old_name='StorageLocation',
-            new_name='Storage',
+            new_name='Storage'
         ),
     ]

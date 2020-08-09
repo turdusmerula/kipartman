@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Aug 22 2019)
+## Python code generated with wxFormBuilder (version Dec 18 2018)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -104,10 +104,10 @@ class PanelParts ( wx.Panel ):
 		self.filters_panel.SetSizer( bSizer16 )
 		self.filters_panel.Layout()
 		bSizer16.Fit( self.filters_panel )
-		filters_sizer.Add( self.filters_panel, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		filters_sizer.Add( self.filters_panel, 1, wx.EXPAND, 5 )
 
 
-		bSizer12.Add( filters_sizer, 0, wx.EXPAND|wx.RIGHT|wx.LEFT, 5 )
+		bSizer12.Add( filters_sizer, 0, wx.EXPAND, 5 )
 
 		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
 

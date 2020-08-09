@@ -34,10 +34,10 @@ class PanelStorages ( wx.Panel ):
 		self.button_refresh_categories = wx.BitmapButton( self.panel_category, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
 
 		self.button_refresh_categories.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer4.Add( self.button_refresh_categories, 0, wx.ALL|wx.ALIGN_BOTTOM|wx.ALIGN_RIGHT, 5 )
+		bSizer4.Add( self.button_refresh_categories, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
 
 
-		bSizer2.Add( bSizer4, 0, wx.EXPAND|wx.ALIGN_RIGHT, 5 )
+		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
 
 		self.tree_categories = wx.dataview.DataViewCtrl( self.panel_category, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_SINGLE )
 		bSizer2.Add( self.tree_categories, 1, wx.ALL|wx.EXPAND, 5 )

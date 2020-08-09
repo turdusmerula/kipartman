@@ -1,7 +1,0 @@
-﻿External ID,Name,Footprint,Description,Products/Inventory Location/Location Name,Products/Quantity On Hand,Price
-__export__.product_template_201,MCSR06X4702FTL,Resistors_SMD:R_0603,"Resistor, Ceramic, MCSR 06 Series, 47 kohm, 100 mW, Â± 1%, 75 V",Inventory loss,100,0
-__export__.product_template_268,TESTMCSR12X10R0FTL,Resistors_SMD:R_1206,"Resistor, Ceramic, MCSR 12 Series, 10 ohm, 250 mW, Â± 1%, 200 V",Inventory loss,100,0
-__export__.product_template_442,MCSR08X1000FTL,Resistors_SMD:R_0805,"SMD Chip Resistor, Ceramic, MCSR 08 Series, 100 ohm, 150 V, 0805 [2012 Metric], 125 mW, Â± 1%",Inventory loss,100,0
-__export__.product_template_943,RC2010FK-072R2L,Resistors_SMD:R_2010,"SMD Chip Resistor, Thick Film, 2.2 ohm, 200 V, 2010 [5025 Metric], 500 mW, Â± 1%, RC Series",Inventory loss,0,0
-__export__.product_template_259,OARS1 - R005FI,,"SMD Current Sense Resistor, AEC-Q-200OARS Series, 0.005 ohm, 1 W, Â± 1%, SMD",Inventory loss,5,0
-__export__.product_template_493,AC05000008201JAC00,,"Through Hole Resistor, AC Series, 8.2 kohm, 5 W, Â± 5%, Axial Leaded",Inventory loss,10,0
