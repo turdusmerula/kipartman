@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version 3.9.0 Aug  8 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -9,6 +9,7 @@
 
 import wx
 import wx.xrc
+import wx.aui
 
 ###########################################################################
 ## Class DialogMain
@@ -37,6 +38,14 @@ class DialogMain ( wx.Frame ):
 		self.menu_view_configuration = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Configuration", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_view.Append( self.menu_view_configuration )
 
+		self.menu_view.AppendSeparator()
+
+		self.menu_view_parts = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Parts", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_view.Append( self.menu_view_parts )
+
+		self.menu_view_test = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Test", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_view.Append( self.menu_view_test )
+
 		self.menu_bar.Append( self.menu_view, u"View" )
 
 		self.menu_help = wx.Menu()
@@ -54,7 +63,7 @@ class DialogMain ( wx.Frame ):
 		self.info.SetEffectDuration( 500 )
 		bSizer5.Add( self.info, 0, wx.ALL|wx.EXPAND, 5 )
 
-		self.notebook = wx.Notebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.notebook = wx.aui.AuiNotebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.aui.AUI_NB_CLOSE_BUTTON|wx.aui.AUI_NB_CLOSE_ON_ACTIVE_TAB|wx.aui.AUI_NB_DEFAULT_STYLE|wx.aui.AUI_NB_TAB_MOVE|wx.aui.AUI_NB_TAB_SPLIT )
 
 		bSizer5.Add( self.notebook, 1, wx.EXPAND |wx.ALL, 5 )
 
@@ -70,9 +79,11 @@ class DialogMain ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.onMenuFileProjetSelection, id = self.menu_file_project.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuBuyPartsSelection, id = self.menu_buy_parts.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewConfigurationSelection, id = self.menu_view_configuration.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuViewPartsSelection, id = self.menu_view_parts.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuViewTestSelection, id = self.menu_view_test.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuHelpAboutSelection, id = self.menu_about.GetId() )
-		self.notebook.Bind( wx.EVT_NOTEBOOK_PAGE_CHANGED, self.onNotebookPageChanged )
-		self.notebook.Bind( wx.EVT_NOTEBOOK_PAGE_CHANGING, self.onNotebookPageChanging )
+		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGED, self.onNotebookPageChanged )
+		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGING, self.onNotebookPageChanging )
 
 	def __del__( self ):
 		pass
@@ -89,6 +100,12 @@ class DialogMain ( wx.Frame ):
 		event.Skip()
 
 	def onMenuViewConfigurationSelection( self, event ):
+		event.Skip()
+
+	def onMenuViewPartsSelection( self, event ):
+		event.Skip()
+
+	def onMenuViewTestSelection( self, event ):
 		event.Skip()
 
 	def onMenuHelpAboutSelection( self, event ):

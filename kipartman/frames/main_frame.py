@@ -23,32 +23,48 @@ class MainFrame(DialogMain):
         self.menus = self.menu_bar.GetMenus()
 
         self.pages = []
-        self.partsframe = PartsFrame(self.notebook)
-        self.symbolsframe = SymbolsFrame(self.notebook)
-        self.footprintsframe = FootprintsFrame(self.notebook)
-        self.modulesframe = ModulesFrame(self.notebook)
-        self.distributorsframe = DistributorsFrame(self.notebook)
-        self.manufacturersframe = ManufacturersFrame(self.notebook)
-        self.storageframe = StoragesFrame(self.notebook)
+
+#         partsframe = PartsFrame(self.notebook)
+#         self.pages.append(partsframe)
+#         self.notebook.AddPage(partsframe, "Parts", False)
+
+#         self.symbolsframe = SymbolsFrame(self.notebook)
+#         self.footprintsframe = FootprintsFrame(self.notebook)
+#         self.modulesframe = ModulesFrame(self.notebook)
+#         self.distributorsframe = DistributorsFrame(self.notebook)
+#         self.manufacturersframe = ManufacturersFrame(self.notebook)
+#         self.storageframe = StoragesFrame(self.notebook)
  
-        self.pages.append(self.partsframe)
-        self.notebook.AddPage(self.partsframe, "Parts", False)
-        self.pages.append(self.symbolsframe)
-        self.notebook.AddPage(self.symbolsframe, "Symbols", False)
-        self.pages.append(self.footprintsframe)
-        self.notebook.AddPage(self.footprintsframe, "Footprints", False)
-        self.pages.append(self.modulesframe)
-        self.notebook.AddPage(self.modulesframe, "Modules", False)
-        self.pages.append(self.distributorsframe)
-        self.notebook.AddPage(self.distributorsframe, "Distributors", False)
-        self.pages.append(self.manufacturersframe)
-        self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
-        self.pages.append(self.storageframe)
-        self.notebook.AddPage(self.storageframe, "Storage locations", False)
+#         self.pages.append(self.symbolsframe)
+#         self.notebook.AddPage(self.symbolsframe, "Symbols", False)
+#         self.pages.append(self.footprintsframe)
+#         self.notebook.AddPage(self.footprintsframe, "Footprints", False)
+#         self.pages.append(self.modulesframe)
+#         self.notebook.AddPage(self.modulesframe, "Modules", False)
+#         self.pages.append(self.distributorsframe)
+#         self.notebook.AddPage(self.distributorsframe, "Distributors", False)
+#         self.pages.append(self.manufacturersframe)
+#         self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
+#         self.pages.append(self.storageframe)
+#         self.notebook.AddPage(self.storageframe, "Storage locations", False)
 
     def onMenuViewConfigurationSelection( self, event ):
         ConfigurationFrame(self).ShowModal()
 
+    def onMenuViewPartsSelection( self, event ):
+        partsframe = PartsFrame(self.notebook)
+        self.pages.append(partsframe)
+        self.notebook.AddPage(partsframe, "Parts", False)
+
+    def onMenuViewTestSelection( self, event ):
+        from frames.test_frame import TestFrame
+        testframe = TestFrame(self.notebook)
+        self.pages.append(testframe)
+        self.notebook.AddPage(testframe, "Test", False)
+
+        from frames.categories_frame import CategoriesFrame
+        testframe.set_panel(CategoriesFrame(testframe))
+        
     def onNotebookPageChanged( self, event ):
         if self.menus is None:
             return
@@ -57,20 +73,23 @@ class MainFrame(DialogMain):
         
         self.menu_bar.SetMenus(self.menus)
 
-        try:
-            page = self.pages[self.notebook.GetSelection()]
-            self.page_menus = page.GetMenus()
-            
-            for menu in self.page_menus:
-                self.menu_bar.Insert(len(self.menu_bar.GetMenus())-1, menu['menu'], menu['title'])
-                for menu_item in menu['menu'].GetMenuItems():
-                    self.Bind( wx.EVT_MENU, self.OnMenuItem, id = menu_item.GetId() )
+        page = None
+        if len(self.pages)>0:
+            try:
+                page = self.pages[self.notebook.GetSelection()]
+                self.page_menus = page.GetMenus()
+                
+                for menu in self.page_menus:
+                    self.menu_bar.Insert(len(self.menu_bar.GetMenus())-1, menu['menu'], menu['title'])
+                    for menu_item in menu['menu'].GetMenuItems():
+                        self.Bind( wx.EVT_MENU, self.OnMenuItem, id = menu_item.GetId() )
+    
+            except:
+                print_stack()
+                pass
 
-        except:
-            print_stack()
-            pass
-
-        page.activate() 
+        if page is not None:
+            page.activate() 
 
     def onMenuFileProjetSelection( self, event ):
         dlg = wx.FileDialog(

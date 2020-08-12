@@ -14,6 +14,7 @@
         <property name="file">dialog_main</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
+        <property name="image_path_wrapper_function_name"></property>
         <property name="indent_with_spaces"></property>
         <property name="internationalize">0</property>
         <property name="name">dialog_main</property>
@@ -25,6 +26,7 @@
         <property name="skip_php_events">1</property>
         <property name="skip_python_events">1</property>
         <property name="ui_table">UI</property>
+        <property name="use_array_enum">0</property>
         <property name="use_enum">0</property>
         <property name="use_microsoft_bom">0</property>
         <object class="Frame" expanded="1">
@@ -64,7 +66,6 @@
                 <property name="font"></property>
                 <property name="hidden">0</property>
                 <property name="id">wxID_ANY</property>
-                <property name="label"></property>
                 <property name="maximum_size"></property>
                 <property name="minimum_size"></property>
                 <property name="name">menu_bar</property>
@@ -131,6 +132,38 @@
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection">onMenuViewConfigurationSelection</event>
+                    </object>
+                    <object class="separator" expanded="1">
+                        <property name="name">m_separator2</property>
+                        <property name="permission">none</property>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Parts</property>
+                        <property name="name">menu_view_parts</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection">onMenuViewPartsSelection</event>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Test</property>
+                        <property name="name">menu_view_test</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection">onMenuViewTestSelection</event>
                     </object>
                 </object>
                 <object class="wxMenu" expanded="1">
@@ -222,7 +255,7 @@
                     <property name="border">5</property>
                     <property name="flag">wxEXPAND | wxALL</property>
                     <property name="proportion">1</property>
-                    <object class="wxNotebook" expanded="1">
+                    <object class="wxAuiNotebook" expanded="1">
                         <property name="BottomDockable">1</property>
                         <property name="LeftDockable">1</property>
                         <property name="RightDockable">1</property>
@@ -233,7 +266,6 @@
                         <property name="aui_row"></property>
                         <property name="best_size"></property>
                         <property name="bg"></property>
-                        <property name="bitmapsize"></property>
                         <property name="caption"></property>
                         <property name="caption_visible">1</property>
                         <property name="center_pane">0</property>
@@ -268,15 +300,17 @@
                         <property name="resize">Resizable</property>
                         <property name="show">1</property>
                         <property name="size"></property>
-                        <property name="style"></property>
-                        <property name="subclass"></property>
+                        <property name="style">wxAUI_NB_CLOSE_BUTTON|wxAUI_NB_CLOSE_ON_ACTIVE_TAB|wxAUI_NB_DEFAULT_STYLE|wxAUI_NB_TAB_MOVE|wxAUI_NB_TAB_SPLIT</property>
+                        <property name="subclass">; ; forward_declare</property>
+                        <property name="tab_ctrl_height">-1</property>
                         <property name="toolbar_pane">0</property>
                         <property name="tooltip"></property>
+                        <property name="uniform_bitmap_size"></property>
                         <property name="window_extra_style"></property>
                         <property name="window_name"></property>
                         <property name="window_style"></property>
-                        <event name="OnNotebookPageChanged">onNotebookPageChanged</event>
-                        <event name="OnNotebookPageChanging">onNotebookPageChanging</event>
+                        <event name="OnAuiNotebookPageChanged">onNotebookPageChanged</event>
+                        <event name="OnAuiNotebookPageChanging">onNotebookPageChanging</event>
                     </object>
                 </object>
             </object>
