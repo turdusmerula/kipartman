@@ -8,7 +8,7 @@ def find(filters=[]):
     for filter in filters:
         request = filter.apply(request)
     
-    return request.all()
+    return request.order_by('id').all()
 
 ####################################################    
 def add(category):

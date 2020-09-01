@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Aug  8 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -10,7 +10,6 @@
 import wx
 import wx.xrc
 import wx.dataview
-import wx.grid
 
 ###########################################################################
 ## Class PanelPartList
@@ -54,37 +53,6 @@ class PanelPartList ( wx.Panel ):
 
 		self.tree_parts = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer1.Add( self.tree_parts, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.grid_parts = wx.grid.Grid( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-
-		# Grid
-		self.grid_parts.CreateGrid( 5, 5 )
-		self.grid_parts.EnableEditing( True )
-		self.grid_parts.EnableGridLines( False )
-		self.grid_parts.EnableDragGridSize( False )
-		self.grid_parts.SetMargins( 0, 0 )
-
-		# Columns
-		self.grid_parts.SetColSize( 0, 206 )
-		self.grid_parts.SetColSize( 1, 355 )
-		self.grid_parts.SetColSize( 2, 499 )
-		self.grid_parts.SetColSize( 3, 32 )
-		self.grid_parts.SetColSize( 4, 30 )
-		self.grid_parts.EnableDragColMove( True )
-		self.grid_parts.EnableDragColSize( True )
-		self.grid_parts.SetColLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
-
-		# Rows
-		self.grid_parts.EnableDragRowSize( False )
-		self.grid_parts.SetRowLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
-
-		# Label Appearance
-
-		# Cell Defaults
-		self.grid_parts.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
-		self.grid_parts.Hide()
-
-		bSizer1.Add( self.grid_parts, 1, wx.ALL|wx.EXPAND, 5 )
 
 
 		self.SetSizer( bSizer1 )

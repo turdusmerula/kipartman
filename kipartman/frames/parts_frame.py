@@ -1,6 +1,9 @@
 from dialogs.panel_parts import PanelParts
+import frames
 from frames.part_categories_frame import PartCategoriesFrame
 from frames.part_list_frame import PartListFrame
+from helper.filter import FilterSet
+import api.data.part
 import wx
 
 # from frames.dropdown_dialog import DropdownDialog
@@ -9,7 +12,6 @@ import wx
 # from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
 # from frames.select_part_parameter_frame import SelectPartParameterFrame
 # import helper.tree
-# from helper.filter import Filter
 # import wx
 # from helper.exception import print_stack
 # 
@@ -266,17 +268,25 @@ class PartsFrame(PanelParts):
     def __init__(self, parent): 
         super(PartsFrame, self).__init__(parent)
         
+        # parts filters
+        self.parts_filter = FilterSet(self, self.toolbar_filters)
         
         # add categories panel
-        self.panel_categories = PartCategoriesFrame(self.splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        self.panel_categories = PartCategoriesFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL, filters=self.parts_filter)
+        self.panel_categories.Bind( frames.part_categories_frame.EVT_SELECT_CATEGORY, self.onPartCategoriesSelectionChanged )
+        
+        # add part list panel
+        self.panel_part_list = PartListFrame(self.panel_up, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL, filters=self.parts_filter)
+        self.panel_part_list.Bind( frames.part_list_frame.EVT_SELECT_PART, self.onPartSelectionChanged )
 
-        # add par list panel
-        self.panel_part_list = PartListFrame(self.splitter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-
-        self.split_vertically( self.panel_categories, self.panel_part_list)
-
-#         # parts filters
-#         self.parts_filter = Filter(self.filters_panel, self.onButtonRemoveFilterClick)
+        # organize panels
+        self.splitter_vert.Unsplit()
+        self.splitter_vert.SplitVertically( self.panel_categories, self.panel_right)
+        self.panel_left.Hide()
+#         self.splitter_horz.Unsplit()
+#         self.splitter_horz.SplitHorizontally( self.panel_part_list, self.panel_down)
+#         self.panel_up.Hide()
+        self.sizer_part.Add( self.panel_part_list, 1, wx.EXPAND |wx.ALL, 5 )
 
 #         # create edit part panel
 #         self.panel_edit_part = EditPartFrame(self.part_splitter)
@@ -300,101 +310,17 @@ class PartsFrame(PanelParts):
         if self.loaded==False:
             self.load()
         self.loaded = True
-    
-    def split_vertically(self, panel1, panel2):
-        self.splitter.Unsplit()
-        self.splitter.SplitVertically( panel1, panel2)
-        self.panel_left.Hide()
-        self.panel_right.Hide()
-        
-#     def loadCategories(self):
-#         try:
-#             check_backend()
-#         except Exception as e:
-#             print_stack()
-#             self.GetParent().GetParent().error_message(format(e))
-#             return
+
+
+    def onPartCategoriesSelectionChanged( self, event ):
+        self.parts_filter.replace(api.data.part.FilterCategory(event.category), 'category')
+        event.Skip()
+
+    def onPartSelectionChanged( self, event ):
+        print("---")
+        event.Skip()
+
 # 
-#         # clear all
-#         self.tree_categories_manager.ClearItems()
-#         
-#         # load categories
-#         categories = rest.api.find_parts_categories()
-# 
-#         # load tree
-#         to_add = []
-#         id_category_map = {}
-#         for category in categories:
-#             to_add.append(category)
-#         while len(to_add)>0:
-#             category = to_add[0]
-#             id_category_map[category.id] = DataModelCategory(category)
-#             to_add.pop(0)
-#             
-#             # add to symbol
-#             if category.parent:
-#                 self.tree_categories_manager.AppendItem(id_category_map[category.parent.id], id_category_map[category.id])
-#             else:
-#                 self.tree_categories_manager.AppendItem(None, id_category_map[category.id])
-#             
-#             # load childs
-#             if category.childs:
-#                 for child in category.childs:
-#                     to_add.append(child)
-#         
-#     def loadParts(self):
-#         try:
-#             check_backend()
-#         except Exception as e:
-#             print_stack()
-#             self.GetParent().GetParent().error_message(format(e))
-#             return
-# 
-#         # clear all
-#         self.tree_parts_manager.ClearItems()
-#         
-#         # load parts
-#         parts = rest.api.find_parts( with_parameters=True, **self.parts_filter.query_filter())
-# 
-#         if self.show_categories:
-#             # load categories
-#             categories = {}
-#             for part in parts:
-#                 if part.category:
-#                     category_name = part.category.path
-#                 else:
-#                     category_name = "/"
-#     
-#                 if category_name not in categories:
-#                     categories[category_name] = DataModelCategoryPath(part.category)
-#                     self.tree_parts_manager.AppendItem(None, categories[category_name])
-#                 self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, self.tree_parts_manager.model.columns))
-#             
-#             for category in categories:
-#                 self.tree_parts_manager.Expand(categories[category])
-#         else:
-#             for part in parts:
-#                 self.tree_parts_manager.AppendItem(None, DataModelPart(part, self.tree_parts_manager.model.columns))
-#             
-    def load(self):
-        pass
-#         try:
-#             self.loadCategories()
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-# 
-#         try:
-#             self.loadParts()
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-# 
-#     def load_full_part(self, partobj):
-#         if partobj and isinstance(partobj, DataModelPart):
-#             # read whole part from server
-#             partobj.part = rest.api.find_part(partobj.part.id, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True, with_references=True)
-#         
 #     def show_part(self, part):
 #         # disable editing
 #         self.panel_edit_part.enable(False)
@@ -897,3 +823,4 @@ class PartsFrame(PanelParts):
 #         # self.SetIcon(wx.Icon("appIcon.png"))
 #         # Set the panel
 #         self.panel = wx.Panel(self)
+

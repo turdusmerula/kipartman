@@ -5,9 +5,9 @@ import wx
 import wx.lib.newevent
 import helper.tree
 
-class DataModelCategory(helper.tree.TreeContainerLazyItem):
+class PartCategory(helper.tree.TreeContainerLazyItem):
     def __init__(self, category):
-        super(DataModelCategory, self).__init__()
+        super(PartCategory, self).__init__()
         self.category = category
         
     def GetValue(self, col):
@@ -21,10 +21,9 @@ class DataModelCategory(helper.tree.TreeContainerLazyItem):
         attr.Bold = True
         return True
 
-    def Load(self, manager):
-        childs = part_category.find_childs(self.category)
-        for child in childs:
-            manager.AppendPartCategory(parent=self, category=child)
+    def Load(self):
+        for child in part_category.find_childs(self.category):
+            self.AddChild(PartCategory(child))
 
     def IsContainer(self):
         if self.category.is_leaf_node()==False:
@@ -34,21 +33,46 @@ class DataModelCategory(helper.tree.TreeContainerLazyItem):
     def GetDragData(self):
         return {'id': self.category.id}
 
+    def __repr__(self):
+        return '%d: %s' % (self.category.id, self.category.name)
+
 class TreeManagerPartCategory(helper.tree.TreeManager):
     def __init__(self, *args, **kwargs):
         super(TreeManagerPartCategory, self).__init__(*args, **kwargs)
 
-    def AppendPartCategory(self, parent, category):
-        categoryobj = DataModelCategory(category)
-        self.AppendItem(parent, categoryobj)
+    def Load(self):
+        
+        self.SaveState()
+
+        for category in part_category.find_childs():
+            categoryobj = self.FindCategory(category.id)
+            
+            if categoryobj is None:
+                categoryobj = self.AppendCategory(None, category)
+            else:
+                self.Update(categoryobj)
+        
+        self.PurgeState()
+    
+    def FindCategory(self, id):
+        for data in self.data:
+            if isinstance(data, PartCategory) and data.category.id==id:
+                return data
+        return None
+    
+    def AppendCategory(self, parent, category):
+        categoryobj = PartCategory(category)
+        self.Append(parent, categoryobj)
         return categoryobj
 
-(ReloadEvent, EVT_RELOAD) = wx.lib.newevent.NewEvent()
-(SelectEvent, EVT_SELECT) = wx.lib.newevent.NewEvent()
+(SelectCategoryEvent, EVT_SELECT_CATEGORY) = wx.lib.newevent.NewEvent()
 
 class PartCategoriesFrame(PanelPartCategories): 
-    def __init__(self, *args, **kwargs): 
+    def __init__(self, *args, filters, **kwargs): 
         super(PartCategoriesFrame, self).__init__(*args, **kwargs)
+
+        self.filters = filters
+        self.filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
 
         # create categories list
         self.tree_categories_manager = TreeManagerPartCategory(self.tree_categories, context_menu=self.menu_category)
@@ -56,20 +80,27 @@ class PartCategoriesFrame(PanelPartCategories):
         self.tree_categories_manager.AddTextColumn("description")
 #         self.tree_categories_manager.DropAccept(DataModelCategory, self.onTreeCategoriesDropCategory)
 #         self.tree_categories_manager.DropAccept(DataModelPart, self.onTreeCategoriesDropPart)
-#         self.tree_categories_manager.OnSelectionChanged = self.onTreeCategoriesSelChanged
+        self.tree_categories_manager.OnSelectionChanged = self.onTreeCategoriesSelChanged
 #         self.tree_categories_manager.OnItemBeforeContextMenu = self.onTreeCategoriesBeforeContextMenu
 
         self.loaded = False
-        
+
     def activate(self):
         if self.loaded==False:
-            self.load()
+            self.tree_categories_manager.Clear()
+            self.tree_categories_manager.Load()
+            
         self.loaded = True
 
-    def load(self):
-        childs = part_category.find_childs()
-        for child in childs:
-            self.tree_categories_manager.AppendPartCategory(parent=None, category=child)
+    def onTreeCategoriesSelChanged( self, event ):
+        item = self.tree_categories.GetSelection()
+        if item.IsOk()==False:
+            return
+        categoryobj = self.tree_categories_manager.ItemToObject(item)
+        wx.PostEvent(self, SelectCategoryEvent(category=categoryobj.category))
+        event.Skip()
 
-        evt = ReloadEvent()
-        wx.QueueEvent(self, evt)
+    def onFilterChanged( self, event ):
+        if len(self.filters.get_filters_group('category'))==0:
+            self.tree_categories.UnselectAll()
+        event.Skip()

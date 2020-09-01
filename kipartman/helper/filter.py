@@ -1,65 +1,102 @@
 import wx
+import wx.lib.newevent
 
-class Filter(object):
-    def __init__(self, filters_panel, onRemove):
+(FilterChangedEvent, EVT_FILTER_CHANGED) = wx.lib.newevent.NewEvent()
+
+class FilterSet(wx.EvtHandler):
+    def __init__(self, owner, filter_bar=None):
+        super(FilterSet, self).__init__()
+        
+        self.owner = owner
+        
+        # list of filters by filter group
         self.filters = {}
+        self.check_filter = {}
         
-#         self.filters_sizer = wx.BoxSizer( wx.HORIZONTAL )
-#         filters_panel.SetSizer(self.filters_sizer)
-        self.filters_panel = filters_panel
-        self.filters_sizer = filters_panel.GetSizer()
-        
-        self.onRemove = onRemove
-        
-    def add(self, name, value, value_label=''):
-        button_remove_filter = wx.Button( self.filters_panel, wx.ID_ANY, u"x", wx.DefaultPosition, wx.Size( 16,16 ), 0|wx.NO_BORDER, name=name )
-        button_remove_filter.SetMaxSize( wx.Size( 16,16 ) )
-        button_remove_filter.Bind( wx.EVT_BUTTON, self.onRemove )
-        self.filters_sizer.Add( button_remove_filter, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+        self.filter_bar = filter_bar
 
-        if value_label=="":
-            label = name+': '+value
-        else:
-            label = name+': '+value_label
-        label_filter = wx.StaticText( self.filters_panel, wx.ID_ANY, label, wx.DefaultPosition, wx.DefaultSize, 0 )
-        label_filter.Wrap( -1 )
-        self.filters_sizer.Add( label_filter, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+    def replace(self, filter, group=None):
+        self.filters[group] = []
+        self.filters[group].append(filter)
 
-        line_filter = wx.StaticLine( self.filters_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LI_VERTICAL )
-        self.filters_sizer.Add( line_filter, 0, wx.EXPAND|wx.ALL, 5 )
+        self.refresh_filter_panel()
         
-        self.filters_panel.SetSizerAndFit(self.filters_sizer)
-        self.filters_sizer.RecalcSizes()
+        wx.PostEvent(self, FilterChangedEvent())
         
-        f = { 
-            'name': name,
-            'value': value,
-            'value_label': value_label,
-            'button_remove_filter': button_remove_filter,
-            'label_filter': label_filter,
-            'line_filter': line_filter
-        }
-        
-        self.filters[name] = f
-        
+    def append(self, filter, group=None):
+        if group not in self.filters:
+            self.filters[group] = []
+        self.filters[group].append(filter)
 
-        return f
+        self.refresh_filter_panel()
+
+        wx.PostEvent(self, FilterChangedEvent())
+
+    def refresh_filter_panel(self):
+        if self.filter_bar is None:
+            return
+        
+        filters = self.get_filters()
+        
+        for check_filter in self.check_filter:
+            self.filter_bar.RemoveTool(check_filter.GetId())
+        self.check_filter = {}
+        
+        filter_id = 1
+        for filter in filters:
+#             button_remove_filter = wx.Button( self.filter_bar, wx.ID_ANY, u"x", wx.DefaultPosition, wx.Size( 16,16 ), 0|wx.NO_BORDER, name=f"button_remove_filter_{filter_id}" )
+#             button_remove_filter.SetMaxSize( wx.Size( 16,16 ) )
+#             button_remove_filter.Bind( wx.EVT_BUTTON, self.onButtonRemoveFilterClick )
+#             
+#             label_filter = wx.StaticText( self.filter_bar, wx.ID_ANY, str(filter), wx.DefaultPosition, wx.DefaultSize, 0, name=f"label_filter_{filter_id}" )
+#             
+#             self.filter_bar.AddControl( button_remove_filter )
+#             self.filter_bar.AddControl( label_filter )
+
+            check_filter = wx.CheckBox( self.filter_bar, wx.ID_ANY, str(filter), wx.DefaultPosition, wx.DefaultSize, 0 )
+            check_filter.SetValue(True)
+            check_filter.Bind( wx.EVT_CHECKBOX, self.onCheckFilterClick )
+
+            self.filter_bar.AddControl(check_filter)
+            self.check_filter[self.filter_bar.AddSeparator()] = None
+            self.filter_bar.Realize()
+# 
+            self.check_filter[check_filter] = filter
+            
+            filter_id += 1
     
-    def remove(self, name):
-        if name not in self.filters:
-            return None
-        f = self.filters[name]
-        f['button_remove_filter'].Destroy()
-        f['label_filter'].Destroy()
-        f['line_filter'].Destroy()
-        self.filters_sizer.RecalcSizes()
-        return self.filters.pop(name)
+    def remove(self, filter):
+        for name in self.filters:
+            filters = self.filters[name]
+            if filter in filters:
+                filters.remove(filter)
 
-    def query_filter(self):
-        qf = {}
+    def onCheckFilterClick( self, event ):
+        filter = self.check_filter[event.GetEventObject()]
+        self.remove(filter)
+        self.filter_bar.RemoveTool(event.GetEventObject().GetId())
+
+        wx.PostEvent(self, FilterChangedEvent())
+    
+    def get_filters(self):
+        res = []
         
         for name in self.filters:
-            f = self.filters[name]
-            qf[f['name']] = f['value']
+            filters = self.filters[name]
+            for filter in filters:
+                res.append(filter)
         
-        return qf
+        return res
+
+    def get_filters_group(self, group):
+        if group not in self.filters:
+            return []
+                
+        return self.filters[group]
+
+class Filter(object):
+    def __init__(self):
+        pass
+    
+    def apply(self, request):
+        return request
