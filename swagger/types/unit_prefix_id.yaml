@@ -1,7 +1,0 @@
-unit_prefix_id:
-  name: unit_prefix_id
-  in: path
-  description: Unit prefix id
-  required: true
-  type: integer
-  format: int64

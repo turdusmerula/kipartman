@@ -1,7 +1,0 @@
-type: object
-allOf:
-  - $ref: './unit/UnitData.yaml'
-  - required:
-    - name
-    - symbol
-    properties:

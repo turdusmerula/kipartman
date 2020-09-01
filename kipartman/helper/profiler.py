@@ -10,11 +10,13 @@ from profiling.sampling import SamplingProfiler
 
 class Trace(object):
     def __enter__(self, title='profile'):
+        print("Profile")
         self.profiler = TracingProfiler()
         self.title = title
         self.profiler.start()
         return self.profiler 
     
     def __exit__(self, type, value, traceback):
+        print("View profile")
         self.profiler.stop()
         self.profiler.run_viewer(self.title)

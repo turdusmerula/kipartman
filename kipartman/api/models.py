@@ -1,14 +1,25 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.utils
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
-
 
 class PartCategory(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, db_index=True)
     name = models.TextField()
     description = models.TextField(blank=True, default='')
+    updated = models.DateTimeField(auto_now=True)
+    
+    @property
+    def path(self):
+        res = self.name
+        parent = self.parent
+        while parent:
+            res = parent.name+"/"+res
+            parent = parent.parent
+        return "/"+res
+    
     class MPTTMeta:
         order_insertion_by = ['name']
     def __unicode__(self):
@@ -30,6 +41,8 @@ class Part(models.Model):
     #attachements: is defined inside PartAttachement by ForeignKey part
     #references: is defined inside PartReference by ForeignKey part
     value_parameter = models.TextField(null=True, blank=True, default=None)
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -40,7 +53,8 @@ class PartReference(models.Model):
     name = models.TextField(null=False, blank=False)
     description = models.TextField(null=False, blank=True, default="")
     uid = models.TextField(null=False, blank=False)
-    updated = models.DateTimeField(null=True, blank=True, default=None)
+    updated = models.DateTimeField(auto_now=True)
+    
     def __unicode__(self):
         return '%d: %s' % (self.id, self.type, self.name, self.uid)
     
@@ -57,6 +71,8 @@ class PartParameter(models.Model):
     nom_prefix = models.ForeignKey('UnitPrefix', related_name='nom', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     max_value = models.FloatField(null=True)
     max_prefix = models.ForeignKey('UnitPrefix', related_name='max', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         if self.id:
             return '%d: %s' % (self.id, self.name)
@@ -69,6 +85,8 @@ class PartManufacturer(models.Model):
     part = models.ForeignKey('Part', related_name='manufacturers', null=False, blank=False, default=None, on_delete=models.CASCADE)
     manufacturer = models.ForeignKey('Manufacturer', on_delete=models.DO_NOTHING, null=False)
     part_name = models.TextField()
+    updated = models.DateTimeField(auto_now=True)
+    
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -84,7 +102,8 @@ class PartOffer(models.Model):
     packaging = models.TextField(blank=True)
     currency = models.TextField(blank=True)
     sku = models.TextField(blank=True)
-    updated = models.DateTimeField()
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     
@@ -93,6 +112,8 @@ class PartStorage(models.Model):
     part = models.ForeignKey('Part', related_name='storages', null=False, blank=False, default=None, on_delete=models.CASCADE)
     storage = models.ForeignKey('Storage', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     quantity = models.IntegerField()
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -100,6 +121,8 @@ class PartAttachement(models.Model):
     part = models.ForeignKey('Part', related_name='attachements', null=False, blank=False, default=None, on_delete=models.CASCADE)
     file = models.ForeignKey('File', on_delete=models.DO_NOTHING, null=False)
     description = models.TextField(blank=True, default='')
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %d %s' % (self.part.pk, self.file.pk, self.description)
 
@@ -110,6 +133,8 @@ class Manufacturer(models.Model):
     email = models.TextField(null=True, blank=True, default='')
     phone = models.TextField(null=True, blank=True, default='')
     comment = models.TextField(null=True, blank=True, default='')
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -123,6 +148,8 @@ class Distributor(models.Model):
     phone = models.TextField(null=True, blank=True, default='')
     comment = models.TextField(null=True, blank=True, default='')
     allowed = models.BooleanField(null=False, default=True)
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -131,6 +158,8 @@ class File(models.Model):
     source_name = models.TextField()
     storage_path = models.TextField()
     created = models.DateTimeField(null=True, blank=True, default=None)
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s, %s' % (self.id, self.source_name, self.storage_path)
 
@@ -148,7 +177,8 @@ class VersionedFile(models.Model):
     state = models.IntegerField(default=0)
     metadata = models.TextField(null=True, blank=True, default='')
     category = models.TextField(null=True, blank=True, default='')
-    updated = models.DateTimeField(null=True, blank=True, default=None)
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.source_path)
     
@@ -159,13 +189,15 @@ class VersionedFileHistory(models.Model):
     md5 = models.TextField(null=False, blank=True, default='')
     version = models.IntegerField(default=0)
     state = models.IntegerField(default=0)
-    updated = models.DateTimeField(null=True, blank=True, default=None)
+    updated = models.DateTimeField(auto_now=True)
     operation = models.TextField()
 
 
 class Unit(models.Model):
     name = models.TextField()
     symbol = models.TextField(default='')
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -176,6 +208,8 @@ class UnitPrefix(models.Model):
     symbol = models.TextField()
     # value contains the exponent part
     power = models.TextField()
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -183,6 +217,8 @@ class StorageCategory(MPTTModel):
     parent = TreeForeignKey('StorageCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     name = models.TextField()
     description = models.TextField(blank=True, default='')
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
@@ -191,18 +227,22 @@ class Storage(models.Model):
     name = models.TextField()
     description = models.TextField(blank=True, default='')
     comment = models.TextField(blank=True, default='')
+    updated = models.DateTimeField(auto_now=True)
 
 class PartStorageHistory(models.Model):
     part = models.ForeignKey('Part', null=False, blank=False, default=None, on_delete=models.CASCADE)
     location = models.ForeignKey('Storage', null=False, blank=False, default=None, on_delete=models.CASCADE)
     reason = models.TextField(blank=False)
     amount = models.IntegerField()
+    updated = models.DateTimeField(auto_now=True)
 
 class Currency(models.Model):
     name = models.TextField()
     symbol = models.TextField(default='')
     base = models.TextField(default='EUR')
     ratio = models.IntegerField()
+    updated = models.DateTimeField(auto_now=True)
+
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
     

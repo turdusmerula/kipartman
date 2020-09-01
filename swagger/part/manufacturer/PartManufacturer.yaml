@@ -1,8 +1,0 @@
-type: object
-allOf:
-  - $ref: './manufacturer/ManufacturerData.yaml'
-  - required:
-      - name
-    properties:
-      part_name:
-        type: string

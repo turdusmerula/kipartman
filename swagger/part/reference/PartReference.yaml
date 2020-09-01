@@ -1,7 +1,0 @@
-type: object
-allOf:
-  - $ref: './part/reference/PartReferenceData.yaml'
-  - required:
-      - type
-      - name
-      - uid

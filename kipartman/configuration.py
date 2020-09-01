@@ -1,22 +1,22 @@
 from os.path import expanduser
 import os.path
 import json
-import sys
-import platform
-from distutils.spawn import find_executable
 from helper.log import log
+from log import log
 
 class Configuration(object):
     
     def __init__(self):
-        if os.path.exists(expanduser("~")+'/.kipartman')==False:
-            os.mkdir(expanduser("~")+'/.kipartman')
-        self.filename = expanduser("~")+'/.kipartman/configure.json'
+        if os.path.exists(os.path.join(expanduser("~"), '.kipartman'))==False:
+            os.mkdir(os.path.join(expanduser("~"), '.kipartman'))
+        self.filename = os.path.join(expanduser("~"), '.kipartman', 'configure.json')
         
-        self.base_currency = 'NZD'
+        self.base_currency = 'EUR'
+        
+        self.data_dir = os.path.join(expanduser("~"), '.kipartman', 'parts.sqlite3')
+        
         self.octopart_api_key = ''
-        self.kipartbase = 'http://localhost:8200'
-        
+
         self.snapeda_user = ''
         self.snapeda_password = ''
         
@@ -25,13 +25,13 @@ class Configuration(object):
         self.debug = False
         
         # if kicad_path is not given then assume that kicad is in system path
-        if os.path.exists(expanduser("~")+'/.kipartman/library')==False:
-            os.mkdir(expanduser("~")+'/.kipartman/library')
+        if os.path.exists(os.path.join(expanduser("~"), '.kipartman', 'library'))==False:
+            os.mkdir(os.path.join(expanduser("~"), '.kipartman', 'library'))
         self.kicad_path = ''
-        self.kicad_footprints_path = expanduser("~")+'/.kipartman/footprints'
-        self.kicad_symbols_path = expanduser("~")+'/.kipartman/symbols'
-        self.kicad_3d_models_path = expanduser("~")+'/.kipartman/3d_models'
-        self.kicad_modules_path = expanduser("~")+'/.kipartman/modules'
+        self.kicad_footprints_path = os.path.join(expanduser("~"), '.kipartman', 'footprints')
+        self.kicad_symbols_path = os.path.join(expanduser("~"), '.kipartman', 'symbols')
+        self.kicad_3d_models_path = os.path.join(expanduser("~"), '.kipartman', '3d_models')
+        self.kicad_modules_path = os.path.join(expanduser("~"), '.kipartman', 'modules')
         self.kicad_library_common_path = True
         
         self.project_path = '' 
@@ -40,7 +40,7 @@ class Configuration(object):
         
     def Load(self):
         if(os.path.isfile(self.filename)==False):
-            print("Load configuration file failed: %s"%self.filename)
+            log.fatal(f"Load configuration file failed: {self.filename}")
             return False
         
         with open(self.filename, 'r', encoding='utf-8') as infile:
@@ -72,7 +72,7 @@ class Configuration(object):
                 self.debug = content['debug']
 
             except Exception as e:
-                print ("Error: loading kipartman key configuration failed {}:{}".format(type(e),e.message))
+                log.error(f"Error: loading kipartman key configuration failed {type(e)}:{e.message}")
                         
         return True
     

@@ -1,7 +1,0 @@
-category_id:
-  name: category_id
-  in: path
-  description: Category id
-  required: true
-  type: integer
-  format: int64

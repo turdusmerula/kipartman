@@ -1,7 +1,0 @@
-upload_file_id:
-  name: upload_file_id
-  in: path
-  description: File id
-  required: true
-  type: integer
-  format: int64

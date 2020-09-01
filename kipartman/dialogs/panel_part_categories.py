@@ -12,12 +12,12 @@ import wx.xrc
 import wx.dataview
 
 ###########################################################################
-## Class PanelCategories
+## Class PanelPartCategories
 ###########################################################################
 
-class PanelCategories ( wx.Panel ):
+class PanelPartCategories ( wx.Panel ):
 
-	def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1361,758 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
+	def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 616,396 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
 		wx.Panel.__init__ ( self, parent, id = id, pos = pos, size = size, style = style, name = name )
 
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
@@ -51,7 +51,7 @@ class PanelCategories ( wx.Panel ):
 		self.menu_category_remove_category.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_category.Append( self.menu_category_remove_category )
 
-		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelCategoriesOnContextMenu )
+		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelPartCategoriesOnContextMenu )
 
 
 		# Connect Events
@@ -81,7 +81,7 @@ class PanelCategories ( wx.Panel ):
 	def onMenuCategoryRemoveCategory( self, event ):
 		event.Skip()
 
-	def PanelCategoriesOnContextMenu( self, event ):
+	def PanelPartCategoriesOnContextMenu( self, event ):
 		self.PopupMenu( self.menu_category, event.GetPosition() )
 
 

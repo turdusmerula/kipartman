@@ -1,14 +1,14 @@
 from dialogs.dialog_main import DialogMain
-from frames.buy_frame import BuyFrame
+# from frames.buy_frame import BuyFrame
 from frames.parts_frame import PartsFrame
-from frames.symbols_frame import SymbolsFrame
-from frames.footprints_frame import FootprintsFrame
-from frames.modules_frame import ModulesFrame
-from frames.distributors_frame import DistributorsFrame
-from frames.manufacturers_frame import ManufacturersFrame
-from frames.configuration_frame import ConfigurationFrame
-from frames.storages_frame import StoragesFrame
-from frames.project_frame import ProjectFrame
+# from frames.symbols_frame import SymbolsFrame
+# from frames.footprints_frame import FootprintsFrame
+# from frames.modules_frame import ModulesFrame
+# from frames.distributors_frame import DistributorsFrame
+# from frames.manufacturers_frame import ManufacturersFrame
+# from frames.configuration_frame import ConfigurationFrame
+# from frames.storages_frame import StoragesFrame
+# from frames.project_frame import ProjectFrame
 from helper.exception import print_stack
 import os
 import wx
@@ -62,8 +62,10 @@ class MainFrame(DialogMain):
         self.pages.append(testframe)
         self.notebook.AddPage(testframe, "Test", False)
 
-        from frames.categories_frame import CategoriesFrame
-        testframe.set_panel(CategoriesFrame(testframe))
+        from frames.part_categories_frame import CategoriesFrame
+        categories_frame = CategoriesFrame(testframe)
+        testframe.set_panel(categories_frame)
+        categories_frame.activate() 
         
     def onNotebookPageChanged( self, event ):
         if self.menus is None:
@@ -112,7 +114,7 @@ class MainFrame(DialogMain):
             configuration.Save()
             project_frame = ProjectFrame(self, dlg.GetPath())
             project_frame.Show(True)
-
+            
     def onMenuBuyPartsSelection( self, event ):
         os.chdir(self.cwd)
         buy_frame = BuyFrame(self)

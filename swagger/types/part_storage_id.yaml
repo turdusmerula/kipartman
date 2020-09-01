@@ -1,7 +1,0 @@
-part_storage_id:
-  name: part_storage_id
-  in: path
-  description: Part storage id
-  required: true
-  type: integer
-  format: int64

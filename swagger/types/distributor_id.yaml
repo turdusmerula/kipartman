@@ -1,7 +1,0 @@
-distributor_id:
-  name: distributor_id
-  in: path
-  description: Distributor id
-  required: true
-  type: integer
-  format: int64
