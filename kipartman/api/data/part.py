@@ -43,3 +43,6 @@ def find(filters=[]):
         request = filter.apply(request)
     
     return request.order_by('id').all()
+
+def save(part):
+    part.save()

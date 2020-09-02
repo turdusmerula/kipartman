@@ -27,6 +27,10 @@ class PartCategory(MPTTModel):
 
 
 class Part(models.Model):
+    def __init__(self, *args, **kwargs):
+        self.child_count = 0
+        super(Part, self).__init__(*args, **kwargs)
+        
     name = models.TextField()
     description = models.TextField(blank=True, default='')
     comment = models.TextField(blank=True, default='')

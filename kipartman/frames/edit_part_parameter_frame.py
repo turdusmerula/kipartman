@@ -2,14 +2,13 @@ from dialogs.dialog_edit_part_parameter import DialogEditPartParameter
 from frames.dropdown_dialog import DropdownDialog
 from frames.select_part_parameter_frame import SelectPartParameterFrame
 import wx
-import rest
 from helper.exception import print_stack
 
 class EditPartParameterFrame(DialogEditPartParameter):
     def __init__(self, parent): 
         super(EditPartParameterFrame, self).__init__(parent)
-        self.loadUnits()
-        self.loadPrefixes()
+#         self.loadUnits()
+#         self.loadPrefixes()
 
     def loadUnits(self):
         units = rest.api.find_units()

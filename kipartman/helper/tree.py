@@ -3,27 +3,30 @@ import wx.dataview
 import json
 from helper.exception import print_stack
 from helper.log import log
+from enum import Enum
 
-_treeitem_hash = 0
+class ColumnType():
+    STRING = 0
+    INTEGER = 1
+    BOOL = 2
+    FLOAT = 3
+    BITMAP = 4
+    
+    type_string = [
+        "string",
+        "integer",
+        "bool",
+        "float",
+        "bitmap"
+        ]
 
 # base class for tree item container
 class TreeItem(object):
     def __init__(self):
-#         global _treeitem_hash
-#         self._id = _treeitem_hash
-#         _treeitem_hash += 1
-        
         self.parent = None
         
         self.values = {}
-#         self.is_container = None
 
-#     def __hash__(self):
-#         return self._id
-
-#     def set_parent(self, manager, parent):
-#         self.parent = parent
-#         manager.model.ItemChanged(manager.model.ObjectToItem(parent), manager.model.ObjectToItem(self))    
     def _get_value(self, col):
         if col not in self.values:
             self.values[col] = self.GetValue(col)
@@ -49,11 +52,6 @@ class TreeItem(object):
 
     def GetParent(self):
         return self.parent
-
-#     def _is_container(self):
-#         if self.is_container is None:
-#             self.is_container = self.IsContainer()
-#         return self.is_container
     
     def IsContainer(self):
         return False
@@ -122,8 +120,6 @@ class TreeContainerLazyItem(TreeContainerItem):
                 if isinstance(child, TreeContainerLazyItem) and child.IsContainer():
                     # add a dummy item to allow this item to appear with childs, it will be remove by lazy_load func
                     manager.Append(child, TreeDummyItem())
-                
-#         manager.model.ItemChanged(manager.model.ObjectToItem(self))
 
     # override this for lazy loading childs
     def Load(self):
@@ -170,7 +166,7 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return len(self.columns_type)
 
     def GetColumnType(self, col):
-        return self.columns_type[col]
+        return ColumnType.type_string[self.columns_type[col]]
 
     def GetColumnName(self, col):
         return self.columns_name[col]
@@ -218,7 +214,10 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return obj._get_value(col)
 
     def GetValue(self, item, col):
-        return str(self.GetColumnValue(item, col))
+        if self.columns_type[col]==ColumnType.BOOL:# or self.columns_type[col]==ColumnType.INTEGER or self.columns_type[col]==ColumnType.FLOAT:
+            return self.GetColumnValue(item, col)
+        else:
+            return str(self.GetColumnValue(item, col))
 
     # override this to provide attributes
     def GetAttr(self, item, col, attr):
@@ -246,7 +245,7 @@ class TreeModel(wx.dataview.PyDataViewModel):
     def Compare(self, item1, item2, column, ascending):
         val1 = self.GetColumnValue(item1, column)
         val2 = self.GetColumnValue(item2, column)
-#         print("---", val1, val2)
+
         if val1==val2:
             return 1 if ascending == (item1.__hash__() > item2.__hash__()) else -1
         else:
@@ -330,7 +329,7 @@ class TreeImageList(wx.ImageList):
     def Replace(self, label, *args, **kwargs):
         index = self.labels[label]
         return super(TreeImageList, self).Replace(index, *args, **kwargs)
-
+    
 class TreeManager(object):
     drag_item = None
     drag_source = None
@@ -663,7 +662,7 @@ class TreeManager(object):
 
     def AddTextColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
-        self.model.columns_type[column.GetModelColumn()] = 'string'
+        self.model.columns_type[column.GetModelColumn()] = ColumnType.STRING
         self.model.columns_name[column.GetModelColumn()] = title
         column.Sortable = True
         column.Reorderable = True
@@ -672,7 +671,7 @@ class TreeManager(object):
     
     def AddFloatColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
-        self.model.columns_type[column.GetModelColumn()] = 'float'
+        self.model.columns_type[column.GetModelColumn()] = ColumnType.FLOAT
         self.model.columns_name[column.GetModelColumn()] = title
         column.Sortable = True
         column.Reorderable = True
@@ -680,7 +679,7 @@ class TreeManager(object):
 
     def AddIntegerColumn(self, title):
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
-        self.model.columns_type[column.GetModelColumn()] = 'integer'
+        self.model.columns_type[column.GetModelColumn()] = ColumnType.INTEGER
         self.model.columns_name[column.GetModelColumn()] = title
         column.Sortable = True
         column.Reorderable = True
@@ -688,13 +687,14 @@ class TreeManager(object):
 
     def AddToggleColumn(self, title):
         column = self.tree_view.AppendToggleColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE, mode=wx.dataview.DATAVIEW_CELL_ACTIVATABLE)
-        self.model.columns_type[column.GetModelColumn()] = 'integer'
+        self.model.columns_type[column.GetModelColumn()] = ColumnType.BOOL
         self.model.columns_name[column.GetModelColumn()] = title
         column.Sortable = True
         column.Reorderable = True
         return column
 
     def AddCustomColumn(self, title, type):
+        # TODO
         column = self.tree_view.AppendTextColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
         self.model.columns_type[column.GetModelColumn()] = type
         self.model.columns_name[column.GetModelColumn()] = title
@@ -704,7 +704,7 @@ class TreeManager(object):
 
     def AddBitmapColumn(self, title):
         column = self.tree_view.AppendBitmapColumn(title, len(self.model.columns_type), width=wx.COL_WIDTH_AUTOSIZE)
-        self.model.columns_type[column.GetModelColumn()] = 'bitmap'
+        self.model.columns_type[column.GetModelColumn()] = ColumnType.BITMAP
         self.model.columns_name[column.GetModelColumn()] = title
         column.Sortable = True
         column.Reorderable = True
@@ -742,45 +742,7 @@ class TreeManager(object):
         self.data = []
         self.model.ClearItems()
         self.model.Cleared()
-    
-#     def AppendItem(self, parent, obj):
-#         self.data.append(obj)
-# 
-#         if parent:
-#             if parent.childs is None:
-#                 parent.childs = []
-#             parent.childs.append(obj)
-#             obj.parent = parent
-#             self.model.ItemAdded(self.model.ObjectToItem(parent), self.model.ObjectToItem(obj))
-#         else:
-#             obj.parent = None
-#             self.model.root_nodes.append(obj)
-#             self.model.ItemAdded(wx.dataview.NullDataViewItem, self.model.ObjectToItem(obj))
-# 
-#         if isinstance(obj, TreeContainerLazyItem) and obj.IsContainer():
-#             # add a fake item to allow this item to appear with childs, it will be remove by lazy_load func
-#             self.AppendItem(obj, TreeItem())
-# 
-#         return self.model.ObjectToItem(obj)
-# 
-#     def UpdateItem(self, obj):
-#         self.model.ItemChanged(self.model.ObjectToItem(obj))
-#             
-#     def DeleteItem(self, parent, obj):
-#         self.data.remove(obj)
-#         if parent:
-#             obj.parent = None
-#             parent.childs.remove(obj)
-#             self.model.ItemDeleted(self.model.ObjectToItem(parent), self.model.ObjectToItem(obj))
-#         else:
-#             obj.parent = None
-#             self.model.root_nodes.remove(obj)
-#             self.model.ItemDeleted(wx.dataview.NullDataViewItem, self.model.ObjectToItem(obj))
-#             
-#     def MoveItem(self, source_parent, dest_parent, obj):
-#         self.DeleteItem(source_parent, obj)
-#         return self.AppendItem(dest_parent, obj)
-        
+            
     def Expand(self, obj):
         item = self.model.ObjectToItem(obj)
         if item:
@@ -874,7 +836,11 @@ class TreeManager(object):
 
         if obj in self.data_state:
             self.data_state.remove(obj)
-        
+    
+    def Move(self, obj, parent):
+        #TODO
+        pass
+    
     def Refresh(self):
         self.model.Cleared()
         

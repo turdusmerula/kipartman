@@ -1,6 +1,5 @@
 from dialogs.panel_select_part_parameter import PanelSelectPartParameter
 import helper.tree
-import rest
 import wx
 from helper.exception import print_stack
 
@@ -76,6 +75,7 @@ class SelectPartParameterFrame(PanelSelectPartParameter):
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 
     def loadPartsParameters(self):
+        return
         # clear all
         self.tree_part_parameters_manager.ClearItems()
         

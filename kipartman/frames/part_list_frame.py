@@ -1,6 +1,6 @@
 from dialogs.panel_part_list import PanelPartList
-from api.data import part as data_part
-from api.data import part_category as data_part_category
+import frames.edit_part_frame
+import api.data.part
 import api.models
 import helper.tree
 import helper.filter
@@ -8,6 +8,7 @@ from helper.log import log
 from helper.profiler import Trace
 import os
 import wx
+from helper.exception import print_stack
 
 class PartCategory(helper.tree.TreeContainerItem):
     def __init__(self, category):
@@ -59,7 +60,7 @@ class Part(helper.tree.TreeContainerLazyItem):
         return ""
 
     def Load(self):
-        for child in data_part.find([data_part.FilterChilds(self.part)]):
+        for child in api.data.part.find([api.data.part.FilterChilds(self.part)]):
             self.AddChild(Part(child))
     
     def IsContainer(self):
@@ -76,11 +77,6 @@ class TreeManagerParts(helper.tree.TreeManager):
         self.filters = filters
         
         self.flat = False
-        self.categories = []
-        self.parts = []  # flat part list
-
-        self.id_to_category = {}
-        self.id_to_part = {}
 
     def Load(self):
         
@@ -95,16 +91,17 @@ class TreeManagerParts(helper.tree.TreeManager):
 
 
     def LoadFlat(self):
-        for part in data_part.find(filters=self.filters.get_filters()):
+        for part in api.data.part.find(filters=self.filters.get_filters()):
             partobj = self.FindPart(part.id)
             if partobj is None:
                 partobj = Part(part)
                 self.Append(None, partobj)
             else:
+                partobj.part = part
                 self.Update(partobj)
             
     def LoadTree(self):
-        for part in data_part.find(filters=self.filters.get_filters()):
+        for part in api.data.part.find(filters=self.filters.get_filters()):
             partobj = self.FindPart(part.id)
             categoryobj = self.FindCategory(part.category.id)
              
@@ -112,12 +109,14 @@ class TreeManagerParts(helper.tree.TreeManager):
                 categoryobj = PartCategory(part.category)
                 self.Append(None, categoryobj)
             else:
+                categoryobj.category = part.category
                 self.Update(categoryobj)
  
             if partobj is None:
                 partobj = Part(part)
                 self.Append(categoryobj, partobj)
             else:
+                partobj.part = part
                 self.Update(partobj)
     
     def FindPart(self, id):
@@ -140,20 +139,22 @@ class TreeManagerParts(helper.tree.TreeManager):
         return res
 
 class TreeModelPart(helper.tree.TreeModel):
-    def __init__(self, flat=False):
+    def __init__(self):
         super(TreeModelPart, self).__init__()
 
-(SelectPartEvent, EVT_SELECT_PART) = wx.lib.newevent.NewEvent()
+(EnterEditModeEvent, EVT_ENTER_EDIT_MODE) = wx.lib.newevent.NewEvent()
+(ExitEditModeEvent, EVT_EXIT_EDIT_MODE) = wx.lib.newevent.NewEvent()
 
 class PartListFrame(PanelPartList): 
-    def __init__(self, *args, filters, **kwargs): 
+    def __init__(self, *args, **kwargs): 
         super(PartListFrame, self).__init__(*args, **kwargs)
 
-        self.filters = filters
-        self.filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
+        # parts filters
+        self._filters = helper.filter.FilterSet(self, self.toolbar_filters)
+        self.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
         
         # create part list
-        self.tree_parts_manager = TreeManagerParts(self.tree_parts, context_menu=self.menu_part, filters=self.filters)
+        self.tree_parts_manager = TreeManagerParts(self.tree_parts, context_menu=self.menu_part, filters=self.Filters)
         self.tree_parts_manager.AddIntegerColumn("id")
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
@@ -161,32 +162,67 @@ class PartListFrame(PanelPartList):
         self.tree_parts_manager.AddTextColumn("symbol")
         self.tree_parts_manager.AddTextColumn("footprint")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
+        self.tree_parts_manager.OnItemBeforeContextMenu = self.onTreePartsBeforeContextMenu
 
+        # create edit part panel
+        self.panel_edit_part = frames.edit_part_frame.EditPartFrame(self.splitter_horz)
+        self.panel_edit_part.Bind( frames.edit_part_frame.EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
+        self.panel_edit_part.Bind( frames.edit_part_frame.EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
+
+        # organize panels
+        self.splitter_horz.Unsplit()
+        self.splitter_horz.SplitHorizontally( self.panel_up, self.panel_edit_part)
+        self.panel_down.Hide()
+
+        # initial state
         self.toolbar_part.ToggleTool(self.toggle_part_path.GetId(), True)
-        self.flat = False
-    
+        self.Flat = False
+        self.EditMode = False
+        
     @property
-    def flat(self):
+    def Filters(self):
+        return self._filters
+
+    @property
+    def Flat(self):
         return self.tree_parts_manager.flat
     
-    @flat.setter
-    def flat(self, value):
+    @Flat.setter
+    def Flat(self, value):
         self.tree_parts_manager.flat = value
         self.tree_parts_manager.Clear()
         self.tree_parts_manager.Load()
-        self.expand_categories()
-        
+        self._expand_categories()
+    
+    @property
+    def EditMode(self):
+        return self._edit_mode
+    
+    @Flat.setter
+    def EditMode(self, value):
+        self._edit_mode = value
+        if self._edit_mode:
+            wx.PostEvent(self, EnterEditModeEvent())        
+        else:
+            wx.PostEvent(self, ExitEditModeEvent())        
+            
     def activate(self):
         pass
 
-    def expand_categories(self):
-        if self.flat==False:
+    def _expand_categories(self):
+        if self.Flat==False:
             for category in self.tree_parts_manager.FindCategories():
                 self.tree_parts_manager.Expand(category)
-
+    
+    def SetPart(self, part):
+        self.panel_edit_part.SetPart(part)
+    
+    def Refresh(self):
+        self.tree_parts_manager.Load()
+        self.panel_edit_part.Refresh()
 
     def onToggleCategoryPathClicked( self, event ):
-        self.flat = not self.toolbar_part.GetToolState(self.toggle_part_path.GetId())
+        self.Flat = not self.toolbar_part.GetToolState(self.toggle_part_path.GetId())
         event.Skip()
 
     def onButtonRefreshPartsClick( self, event ):
@@ -195,7 +231,7 @@ class PartListFrame(PanelPartList):
         
     def onFilterChanged( self, event ):
         self.tree_parts_manager.Load()
-        self.expand_categories()
+        self._expand_categories()
         event.Skip()
 
     def onTreePartsSelChanged( self, event ):
@@ -203,7 +239,134 @@ class PartListFrame(PanelPartList):
         if item.IsOk()==False:
             return
         obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, Part):
+            self.SetPart(obj.part)
+        event.Skip()
+
+    def onTreePartsBeforeContextMenu( self, event ):
+        item = self.tree_parts.GetSelection()
+        obj = None
+        if item.IsOk():
+            obj = self.tree_parts_manager.ItemToObject(item)
+
+        self.menu_part_add_part.Enable(True)
+        self.menu_part_edit_part.Enable(True)
+        self.menu_part_remove_part.Enable(True)
+        self.menu_part_duplicate_part.Enable(True)
+        if isinstance(obj, Part)==False:
+            self.menu_part_edit_part.Enable(False)
+            self.menu_part_remove_part.Enable(False)
+            self.menu_part_duplicate_part.Enable(False)
+        event.Skip()
+
+    def onMenuPartAddPart( self, event ):
+        part = api.models.Part()
+        
+        # add category from filter
+        part.category = None
+        if len(self.Filters.get_filters_group('category'))==1:
+            part.category = self.Filters.get_filters_group('category')[0].category
+
+        self.EditMode = True
+        self.panel_edit_part.EditPart(part)
+        event.Skip()
+
+    def onMenuPartEditPart( self, event ):
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
         if isinstance(obj, Part)==False:
             return
-        wx.PostEvent(self, SelectPartEvent(part=obj.part))
+        self.EditMode = True
+        self.panel_edit_part.EditPart(obj.part)
         event.Skip()
+
+    def onMenuPartRemovePart( self, event ):
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, Part):
+            return
+#         part = obj.part
+#         if isinstance(obj.parent, DataModelPart):
+#             parent = obj.parent.part
+#             res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+#             if res==wx.ID_OK:
+#                 # remove selected part from subparts
+#                 parent = rest.api.find_part(parent.id, with_childs=True)
+#                 for child in parent.childs:
+#                     if child.id==part.id:
+#                         parent.childs.remove(child)
+# 
+#                 #parent.childs.remove(part)
+#                 rest.api.update_part(parent.id, parent)
+#                 self.tree_parts_manager.DeleteChildPart(parent, part)
+#             else:
+#                 return 
+#         else:
+#             res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+#             if res==wx.ID_OK:
+#                 try:
+#                     # remove part
+#                     rest.api.delete_part(part.id)
+#                     self.tree_parts_manager.DeletePart(part)
+#                 except Exception as e:
+#                     print_stack()
+#                     wx.MessageBox(format(e), 'Error updating stock', wx.OK | wx.ICON_ERROR)
+#                     
+#             else:
+#                 return
+#         self.show_part(None)
+        event.Skip()
+
+    def onMenuPartDuplicatePart( self, event ):
+#         item = self.tree_parts.GetSelection()
+#         if not item.IsOk():
+#             return
+#         obj = self.tree_parts_manager.ItemToObject(item)
+#         if isinstance(obj, DataModelCategoryPath):
+#             return
+#         part = rest.api.find_part(obj.part.id, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True, with_references=True)
+#         part.id = None
+#         self.edit_state = 'add'
+#         self.edit_part(obj.part)
+        event.Skip()
+
+    def onEditPartApply( self, event ):
+        part = event.part
+        new_part = part.id is None
+
+        try:
+            api.data.part.save(part)
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+            return
+        
+        if new_part:
+            partobj = Part(part)
+            categoryobj = self.tree_parts_manager.FindCategory(part.category.id)
+            self.tree_parts_manager.Append(categoryobj, partobj)
+            
+        self.SetPart(part)
+        self.EditMode = False
+        self.Refresh()
+        event.Skip()
+      
+    def onEditPartCancel( self, event ):
+        self.Refresh()
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            event.Skip()
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, Part):
+            self.SetPart(obj.part)
+        else:
+            self.SetPart(None)
+        self.EditMode = False        
+        self.Refresh()
+        event.Skip()
+

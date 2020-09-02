@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -22,9 +22,25 @@ class PanelPartList ( wx.Panel ):
 
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 
+		self.splitter_horz = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_3DBORDER|wx.SP_LIVE_UPDATE )
+		self.splitter_horz.Bind( wx.EVT_IDLE, self.splitter_horzOnIdle )
+		self.splitter_horz.SetMinimumPaneSize( 100 )
+
+		self.panel_up = wx.Panel( self.splitter_horz, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.sizer_part = wx.BoxSizer( wx.VERTICAL )
+
+		self.toolbar_filters = wx.ToolBar( self.panel_up, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
+		self.filters_label = wx.StaticText( self.toolbar_filters, wx.ID_ANY, u"Filters:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.filters_label.Wrap( -1 )
+
+		self.toolbar_filters.AddControl( self.filters_label )
+		self.toolbar_filters.Realize()
+
+		self.sizer_part.Add( self.toolbar_filters, 0, wx.EXPAND, 5 )
+
 		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.toolbar_part = wx.ToolBar( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
+		self.toolbar_part = wx.ToolBar( self.panel_up, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
 		self.toggle_part_path = self.toolbar_part.AddTool( wx.ID_ANY, u"tool", wx.Bitmap( u"resources/tree_mode.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, wx.EmptyString, wx.EmptyString, None )
 
 		self.toolbar_part.Realize()
@@ -33,14 +49,14 @@ class PanelPartList ( wx.Panel ):
 
 		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.search_parts = wx.SearchCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		self.search_parts = wx.SearchCtrl( self.panel_up, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		self.search_parts.ShowSearchButton( True )
 		self.search_parts.ShowCancelButton( False )
 		self.search_parts.SetMinSize( wx.Size( 200,-1 ) )
 
 		bSizer61.Add( self.search_parts, 0, wx.ALL|wx.EXPAND, 5 )
 
-		self.button_refresh_parts = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+		self.button_refresh_parts = wx.BitmapButton( self.panel_up, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
 		self.button_refresh_parts.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
 		bSizer61.Add( self.button_refresh_parts, 0, wx.ALL, 5 )
@@ -49,10 +65,18 @@ class PanelPartList ( wx.Panel ):
 		bSizer11.Add( bSizer61, 0, 0, 5 )
 
 
-		bSizer1.Add( bSizer11, 0, wx.EXPAND, 5 )
+		self.sizer_part.Add( bSizer11, 0, wx.EXPAND, 5 )
 
-		self.tree_parts = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer1.Add( self.tree_parts, 1, wx.ALL|wx.EXPAND, 5 )
+		self.tree_parts = wx.dataview.DataViewCtrl( self.panel_up, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizer_part.Add( self.tree_parts, 1, wx.ALL|wx.EXPAND, 5 )
+
+
+		self.panel_up.SetSizer( self.sizer_part )
+		self.panel_up.Layout()
+		self.sizer_part.Fit( self.panel_up )
+		self.panel_down = wx.Panel( self.splitter_horz, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.splitter_horz.SplitHorizontally( self.panel_up, self.panel_down, 449 )
+		bSizer1.Add( self.splitter_horz, 1, wx.EXPAND, 5 )
 
 
 		self.SetSizer( bSizer1 )
@@ -129,6 +153,10 @@ class PanelPartList ( wx.Panel ):
 
 	def onMenuPartRefreshOctopartPart( self, event ):
 		event.Skip()
+
+	def splitter_horzOnIdle( self, event ):
+		self.splitter_horz.SetSashPosition( 449 )
+		self.splitter_horz.Unbind( wx.EVT_IDLE )
 
 	def PanelPartListOnContextMenu( self, event ):
 		self.PopupMenu( self.menu_part, event.GetPosition() )

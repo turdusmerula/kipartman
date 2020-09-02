@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -41,6 +41,8 @@ class PanelEditPart ( wx.Panel ):
 		bSizer18 = wx.BoxSizer( wx.HORIZONTAL )
 
 		self.edit_part_name = wx.TextCtrl( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.edit_part_name.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+
 		bSizer18.Add( self.edit_part_name, 1, wx.ALL|wx.EXPAND, 5 )
 
 		self.button_octopart = wx.Button( self.panel_edit_part_basic, wx.ID_ANY, u"Octopart", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -119,12 +121,12 @@ class PanelEditPart ( wx.Panel ):
 
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
-		self.edit_part_name.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
+		self.edit_part_name.Bind( wx.EVT_TEXT, self.onTextEditPartNameText )
 		self.button_octopart.Bind( wx.EVT_BUTTON, self.onButtonOctopartClick )
-		self.edit_part_description.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
+		self.edit_part_description.Bind( wx.EVT_TEXT, self.onTextEditPartDescriptionText )
 		self.button_part_footprint.Bind( wx.EVT_BUTTON, self.onButtonPartFootprintClick )
 		self.button_part_symbol.Bind( wx.EVT_BUTTON, self.onButtonPartSymbolClick )
-		self.edit_part_comment.Bind( wx.EVT_TEXT, self.onTextEditPartPartText )
+		self.edit_part_comment.Bind( wx.EVT_TEXT, self.onTextEditPartCommentText )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartEditApply )
 		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartEditCancel )
 
@@ -136,12 +138,14 @@ class PanelEditPart ( wx.Panel ):
 	def onInitDialog( self, event ):
 		event.Skip()
 
-	def onTextEditPartPartText( self, event ):
+	def onTextEditPartNameText( self, event ):
 		event.Skip()
 
 	def onButtonOctopartClick( self, event ):
 		event.Skip()
 
+	def onTextEditPartDescriptionText( self, event ):
+		event.Skip()
 
 	def onButtonPartFootprintClick( self, event ):
 		event.Skip()
@@ -149,6 +153,8 @@ class PanelEditPart ( wx.Panel ):
 	def onButtonPartSymbolClick( self, event ):
 		event.Skip()
 
+	def onTextEditPartCommentText( self, event ):
+		event.Skip()
 
 	def onButtonPartEditApply( self, event ):
 		event.Skip()

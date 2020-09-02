@@ -2,18 +2,17 @@ from dialogs.panel_parts import PanelParts
 import frames
 from frames.part_categories_frame import PartCategoriesFrame
 from frames.part_list_frame import PartListFrame
-from helper.filter import FilterSet
+import helper.filter
 import api.data.part
 import wx
+from helper.exception import print_stack
 
 # from frames.dropdown_dialog import DropdownDialog
 # from frames.progression_frame import ProgressionFrame
 # from frames.edit_category_frame import EditCategoryFrame
-# from frames.edit_part_frame import EditPartFrame, EVT_EDIT_PART_APPLY_EVENT, EVT_EDIT_PART_CANCEL_EVENT
 # from frames.select_part_parameter_frame import SelectPartParameterFrame
 # import helper.tree
 # import wx
-# from helper.exception import print_stack
 # 
 # import os, datetime
 # from time import sleep
@@ -268,88 +267,45 @@ class PartsFrame(PanelParts):
     def __init__(self, parent): 
         super(PartsFrame, self).__init__(parent)
         
-        # parts filters
-        self.parts_filter = FilterSet(self, self.toolbar_filters)
-        
+
         # add categories panel
-        self.panel_categories = PartCategoriesFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL, filters=self.parts_filter)
+        self.panel_categories = PartCategoriesFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
         self.panel_categories.Bind( frames.part_categories_frame.EVT_SELECT_CATEGORY, self.onPartCategoriesSelectionChanged )
         
         # add part list panel
-        self.panel_part_list = PartListFrame(self.panel_up, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL, filters=self.parts_filter)
-        self.panel_part_list.Bind( frames.part_list_frame.EVT_SELECT_PART, self.onPartSelectionChanged )
+        self.panel_part_list = PartListFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        self.panel_part_list.Bind( frames.part_list_frame.EVT_ENTER_EDIT_MODE, self.onPartsEnterEditMode )
+        self.panel_part_list.Bind( frames.part_list_frame.EVT_EXIT_EDIT_MODE, self.onPartsExitEditMode )
+        self.panel_part_list.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onPartsFilterChanged )
 
         # organize panels
         self.splitter_vert.Unsplit()
-        self.splitter_vert.SplitVertically( self.panel_categories, self.panel_right)
+        self.splitter_vert.SplitVertically( self.panel_categories, self.panel_part_list)
         self.panel_left.Hide()
-#         self.splitter_horz.Unsplit()
-#         self.splitter_horz.SplitHorizontally( self.panel_part_list, self.panel_down)
-#         self.panel_up.Hide()
-        self.sizer_part.Add( self.panel_part_list, 1, wx.EXPAND |wx.ALL, 5 )
+        self.panel_right.Hide()
 
-#         # create edit part panel
-#         self.panel_edit_part = EditPartFrame(self.part_splitter)
-#         self.part_splitter.SplitHorizontally(self.part_splitter.Window1, self.panel_edit_part, 400)
-#         self.panel_edit_part.Bind( EVT_EDIT_PART_APPLY_EVENT, self.onEditPartApply )
-#         self.panel_edit_part.Bind( EVT_EDIT_PART_CANCEL_EVENT, self.onEditPartCancel )
-# 
-#         self.toolbar_part.ToggleTool(self.toggle_part_path.GetId(), True)
-# 
-#         # initial edit state
-#         self.show_part(None)
-#         self.edit_state = None
-#         self.show_categories = True
-#     
-        self.loaded = False
-#         
     def activate(self):
         self.panel_categories.activate()
         self.panel_part_list.activate()
-        
-        if self.loaded==False:
-            self.load()
-        self.loaded = True
 
 
     def onPartCategoriesSelectionChanged( self, event ):
-        self.parts_filter.replace(api.data.part.FilterCategory(event.category), 'category')
+        self.panel_part_list.Filters.replace(api.data.part.FilterCategory(event.category), 'category')
         event.Skip()
 
-    def onPartSelectionChanged( self, event ):
-        print("---")
+    def onPartsFilterChanged( self, event ):
+        if len(self.panel_part_list.Filters.get_filters_group('category'))==0:
+            self.panel_categories.UnselectAll()
         event.Skip()
 
-# 
-#     def show_part(self, part):
-#         # disable editing
-#         self.panel_edit_part.enable(False)
-#         # enable evrything else
-#         self.panel_category.Enabled = True
-#         self.panel_parts.Enabled = True
-#         # set part
-#         self.panel_edit_part.SetPart(part)
-#         
-#     def edit_part(self, part):
-#         self.show_part(part)
-#         # enable editing
-#         self.panel_edit_part.enable(True)
-#         # disable evrything else
-#         self.panel_category.Enabled = False
-#         self.panel_parts.Enabled = False
-#         
-#     def new_part(self):
-#         part = rest.model.PartNew()
-#         
-#         # set category
-#         item = self.tree_categories.GetSelection()
-#         if item.IsOk():
-#             category = self.tree_categories_manager.ItemToObject(item)
-#             if category.category:
-#                 part.category = category.category
-# 
-#         self.edit_part(part)
-#   
+    def onPartsEnterEditMode( self, event ):
+        self.panel_categories.Enabled = False
+        event.Skip()
+
+    def onPartsExitEditMode( self, event ):
+        self.panel_categories.Enabled = True
+        event.Skip()
+
 #     def import_octopart_lookup(self, part):
 #         df = DummyFrame_import_ocotopart_lookup(None,'Dummy')
 #         from frames.select_octopart_frame import SelectOctopartFrame
@@ -635,100 +591,8 @@ class PartsFrame(PanelParts):
 #     def onMenuParametersRemoveSelection( self, event ):
 #         self.tree_parts_manager.RemoveParameterColumn(self.menu_parameters.Column.GetModelColumn())
 #             
-#     def onEditPartApply( self, event ):
-#         part = event.data
-#         try:
-#             if self.edit_state=='edit':
-#                 # update part on server
-#                 part = rest.api.update_part(part.id, part)
-#                 self.tree_parts_manager.UpdatePart(part)
-#             elif self.edit_state=='add':
-#                 part = rest.api.add_part(part)
-#                 self.tree_parts_manager.AppendPart(part)
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-#             return
-#         self.edit_state = None
-#         self.show_part(part)
-#      
-#     def onEditPartCancel( self, event ):
-#         part = None
-#         item = self.tree_parts.GetSelection()
-#         if item.IsOk():
-#             obj = self.tree_parts_manager.ItemToObject(item)
-#             if isinstance(obj, DataModelPart):
-#                 self.load_full_part(obj)
-#                 part = obj.part
-#         self.edit_state = None
-#         self.show_part(part)
 # 
-# 
-#     def onMenuPartAddPart( self, event ):
-#         self.edit_state = 'add'
-#         self.new_part()
-# 
-#     def onMenuPartEditPart( self, event ):
-#         item = self.tree_parts.GetSelection()
-#         if not item.IsOk():
-#             return
-#         obj = self.tree_parts_manager.ItemToObject(item)
-#         if isinstance(obj, DataModelCategoryPath):
-#             return
-#         self.load_full_part(obj)
-#         self.edit_state = 'edit'
-#         self.edit_part(obj.part)
-# 
-#     def onMenuPartRemovePart( self, event ):
-#         item = self.tree_parts.GetSelection()
-#         if not item.IsOk():
-#             return
-#         obj = self.tree_parts_manager.ItemToObject(item)
-#         if isinstance(obj, DataModelCategoryPath):
-#             return
-#         part = obj.part
-#         if isinstance(obj.parent, DataModelPart):
-#             parent = obj.parent.part
-#             res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-#             if res==wx.ID_OK:
-#                 # remove selected part from subparts
-#                 parent = rest.api.find_part(parent.id, with_childs=True)
-#                 for child in parent.childs:
-#                     if child.id==part.id:
-#                         parent.childs.remove(child)
-# 
-#                 #parent.childs.remove(part)
-#                 rest.api.update_part(parent.id, parent)
-#                 self.tree_parts_manager.DeleteChildPart(parent, part)
-#             else:
-#                 return 
-#         else:
-#             res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-#             if res==wx.ID_OK:
-#                 try:
-#                     # remove part
-#                     rest.api.delete_part(part.id)
-#                     self.tree_parts_manager.DeletePart(part)
-#                 except Exception as e:
-#                     print_stack()
-#                     wx.MessageBox(format(e), 'Error updating stock', wx.OK | wx.ICON_ERROR)
-#                     
-#             else:
-#                 return
-#         self.show_part(None)
-# 
-#     def onMenuPartDuplicatePart( self, event ):
-#         item = self.tree_parts.GetSelection()
-#         if not item.IsOk():
-#             return
-#         obj = self.tree_parts_manager.ItemToObject(item)
-#         if isinstance(obj, DataModelCategoryPath):
-#             return
-#         part = rest.api.find_part(obj.part.id, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True, with_references=True)
-#         part.id = None
-#         self.edit_state = 'add'
-#         self.edit_part(obj.part)
-# 
+# # 
 #     def onMenuItemPartsImportParts( self, event ):
 #         # TODO: Implement onButtonImportPartsClick
 #         self.edit_state = 'import'

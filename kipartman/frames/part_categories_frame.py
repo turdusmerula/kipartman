@@ -1,6 +1,6 @@
 from dialogs.panel_part_categories import PanelPartCategories
-from api.data import part_category
-from api.models import PartCategory
+import api.data.part_category
+import api.models
 import wx
 import wx.lib.newevent
 import helper.tree
@@ -22,7 +22,7 @@ class PartCategory(helper.tree.TreeContainerLazyItem):
         return True
 
     def Load(self):
-        for child in part_category.find_childs(self.category):
+        for child in api.data.part_category.find_childs(self.category):
             self.AddChild(PartCategory(child))
 
     def IsContainer(self):
@@ -44,12 +44,13 @@ class TreeManagerPartCategory(helper.tree.TreeManager):
         
         self.SaveState()
 
-        for category in part_category.find_childs():
+        for category in api.data.part_category.find_childs():
             categoryobj = self.FindCategory(category.id)
             
             if categoryobj is None:
                 categoryobj = self.AppendCategory(None, category)
             else:
+                categoryobj.category = category
                 self.Update(categoryobj)
         
         self.PurgeState()
@@ -68,11 +69,8 @@ class TreeManagerPartCategory(helper.tree.TreeManager):
 (SelectCategoryEvent, EVT_SELECT_CATEGORY) = wx.lib.newevent.NewEvent()
 
 class PartCategoriesFrame(PanelPartCategories): 
-    def __init__(self, *args, filters, **kwargs): 
+    def __init__(self, *args, **kwargs): 
         super(PartCategoriesFrame, self).__init__(*args, **kwargs)
-
-        self.filters = filters
-        self.filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
 
         # create categories list
         self.tree_categories_manager = TreeManagerPartCategory(self.tree_categories, context_menu=self.menu_category)
@@ -81,7 +79,7 @@ class PartCategoriesFrame(PanelPartCategories):
 #         self.tree_categories_manager.DropAccept(DataModelCategory, self.onTreeCategoriesDropCategory)
 #         self.tree_categories_manager.DropAccept(DataModelPart, self.onTreeCategoriesDropPart)
         self.tree_categories_manager.OnSelectionChanged = self.onTreeCategoriesSelChanged
-#         self.tree_categories_manager.OnItemBeforeContextMenu = self.onTreeCategoriesBeforeContextMenu
+        self.tree_categories_manager.OnItemBeforeContextMenu = self.onTreeCategoriesBeforeContextMenu
 
         self.loaded = False
 
@@ -92,6 +90,9 @@ class PartCategoriesFrame(PanelPartCategories):
             
         self.loaded = True
 
+    def UnselectAll(self):
+        self.tree_categories.UnselectAll()
+        
     def onTreeCategoriesSelChanged( self, event ):
         item = self.tree_categories.GetSelection()
         if item.IsOk()==False:
@@ -100,7 +101,16 @@ class PartCategoriesFrame(PanelPartCategories):
         wx.PostEvent(self, SelectCategoryEvent(category=categoryobj.category))
         event.Skip()
 
-    def onFilterChanged( self, event ):
-        if len(self.filters.get_filters_group('category'))==0:
-            self.tree_categories.UnselectAll()
+    def onTreeCategoriesBeforeContextMenu( self, event ):
+        item = self.tree_categories.GetSelection()
+        obj = None
+        if item.IsOk():
+            obj = self.tree_categories_manager.ItemToObject(item)
+
+        self.menu_category_add_category.Enable(True)
+        self.menu_category_edit_category.Enable(True)
+        self.menu_category_remove_category.Enable(True)
+        if isinstance(obj, PartCategory)==False:
+            self.menu_category_edit_category.Enable(False)
+            self.menu_category_remove_category.Enable(False)
         event.Skip()
