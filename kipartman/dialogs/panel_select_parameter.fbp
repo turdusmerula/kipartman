@@ -11,12 +11,13 @@
         <property name="embedded_files_path">res</property>
         <property name="encoding">UTF-8</property>
         <property name="event_generation">connect</property>
-        <property name="file">panel_select_part_parameter</property>
+        <property name="file">panel_select_parameter</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
+        <property name="image_path_wrapper_function_name"></property>
         <property name="indent_with_spaces"></property>
         <property name="internationalize">0</property>
-        <property name="name">panel_select_part_parameter</property>
+        <property name="name">panel_select_parameter</property>
         <property name="namespace"></property>
         <property name="path">.</property>
         <property name="precompiled_header"></property>
@@ -25,6 +26,7 @@
         <property name="skip_php_events">1</property>
         <property name="skip_python_events">1</property>
         <property name="ui_table">UI</property>
+        <property name="use_array_enum">0</property>
         <property name="use_enum">0</property>
         <property name="use_microsoft_bom">0</property>
         <object class="Panel" expanded="1">
@@ -41,7 +43,7 @@
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
             <property name="minimum_size"></property>
-            <property name="name">PanelSelectPartParameter</property>
+            <property name="name">PanelSelectParameter</property>
             <property name="pos"></property>
             <property name="size">718,261</property>
             <property name="subclass"></property>
@@ -74,7 +76,7 @@
                                 <property name="permission">none</property>
                                 <object class="sizeritem" expanded="1">
                                     <property name="border">5</property>
-                                    <property name="flag">wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT</property>
+                                    <property name="flag">wxALL|wxEXPAND</property>
                                     <property name="proportion">0</property>
                                     <object class="wxSearchCtrl" expanded="1">
                                         <property name="BottomDockable">1</property>
@@ -112,7 +114,7 @@
                                         <property name="minimize_button">0</property>
                                         <property name="minimum_size">180,-1</property>
                                         <property name="moveable">1</property>
-                                        <property name="name">search_part_parameter</property>
+                                        <property name="name">search_parameter</property>
                                         <property name="pane_border">1</property>
                                         <property name="pane_position"></property>
                                         <property name="pane_size"></property>
@@ -135,9 +137,9 @@
                                         <property name="window_extra_style"></property>
                                         <property name="window_name"></property>
                                         <property name="window_style"></property>
-                                        <event name="OnCancelButton">onSearchPartParameterCancel</event>
-                                        <event name="OnSearchButton">onSearchPartParameterButton</event>
-                                        <event name="OnTextEnter">onSearchPartParameterEnter</event>
+                                        <event name="OnCancelButton">onSearchParameterCancel</event>
+                                        <event name="OnSearchButton">onSearchParameterButton</event>
+                                        <event name="OnTextEnter">onSearchParameterEnter</event>
                                     </object>
                                 </object>
                                 <object class="sizeritem" expanded="1">
@@ -155,7 +157,7 @@
                                         <property name="id">wxID_ANY</property>
                                         <property name="maximum_size"></property>
                                         <property name="minimum_size"></property>
-                                        <property name="name">tree_part_parameters</property>
+                                        <property name="name">tree_parameters</property>
                                         <property name="permission">protected</property>
                                         <property name="pos"></property>
                                         <property name="size"></property>
@@ -165,7 +167,6 @@
                                         <property name="window_extra_style"></property>
                                         <property name="window_name"></property>
                                         <property name="window_style"></property>
-                                        <event name="OnDataViewCtrlSelectionChanged">onTreeFootprintsSelectionChanged</event>
                                     </object>
                                 </object>
                             </object>
@@ -174,7 +175,7 @@
                 </object>
                 <object class="sizeritem" expanded="1">
                     <property name="border">5</property>
-                    <property name="flag">wxEXPAND</property>
+                    <property name="flag">wxBOTTOM|wxEXPAND</property>
                     <property name="proportion">0</property>
                     <object class="wxStdDialogButtonSizer" expanded="1">
                         <property name="Apply">0</property>
@@ -186,7 +187,7 @@
                         <property name="Save">0</property>
                         <property name="Yes">0</property>
                         <property name="minimum_size"></property>
-                        <property name="name">m_sdbSizer2</property>
+                        <property name="name">button_select_parameter</property>
                         <property name="permission">protected</property>
                         <event name="OnCancelButtonClick">onButtonCancelClick</event>
                         <event name="OnOKButtonClick">onButtonOkClick</event>

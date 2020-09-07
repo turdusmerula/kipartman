@@ -1,6 +1,7 @@
 import api.models
 from datetime import date, datetime
 from helper.filter import Filter
+from api.models import PartParameter
 
 class FilterPart(Filter):
     def __init__(self, part):
@@ -18,3 +19,8 @@ def find(filters=[]):
     
     return request.order_by('id').all()
 
+def create(part):
+    part_parameter = PartParameter()
+    part_parameter.part = part
+    
+    return part_parameter

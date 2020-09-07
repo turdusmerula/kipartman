@@ -70,6 +70,12 @@ class FilterSet(wx.EvtHandler):
             filters = self.filters[name]
             if filter in filters:
                 filters.remove(filter)
+        wx.PostEvent(self, FilterChangedEvent())
+
+    def remove_group(self, name):
+        if name in self.filters:
+            self.filters.pop(name)
+        wx.PostEvent(self, FilterChangedEvent())
 
     def onCheckFilterClick( self, event ):
         filter = self.check_filter[event.GetEventObject()]

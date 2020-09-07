@@ -46,3 +46,26 @@ def find(filters=[]):
 
 def save(part):
     part.save()
+    
+    
+def create():
+    part = Part()
+    
+    return part
+
+def duplicate(part):
+    request = Part.objects
+    
+    request = _add_default_annotations(request)
+    
+    newpart = request.get(pk=part.id)
+    newpart.pk = None
+#     parameters = []
+#     for param in res.parameters.all():
+#         param.pk = None
+#         parameters.append(param)
+#     print("***", res.parameters)
+#     res.pk = None
+#     
+#     print("***", res.parameters)
+    return newpart

@@ -72,10 +72,18 @@ class EditPartFrame(PanelEditPart):
         
 
     def EditPart(self, part):
-        self.SetPart(part)
+        self.part = part
+        self._show_part(part)
+        self.edit_part_parameters.EditPart(part)
+#         self.edit_part_distributors.EditPart(part)
+#         self.edit_part_manufacturers.EditPart(part)
+#         self.edit_part_storages.EditPart(part)
+#         self.edit_part_attachements.EditPart(part)
+#         self.edit_part_preview_data.EditPart(part)
+#         self.edit_part_references.EditPart(part)
         self._enable(True)
         self._check()
-        
+            
     def _show_part(self, part):
         if part is not None:
             self.edit_part_name.Value = NoneValue(part.name, "")
@@ -126,6 +134,9 @@ class EditPartFrame(PanelEditPart):
             self.button_part_editApply.Enabled = True
                         
     def onButtonPartEditApply( self, event ):
+        # save part
+        self.part.save()
+        
         # send result event
         wx.PostEvent(self, EditPartApplyEvent(part=self.part))
         event.Skip()

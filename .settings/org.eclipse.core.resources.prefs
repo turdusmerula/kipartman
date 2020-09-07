@@ -44,6 +44,7 @@ encoding//kipartman/dialogs/panel_parts.py=utf-8
 encoding//kipartman/dialogs/panel_schematic.py=utf-8
 encoding//kipartman/dialogs/panel_select_footprint.py=utf-8
 encoding//kipartman/dialogs/panel_select_octopart.py=utf-8
+encoding//kipartman/dialogs/panel_select_parameter.py=utf-8
 encoding//kipartman/dialogs/panel_select_part.py=utf-8
 encoding//kipartman/dialogs/panel_select_snapeda.py=utf-8
 encoding//kipartman/dialogs/panel_storages.py=utf-8

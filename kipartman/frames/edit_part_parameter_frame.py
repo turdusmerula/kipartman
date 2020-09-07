@@ -1,152 +1,192 @@
 from dialogs.dialog_edit_part_parameter import DialogEditPartParameter
 from frames.dropdown_dialog import DropdownDialog
-from frames.select_part_parameter_frame import SelectPartParameterFrame
+from frames.select_parameter_frame import SelectParameterFrame
 import wx
 from helper.exception import print_stack
+import api.data.unit_prefix
+import api.data.part_parameter
+from helper import colors
 
 class EditPartParameterFrame(DialogEditPartParameter):
     def __init__(self, parent): 
         super(EditPartParameterFrame, self).__init__(parent)
-#         self.loadUnits()
-#         self.loadPrefixes()
-
-    def loadUnits(self):
-        units = rest.api.find_units()
-        choices = ["<none>"]
-        for unit in units:
-            choices.append(unit.symbol+"  "+unit.name)
-        self.choice_part_parameter_unit.SetItems(choices)
+        self.loadPrefixes()
+        
+        self.part = None
+        self.part_parameter = None
+        
+        self.value_parameter = None
         
     def loadPrefixes(self):
-        prefixes = rest.api.find_unit_prefixes()
-        choices = ["<none>"]
+        prefixes = api.data.unit_prefix.find()
+        choices = ["auto"]
         for prefix in prefixes:
             choices.append(prefix.symbol+"  "+prefix.name+" ("+prefix.power+")")
         self.choice_part_parameter_min_prefix.SetItems(choices)
         self.choice_part_parameter_nom_prefix.SetItems(choices)
         self.choice_part_parameter_max_prefix.SetItems(choices)
+    
+    def _check(self):
+        error = False
         
-    def AddParameter(self, part):
-        self.Title = "Add parameter"
-        self.part = part
-        self.previous_name = "" 
-        self.onRadioNumeric(None)
-        self.parameter = rest.model.PartParameter()
+        if self.button_search_parameter.Label=="...":
+            self.button_search_parameter.SetBackgroundColour( colors.RED_ERROR )
+            error = True
+        else:
+            self.button_search_parameter.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+            
+        try:
+            if self.edit_part_parameter_min_value.Value!="":
+                float(self.edit_part_parameter_min_value.Value) 
+            self.edit_part_parameter_min_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+        except:
+            error = True
+            self.edit_part_parameter_min_value.SetBackgroundColour( colors.RED_ERROR )
 
-        self.choice_part_parameter_unit.SetSelection(0)
+        try:
+            if self.edit_part_parameter_nom_value.Value!="":
+                float(self.edit_part_parameter_nom_value.Value) 
+            self.edit_part_parameter_nom_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+        except:
+            error = True
+            self.edit_part_parameter_nom_value.SetBackgroundColour( colors.RED_ERROR )
+
+        try:
+            if self.edit_part_parameter_max_value.Value!="":
+                float(self.edit_part_parameter_max_value.Value) 
+            self.edit_part_parameter_max_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+        except:
+            error = True
+            self.edit_part_parameter_max_value.SetBackgroundColour( colors.RED_ERROR )
+
+        if error:
+            self.button_part_editApply.Enabled = False
+        else:
+            self.button_part_editApply.Enabled = True
+
+    def AddParameter(self, part):
+        self.part = part        
+        self.part_parameter = api.data.part_parameter.create(self.part)
+        
+        self.Title = "Add parameter"
+
+        self.onRadioNumeric(None)
+
+        self.button_search_parameter.Label = "..."
+        self.button_parameter_description.Label = ""
+        self.button_parameter_unit.Label = ""
         self.choice_part_parameter_min_prefix.SetSelection(0)
         self.choice_part_parameter_nom_prefix.SetSelection(0)
         self.choice_part_parameter_max_prefix.SetSelection(0)
 
+        self._check()
+        
         result = self.ShowModal()
         if result==wx.ID_OK:
-            return self.parameter
+            return self.part_parameter
         return None
 
-    def EditParameter(self, part, parameter):
-        self.Title = "Edit parameter"
+    def EditParameter(self, part, part_parameter):
         self.part = part
-        self.previous_name = parameter.name 
-        self.parameter = parameter
+        self.part_parameter = part_parameter
 
-        self.edit_part_parameter_name.Value = parameter.name
-        self.edit_part_parameter_description.Value = parameter.description
+        self.Title = "Edit parameter"
+
+        self.value_parameter = part.value_parameter
         
-        if self.parameter.unit:
-            self.choice_part_parameter_unit.SetSelection(self.parameter.unit.id)
+        self.button_search_parameter.Label = part_parameter.parameter.name
+        self.button_parameter_description.Label = part_parameter.parameter.description
+        
+        if part_parameter.parameter.unit is not None:
+            self.button_parameter_unit.Label = f"{part_parameter.parameter.unit.name} ({part_parameter.parameter.unit.symbol})"
         else:
-            self.choice_part_parameter_unit.SetSelection(0)
+            self.button_parameter_unit.Label = ""
             
-        if self.parameter.numeric==True:
+        if part_parameter.parameter.numeric==True:
             self.onRadioNumeric(None)
             self.radio_choice_parameter_numeric.SetValue(True)
         else:
             self.onRadioText(None)
             self.radio_choice_parameter_text.SetValue(True)
 
-        if self.parameter.text_value:
-            self.edit_part_parameter_value.Value = self.parameter.text_value
+        if part_parameter.text_value:
+            self.edit_part_parameter_value.Value = part_parameter.text_value
 
-        if self.parameter.min_value:
-            self.edit_part_parameter_min_value.Value = str(self.parameter.min_value) 
-        if self.parameter.min_prefix:
-            self.choice_part_parameter_min_prefix.SetSelection(self.parameter.min_prefix.id)
+        if part_parameter.min_value:
+            self.edit_part_parameter_min_value.Value = str(part_parameter.min_value) 
+        if part_parameter.min_prefix:
+            self.choice_part_parameter_min_prefix.SetSelection(part_parameter.min_prefix.id)
         else:
             self.choice_part_parameter_min_prefix.SetSelection(0)
             
-        if self.parameter.nom_value:
-            self.edit_part_parameter_nom_value.Value = str(self.parameter.nom_value) 
-        if self.parameter.nom_prefix:
-            self.choice_part_parameter_nom_prefix.SetSelection(self.parameter.nom_prefix.id)
+        if part_parameter.nom_value:
+            self.edit_part_parameter_nom_value.Value = str(part_parameter.nom_value) 
+        if part_parameter.nom_prefix:
+            self.choice_part_parameter_nom_prefix.SetSelection(part_parameter.nom_prefix.id)
         else:
             self.choice_part_parameter_nom_prefix.SetSelection(0)
             
-        if self.parameter.max_value:
-            self.edit_part_parameter_max_value.Value = str(self.parameter.max_value) 
-        if self.parameter.max_prefix:
-            self.choice_part_parameter_max_prefix.SetSelection(self.parameter.max_prefix.id)
+        if part_parameter.max_value:
+            self.edit_part_parameter_max_value.Value = str(part_parameter.max_value) 
+        if part_parameter.max_prefix:
+            self.choice_part_parameter_max_prefix.SetSelection(part_parameter.max_prefix.id)
         else:
             self.choice_part_parameter_max_prefix.SetSelection(0)
+
+        if self.part.value_parameter==self.part_parameter.parameter.name:
+            self.check_part_value.Value = True
+        else:
+            self.check_part_value.Value = False
+            
+            
+        self._check()
             
         result = self.ShowModal()
         if result==wx.ID_OK:
-            return self.parameter
+            return self.part_parameter
         return None
 
     def onButtonPartParameterEditApply( self, event ):
         try:
-            if self.edit_part_parameter_name.Value=='':
-                raise ValueError('Name should not be empty')
-            # check parameter not exists
-            if self.part.parameters is None:
-                self.part.parameters = []
-                
-            for param in self.part.parameters:
-                if self.edit_part_parameter_name.Value!=self.previous_name and param.name==self.edit_part_parameter_name.Value:
-                    raise ValueError('%s: parameter already exists' % (self.edit_part_parameter_name.Value))
-    
-            self.parameter.name = self.edit_part_parameter_name.Value
-            self.parameter.description = self.edit_part_parameter_description.Value
-            if self.choice_part_parameter_unit.GetSelection()==0:
-                self.parameter.unit = None
-            else:
-                self.parameter.unit = rest.api.find_unit(self.choice_part_parameter_unit.GetSelection())
-            if self.radio_choice_parameter_numeric.GetValue()==True:
-                self.parameter.numeric = True
-            else:
-                self.parameter.numeric = False
+            if self.part_parameter.parameter is None:
+                raise ValueError('No parameter selected')
             
             if self.edit_part_parameter_value.Value!='':
-                self.parameter.text_value = self.edit_part_parameter_value.Value
+                self.part_parameter.text_value = self.edit_part_parameter_value.Value
             else:
-                self.parameter.text_value = None
+                self.part_parameter.text_value = None
                 
-            if self.edit_part_parameter_min_value.Value!='':
-                self.parameter.min_value = float(self.edit_part_parameter_min_value.Value)
-            else:
-                self.parameter.min_value = None
             if self.choice_part_parameter_min_prefix.GetSelection()==0:
-                self.parameter.min_prefix = None
+                self.part_parameter.min_prefix = None
             else:
-                self.parameter.min_prefix = rest.api.find_unit_prefix(self.choice_part_parameter_min_prefix.GetSelection())
+                self.part_parameter.min_prefix = api.data.unit_prefix.find_by_id(self.choice_part_parameter_min_prefix.GetSelection())
+            if self.edit_part_parameter_min_value.Value!='':
+                if self.part_parameter.min_prefix is not None:
+                    self.part_parameter.min_value = float(self.edit_part_parameter_min_value.Value)/float(self.part_parameter.min_prefix.power)
+            else:
+                self.part_parameter.min_value = None
     
-            if self.edit_part_parameter_nom_value.Value!='':
-                self.parameter.nom_value = float(self.edit_part_parameter_nom_value.Value)
-            else:
-                self.parameter.nom_value = None
             if self.choice_part_parameter_nom_prefix.GetSelection()==0:
-                self.parameter.nom_prefix = None
+                self.part_parameter.nom_prefix = None
             else:
-                self.parameter.nom_prefix = rest.api.find_unit_prefix(self.choice_part_parameter_nom_prefix.GetSelection())
-    
-            if self.edit_part_parameter_max_value.Value!='':
-                self.parameter.max_value = float(self.edit_part_parameter_max_value.Value)
+                self.part_parameter.nom_prefix = api.data.unit_prefix.find_by_id(self.choice_part_parameter_nom_prefix.GetSelection())
+            if self.edit_part_parameter_nom_value.Value!='':
+                if self.part_parameter.nom_prefix is not None:
+                    self.part_parameter.nom_value = float(self.edit_part_parameter_nom_value.Value)/float(self.part_parameter.nom_prefix.power)
             else:
-                self.parameter.max_value = None
+                self.part_parameter.nom_value = None
+
             if self.choice_part_parameter_max_prefix.GetSelection()==0:
-                self.parameter.max_prefix = None
+                self.part_parameter.max_prefix = None
             else:
-                self.parameter.max_prefix = rest.api.find_unit_prefix(self.choice_part_parameter_max_prefix.GetSelection())
+                self.part_parameter.max_prefix = api.data.unit_prefix.find_by_id(self.choice_part_parameter_max_prefix.GetSelection())
+            if self.edit_part_parameter_max_value.Value!='':
+                if self.part_parameter.max_prefix is not None:
+                    self.part_parameter.max_value = float(self.edit_part_parameter_max_value.Value)/float(self.part_parameter.max_prefix.power)
+            else:
+                self.part_parameter.max_value = None
+                
+            self.part.parameters.add_pending(self.part_parameter)
         except ValueError as e:
             print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
@@ -159,6 +199,8 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.EndModal(wx.ID_OK)
 
     def onButtonPartParameterEditCancel( self, event ):
+        self.part.value_parameter = self.value_parameter
+        
         self.EndModal(wx.ID_CANCEL)
     
     def onRadioNumeric( self, event ):
@@ -177,6 +219,8 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.edit_part_parameter_max_value.Show()
         self.choice_part_parameter_max_prefix.Show()
         
+        self._check()
+        
     def onRadioText( self, event ):
         self.static_value.Show()
         self.edit_part_parameter_value.Show()
@@ -192,14 +236,18 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.static_max_value.Hide()
         self.edit_part_parameter_max_value.Hide()
         self.choice_part_parameter_max_prefix.Hide()
-
+        
+        self._check()
+        
     def onButtonSearchParameterClick( self, event ):
-        frame = DropdownDialog(self, SelectPartParameterFrame, "")
-        frame.DropHere(self.onSelectPartParameterFrameOk)
+        frame = DropdownDialog(self, SelectParameterFrame, "")
+        frame.DropHere(self.onSelectParameterFrameOk)
     
-    def onSelectPartParameterFrameOk(self, parameter):
-        self.edit_part_parameter_name.Value = parameter.name
-        self.edit_part_parameter_description.Value = parameter.description
+    def onSelectParameterFrameOk(self, parameter):
+        self.part_parameter.parameter = parameter
+        
+        self.button_search_parameter.Label = parameter.name
+        self.button_parameter_description.Label = parameter.description
         
         if parameter.numeric:
             self.radio_choice_parameter_numeric.SetValue(True)
@@ -208,6 +256,21 @@ class EditPartParameterFrame(DialogEditPartParameter):
             self.radio_choice_parameter_text.SetValue(True)
             self.onRadioText(None)
             
-        if parameter.unit:
-            self.choice_part_parameter_unit.SetSelection(parameter.unit.id)
+        if parameter.unit is not None:
+            self.button_parameter_unit.Label = f"{parameter.unit.name} ({parameter.unit.symbol})"
+        else:
+            self.button_parameter_unit.Label = f""
+            
+        self._check()
+        
+    def CheckPartParameterValueChanged( self, event ):
+        self._check()
+        if self.check_part_value.Value:
+            self.part.value_parameter = self.part_parameter.parameter.name
+        else:
+            self.part.value_parameter = None
+        event.Skip()
 
+    def EditPartParameterValueChanged( self, event ):
+        self._check()
+        event.Skip()

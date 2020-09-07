@@ -1,7 +1,6 @@
 from dialogs.panel_part_list import PanelPartList
 import frames.edit_part_frame
 import api.data.part
-import api.models
 import helper.tree
 import helper.filter
 from helper.log import log
@@ -214,13 +213,18 @@ class PartListFrame(PanelPartList):
             for category in self.tree_parts_manager.FindCategories():
                 self.tree_parts_manager.Expand(category)
     
+    def _enable(self, value):
+        self.panel_up.Enabled = value
+        
     def SetPart(self, part):
         self.panel_edit_part.SetPart(part)
-    
-    def Refresh(self):
-        self.tree_parts_manager.Load()
-        self.panel_edit_part.Refresh()
-
+        self._enable(True)
+        
+    def EditPart(self, part):
+        self.EditMode = True
+        self.panel_edit_part.EditPart(part)
+        self._enable(False)
+                
     def onToggleCategoryPathClicked( self, event ):
         self.Flat = not self.toolbar_part.GetToolState(self.toggle_part_path.GetId())
         event.Skip()
@@ -260,15 +264,14 @@ class PartListFrame(PanelPartList):
         event.Skip()
 
     def onMenuPartAddPart( self, event ):
-        part = api.models.Part()
+        part = api.data.part.create()
         
         # add category from filter
         part.category = None
         if len(self.Filters.get_filters_group('category'))==1:
             part.category = self.Filters.get_filters_group('category')[0].category
 
-        self.EditMode = True
-        self.panel_edit_part.EditPart(part)
+        self.EditPart(part)
         event.Skip()
 
     def onMenuPartEditPart( self, event ):
@@ -278,8 +281,7 @@ class PartListFrame(PanelPartList):
         obj = self.tree_parts_manager.ItemToObject(item)
         if isinstance(obj, Part)==False:
             return
-        self.EditMode = True
-        self.panel_edit_part.EditPart(obj.part)
+        self.EditPart(obj.part)
         event.Skip()
 
     def onMenuPartRemovePart( self, event ):
@@ -287,7 +289,7 @@ class PartListFrame(PanelPartList):
         if not item.IsOk():
             return
         obj = self.tree_parts_manager.ItemToObject(item)
-        if isinstance(obj, Part):
+        if isinstance(obj, Part)==False:
             return
 #         part = obj.part
 #         if isinstance(obj.parent, DataModelPart):
@@ -322,16 +324,15 @@ class PartListFrame(PanelPartList):
         event.Skip()
 
     def onMenuPartDuplicatePart( self, event ):
-#         item = self.tree_parts.GetSelection()
-#         if not item.IsOk():
-#             return
-#         obj = self.tree_parts_manager.ItemToObject(item)
-#         if isinstance(obj, DataModelCategoryPath):
-#             return
-#         part = rest.api.find_part(obj.part.id, with_parameters=True, with_childs=True, with_distributors=True, with_manufacturers=True, with_storages=True, with_attachements=True, with_references=True)
-#         part.id = None
-#         self.edit_state = 'add'
-#         self.edit_part(obj.part)
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, Part)==False:
+            return
+
+        part = api.data.part.duplicate(obj.part)
+        self.EditPart(part)
         event.Skip()
 
     def onEditPartApply( self, event ):
@@ -350,23 +351,30 @@ class PartListFrame(PanelPartList):
             categoryobj = self.tree_parts_manager.FindCategory(part.category.id)
             self.tree_parts_manager.Append(categoryobj, partobj)
             
-        self.SetPart(part)
-        self.EditMode = False
-        self.Refresh()
-        event.Skip()
-      
-    def onEditPartCancel( self, event ):
-        self.Refresh()
+        self.tree_parts_manager.Load()
+
+        # reload the part after changing it
         item = self.tree_parts.GetSelection()
-        if not item.IsOk():
-            event.Skip()
-            return
         obj = self.tree_parts_manager.ItemToObject(item)
         if isinstance(obj, Part):
             self.SetPart(obj.part)
         else:
             self.SetPart(None)
+            
+        self.EditMode = False
+        event.Skip()
+      
+    def onEditPartCancel( self, event ):
+        self.tree_parts_manager.Load()
+        
+        # reload the part after changing it
+        item = self.tree_parts.GetSelection()
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, Part):
+            self.SetPart(obj.part)
+        else:
+            self.SetPart(None)
+
         self.EditMode = False        
-        self.Refresh()
         event.Skip()
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -17,7 +17,7 @@ import wx.xrc
 class DialogEditPartParameter ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 409,385 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 411,429 ), style = wx.DEFAULT_DIALOG_STYLE )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
@@ -28,39 +28,33 @@ class DialogEditPartParameter ( wx.Dialog ):
 		fgSizer1.SetFlexibleDirection( wx.BOTH )
 		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
-		self.m_staticText3 = wx.StaticText( self, wx.ID_ANY, u"Name", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText3 = wx.StaticText( self, wx.ID_ANY, u"Parameter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText3.Wrap( -1 )
 
 		fgSizer1.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
-
-		self.edit_part_parameter_name = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer61.Add( self.edit_part_parameter_name, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
-
-		self.button_search_parameter = wx.Button( self, wx.ID_ANY, u"  ...  ", wx.DefaultPosition, wx.DefaultSize, wx.BU_EXACTFIT )
-		bSizer61.Add( self.button_search_parameter, 0, wx.ALL, 5 )
-
-
-		fgSizer1.Add( bSizer61, 1, wx.EXPAND, 5 )
+		self.button_search_parameter = wx.Button( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
+		fgSizer1.Add( self.button_search_parameter, 1, wx.ALL|wx.EXPAND, 5 )
 
 		self.m_staticText4 = wx.StaticText( self, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText4.Wrap( -1 )
 
 		fgSizer1.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.edit_part_parameter_description = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_part_parameter_description, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.button_parameter_description = wx.Button( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
+		self.button_parameter_description.Enable( False )
+
+		fgSizer1.Add( self.button_parameter_description, 1, wx.ALL|wx.EXPAND, 5 )
 
 		self.m_staticText5 = wx.StaticText( self, wx.ID_ANY, u"Unit", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText5.Wrap( -1 )
 
 		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		choice_part_parameter_unitChoices = []
-		self.choice_part_parameter_unit = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_part_parameter_unitChoices, 0 )
-		self.choice_part_parameter_unit.SetSelection( 0 )
-		fgSizer1.Add( self.choice_part_parameter_unit, 0, wx.ALL, 5 )
+		self.button_parameter_unit = wx.Button( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
+		self.button_parameter_unit.Enable( False )
+
+		fgSizer1.Add( self.button_parameter_unit, 1, wx.ALL|wx.EXPAND, 5 )
 
 		self.m_staticText6 = wx.StaticText( self, wx.ID_ANY, u"Value Type", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
@@ -70,9 +64,13 @@ class DialogEditPartParameter ( wx.Dialog ):
 		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
 
 		self.radio_choice_parameter_numeric = wx.RadioButton( self, wx.ID_ANY, u"Numeric", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.radio_choice_parameter_numeric.Enable( False )
+
 		bSizer6.Add( self.radio_choice_parameter_numeric, 0, wx.ALL, 5 )
 
 		self.radio_choice_parameter_text = wx.RadioButton( self, wx.ID_ANY, u"Text", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.radio_choice_parameter_text.Enable( False )
+
 		bSizer6.Add( self.radio_choice_parameter_text, 0, wx.ALL, 5 )
 
 
@@ -140,6 +138,14 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 		fgSizer1.Add( bSizer72, 1, wx.EXPAND, 5 )
 
+		self.m_staticText9 = wx.StaticText( self, wx.ID_ANY, u"Part value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText9.Wrap( -1 )
+
+		fgSizer1.Add( self.m_staticText9, 0, wx.ALL, 5 )
+
+		self.check_part_value = wx.CheckBox( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.check_part_value, 0, wx.ALL, 5 )
+
 
 		bSizer1.Add( fgSizer1, 1, wx.EXPAND, 5 )
 
@@ -150,7 +156,7 @@ class DialogEditPartParameter ( wx.Dialog ):
 		button_part_edit.AddButton( self.button_part_editCancel )
 		button_part_edit.Realize();
 
-		bSizer1.Add( button_part_edit, 0, wx.EXPAND, 5 )
+		bSizer1.Add( button_part_edit, 0, wx.BOTTOM|wx.EXPAND, 10 )
 
 
 		self.SetSizer( bSizer1 )
@@ -160,8 +166,17 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 		# Connect Events
 		self.button_search_parameter.Bind( wx.EVT_BUTTON, self.onButtonSearchParameterClick )
+		self.button_parameter_description.Bind( wx.EVT_BUTTON, self.onButtonSearchParameterClick )
+		self.button_parameter_unit.Bind( wx.EVT_BUTTON, self.onButtonSearchParameterClick )
 		self.radio_choice_parameter_numeric.Bind( wx.EVT_RADIOBUTTON, self.onRadioNumeric )
 		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioText )
+		self.edit_part_parameter_min_value.Bind( wx.EVT_TEXT, self.EditPartParameterValueChanged )
+		self.choice_part_parameter_min_prefix.Bind( wx.EVT_CHOICE, self.EditPartParameterValueChanged )
+		self.edit_part_parameter_nom_value.Bind( wx.EVT_TEXT, self.EditPartParameterValueChanged )
+		self.choice_part_parameter_nom_prefix.Bind( wx.EVT_CHOICE, self.EditPartParameterValueChanged )
+		self.edit_part_parameter_max_value.Bind( wx.EVT_TEXT, self.EditPartParameterValueChanged )
+		self.choice_part_parameter_max_prefix.Bind( wx.EVT_CHOICE, self.EditPartParameterValueChanged )
+		self.check_part_value.Bind( wx.EVT_CHECKBOX, self.CheckPartParameterValueChanged )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartParameterEditApply )
 		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartParameterEditCancel )
 
@@ -173,10 +188,23 @@ class DialogEditPartParameter ( wx.Dialog ):
 	def onButtonSearchParameterClick( self, event ):
 		event.Skip()
 
+
+
 	def onRadioNumeric( self, event ):
 		event.Skip()
 
 	def onRadioText( self, event ):
+		event.Skip()
+
+	def EditPartParameterValueChanged( self, event ):
+		event.Skip()
+
+
+
+
+
+
+	def CheckPartParameterValueChanged( self, event ):
 		event.Skip()
 
 	def onButtonPartParameterEditApply( self, event ):
