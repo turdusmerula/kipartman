@@ -1,12 +1,13 @@
-from dialogs.panel_symbols import PanelSymbols
-import frames
-from frames.symbol_libraries_frame import SymbolLibrariesFrame
-from frames.symbol_list_frame import SymbolListFrame
-import wx
+from dialogs.panel_symbol_list import PanelSymbolList
+import os
+import helper.tree
 import helper.filter
-from helper.exception import print_stack
+from kicad.kicad_file_manager_symbols import KicadLibraryManager
+import api.data.library
+import api.data.library_symbol
+
+# from dialogs.panel_symbols import PanelSymbols
 # from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_SYMBOL_APPLY_EVENT, EVT_EDIT_SYMBOL_CANCEL_EVENT
-# from kicad.kicad_file_manager import KicadFileManagerLib
 # from helper.filter import Filter
 # import rest 
 # import helper.tree
@@ -21,64 +22,197 @@ from helper.exception import print_stack
 # from helper.connection import check_backend
 # from helper.profiler import Trace
 
-class SymbolsFrame(PanelSymbols): 
-    def __init__(self, parent):
-        super(SymbolsFrame, self).__init__(parent)
+state_image_list = None
 
-        # add libraries panel
-        self.panel_libraries = SymbolLibrariesFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-#         self.panel_libraries.Bind( frames.part_categories_frame.EVT_SELECT_CATEGORY, self.onPartCategoriesSelectionChanged )
+class Library(helper.tree.TreeContainerItem):
+    def __init__(self, library):
+        super(Library, self).__init__()
+        self.library = library
 
-        # add symbol list panel
-        self.panel_symbol_list = SymbolListFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-#         self.panel_symbol_list.Bind( frames.part_list_frame.EVT_ENTER_EDIT_MODE, self.onPartsEnterEditMode )
-#         self.panel_symbol_list.Bind( frames.part_list_frame.EVT_EXIT_EDIT_MODE, self.onPartsExitEditMode )
-#         self.panel_symbol_list.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onPartsFilterChanged )
+    @property
+    def Path(self):
+        return self.library.Path
+    
+    def GetValue(self, col):
+        if col==0:
+            global state_image_list
+            return state_image_list.GetBitmap('')
+        elif col==1:
+            return self.Path
+        return ''
 
-        # organize panels
-        self.splitter_vert.Unsplit()
-        self.splitter_vert.SplitVertically( self.panel_libraries, self.panel_symbol_list)
-        self.panel_left.Hide()
-        self.panel_right.Hide()
+    def GetAttr(self, col, attr):
+        attr.Bold = True
+        return True
+ 
+class Symbol(helper.tree.TreeItem):
+    def __init__(self, symbol):
+        super(Symbol, self).__init__()
+        self.symbol = symbol
+ 
+    def GetValue(self, col):
+        if col==0:
+            global state_image_list
+            return state_image_list.GetBitmap('')
+        elif col==1:
+            if self.parent is None:
+                return os.path.join(self.symbol.Library.Path, self.symbol.Name)
+            else:
+                return self.symbol.Name
+ 
+        return ''
+ 
+#    def GetDragData(self):
+#        if isinstance(self.parent, DataModelCategoryPath):
+#            return {'id': self.symbol.id}
+#        return None
 
-    def activate(self):
-        self.panel_libraries.activate()
-        self.panel_symbol_list.activate()
+def cut_path(path):
+    res = []
+    while len(path)>0:
+        path, folder = os.path.split(path)
+        res.append(folder)
+    res.reverse()
 
-#         self.file_manager_lib = KicadFileManagerLib()
-#         self.manager_lib = sync.version_manager.VersionManager(self.file_manager_lib)
-#         self.manager_lib.on_change_hook = self.onFileLibChanged
-#         
-#         # create libraries data
-#         self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries)
-#         self.tree_libraries_manager.AddTextColumn("name")
-#         self.tree_libraries_manager.OnSelectionChanged = self.onTreeLibrariesSelChanged
-#         self.tree_libraries_manager.OnItemBeforeContextMenu = self.onTreeLibrariesBeforeContextMenu
-# 
-#         # symbols filters
-#         self.symbols_filter = SymbolsFrameFilter(self.filters_panel, self.onButtonRemoveFilterClick)
-# 
-#         # create symbol list
-#         self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbols)
-#         self.tree_symbols_manager.AddBitmapColumn("s")
-#         self.tree_symbols_manager.AddIntegerColumn("v")
-#         self.tree_symbols_manager.AddTextColumn("name")
-#         self.tree_symbols_manager.OnSelectionChanged = self.onTreeModelsSelChanged
-#         self.tree_symbols_manager.OnItemBeforeContextMenu = self.onTreeModelsBeforeContextMenu
-# 
-#         self.tree_symbols_manager.imagelist.AddFile('', 'resources/none.png')
-#         self.tree_symbols_manager.imagelist.AddFile(None, 'resources/none.png')
-#         self.tree_symbols_manager.imagelist.AddFile('conflict_add', 'resources/conflict_add.png')
-#         self.tree_symbols_manager.imagelist.AddFile('conflict_change', 'resources/conflict_change.png')
-#         self.tree_symbols_manager.imagelist.AddFile('conflict_del', 'resources/conflict_del.png')
-#         self.tree_symbols_manager.imagelist.AddFile('income_add', 'resources/income_add.png')
-#         self.tree_symbols_manager.imagelist.AddFile('income_change', 'resources/income_change.png')
-#         self.tree_symbols_manager.imagelist.AddFile('income_del', 'resources/income_del.png')
-#         self.tree_symbols_manager.imagelist.AddFile('outgo_add', 'resources/outgo_add.png')
-#         self.tree_symbols_manager.imagelist.AddFile('outgo_change', 'resources/outgo_change.png')
-#         self.tree_symbols_manager.imagelist.AddFile('outgo_del', 'resources/outgo_del.png')
-#         #self.tree_symbols_manager.imagelist.AddFile('prop_changed', 'resources/prop_changed.png')
-# 
+    if len(res)==1 and res[0]=='.':
+        return []
+    return res
+
+class TreeManagerSymbols(helper.tree.TreeManager):
+    def __init__(self, tree_view, *args, manager_lib,filters , **kwargs):
+        super(TreeManagerSymbols, self).__init__(tree_view, *args, **kwargs)
+        self.manager_lib = manager_lib
+        
+        self.filters = filters
+        
+        self.flat = False
+
+    def Load(self):
+         
+        self.SaveState()
+        
+        # reload libraries from disk
+        self.manager_lib.Load()
+
+        if self.flat:
+            self.LoadFlat()
+        else:
+            self.LoadTree()
+        
+        self.PurgeState()
+
+    def LoadFlat(self):
+        for library in self.manager_lib.Libraries:
+            for symbol in library.Symbols:
+                symbolobj = self.FindSymbol(symbol)
+                if symbolobj is None:
+                    symbolobj = self.AppendSymbol(None, symbol)
+                else:
+                    symbolobj.symbol = symbol
+                    self.Update(symbolobj)
+    
+    def LoadTree(self):
+        for library in self.manager_lib.Libraries:
+            libraryobj = self.FindLibrary(library)
+            if libraryobj is None:
+                libraryobj = self.AppendLibrary(library)
+            else:
+                libraryobj.library = library
+                self.Update(libraryobj)
+                
+            for symbol in library.Symbols:
+                symbolobj = self.FindSymbol(symbol)
+                if symbolobj is None:
+                    symbolobj = self.AppendSymbol(libraryobj, symbol)
+                else:
+                    symbolobj.symbol = symbol
+                    self.Update(symbolobj)
+    
+#     def FindPath(self, path):
+#         path = os.path.normpath(path)
+#         for data in self.data:
+# #            if isinstance(data, DataModelSymbolPath) and data.path==os.path.normpath(path):
+#             if isinstance(data, Library) and data.path==path:
+#                 return data
+#         return None
+#  
+    def FindSymbol(self, symbol):
+        for data in self.data:
+            if isinstance(data, Symbol) and data.symbol.Name==symbol.Name and data.symbol.Library.Path==symbol.Library.Path:
+                return data
+        return None
+
+    def FindLibrary(self, library):
+        for data in self.data:
+            if isinstance(data, Library) and data.library.Path==library.Path:
+                return data
+        return None
+    
+    def FindLibraries(self,):
+        res = []
+        for data in self.data:
+            if isinstance(data, Library):
+                res.append(data)
+        return res
+  
+    def AppendLibrary(self, path):
+        libraryobj = Library(path)
+        self.Append(None, libraryobj)
+        return libraryobj
+
+    def AppendSymbol(self, library, symbol):
+        libraryobj = None
+        if library is not None:
+            libraryobj = self.FindLibrary(library)
+        symbolobj = Symbol(symbol)
+        self.Append(libraryobj, symbolobj)
+        return symbolobj
+
+#     def UpdateSymbol(self, path, symbol):
+#         symbolobj = self.FindSymbol(path, symbol)
+#         if symbolobj:
+#             self.UpdateItem(symbolobj)
+#         return symbolobj
+#  
+#     def DeleteSymbol(self, path, symbol):
+#         pathobj = self.FindPath(path)
+#         symbolobj = Symbol(self.imagelist, path, symbol)
+#         self.DeleteItem(pathobj, symbolobj)
+ 
+
+class SymbolListFrame(PanelSymbolList): 
+    def __init__(self, *args, **kwargs):
+        super(SymbolListFrame, self).__init__(*args, **kwargs)
+
+        self.file_manager_lib = KicadLibraryManager()
+        self.file_manager_lib.on_change_hook = self.onFileLibChanged
+
+        # symbols filters
+        self._filters = helper.filter.FilterSet(self, self.toolbar_filters)
+        self.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
+
+        # create symbol list
+        self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbols, manager_lib=self.file_manager_lib, filters=self.Filters)
+        self.tree_symbols_manager.AddBitmapColumn("")
+        self.tree_symbols_manager.AddTextColumn("name")
+        self.tree_symbols_manager.OnSelectionChanged = self.onTreeModelsSelChanged
+        self.tree_symbols_manager.OnItemBeforeContextMenu = self.onTreeModelsBeforeContextMenu
+
+        global state_image_list
+        state_image_list = helper.tree.TreeImageList(11, 10)
+        state_image_list.AddFile('', 'resources/none.png')
+        state_image_list.AddFile(None, 'resources/none.png')
+        state_image_list.AddFile('conflict_add', 'resources/conflict_add.png')
+        state_image_list.AddFile('conflict_change', 'resources/conflict_change.png')
+        state_image_list.AddFile('conflict_del', 'resources/conflict_del.png')
+        state_image_list.AddFile('income_add', 'resources/income_add.png')
+        state_image_list.AddFile('income_change', 'resources/income_change.png')
+        state_image_list.AddFile('income_del', 'resources/income_del.png')
+        state_image_list.AddFile('outgo_add', 'resources/outgo_add.png')
+        state_image_list.AddFile('outgo_change', 'resources/outgo_change.png')
+        state_image_list.AddFile('outgo_del', 'resources/outgo_del.png')
+        #state_image_list.AddFile('prop_changed', 'resources/prop_changed.png')
+
 #         # create edit symbol panel
 #         self.panel_edit_symbol = EditSymbolFrame(self.symbol_splitter)
 #         self.symbol_splitter.SplitHorizontally(self.symbol_splitter.Window1, self.panel_edit_symbol, 400)
@@ -99,157 +233,75 @@ class SymbolsFrame(PanelSymbols):
 #         self.show_symbol(None)
 #         self.edit_state = None
 # 
-#         self.loaded = False
+        # initial state
+        self.toolbar_symbol.ToggleTool(self.toggle_symbol_path.GetId(), True)
+        self.Flat = False
 #     
-#     def activate(self):
-#         if self.loaded==False:
-#             self.load()
-#         self.loaded = True
-#         
-#     def load(self):
-#         try:
-#             check_backend()
-#         except Exception as e:
-#             print_stack()
-#             self.GetParent().GetParent().error_message(format(e))
+    @property
+    def Filters(self):
+        return self._filters
+
+    @property
+    def Flat(self):
+        return self.tree_symbols_manager.flat
+    
+    @Flat.setter
+    def Flat(self, value):
+        self.tree_symbols_manager.flat = value
+        self.tree_symbols_manager.Clear()
+        self.tree_symbols_manager.Load()
+        self._expand_libraries()
+
+    def activate(self):
+        self.tree_symbols_manager.Load()
+
+    def _expand_libraries(self):
+        if self.Flat==False:
+            for library in self.tree_symbols_manager.FindLibraries():
+                self.tree_symbols_manager.Expand(library)
+    
+    def onFileLibChanged(self, event):
+        # do a synchronize when a file change on disk
+        self.tree_symbols_manager.Load()
+
+    def onTreeModelsBeforeContextMenu( self, event ):
+        item = self.tree_symbols.GetSelection()
+        if item.IsOk()==False:
+            return    
+        obj = self.tree_symbols_manager.ItemToObject(item)
+ 
+        self.menu_symbols_add.Enable(True)
+        self.menu_symbols_delete.Enable(True)
+        self.menu_symbols_edit.Enable(True)
+        if isinstance(obj, Symbol):
+            self.menu_symbols_add.Enable(False)
+        else:
+            self.menu_symbols_delete.Enable(False)
+            self.menu_symbols_edit.Enable(False)
+
+    def onTreeModelsSelChanged( self, event ):
+#         if self.edit_state:
 #             return
-# 
-#         try:
-#             # update local disk state
-#             self.manager_lib.LoadState()
-#             self.symbols = self.manager_lib.Synchronize()
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Synchronization with kipartbase failed, check your connection and try again', wx.OK | wx.ICON_ERROR)                                    
-#         
-#         self.loadLibraries()
-#         self.loadSymbols()
-# 
-#     def loadLibraries(self):
-#         try:
-#             check_backend()
-#         except Exception as e:
-#             print_stack()
-#             self.GetParent().GetParent().error_message(format(e))
+        item = self.tree_symbols.GetSelection()
+        if item.IsOk()==False:
+            return
+#         symbolobj = self.tree_symbols_manager.ItemToObject(item)
+#         if isinstance(symbolobj, DataModelSymbol)==False:
+#             self.show_symbol(None)
 #             return
-#         
-#         self.tree_libraries_manager.SaveState()
-#         
-#         # load libraries tree
-#         for symbol_path in self.symbols:
-#             # decompose path
-#             folders = []
-#             library_path = os.path.dirname(symbol_path)
-#             path = os.path.dirname(library_path)
-#             library_name = os.path.basename(library_path)
-#             while path!='' and path!='/':
-#                 folders.insert(0, path)
-#                 path = os.path.dirname(path)
-#             
-#             for folder in folders:
-#                 pathobj = self.tree_libraries_manager.FindPath(folder)
-#                 if self.tree_libraries_manager.DropStateObject(pathobj)==False:
-#                     self.tree_libraries_manager.AppendPath(folder)
-#                     
-#             path = os.path.dirname(library_path)
-#             libraryobj = self.tree_libraries_manager.FindLibrary(path, library_name)
-#             if self.tree_libraries_manager.DropStateObject(libraryobj)==False:
-#                 self.tree_libraries_manager.AppendLibrary(path, library_name)
+#         self.panel_edit_symbol.SetSymbol(symbolobj.symbol)
 # 
-#         # add folders with no library inside
-#         for folder in self.file_manager_lib.folders:
-#             if re.compile("^.*\.lib$").match(os.path.normpath(os.path.abspath(folder))):
-#                 path = os.path.dirname(folder)
-#                 library_name = os.path.basename(folder)
-#                 libraryobj = self.tree_libraries_manager.FindLibrary(path, library_name)
-#                 if self.tree_libraries_manager.DropStateObject(libraryobj)==False:
-#                     self.tree_libraries_manager.AppendLibrary(path, library_name)
-#             else:
-#                 pathobj = self.tree_libraries_manager.FindPath(folder)
-#                 if self.tree_libraries_manager.DropStateObject(pathobj)==False:
-#                     self.tree_libraries_manager.AppendPath(folder)
-#             
-#         self.tree_libraries_manager.PurgeState()
-# 
-#     def loadSymbols(self):
-#         try:
-#             check_backend()
-#         except Exception as e:
-#             print_stack()
-#             self.GetParent().GetParent().error_message(format(e))
-#             return
-#             
-#         if self.previous_show_symbol_path!=self.show_symbol_path:
-#             # in case switch from tree to flat view 
-#             self.tree_symbols_manager.ClearItems()
-#             self.previous_show_symbol_path = self.show_symbol_path
-#             
-#         self.tree_symbols_manager.SaveState()
-#         
-#         # load symbols from local folder
-#         for symbol_path in self.symbols:
-#             library_path = os.path.dirname(symbol_path)
-#             if self.show_symbol_path==True:
-#                 pathobj = self.tree_symbols_manager.FindPath(library_path)
-#                 if self.symbols_filter.FilterPath(library_path)==False:
-#                     if self.tree_symbols_manager.DropStateObject(pathobj)==False:
-#                         self.tree_symbols_manager.AppendPath(library_path)
-# 
-#             symbol = self.symbols[symbol_path]
-#             parent = library_path
-# 
-#             if self.show_both_changes==False and self.show_conflict_changes==False and self.show_incoming_changes==False and self.show_outgoing_changes==False:
-#                 show = True
-#             else:
-#                 show = False
-#             if self.show_both_changes==True and symbol.state.rfind('outgo_')!=-1:
-#                 show = True
-#             if self.show_both_changes==True and symbol.state.rfind('income_')!=-1:
-#                 show = True
-#             if self.show_conflict_changes==True and symbol.state.rfind('conflict_')!=-1:
-#                 show = True
-#             if self.show_incoming_changes==True and symbol.state.rfind('income_')!=-1:
-#                 show = True
-#             if self.show_outgoing_changes==True and symbol.state.rfind('outgo_')!=-1:
-#                 show = True
-# 
-#             libraryobj = self.tree_symbols_manager.FindSymbol(parent, symbol)
-#             if show==True:
-#                 if self.symbols_filter.FilterSymbol(symbol)==False:
-#                     if self.tree_symbols_manager.DropStateObject(libraryobj)==False:
-#                         if self.show_symbol_path==True:
-#                             self.tree_symbols_manager.AppendSymbol(parent, symbol, flat=False)
-#                         else:
-#                             self.tree_symbols_manager.AppendSymbol(parent, symbol, flat=True)
-#                 
-#         self.tree_symbols_manager.PurgeState()
-# 
-#     def show_symbol(self, symbol):
-#         # disable editing
-#         self.panel_edit_symbol.enable(False)
-#         # enable evrything else
-#         self.panel_path.Enabled = True
-#         self.panel_symbols.Enabled = True
-#         # set part
-#         self.panel_edit_symbol.SetSymbol(symbol)
-# 
-#     def edit_symbol(self, symbol):
-#         self.show_symbol(symbol)
-#         # enable editing
-#         self.panel_edit_symbol.enable(True)
-#         # disable evrything else
-#         self.panel_path.Enabled = False
-#         self.panel_symbols.Enabled = False
-#         
-#     def new_symbol(self, path):
-#         symbol = rest.model.VersionedFile()
-#         symbol.source_path = path         
-#         self.edit_symbol(symbol)
-# 
-#     def onFileLibChanged(self, event):
-#         # do a synchronize when a file change on disk
-#         self.load()
-#        
+#         self.show_symbol(symbolobj.symbol)
+
+    def onToggleSymbolPathClicked( self, event ):
+        self.Flat = not self.toolbar_symbol.GetToolState(self.toggle_symbol_path.GetId())
+        event.Skip()
+
+    def onFilterChanged( self, event ):
+        self.tree_symbols_manager.Load()
+        self._expand_libraries()
+        event.Skip()
+
 #     def onTreeLibrariesSelChanged( self, event ):
 #         item = self.tree_libraries.GetSelection()
 #         if item.IsOk()==False:
@@ -262,56 +314,13 @@ class SymbolsFrame(PanelSymbols):
 #         # apply new filter and reload
 #         self.loadSymbols()
 # 
-#     def onTreeLibrariesBeforeContextMenu( self, event ):
-#         item = self.tree_libraries.GetSelection()
-#         if item.IsOk()==False:
-#             return    
-#         obj = self.tree_libraries_manager.ItemToObject(item)
-# 
-#         self.menu_libraries_add_folder.Enable(True)
-#         self.menu_libraries_add_library.Enable(True)
-#         self.menu_libraries_add_symbol.Enable(True)
-#         if isinstance(obj, DataModelLibrary):
-#             self.menu_libraries_add_folder.Enable(False)
-#             self.menu_libraries_add_library.Enable(False)
-#         else:
-#             self.menu_libraries_add_symbol.Enable(False)
-# 
-# 
 #     def onButtonRemoveFilterClick( self, event ):
 #         button = event.GetEventObject()
 #         self.symbols_filter.remove(button.GetName())
 #         self.tree_libraries.UnselectAll()
 #         self.loadSymbols()
 # 
-#     def onTreeModelsSelChanged( self, event ):
-#         if self.edit_state:
-#             return
-#         item = self.tree_symbols.GetSelection()
-#         if item.IsOk()==False:
-#             return
-#         symbolobj = self.tree_symbols_manager.ItemToObject(item)
-#         if isinstance(symbolobj, DataModelSymbol)==False:
-#             self.show_symbol(None)
-#             return
-#         self.panel_edit_symbol.SetSymbol(symbolobj.symbol)
 # 
-#         self.show_symbol(symbolobj.symbol)
-# 
-#     def onTreeModelsBeforeContextMenu( self, event ):
-#         item = self.tree_symbols.GetSelection()
-#         if item.IsOk()==False:
-#             return    
-#         obj = self.tree_symbols_manager.ItemToObject(item)
-# 
-#         self.menu_symbols_add.Enable(True)
-#         self.menu_symbols_delete.Enable(True)
-#         self.menu_symbols_edit.Enable(True)
-#         if isinstance(obj, DataModelSymbol):
-#             self.menu_symbols_add.Enable(False)
-#         else:
-#             self.menu_symbols_delete.Enable(False)
-#             self.menu_symbols_edit.Enable(False)
 # 
 # 
 #     def onEditSymbolApply( self, event ):
@@ -372,9 +381,6 @@ class SymbolsFrame(PanelSymbols):
 #         self.edit_state = None
 #         self.show_symbol(symbol)
 #     
-#     def onToggleSymbolPathClicked( self, event ):
-#         self.show_symbol_path = self.toolbar_symbol.GetToolState(self.toggle_symbol_path.GetId())
-#         self.load()
 #         
 #     def onToggleShowBothChangesClicked( self, event ):
 #         self.show_both_changes = self.toolbar_symbol.GetToolState(self.toggle_show_both_changes.GetId())

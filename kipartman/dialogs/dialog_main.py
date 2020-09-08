@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Aug  8 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -43,6 +43,9 @@ class DialogMain ( wx.Frame ):
 		self.menu_view_parts = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Parts", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_view.Append( self.menu_view_parts )
 
+		self.menu_view_symbols = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Symbols", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_view.Append( self.menu_view_symbols )
+
 		self.menu_view_test = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Test", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_view.Append( self.menu_view_test )
 
@@ -80,6 +83,7 @@ class DialogMain ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.onMenuBuyPartsSelection, id = self.menu_buy_parts.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewConfigurationSelection, id = self.menu_view_configuration.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewPartsSelection, id = self.menu_view_parts.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuViewSymbolsSelection, id = self.menu_view_symbols.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewTestSelection, id = self.menu_view_test.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuHelpAboutSelection, id = self.menu_about.GetId() )
 		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGED, self.onNotebookPageChanged )
@@ -103,6 +107,9 @@ class DialogMain ( wx.Frame ):
 		event.Skip()
 
 	def onMenuViewPartsSelection( self, event ):
+		event.Skip()
+
+	def onMenuViewSymbolsSelection( self, event ):
 		event.Skip()
 
 	def onMenuViewTestSelection( self, event ):

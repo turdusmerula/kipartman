@@ -175,11 +175,11 @@
                                     <property name="name">self.sizer_part</property>
                                     <property name="orient">wxVERTICAL</property>
                                     <property name="permission">public</property>
-                                    <object class="sizeritem" expanded="0">
+                                    <object class="sizeritem" expanded="1">
                                         <property name="border">5</property>
                                         <property name="flag">wxEXPAND</property>
                                         <property name="proportion">0</property>
-                                        <object class="wxToolBar" expanded="0">
+                                        <object class="wxToolBar" expanded="1">
                                             <property name="BottomDockable">1</property>
                                             <property name="LeftDockable">1</property>
                                             <property name="RightDockable">1</property>
@@ -454,7 +454,7 @@
                                                     </object>
                                                     <object class="sizeritem" expanded="0">
                                                         <property name="border">5</property>
-                                                        <property name="flag">wxALL</property>
+                                                        <property name="flag">wxALL|wxEXPAND</property>
                                                         <property name="proportion">0</property>
                                                         <object class="wxBitmapButton" expanded="0">
                                                             <property name="BottomDockable">1</property>

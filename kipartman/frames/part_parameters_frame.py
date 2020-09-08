@@ -147,52 +147,6 @@ class PartParametersFrame(PanelPartParameters):
         self.enabled = enabled
 
 
-
-#     def AddParameter(self, parameter):
-#         """
-#         Add a parameter to the part, or update if parameter already exists
-#         """
-#         # check if parameter exists
-#         if self.ExistParameter(parameter.name):
-#             # update existing parameter
-#             self.RemoveParameter(parameter.name)
-#         
-#         # add parameter
-#         if self.part.parameters is None:
-#             self.part.parameters = []
-#         self.part.parameters.append(parameter)
-#         self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(self.part, parameter))
-# 
-#     def ExistParameter(self, name):
-#         """
-#         Test if a parameter exists by its name
-#         """
-#         if not self.part.parameters:
-#             return False
-#         for param in self.part.parameters:
-#             if param.name==name:
-#                 return True
-#         return False
-# 
-#     def FindParameter(self, name):
-#         for data in self.tree_parameters_manager.data:
-#             if data.parameter.name==name:
-#                 return data
-#         return None
-#         
-# 
-#     def RemoveParameter(self, name):
-#         """
-#         Remove a parameter using its name
-#         """
-#         if not self.part.parameters:
-#             return False
-#         
-#         parameterobj = self.FindParameter(name)
-#         self.part.parameters.remove(parameterobj.parameter)
-#         self.tree_parameters_manager.DeleteItem(None, parameterobj)
-# 
-# 
     def onTreeParametersBeforeContextMenu( self, event ):
         self.menu_parameter_add_parameter.Enable(True)
         self.menu_parameter_edit_parameter.Enable(True)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -59,7 +59,7 @@ class PanelPartList ( wx.Panel ):
 		self.button_refresh_parts = wx.BitmapButton( self.panel_up, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
 		self.button_refresh_parts.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer61.Add( self.button_refresh_parts, 0, wx.ALL, 5 )
+		bSizer61.Add( self.button_refresh_parts, 0, wx.ALL|wx.EXPAND, 5 )
 
 
 		bSizer11.Add( bSizer61, 0, 0, 5 )

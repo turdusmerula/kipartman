@@ -291,36 +291,36 @@ class PartListFrame(PanelPartList):
         obj = self.tree_parts_manager.ItemToObject(item)
         if isinstance(obj, Part)==False:
             return
-#         part = obj.part
-#         if isinstance(obj.parent, DataModelPart):
-#             parent = obj.parent.part
-#             res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-#             if res==wx.ID_OK:
-#                 # remove selected part from subparts
-#                 parent = rest.api.find_part(parent.id, with_childs=True)
-#                 for child in parent.childs:
-#                     if child.id==part.id:
-#                         parent.childs.remove(child)
-# 
-#                 #parent.childs.remove(part)
-#                 rest.api.update_part(parent.id, parent)
-#                 self.tree_parts_manager.DeleteChildPart(parent, part)
-#             else:
-#                 return 
-#         else:
-#             res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-#             if res==wx.ID_OK:
-#                 try:
-#                     # remove part
-#                     rest.api.delete_part(part.id)
-#                     self.tree_parts_manager.DeletePart(part)
-#                 except Exception as e:
-#                     print_stack()
-#                     wx.MessageBox(format(e), 'Error updating stock', wx.OK | wx.ICON_ERROR)
-#                     
-#             else:
-#                 return
-#         self.show_part(None)
+        part = obj.part
+        if isinstance(obj.parent, Part):
+            parent = obj.parent.part
+            res = wx.MessageDialog(self, "Remove part '"+part.name+"' from '"+parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+            if res==wx.ID_OK:
+                # remove selected part from subparts
+                parent = rest.api.find_part(parent.id, with_childs=True)
+                for child in parent.childs:
+                    if child.id==part.id:
+                        parent.childs.remove(child)
+ 
+                #parent.childs.remove(part)
+                rest.api.update_part(parent.id, parent)
+                self.tree_parts_manager.DeleteChildPart(parent, part)
+            else:
+                return 
+        else:
+            res = wx.MessageDialog(self, "Remove part '"+part.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
+            if res==wx.ID_OK:
+                try:
+                    # remove part
+                    rest.api.delete_part(part.id)
+                    self.tree_parts_manager.DeletePart(part)
+                except Exception as e:
+                    print_stack()
+                    wx.MessageBox(format(e), 'Error updating stock', wx.OK | wx.ICON_ERROR)
+                     
+            else:
+                return
+        self.show_part(None)
         event.Skip()
 
     def onMenuPartDuplicatePart( self, event ):

@@ -97,13 +97,8 @@ def pendings(self):
 
 @overload_method(models.Model)
 def save(self, overload, *args, **kwargs):
+
     res = overload(self, *args, **kwargs)
-    
-    if hasattr(self, "_add_pendings_"):
-        pendings = getattr(self, "_add_pendings_")
-        for field in pendings:
-            for el in pendings[field]:
-                el.save()
     
     if hasattr(self, "_remove_pendings_"):
         pendings = getattr(self, "_remove_pendings_")
@@ -112,6 +107,12 @@ def save(self, overload, *args, **kwargs):
                 el = pendings[field].pop()
                 el.delete()
 
+    if hasattr(self, "_add_pendings_"):
+        pendings = getattr(self, "_add_pendings_")
+        for field in pendings:
+            for el in pendings[field]:
+                el.save()
+    
     return res
 
 @add_method(models.Model)
@@ -121,128 +122,7 @@ def removed_pending(self):
     
     return False
 
-# @add_method(models.Model)
-# def duplicate(self):
-#     res = copy.copy(self)
-#     res.pk = None
-# 
-#     for field in self._meta.get_fields():
-#         if field.one_to_many:
-#             
-#             if hasattr(self, field.name):
-#                 attr_name = field.name
-#             elif hasattr(self, f"{field.name}_set"):
-#                 attr_name = f"{field.name}_set"
-#             related_object_manager = getattr(self, attr_name)
-#             related_objects = list(related_object_manager.all())
-#             if related_objects:
-#                 print(f'{attr_name}:', related_objects)
-#         elif field.many_to_one:
-#             pass
-#         elif field.many_to_many:
-#             pass
-#         
-#     return res
-# 
-# @add_method(models.Model)
-# def duplicate2(self):
-#     """
-#     Duplicate a model instance, making copies of all foreign keys pointing to it.
-#     There are 3 steps that need to occur in order:
-# 
-#         1.  Enumerate the related child objects and m2m relations, saving in lists/dicts
-#         2.  Copy the parent object per django docs (doesn't copy relations)
-#         3a. Copy the child objects, relating to the copied parent object
-#         3b. Re-create the m2m relations on the copied parent object
-# 
-#     """
-#     related_objects_to_copy = []
-#     relations_to_set = {}
-#     # Iterate through all the fields in the parent object looking for related fields
-#     for field in self._meta.get_fields():
-#         if field.one_to_many:
-#             # One to many fields are backward relationships where many child objects are related to the
-#             # parent (i.e. SelectedPhrases). Enumerate them and save a list so we can copy them after
-#             # duplicating our parent object.
-#             print(f'Found a one-to-many field: {field.name}')
-# 
-#             # 'field' is a ManyToOneRel which is not iterable, we need to get the object attribute itself
-#             if hasattr(self, field.name):
-#                 related_object_manager = getattr(self, field.name)
-#             elif hasattr(self, f"{field.name}_set"):
-#                 related_object_manager = getattr(self, f"{field.name}_set")
-#             related_objects = list(related_object_manager.all())
-#             if related_objects:
-#                 print(f' - {len(related_objects)} related objects to copy')
-#                 related_objects_to_copy += related_objects
-# 
-#         elif field.many_to_one:
-#             # In testing so far, these relationships are preserved when the parent object is copied,
-#             # so they don't need to be copied separately.
-#             print(f'Found a many-to-one field: {field.name}')
-# 
-#         elif field.many_to_many:
-#             # Many to many fields are relationships where many parent objects can be related to many
-#             # child objects. Because of this the child objects don't need to be copied when we copy
-#             # the parent, we just need to re-create the relationship to them on the copied parent.
-#             print(f'Found a many-to-many field: {field.name}')
-#             if hasattr(self, field.name):
-#                 related_object_manager = getattr(self, field.name)
-#             elif hasattr(self, f"{field.name}_set"):
-#                 related_object_manager = getattr(self, f"{field.name}_set")
-#             relations = list(related_object_manager.all())
-#             if relations:
-#                 print(f' - {len(relations)} relations to set')
-#                 relations_to_set[field.name] = relations
-#             
-#     # Duplicate the parent object
-#     self.pk = None
-# #    self.save()
-#     print(f'Copied parent object ({str(self)})')
-#  
-#     # Copy the one-to-many child objects and relate them to the copied parent
-#     for related_object in related_objects_to_copy:
-#         # Iterate through the fields in the related object to find the one that relates to the
-#         # parent model (I feel like there might be an easier way to get at this).
-#         for related_object_field in related_object._meta.fields:
-#             if related_object_field.related_model == self.__class__:
-#                 # If the related_model on this field matches the parent object's class, perform the
-#                 # copy of the child object and set this field to the parent object, creating the
-#                 # new child -> parent relationship.
-#                 related_object.pk = None
-#                 setattr(related_object, related_object_field.name, self)
-# #                 related_object.save()
-#  
-#                 text = str(related_object)
-#                 text = (text[:40] + '..') if len(text) > 40 else text
-#                 print(f'|- Copied child object ({text})')
-#  
-#     # Set the many-to-many relations on the copied parent
-#     for field_name, relations in relations_to_set.items():
-#         # Get the field by name and set the relations, creating the new relationships
-#         field = getattr(self, field_name)
-#         field.set(relations)
-#         text_relations = []
-#         for relation in relations:
-#             text_relations.append(str(relation))
-#         print(f'|- Set {len(relations)} many-to-many relations on {field_name} {text_relations}')
-# 
-#     return self
 
-# def add_pending(obj):
-#     def pending(self):
-#         return self._pending
-#     
-#     def add(self, value):
-#         self._pending.append(value)
-#     
-#     def remove(self, value):
-#         self._pending.remove(value)
-#     
-#     setattr(obj, '_pending', [])
-#     setattr(obj, 'pending', pending)
-#     setattr(obj, 'add', add)
-#     setattr(obj, 'remove', remove)
 
 class PartCategory(MPTTModel):
     parent = TreeForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, db_index=True)
@@ -269,9 +149,6 @@ class Part(models.Model):
     def __init__(self, *args, **kwargs):
         self.child_count = 0
         super(Part, self).__init__(*args, **kwargs)
-        
-#         add_pending(self.parameters)
-#         print("+++", self.parameters._pending)
         
     name = models.TextField()
     description = models.TextField(blank=True, default='')
@@ -405,6 +282,25 @@ class Distributor(models.Model):
 
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
+
+
+class Library(models.Model):
+    path = models.TextField(blank=True, default='')
+    #symbols is defined inside PartParameter by ForeignKey part
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
+
+class LibrarySymbol(models.Model):
+    library = models.ForeignKey('Library', related_name='symbols', null=False, blank=False, default=None, on_delete=models.CASCADE)
+    name = models.TextField()
+    content = models.TextField()
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
+
 
 
 class File(models.Model):

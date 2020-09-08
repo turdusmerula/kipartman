@@ -1,6 +1,4 @@
 import os
-import json
-import rest
 import re
 import datetime
 import helper.hash as hash
@@ -9,6 +7,7 @@ import wx
 import wx.lib.newevent
 from conans.util.files import md5sum
 from helper.log import log
+import json
 
 class VersionManagerException(Exception):
     def __init__(self, error):

@@ -1,7 +1,7 @@
 from dialogs.dialog_main import DialogMain
 # from frames.buy_frame import BuyFrame
 from frames.parts_frame import PartsFrame
-# from frames.symbols_frame import SymbolsFrame
+from frames.symbols_frame import SymbolsFrame
 # from frames.footprints_frame import FootprintsFrame
 # from frames.modules_frame import ModulesFrame
 # from frames.distributors_frame import DistributorsFrame
@@ -52,9 +52,14 @@ class MainFrame(DialogMain):
         ConfigurationFrame(self).ShowModal()
 
     def onMenuViewPartsSelection( self, event ):
-        partsframe = PartsFrame(self.notebook)
-        self.pages.append(partsframe)
-        self.notebook.AddPage(partsframe, "Parts", False)
+        parts_frame = PartsFrame(self.notebook)
+        self.pages.append(parts_frame)
+        self.notebook.AddPage(parts_frame, "Parts", False)
+
+    def onMenuViewSymbolsSelection( self, event ):
+        symbols_frame = SymbolsFrame(self.notebook)
+        self.pages.append(symbols_frame)
+        self.notebook.AddPage(symbols_frame, "symbols", False)
 
     def onMenuViewTestSelection( self, event ):
         from frames.test_frame import TestFrame

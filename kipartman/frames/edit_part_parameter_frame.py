@@ -185,8 +185,9 @@ class EditPartParameterFrame(DialogEditPartParameter):
                     self.part_parameter.max_value = float(self.edit_part_parameter_max_value.Value)/float(self.part_parameter.max_prefix.power)
             else:
                 self.part_parameter.max_value = None
-                
-            self.part.parameters.add_pending(self.part_parameter)
+            
+            if self.part_parameter.id is None:
+                self.part.parameters.add_pending(self.part_parameter)
         except ValueError as e:
             print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)

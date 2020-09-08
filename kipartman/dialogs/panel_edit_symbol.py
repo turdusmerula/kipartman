@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -94,7 +94,7 @@ class PanelEditSymbol ( wx.Panel ):
 		button_symbol_edit.AddButton( self.button_symbol_editCancel )
 		button_symbol_edit.Realize();
 
-		bSizer15.Add( button_symbol_edit, 0, wx.EXPAND, 5 )
+		bSizer15.Add( button_symbol_edit, 1, wx.EXPAND, 5 )
 
 
 		self.m_panel7.SetSizer( bSizer15 )

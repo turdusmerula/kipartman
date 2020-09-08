@@ -11,13 +11,13 @@
         <property name="embedded_files_path">res</property>
         <property name="encoding">UTF-8</property>
         <property name="event_generation">connect</property>
-        <property name="file">panel_part_categories</property>
+        <property name="file">panel_symbol_libraries</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
         <property name="image_path_wrapper_function_name"></property>
         <property name="indent_with_spaces"></property>
         <property name="internationalize">0</property>
-        <property name="name">panel_part_categories</property>
+        <property name="name">panel_symbol_libraries</property>
         <property name="namespace"></property>
         <property name="path">.</property>
         <property name="precompiled_header"></property>
@@ -43,9 +43,9 @@
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
             <property name="minimum_size"></property>
-            <property name="name">PanelPartCategories</property>
+            <property name="name">PanelSymbolLibraries</property>
             <property name="pos"></property>
-            <property name="size">616,396</property>
+            <property name="size">1086,756</property>
             <property name="subclass"></property>
             <property name="tooltip"></property>
             <property name="window_extra_style"></property>
@@ -54,7 +54,7 @@
             <event name="OnInitDialog">onInitDialog</event>
             <object class="wxBoxSizer" expanded="1">
                 <property name="minimum_size"></property>
-                <property name="name">bSizer1</property>
+                <property name="name">bSizer2</property>
                 <property name="orient">wxVERTICAL</property>
                 <property name="permission">none</property>
                 <object class="sizeritem" expanded="1">
@@ -157,11 +157,11 @@
                         <property name="id">wxID_ANY</property>
                         <property name="maximum_size"></property>
                         <property name="minimum_size"></property>
-                        <property name="name">tree_categories</property>
+                        <property name="name">tree_libraries</property>
                         <property name="permission">protected</property>
                         <property name="pos"></property>
                         <property name="size"></property>
-                        <property name="style"></property>
+                        <property name="style">wxDV_SINGLE</property>
                         <property name="subclass"></property>
                         <property name="tooltip"></property>
                         <property name="window_extra_style"></property>
@@ -172,49 +172,81 @@
             </object>
             <object class="wxMenu" expanded="1">
                 <property name="label">MyMenu</property>
-                <property name="name">menu_category</property>
+                <property name="name">menu_libraries</property>
                 <property name="permission">protected</property>
-                <object class="wxMenuItem" expanded="0">
-                    <property name="bitmap">Load From File; resources/add.png</property>
+                <object class="wxMenuItem" expanded="1">
+                    <property name="bitmap"></property>
                     <property name="checked">0</property>
                     <property name="enabled">1</property>
                     <property name="help"></property>
                     <property name="id">wxID_ANY</property>
                     <property name="kind">wxITEM_NORMAL</property>
-                    <property name="label">Add new category</property>
-                    <property name="name">menu_category_add_category</property>
+                    <property name="label">Add folder</property>
+                    <property name="name">menu_libraries_add_folder</property>
                     <property name="permission">none</property>
                     <property name="shortcut"></property>
                     <property name="unchecked_bitmap"></property>
-                    <event name="OnMenuSelection">onMenuCategoryAddCategory</event>
+                    <event name="OnMenuSelection">onMenuLibrariesAddFolder</event>
                 </object>
-                <object class="wxMenuItem" expanded="0">
-                    <property name="bitmap">Load From File; resources/edit.png</property>
+                <object class="wxMenuItem" expanded="1">
+                    <property name="bitmap"></property>
                     <property name="checked">0</property>
                     <property name="enabled">1</property>
                     <property name="help"></property>
                     <property name="id">wxID_ANY</property>
                     <property name="kind">wxITEM_NORMAL</property>
-                    <property name="label">Edit category</property>
-                    <property name="name">menu_category_edit_category</property>
+                    <property name="label">Add library</property>
+                    <property name="name">menu_libraries_add_library</property>
                     <property name="permission">none</property>
                     <property name="shortcut"></property>
                     <property name="unchecked_bitmap"></property>
-                    <event name="OnMenuSelection">onMenuCategoryEditCategory</event>
+                    <event name="OnMenuSelection">onMenuLibrariesAddLibrary</event>
                 </object>
-                <object class="wxMenuItem" expanded="0">
-                    <property name="bitmap">Load From File; resources/remove.png</property>
+                <object class="wxMenuItem" expanded="1">
+                    <property name="bitmap"></property>
                     <property name="checked">0</property>
                     <property name="enabled">1</property>
                     <property name="help"></property>
                     <property name="id">wxID_ANY</property>
                     <property name="kind">wxITEM_NORMAL</property>
-                    <property name="label">Remove category</property>
-                    <property name="name">menu_category_remove_category</property>
+                    <property name="label">Rename</property>
+                    <property name="name">menu_libraries_rename</property>
                     <property name="permission">none</property>
                     <property name="shortcut"></property>
                     <property name="unchecked_bitmap"></property>
-                    <event name="OnMenuSelection">onMenuCategoryRemoveCategory</event>
+                    <event name="OnMenuSelection">onMenuLibrariesRename</event>
+                </object>
+                <object class="wxMenuItem" expanded="1">
+                    <property name="bitmap"></property>
+                    <property name="checked">0</property>
+                    <property name="enabled">1</property>
+                    <property name="help"></property>
+                    <property name="id">wxID_ANY</property>
+                    <property name="kind">wxITEM_NORMAL</property>
+                    <property name="label">Remove</property>
+                    <property name="name">menu_libraries_remove</property>
+                    <property name="permission">none</property>
+                    <property name="shortcut"></property>
+                    <property name="unchecked_bitmap"></property>
+                    <event name="OnMenuSelection">onMenuLibrariesRemove</event>
+                </object>
+                <object class="separator" expanded="1">
+                    <property name="name">m_separator1</property>
+                    <property name="permission">none</property>
+                </object>
+                <object class="wxMenuItem" expanded="1">
+                    <property name="bitmap"></property>
+                    <property name="checked">0</property>
+                    <property name="enabled">1</property>
+                    <property name="help"></property>
+                    <property name="id">wxID_ANY</property>
+                    <property name="kind">wxITEM_NORMAL</property>
+                    <property name="label">Add symbol</property>
+                    <property name="name">menu_libraries_add_symbol</property>
+                    <property name="permission">none</property>
+                    <property name="shortcut"></property>
+                    <property name="unchecked_bitmap"></property>
+                    <event name="OnMenuSelection">onMenuLibrariesAddSymbol</event>
                 </object>
             </object>
         </object>

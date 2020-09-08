@@ -214,7 +214,7 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return obj._get_value(col)
 
     def GetValue(self, item, col):
-        if self.columns_type[col]==ColumnType.BOOL:# or self.columns_type[col]==ColumnType.INTEGER or self.columns_type[col]==ColumnType.FLOAT:
+        if self.columns_type[col]==ColumnType.BOOL or self.columns_type[col]==ColumnType.BITMAP:# or self.columns_type[col]==ColumnType.INTEGER or self.columns_type[col]==ColumnType.FLOAT:
             return self.GetColumnValue(item, col)
         else:
             return str(self.GetColumnValue(item, col))
