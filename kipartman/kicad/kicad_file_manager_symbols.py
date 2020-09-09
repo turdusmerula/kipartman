@@ -13,13 +13,19 @@ import shutil
 from helper.log import log
 # from helper.exception import print_callstack
 
+class KicadLibraryException(Exception):
+    def __init__(self, error):
+        super(KicadLibraryException, self).__init__(error)
 
 class KicadSymbol():
-    def __init__(self, library, name, content):
+    def __init__(self, library, name, content, metadata=""):
         self._library = library
         self._name = name
         self._content = content
-    
+        self._metadata = metadata
+        
+        self._changed = False
+
     @property
     def Library(self):
         return self._library
@@ -32,22 +38,64 @@ class KicadSymbol():
     def Content(self):
         return self._content
 
+    @property
+    def Metadata(self):
+        return self._metadata
+    
+    @property
+    def Changed(self):
+        return self._changed
+
 class KicadLibrary(File):
     def __init__(self, path):
         super(KicadLibrary, self).__init__(path)
         self._loaded = False
         self._symbols = []
+        self._changed = False
         
     @property
     def Symbols(self):
         if self._loaded==False:
             self._read_lib_file()
+            self._read_metadata_file()
         return self._symbols
 
+    @property
+    def Changed(self):
+        res = self._changed
+        if self._changed==False:
+            for symbol in self._symbols:
+                if symbol.Changed:
+                    return True
+        return False
+    
+    def HasSymbol(self, name):
+        for symbol in self._symbols:
+            if symbol.Name==name:
+                return True
+        return False
+    
+    def AddSymbol(self, symbol):
+        if self.HasSymbol(symbol.name):
+            raise KicadLibraryException(f"Symbol {symbol.name} already exists in {self.Path}")
+        self._symbols.append(symbol)
+        symbol._library = self
+        self._changed = True
+        
+    def RemoveSymbol(self, symbol):
+        if self.HasSymbol(symbol.name)==False:
+            raise KicadLibraryException(f"Symbol {symbol.name} does not exists in {self.Path}")
+        for s in self._symbols:
+            if s.Name==symbol.Name:
+                self._symbols.remove(s)
+                break
+        self._changed = True
+
     def _read_lib_file(self):
+        self._symbols = []
         path = os.path.join(configuration.kicad_symbols_path, self.Path)
         if(os.path.isfile(path)==False):
-            return []
+            return
  
         content = ''
         name = ''
@@ -69,6 +117,59 @@ class KicadLibrary(File):
             else:
                 content = content+line
 
+    def _read_metadata_file(self):
+        dcm_path = os.path.join(configuration.kicad_symbols_path, re.sub(r"\.lib$", ".dcm", self.Path))
+        if(os.path.isfile(dcm_path)==False):
+            return
+ 
+        name = ''
+        for line in open(dcm_path, 'r'):
+            line = line.replace('\n', '')
+            if line.startswith("EESchema-DOCLIB"):
+                pass
+            elif line.startswith("#"):
+                pass
+            elif line.startswith("$CMP"):
+                name = line.split(' ')[1]+'.mod'
+            elif line.startswith("$ENDCMP"):
+                name = ''
+            elif name!='':
+                label = line.split(' ')[0]
+                value = " ".join(line.split(' ')[1:])
+                for symbol in self._symbols:
+                    if symbol.Name==name:
+                        symbol._metadata = value
+    
+    def _save_lib_file(self):
+        path = os.path.join(configuration.kicad_symbols_path, self.Path)
+        with open(path, 'w', encoding='utf-8') as file:
+            file.write('EESchema-LIBRARY Version 2.3\n')
+            file.write('#encoding utf-8\n')
+ 
+            for symbol in self._symbols:
+                file.write(symbol.Content)
+             
+            file.write('#\n')
+            file.write('# End Library\n')
+    
+    def _save_metadata_file(self):
+        path = os.path.join(configuration.kicad_symbols_path, re.sub(r"\.lib$", ".dcm", self.Path))
+        with open(os.path.join(self.root_path(), path), 'w', encoding='utf-8') as file:
+            file.write('EESchema-DOCLIB  Version 2.0\n')
+ 
+            for symbol in self._symbols:
+                file.write(f'$CMP {symbol.Name}\n')
+                file.write(symbol.Metadata)
+                file.write('\n')
+                 
+            file.write('#\n')
+            file.write('#End Doc Library\n')
+
+    def Save(self):
+        if self.Changed:
+            self._save_lib_file()
+            self._save_metadata_file()
+    
 class KicadLibraryManager(KicadFileManager):
     """
     Simulate lib files as a folder containing symbol files
@@ -76,6 +177,7 @@ class KicadLibraryManager(KicadFileManager):
     def __init__(self):
         super(KicadLibraryManager, self).__init__(root_path=configuration.kicad_symbols_path)
         self._libraries = []
+        self._folders = []
         
     def Load(self):
         self._load_library_list()
@@ -85,9 +187,8 @@ class KicadLibraryManager(KicadFileManager):
         Recurse all folders to find lib files
         """
         self._libraries = []
-        folders = []
         
-        basepath = os.path.normpath(os.path.abspath(self.root_path))
+        basepath = os.path.normpath(os.path.abspath(configuration.kicad_symbols_path))
         to_explore = [basepath]
          
         # search all folders
@@ -96,25 +197,36 @@ class KicadLibraryManager(KicadFileManager):
             if os.path.exists(path):
                 for folder in glob(os.path.join(path, "*/")):
                     if folder!='/':
-                        folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
+                        self._folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         #print("=>", folder) 
                         if os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             to_explore.append(folder)
          
-        folders.append('')
+        self._folders.append('')
         # search for libs in folders
-        for folder in folders:
+        for folder in self._folders:
             for lib in glob(os.path.join(basepath, folder, "*.lib")):
                 rel_folder = os.path.relpath(os.path.normpath(os.path.abspath(lib)), basepath)
                 #print("=>", lib) 
-                folders.append(rel_folder)
+#                 self._folders.append(rel_folder)
                 self._libraries.append(KicadLibrary(rel_folder))
-        folders.remove('')
+        self._folders.remove('')
 
     @property
     def Libraries(self):
         return self._libraries
-    
+
+    @property
+    def Folders(self):
+        return self._folders
+
+    def CreateFolder(self, path):
+        abspath = os.path.join(configuration.kicad_symbols_path, path)
+        if os.path.exists(abspath):
+            raise KicadFileManagerException(f"Folder '{path}' already exists")
+        super(KicadLibraryManager, self).CreateFolder(abspath)
+      
+
 class KicadLibraryCache(object):
     def __init__(self, root_path):
         self.libs = {}
@@ -123,34 +235,6 @@ class KicadLibraryCache(object):
 # TODO: reload cache in case of configuration change
 library_cache = KicadLibraryCache(configuration.kicad_symbols_path)
 
-# 
-#     def read_metadata_file(self, lib):
-#         metadata = {}
-#         
-#         dcm = re.sub(r"\.lib$", ".dcm", lib)
-#         dcm_path = os.path.join(self.root_path, dcm)
-#         
-#         if(os.path.isfile(dcm_path)==False):
-#             return None
-# 
-#         name = ''
-#         for line in open(dcm_path, 'r'):
-#             line = line.replace('\n', '')
-#             if line.startswith("EESchema-DOCLIB"):
-#                 pass
-#             elif line.startswith("#"):
-#                 pass
-#             elif line.startswith("$CMP"):
-#                 name = line.split(' ')[1]+'.mod'
-#                 metadata[name] = {}
-#             elif line.startswith("$ENDCMP"):
-#                 name = ''
-#             elif name!='':
-#                 label = line.split(' ')[0]
-#                 value = " ".join(line.split(' ')[1:])
-#                 metadata[name][label] = value
-#         
-#         return metadata
 #         
 #     def Clear(self, path=None):
 #         if path:
@@ -318,60 +402,6 @@ library_cache = KicadLibraryCache(configuration.kicad_symbols_path)
 #                 
 #                 self.files[file.source_path] = file
 #     
-#     def GetLibraries(self, root_path=None):
-#         """
-#         Recurse all folders and return .lib files path
-#         @param root_path: path from which to start recursing, None starts from root
-#         """
-#         log.debug("===> GetLibraries----")
-#         basepath = os.path.normpath(os.path.abspath(self.root_path()))
-#         to_explore = [basepath]
-#         libraries = []
-#         folders = []
-#         
-#         # search all folders
-#         while len(to_explore)>0:
-#             path = to_explore.pop()
-#             if os.path.exists(path):
-#                 for folder in glob(os.path.join(path, "*/")):
-#                     if folder!='/':
-#                         folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
-#                         #print("=>", folder) 
-#                         if os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
-#                             to_explore.append(folder)
-#         
-#         folders.append('')
-#         # search for libs in folders
-#         for folder in folders:
-#             for lib in glob(os.path.join(basepath, folder, "*.lib")):
-#                 rel_folder = os.path.relpath(os.path.normpath(os.path.abspath(lib)), basepath)
-#                 #print("=>", lib) 
-#                 folders.append(rel_folder)
-#                 libraries.append(rel_folder)
-#         folders.remove('')
-#         #print("---------------------")
-#         
-#         return libraries, folders
-#     
-#     def GetSymbols(self, library_path):
-#         """
-#         Return all symbols in a lib file
-#         """
-#         #log.debug("===> GetSymbols----")
-#         symbols = []
-#  
-#         path = os.path.join(self.root_path(), library_path)        
-#         if os.path.exists(path):
-#             lib_symbols = self.lib_cache.GetSymbols(library_path)
-#             for symbol in lib_symbols:
-#                 symbols.append(os.path.join(library_path, symbol))
-#         #print("----------------------")
-#      
-#         return symbols
-#  
-#     def Exists(self, path):
-#         return self.lib_cache.Exists(path)
-# 
 #     def write_library(self, library, symbols):
 #         with open(os.path.join(self.root_path(), library), 'w', encoding='utf-8') as file:
 #             file.write('EESchema-LIBRARY Version 2.3\n')
@@ -483,15 +513,6 @@ library_cache = KicadLibraryCache(configuration.kicad_symbols_path)
 #         
 #         file.content = self.lib_cache.GetSymbol(file.source_path).content
 #  
-#     def CreateFolder(self, path):
-#         abspath = os.path.join(self.root_path(), path)
-#         if os.path.exists(abspath):
-#             raise KicadFileManagerException('Folder %s already exists'%path)
-#         if path.endswith('.lib'):
-#             self.write_library(abspath, [])
-#         else:
-#             os.makedirs(abspath)
-#      
 #     def MoveFolder(self, source_path, dest_path):
 #         abs_source_path = os.path.join(self.root_path(), source_path)
 #         abs_dest_path = os.path.join(self.root_path(), dest_path)

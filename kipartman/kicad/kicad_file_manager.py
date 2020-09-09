@@ -29,6 +29,7 @@ class KicadFileManager(FileSystemEventHandler):
     observers = {}
     
     def __init__(self, root_path):
+        return
         self.on_change_hook = None
         
         self.root_path = root_path
@@ -67,7 +68,7 @@ class KicadFileManager(FileSystemEventHandler):
         if self.enabled==False:
             return 
         
-        print_callstack() 
+#         print_callstack() 
         
         self.enabled = False
         for extension in self.extensions:
@@ -121,7 +122,7 @@ class KicadFileManager(FileSystemEventHandler):
         return None
     
     def CreateFolder(self, path):
-        pass
+        os.makedirs(path)
     
     def MoveFolder(self, source_path, dest_path):
         pass

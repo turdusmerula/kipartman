@@ -511,7 +511,19 @@ class TreeManager(object):
                 self.context_menu_data = self.model.ItemToObject(event.GetItem())
             else:
                 self.context_menu_data = None
-            self.tree_view.PopupMenu(self.context_menu, event.GetPosition())
+            
+            # There is a bug here, if selection is modified inside a menu then it won't be
+            # reflected as at the end of onItemContextMenu the focus goes where the mouse was
+            # before onItemContextMenu
+            # self.tree_view.PopupMenu(self.context_menu, event.GetPosition())
+            # to prevent this we send the envent ourselves 
+            id = self.tree_view.GetPopupMenuSelectionFromUser(self.context_menu, event.GetPosition())
+            menu = self.context_menu.FindItemById(id)
+            if menu is not None:
+                event = wx.CommandEvent(wx.EVT_MENU.typeId, menu.GetId())
+                event.SetEventObject(menu)
+                wx.PostEvent(self.tree_view, event)
+                
         if self.OnItemContextMenu:
             return self.OnItemContextMenu(event)
         event.Skip()
@@ -768,31 +780,30 @@ class TreeManager(object):
     def Select(self, obj):
         item = self.model.ObjectToItem(obj)
         if item.IsOk():
-            self.tree_view.Select(item)
-#             self.tree_view.SetCurrentItem(item)
-#             items = wx.dataview.DataViewItemArray()
-#             items.append(item)
-#            self.tree_view.UnselectAll()
-#            self.tree_view.SelectAll()
-        if obj is None:
-            return
-        parent = obj.parent
-        while parent:
-            self.tree_view.Expand(self.ObjectToItem(parent))
-            parent = parent.parent
-            
+            self.SelectItem(item)
+        
     def SelectItem(self, item):
-        self.tree_view.Select(item)
+        self.tree_view.EnsureVisible(item)
         self.tree_view.SetCurrentItem(item)
+        self.tree_view.Select(item)
 
+        # self.tree_view.Select() does not generate an event by default, we simulate it here
+        event = wx.dataview.DataViewEvent(wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED.typeId, self.tree_view, None, item)
+        event.SetEventObject(self.tree_view)
+        wx.PostEvent(self.tree_view, event)
+        
     def Sort(self):
         self.model.Resort()
 
 
     def ItemToObject(self, item):
+        if item.IsOk()==False:
+            return None
         return self.model.ItemToObject(item)
     
     def ObjectToItem(self, obj):
+        if obj is None:
+            return wx.dataview.NullDataViewItem
         return self.model.ObjectToItem(obj)
 
 
@@ -848,6 +859,7 @@ class TreeManager(object):
         """
         Backup objects state 
         """
+#         self.tree_view.Freeze()
         self.data_state = [ obj for obj in self.data ]
         
     def PurgeState(self, remove_empty_parent=True):
@@ -887,4 +899,4 @@ class TreeManager(object):
 #                     except:
 #                         pass
 #                     obj = obj.parent
-
+#         self.tree_view.Thaw()

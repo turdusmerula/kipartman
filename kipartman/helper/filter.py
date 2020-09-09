@@ -104,5 +104,19 @@ class Filter(object):
     def __init__(self):
         pass
     
+    def apply(self):
+        return False
+
+class DataFilter(Filter):
+    def __init__(self):
+        super(DataFilter, self).__init__()
+    
     def apply(self, request):
         return request
+
+# class DataFilter(Filter):
+#     def __init__(self):
+#         super(DataFilter, self).__init__()
+#     
+#     def apply(self, request):
+#         return request

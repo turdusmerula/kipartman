@@ -25,6 +25,8 @@ class PanelSymbolList ( wx.Panel ):
 		bSizer12 = wx.BoxSizer( wx.VERTICAL )
 
 		self.toolbar_filters = wx.ToolBar( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
+		self.toolbar_filters.SetMinSize( wx.Size( -1,31 ) )
+
 		self.filters_label = wx.StaticText( self.toolbar_filters, wx.ID_ANY, u"Filters:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.filters_label.Wrap( -1 )
 

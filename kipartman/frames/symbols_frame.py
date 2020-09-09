@@ -1,7 +1,7 @@
 from dialogs.panel_symbols import PanelSymbols
 import frames
 from frames.symbol_libraries_frame import SymbolLibrariesFrame
-from frames.symbol_list_frame import SymbolListFrame
+from frames.symbol_list_frame import SymbolListFrame, FilterLibraryPath
 import wx
 import helper.filter
 from helper.exception import print_stack
@@ -27,7 +27,7 @@ class SymbolsFrame(PanelSymbols):
 
         # add libraries panel
         self.panel_libraries = SymbolLibrariesFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-#         self.panel_libraries.Bind( frames.part_categories_frame.EVT_SELECT_CATEGORY, self.onPartCategoriesSelectionChanged )
+        self.panel_libraries.Bind( frames.symbol_libraries_frame.EVT_SELECT_LIBRARY, self.onSymbolLibrarySelectionChanged )
 
         # add symbol list panel
         self.panel_symbol_list = SymbolListFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
@@ -45,6 +45,10 @@ class SymbolsFrame(PanelSymbols):
         self.panel_libraries.activate()
         self.panel_symbol_list.activate()
 
+    def onSymbolLibrarySelectionChanged( self, event ):
+        self.panel_symbol_list.Filters.replace(FilterLibraryPath(event.path), 'path')
+        event.Skip()
+        
 #         self.file_manager_lib = KicadFileManagerLib()
 #         self.manager_lib = sync.version_manager.VersionManager(self.file_manager_lib)
 #         self.manager_lib.on_change_hook = self.onFileLibChanged

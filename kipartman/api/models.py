@@ -296,6 +296,7 @@ class LibrarySymbol(models.Model):
     library = models.ForeignKey('Library', related_name='symbols', null=False, blank=False, default=None, on_delete=models.CASCADE)
     name = models.TextField()
     content = models.TextField()
+    metadata = models.TextField()
     updated = models.DateTimeField(auto_now=True)
     
     def __unicode__(self):

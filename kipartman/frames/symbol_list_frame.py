@@ -5,6 +5,7 @@ import helper.filter
 from kicad.kicad_file_manager_symbols import KicadLibraryManager
 import api.data.library
 import api.data.library_symbol
+import kicad.kicad_file_manager_symbols
 
 # from dialogs.panel_symbols import PanelSymbols
 # from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_SYMBOL_APPLY_EVENT, EVT_EDIT_SYMBOL_CANCEL_EVENT
@@ -101,8 +102,19 @@ class TreeManagerSymbols(helper.tree.TreeManager):
         
         self.PurgeState()
 
-    def LoadFlat(self):
+    def _get_libraries(self):
+        res = []
+        filters = self.filters.get_filters()
         for library in self.manager_lib.Libraries:
+            filter = False
+            for f in self.filters.get_filters():
+                filter = filter or f.apply(library)
+            if filter==False:
+                res.append(library)
+        return res
+    
+    def LoadFlat(self):
+        for library in self._get_libraries():
             for symbol in library.Symbols:
                 symbolobj = self.FindSymbol(symbol)
                 if symbolobj is None:
@@ -112,7 +124,7 @@ class TreeManagerSymbols(helper.tree.TreeManager):
                     self.Update(symbolobj)
     
     def LoadTree(self):
-        for library in self.manager_lib.Libraries:
+        for library in self._get_libraries():
             libraryobj = self.FindLibrary(library)
             if libraryobj is None:
                 libraryobj = self.AppendLibrary(library)
@@ -128,14 +140,6 @@ class TreeManagerSymbols(helper.tree.TreeManager):
                     symbolobj.symbol = symbol
                     self.Update(symbolobj)
     
-#     def FindPath(self, path):
-#         path = os.path.normpath(path)
-#         for data in self.data:
-# #            if isinstance(data, DataModelSymbolPath) and data.path==os.path.normpath(path):
-#             if isinstance(data, Library) and data.path==path:
-#                 return data
-#         return None
-#  
     def FindSymbol(self, symbol):
         for data in self.data:
             if isinstance(data, Symbol) and data.symbol.Name==symbol.Name and data.symbol.Library.Path==symbol.Library.Path:
@@ -167,19 +171,17 @@ class TreeManagerSymbols(helper.tree.TreeManager):
         symbolobj = Symbol(symbol)
         self.Append(libraryobj, symbolobj)
         return symbolobj
-
-#     def UpdateSymbol(self, path, symbol):
-#         symbolobj = self.FindSymbol(path, symbol)
-#         if symbolobj:
-#             self.UpdateItem(symbolobj)
-#         return symbolobj
-#  
-#     def DeleteSymbol(self, path, symbol):
-#         pathobj = self.FindPath(path)
-#         symbolobj = Symbol(self.imagelist, path, symbol)
-#         self.DeleteItem(pathobj, symbolobj)
  
-
+class FilterLibraryPath(api.data.library_symbol.FilterPath):
+    def __init__(self, path):
+        super(FilterLibraryPath, self).__init__(path)
+    
+    def apply(self, request):
+        if isinstance(request, kicad.kicad_file_manager_symbols.KicadLibrary):
+            return request.Path.startswith(self.path)==False
+        else:
+            return super(FilterLibraryPath, self).apply(request)
+    
 class SymbolListFrame(PanelSymbolList): 
     def __init__(self, *args, **kwargs):
         super(SymbolListFrame, self).__init__(*args, **kwargs)
@@ -262,6 +264,7 @@ class SymbolListFrame(PanelSymbolList):
     
     def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
+        log.info("symbols changed on disk")
         self.tree_symbols_manager.Load()
 
     def onTreeModelsBeforeContextMenu( self, event ):
