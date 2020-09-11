@@ -1,12 +1,14 @@
 from dialogs.panel_symbol_libraries import PanelSymbolLibraries
 # from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_SYMBOL_APPLY_EVENT, EVT_EDIT_SYMBOL_CANCEL_EVENT
 from kicad.kicad_file_manager_symbols import KicadLibraryManager
+import kicad.kicad_file_manager
 import helper.tree
 import os
 import api.data.library
 import wx
 from helper.exception import print_stack
 from helper.log import log
+import kicad
 
 state_image_list = None
 
@@ -36,18 +38,13 @@ class LibraryPath(helper.tree.TreeContainerItem):
         return {'id': self.path}
 
 class Library(helper.tree.TreeContainerItem):
-    def __init__(self, disk_file=None, stored_file=None):
+    def __init__(self, library):
         super(Library, self).__init__()
-        self.disk_file = disk_file
-        self.stored_file = stored_file
+        self.library = library
     
     @property
     def Path(self):
-        if self.disk_file is not None:
-            return self.disk_file.Path
-        elif self.stored_file is not None:
-            return self.stored_file.path
-        return None
+        return self.library.Path
     
     def GetValue(self, col):
 #         if col==0:
@@ -63,39 +60,28 @@ class Library(helper.tree.TreeContainerItem):
  
     def GetDragData(self):
         return {'id': self.path}
-
-def cut_path(path):
-    res = []
-    while len(path)>0:
-        path, folder = os.path.split(path)
-        res.append(folder)
-    res.reverse()
-
-    if len(res)==1 and res[0]=='.':
-        return []
-    return res
     
 class TreeManagerLibraries(helper.tree.TreeManager):
-    def __init__(self, tree_view, *args, manager_lib, **kwargs):
+    def __init__(self, tree_view, *args, **kwargs):
         super(TreeManagerLibraries, self).__init__(tree_view, *args, **kwargs)
-
-        self.manager_lib = manager_lib
+        
+        self.library_manager = KicadLibraryManager()
         
     def Load(self):
          
         self.SaveState()
         
         # reload libraries from disk
-        self.manager_lib.Load()
+        self.library_manager.Load()
 
-        for folder in self.manager_lib.Folders:
+        for folder in self.library_manager.Folders:
             pathobj = self.FindPath(folder)
             if pathobj is None:
                 pathobj = self.AppendPath(folder)
             else:
                 self.Update(pathobj)
         
-        for library in self.manager_lib.Libraries:
+        for library in self.library_manager.Libraries:
             path, file = os.path.split(library.Path)
             
             libraryobj = self.FindLibrary(library.Path)
@@ -103,15 +89,6 @@ class TreeManagerLibraries(helper.tree.TreeManager):
                 libraryobj = self.AppendFileLibrary(library)
             else:
                 libraryobj.disk_file = library
-                self.Update(libraryobj)
-            
-        # reload libraries from database
-        for library in api.data.library.find():
-            libraryobj = self.FindLibrary(library.path)
-            if libraryobj is None:
-                libraryobj = self.AppendStoredLibrary(library)
-            else:
-                libraryobj.stored_file = library
                 self.Update(libraryobj)
             
         self.PurgeState()
@@ -139,7 +116,7 @@ class TreeManagerLibraries(helper.tree.TreeManager):
  
     def AppendFileLibrary(self, library):
         pathobj = self.FindPath(os.path.dirname(library.Path))
-        libraryobj = Library(disk_file=library)
+        libraryobj = Library(library=library)
         self.Append(pathobj, libraryobj)
 
     def AppendStoredLibrary(self, library):
@@ -153,11 +130,11 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
     def __init__(self, *args, **kwargs):
         super(SymbolLibrariesFrame, self).__init__(*args, **kwargs)
 
-        self.file_manager_lib = KicadLibraryManager()
-        self.file_manager_lib.on_change_hook = self.onFileLibChanged
+        # react to file change 
+        self.Bind( kicad.kicad_file_manager.EVT_FILE_CHANGED, self.onFileLibChanged )
 
         # create libraries data
-        self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries, manager_lib=self.file_manager_lib)
+        self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries)
 #         self.tree_libraries_manager.AddBitmapColumn("s")
         self.tree_libraries_manager.AddTextColumn("name")
         self.tree_libraries_manager.OnSelectionChanged = self.onTreeLibrariesSelChanged
@@ -183,17 +160,10 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
 
     def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
-        log.info("symbols changed on disk")
         self.tree_libraries_manager.Load()
 
     def onButtonRefreshCategoriesClick( self, event ):
         self.tree_libraries_manager.Load()
-# 
-#         wx.TextEntryDialog(self, 'Enter folder name', 'Add folder').ShowModal()
-        pathobj = self.tree_libraries_manager.AppendPath('1')
-        pathobj = self.tree_libraries_manager.AppendPath('1/2')
-        pathobj = self.tree_libraries_manager.AppendPath('1/2/3')
-        self.tree_libraries_manager.Select(pathobj)
         
     def onTreeLibrariesSelChanged( self, event ):
         item = self.tree_libraries.GetSelection()
@@ -217,26 +187,60 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         if dlg.ShowModal() == wx.ID_OK:
             name = dlg.GetValue()
             try:
-                self.file_manager_lib.CreateFolder(os.path.join(path, name))
+                library_manager.CreateFolder(os.path.join(path, name))
             except Exception as e:
                 print_stack()
                 wx.MessageBox(format(e), 'Error creating folder', wx.OK | wx.ICON_ERROR)
                 dlg.Destroy()
                 return
+
+            self.tree_libraries_manager.Load()
+            
+            # select created item
+            pathobj = self.tree_libraries_manager.FindPath(os.path.join(path, name))
+            if pathobj is not None:
+                self.tree_libraries_manager.Select(pathobj)
+        
         dlg.Destroy()
 
-        self.tree_libraries_manager.Load()
-        
-        # select created item
-        pathobj = self.tree_libraries_manager.FindPath(os.path.join(path, name))
-        if pathobj is not None:
-            self.tree_libraries_manager.Select(pathobj)
          
         event.Skip()
 
     def onMenuLibrariesAddLibrary( self, event ):
-        print("++")
-        self.tree_libraries_manager.Select(self.aaaa)
+        item = self.tree_libraries.GetSelection()
+        pathobj = self.tree_libraries_manager.ItemToObject(item)
+        if isinstance(pathobj, Library):
+            pathobj = pathobj.parent
+
+        path = ''
+        if pathobj is not None:
+            path = pathobj.Path
+ 
+        dlg = wx.TextEntryDialog(self, 'Enter library name', 'Add library')
+        if dlg.ShowModal() == wx.ID_OK:
+            name = dlg.GetValue()
+            try:
+                library = library_manager.CreateLibrary(os.path.join(path, name+".lib"))
+            except Exception as e:
+                print_stack()
+                wx.MessageBox(format(e), 'Error creating library', wx.OK | wx.ICON_ERROR)
+                dlg.Destroy()
+                return
+            
+            # save library on disk
+            library.Save()
+            
+            # save library on database
+            # TODO
+            
+            self.tree_libraries_manager.Load()
+            
+            # select created item
+            libraryobj = self.tree_libraries_manager.FindLibrary(library.Path)
+            if libraryobj is not None:
+                self.tree_libraries_manager.Select(libraryobj)
+        dlg.Destroy()
+        
         event.Skip()
 
     def onMenuLibrariesRename( self, event ):
@@ -262,47 +266,6 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
 
         event.Skip()
 
-#     def onToggleShowBothChangesClicked( self, event ):
-#         self.show_both_changes = self.toolbar_symbol.GetToolState(self.toggle_show_both_changes.GetId())
-#         self.load()
-#     
-#     def onToggleShowConflictChangesClicked( self, event ):
-#         self.show_conflict_changes = self.toolbar_symbol.GetToolState(self.toggle_show_conflict_changes.GetId())
-#         self.load()
-#     
-#     def onToggleShowIncomingChangesClicked( self, event ):
-#         self.show_incoming_changes = self.toolbar_symbol.GetToolState(self.toggle_show_incoming_changes.GetId())
-#         self.load()
-#     
-#     def onToggleShowOutgoingChangesClicked( self, event ):
-#         self.show_outgoing_changes = self.toolbar_symbol.GetToolState(self.toggle_show_outgoing_changes.GetId())
-#         self.load()
-# 
-#     def onButtonRefreshSymbolsClick( self, event ):
-#         self.load()
-#         
-# 
-#         
-#     def onMenuLibrariesAddLibrary( self, event ):
-#         item = self.tree_libraries.GetSelection()
-#         path = ''
-#         if item.IsOk():
-#             pathobj = self.tree_libraries_manager.ItemToObject(item)
-#             if isinstance(pathobj, DataModelLibraryPath)==False:
-#                 return
-#             path = pathobj.path
-# 
-#         dlg = wx.TextEntryDialog(self, 'Enter library name', 'Add library')
-#         if dlg.ShowModal() == wx.ID_OK:
-#             name = dlg.GetValue()
-#             try:
-#                 self.manager_lib.CreateFolder(os.path.join(path, name+".lib"))
-#             except Exception as e:
-#                 print_stack()
-#                 wx.MessageBox(format(e), 'Error creating library', wx.OK | wx.ICON_ERROR)
-#         dlg.Destroy()
-#         self.load()
-# 
 #     def onMenuLibrariesRename( self, event ):
 #         item = self.tree_libraries.GetSelection()
 #         if item.IsOk()==False:

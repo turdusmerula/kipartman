@@ -3,9 +3,10 @@ import os
 import helper.tree
 import helper.filter
 from kicad.kicad_file_manager_symbols import KicadLibraryManager
+import kicad.kicad_file_manager
 import api.data.library
 import api.data.library_symbol
-import kicad.kicad_file_manager_symbols
+from helper.log import log
 
 # from dialogs.panel_symbols import PanelSymbols
 # from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_SYMBOL_APPLY_EVENT, EVT_EDIT_SYMBOL_CANCEL_EVENT
@@ -80,10 +81,10 @@ def cut_path(path):
     return res
 
 class TreeManagerSymbols(helper.tree.TreeManager):
-    def __init__(self, tree_view, *args, manager_lib,filters , **kwargs):
+    def __init__(self, tree_view, *args,filters , **kwargs):
         super(TreeManagerSymbols, self).__init__(tree_view, *args, **kwargs)
-        self.manager_lib = manager_lib
-        
+
+        self.library_manager = KicadLibraryManager()
         self.filters = filters
         
         self.flat = False
@@ -93,7 +94,7 @@ class TreeManagerSymbols(helper.tree.TreeManager):
         self.SaveState()
         
         # reload libraries from disk
-        self.manager_lib.Load()
+        self.library_manager.Load()
 
         if self.flat:
             self.LoadFlat()
@@ -105,7 +106,7 @@ class TreeManagerSymbols(helper.tree.TreeManager):
     def _get_libraries(self):
         res = []
         filters = self.filters.get_filters()
-        for library in self.manager_lib.Libraries:
+        for library in self.library_manager.Libraries:
             filter = False
             for f in self.filters.get_filters():
                 filter = filter or f.apply(library)
@@ -186,15 +187,15 @@ class SymbolListFrame(PanelSymbolList):
     def __init__(self, *args, **kwargs):
         super(SymbolListFrame, self).__init__(*args, **kwargs)
 
-        self.file_manager_lib = KicadLibraryManager()
-        self.file_manager_lib.on_change_hook = self.onFileLibChanged
+        # react to file change 
+        self.Bind( kicad.kicad_file_manager.EVT_FILE_CHANGED, self.onFileLibChanged )
 
         # symbols filters
         self._filters = helper.filter.FilterSet(self, self.toolbar_filters)
         self.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
 
         # create symbol list
-        self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbols, manager_lib=self.file_manager_lib, filters=self.Filters)
+        self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbols, filters=self.Filters)
         self.tree_symbols_manager.AddBitmapColumn("")
         self.tree_symbols_manager.AddTextColumn("name")
         self.tree_symbols_manager.OnSelectionChanged = self.onTreeModelsSelChanged
@@ -264,7 +265,6 @@ class SymbolListFrame(PanelSymbolList):
     
     def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
-        log.info("symbols changed on disk")
         self.tree_symbols_manager.Load()
 
     def onTreeModelsBeforeContextMenu( self, event ):

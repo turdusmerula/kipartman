@@ -13,3 +13,5 @@ def create():
     
     return library
 
+def save(library):
+    library.save()

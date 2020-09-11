@@ -27,3 +27,8 @@ def find(filters=[]):
         request = filter.apply(request)
     
     return request.order_by('id').all()
+
+def create():
+    symbol = LibrarySymbol()
+    
+    return symbol

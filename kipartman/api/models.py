@@ -287,6 +287,7 @@ class Distributor(models.Model):
 class Library(models.Model):
     path = models.TextField(blank=True, default='')
     #symbols is defined inside PartParameter by ForeignKey part
+    mtime = models.FloatField()
     updated = models.DateTimeField(auto_now=True)
     
     def __unicode__(self):
