@@ -62,17 +62,17 @@ class Library(helper.tree.TreeContainerItem):
         return {'id': self.path}
     
 class TreeManagerLibraries(helper.tree.TreeManager):
-    def __init__(self, tree_view, *args, **kwargs):
+    def __init__(self, tree_view, *args, library_manager, **kwargs):
         super(TreeManagerLibraries, self).__init__(tree_view, *args, **kwargs)
         
-        self.library_manager = KicadLibraryManager()
+        self.library_manager = library_manager
         
     def Load(self):
          
         self.SaveState()
         
         # reload libraries from disk
-        self.library_manager.Load()
+#         self.library_manager.Load()
 
         for folder in self.library_manager.Folders:
             pathobj = self.FindPath(folder)
@@ -131,10 +131,11 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         super(SymbolLibrariesFrame, self).__init__(*args, **kwargs)
 
         # react to file change 
+        self.library_manager = KicadLibraryManager(self)
         self.Bind( kicad.kicad_file_manager.EVT_FILE_CHANGED, self.onFileLibChanged )
 
         # create libraries data
-        self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries)
+        self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries, library_manager=self.library_manager)
 #         self.tree_libraries_manager.AddBitmapColumn("s")
         self.tree_libraries_manager.AddTextColumn("name")
         self.tree_libraries_manager.OnSelectionChanged = self.onTreeLibrariesSelChanged
@@ -159,6 +160,7 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         self.tree_libraries_manager.Load()
 
     def onFileLibChanged(self, event):
+        print("----", self, event.path)
         # do a synchronize when a file change on disk
         self.tree_libraries_manager.Load()
 

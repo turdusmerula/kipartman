@@ -81,10 +81,10 @@ def cut_path(path):
     return res
 
 class TreeManagerSymbols(helper.tree.TreeManager):
-    def __init__(self, tree_view, *args,filters , **kwargs):
+    def __init__(self, tree_view, *args, filters, library_manager , **kwargs):
         super(TreeManagerSymbols, self).__init__(tree_view, *args, **kwargs)
 
-        self.library_manager = KicadLibraryManager()
+        self.library_manager = library_manager
         self.filters = filters
         
         self.flat = False
@@ -94,7 +94,7 @@ class TreeManagerSymbols(helper.tree.TreeManager):
         self.SaveState()
         
         # reload libraries from disk
-        self.library_manager.Load()
+#         self.library_manager.Load()
 
         if self.flat:
             self.LoadFlat()
@@ -187,7 +187,8 @@ class SymbolListFrame(PanelSymbolList):
     def __init__(self, *args, **kwargs):
         super(SymbolListFrame, self).__init__(*args, **kwargs)
 
-        # react to file change 
+        # react to file change
+        self.library_manager = KicadLibraryManager(self)
         self.Bind( kicad.kicad_file_manager.EVT_FILE_CHANGED, self.onFileLibChanged )
 
         # symbols filters
@@ -195,7 +196,7 @@ class SymbolListFrame(PanelSymbolList):
         self.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
 
         # create symbol list
-        self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbols, filters=self.Filters)
+        self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbols, filters=self.Filters, library_manager=self.library_manager)
         self.tree_symbols_manager.AddBitmapColumn("")
         self.tree_symbols_manager.AddTextColumn("name")
         self.tree_symbols_manager.OnSelectionChanged = self.onTreeModelsSelChanged
@@ -264,6 +265,7 @@ class SymbolListFrame(PanelSymbolList):
                 self.tree_symbols_manager.Expand(library)
     
     def onFileLibChanged(self, event):
+        print("----", self, event.path)
         # do a synchronize when a file change on disk
         self.tree_symbols_manager.Load()
 

@@ -11,6 +11,9 @@ import django.db.models.manager
 
 @add_method(django.db.models.manager.BaseManager)
 def add_pending(self, el):
+    """
+    allow a relation to store carry elements to be stored during save.
+    """
     instance = self.instance
     field = self.field.remote_field
     if field.one_to_many:
@@ -25,7 +28,7 @@ def add_pending(self, el):
     if hasattr(el, "_remove_pending_"):
         delattr(el, "_remove_pending_")
         
-    add_pendings[field.name].append(el)
+    add_pendings[field.name].append((el, self.field))
 
 @add_method(django.db.models.manager.BaseManager)
 def remove_pending(self, el):
@@ -48,13 +51,16 @@ def remove_pending(self, el):
 
 @add_method(django.db.models.manager.BaseManager)
 def add_pendings(self):
+    """
+    return list of elements pending to be added by save
+    """
     instance = self.instance
     field = self.field.remote_field
     if field.one_to_many:
         if hasattr(instance, "_add_pendings_"):
             add_pendings = getattr(instance, "_add_pendings_")
             if field.name in add_pendings:
-                return add_pendings[field.name]
+                return [el for el, elfield in add_pendings[field.name]]
     else:
         raise f"{field.name}: pending functionality only implemented for one_to_many relation "
 
@@ -62,6 +68,9 @@ def add_pendings(self):
 
 @add_method(django.db.models.manager.BaseManager)
 def remove_pendings(self):
+    """
+    return list of elements pending to be removed by save
+    """
     instance = self.instance
     field = self.field.remote_field
     if field.one_to_many:
@@ -76,6 +85,9 @@ def remove_pendings(self):
 
 @add_method(django.db.models.manager.BaseManager)
 def pendings(self):
+    """
+    return list of elements where an action is pending on save
+    """
     instance = self.instance
     field = self.field.remote_field
     res = []
@@ -83,7 +95,7 @@ def pendings(self):
         if hasattr(instance, "_add_pendings_"):
             add_pendings = getattr(instance, "_add_pendings_")
             if field.name in add_pendings:
-                res += add_pendings[field.name]
+                res += [el for el, elfield in add_pendings[field.name]]
         if hasattr(instance, "_remove_pendings_"):
             remove_pendings = getattr(instance, "_remove_pendings_")
             if field.name in remove_pendings:
@@ -110,7 +122,12 @@ def save(self, overload, *args, **kwargs):
     if hasattr(self, "_add_pendings_"):
         pendings = getattr(self, "_add_pendings_")
         for field in pendings:
-            for el in pendings[field]:
+            for el, elfield in pendings[field]:
+#                 print("###1", el.__dict__)
+#                 print("###2", elfield.__dict__)
+#                 print("###3", elfield.remote_field.__dict__)
+#                 print("###4", f"{elfield.remote_field.field.name}_{elfield.remote_field.field_name}")
+                setattr(el, f"{elfield.remote_field.field.name}_{elfield.remote_field.field_name}", self.id)
                 el.save()
     
     return res

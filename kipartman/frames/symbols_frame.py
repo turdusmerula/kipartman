@@ -45,6 +45,9 @@ class SymbolsFrame(PanelSymbols):
         self.panel_libraries.activate()
         self.panel_symbol_list.activate()
 
+    def GetMenus(self):
+        return None
+    
     def onSymbolLibrarySelectionChanged( self, event ):
         self.panel_symbol_list.Filters.replace(FilterLibraryPath(event.path), 'path')
         event.Skip()

@@ -27,114 +27,98 @@ class File(object):
 (FileChangedEvent, EVT_FILE_CHANGED) = wx.lib.newevent.NewEvent()
 
 class KicadFileManager(wx.EvtHandler):
-    # map with path / observer
-    observer = None
-    
-#     observers = {}
-#     notifiers = []
 
+    observer = None
+    event_handler = None
+    
+    path = {}
+    path_handlers = {}
+    
     class _CustomHandler(FileSystemEventHandler):
         def on_any_event(self, event):
-#             if self.enabled==False:
-#                 return 
-#     
-#             self.enabled = False
-#             for extension in self.extensions:
-#                 if hasattr(event, 'dest_path') and os.path.isfile(event.dest_path) and os.path.basename(event.dest_path).startswith('.')==False and event.dest_path.endswith('.'+extension):
-#                     print("-", self)
-#                     log.info("Something happend with %s" % (event.dest_path))
-#                     path = os.path.relpath(event.dest_path, self.watch_path)
-#                     self.on_change_prehook(path)
-#                     if self.on_change_hook:
-#                         wx.CallAfter(self.on_change_hook, path)
-#                 elif hasattr(event, 'src_path') and os.path.isfile(event.src_path) and os.path.basename(event.src_path).startswith('.')==False and event.src_path.endswith('.'+extension):
-#                     print("+", self)
-#                     log.info("Something happend with %s" % (event.src_path))
-#                     path = os.path.relpath(event.src_path, self.watch_path)
-#                     self.on_change_prehook(path)
-#                     if self.on_change_hook:
-#                         wx.CallAfter(self.on_change_hook, path)
-#             self.enabled = True
-            print("+++", self, event)
+            if hasattr(event, 'dest_path'): 
+                wx.CallAfter(self.on_change_prehook, event.dest_path)
+            elif hasattr(event, 'src_path'):
+                wx.CallAfter(self.on_change_prehook, event.src_path)
+
+        def on_change_prehook(self, path):
+            path_changed = path
             
-    def __init__(self, watch_path, extensions):
+            while path!='/':
+                if path in KicadFileManager.path_handlers:
+                    for handler in KicadFileManager.path_handlers[path]:
+                        wx.PostEvent(handler, FileChangedEvent(path=path_changed))
+                        
+                path = os.path.dirname(path)
+
+    def __init__(self, owner, path):
+        super(KicadFileManager, self).__init__()
+        
+        self._owner = owner
+        
+        if KicadFileManager.event_handler is None:
+            KicadFileManager.event_handler = KicadFileManager._CustomHandler()
+            
         if KicadFileManager.observer is None:
             KicadFileManager.observer = Observer()
         
         if KicadFileManager.observer.is_alive()==False:
             KicadFileManager.observer.start()
-
-        self.event_handler = KicadFileManager._CustomHandler()
-        self.watch_path = watch_path
-        KicadFileManager.observer.schedule(self.event_handler, watch_path, recursive=True)
         
-        return
-#     FileSystemEventHandler
-#         self.on_change_hook = None
-#         
-#         self.watch_path = watch_path
-#         self.extensions = extensions
-#         
-#         if os.path.exists(self.watch_path)==False:
-#             os.makedirs(self.watch_path)
-# 
-#         # observer to trigger event on resource change
-#         self.enabled = True
-# 
-#         if self.watch_path in KicadFileManager.observers:
-#             self.observer = KicadFileManager.observers[self.watch_path]
-#         else:
-#             self.observer = Observer()
-#             KicadFileManager.observers[self.watch_path] = self.observer
-#             self.observer.start()
-#         
-#         KicadFileManager.notifiers.append(self)
-#         
-#         self.watch = self.observer.schedule(self, self.watch_path, recursive=True)
-#         
-#         log.info(f"Added file observer at {self.watch_path}")
-
+        self._path = path
+        self._add_path(path)
+        
     def __del__(self):
-        return
-#         self.observer.remove_handler_for_watch(self, self.watch)
-#         KicadFileManager.notifiers.remove(self)
-
-
-#         def on_created(self, event):
-#             _check_modification(event.src_path)
-# 
-#         def on_modified(self, event):
-#             _check_modification(event.src_path)
-# 
-#         def on_moved(self, event):
-#             _check_modification(event.src_path)
-#             _check_modification(event.dest_path)
-# 
-#         def on_deleted(self, event):
-#             _check_modification(event.src_path)
+        self._remove_path(self.path)
     
-    def on_change_prehook(self, path):
-        pass
-    
-#     def Enabled(self, enabled=True):
-#         if enabled:
-#             if self.watch is None:
-#                 self.watch = self.observer.schedule(self, self.watch_path, recursive=True)
-#         else:
-#             if self.watch is not None:
-#                 self.observer.unschedule(self.watch)
-#             self.watch = None
+    @staticmethod
+    def _watch_from_path():
+        KicadFileManager.observer.unschedule_all()
+        
+        path_to_watch = []
+        for ipath in KicadFileManager.path:
+            top_level = True
+            for jpath in KicadFileManager.path:
+                if ipath!=jpath and jpath.startswith(ipath):
+                    top_level = False
+            if top_level==True:
+                path_to_watch.append(ipath)
 
+        for path in path_to_watch:
+            KicadFileManager.observer.schedule(KicadFileManager.event_handler, path, recursive=True)
+            
+    def _add_path(self, path):
+        # each path can have several instances
+        if path not in KicadFileManager.path:
+            KicadFileManager.path[path] = 0
+            KicadFileManager.path_handlers[path] = []
+        KicadFileManager.path[path] += 1
+        KicadFileManager.path_handlers[path].append(self._owner)
+        
+        self._watch_from_path()
+        log.info(f"Added observer for {path}")
+
+    def _remove_path(self, path):
+        if path in KicadFileManager.path:
+            KicadFileManager.path[path] -= 1
+            KicadFileManager.path_handlers[path].remove(self._owner)
+            
+            if KicadFileManager.path[path] == 0:
+                del KicadFileManager.path[path]
+                del KicadFileManager.path_handlers[path]
+
+        self._watch_from_path()
+    
+        log.info(f"Removed observer for {path}")
+    
     @staticmethod
     def DisableNotificationsForPath(path, action, *args, **kwargs):
-#         print("-", path)
-# #         for observer_path in KicadFileManager.observers:
-# #             if os.path.normpath(path).startswith(os.path.normpath(notifier.watch_path)):
-#         for notifier in KicadFileManager.notifiers:
-#             if os.path.normpath(path).startswith(os.path.normpath(notifier.watch_path)):
-#                 print("--", notifier.watch_path)
-#                 notifier.Enabled(False)
-#         
+        KicadFileManager.observer.unschedule_all()
+
+        handlers = []
+        for handler in KicadFileManager.observer.Handlers:
+            print("---", handler)
+        
         res = None
         ex = None
         try:
@@ -143,48 +127,9 @@ class KicadFileManager(wx.EvtHandler):
             print(e)
             print_stack()
             ex = e
-#             
-#         for notifier in KicadFileManager.notifiers:
-#             if os.path.normpath(path).startswith(os.path.normpath(notifier.watch_path)):
-#                 print("++", notifier.watch_path)
-#                 notifier.Enabled(True)
-#         
+
+        KicadFileManager._watch_from_path()
+
         if ex is not None:
             raise ex
         return res
-    
-    def Load(self):
-        pass
-
-    def Exists(self, path):
-        return False
-
-    def CreateFile(self, path, content, overwrite=False):        
-        return None
-    
-    def EditFile(self, file, content, create=False):           
-        return None, False
-    
-    def MoveFile(self, file, dest_path, force=False):
-        return None
-
-    def DeleteFile(self, file, force=False):
-        return None
-    
-    def CreateFolder(self, path):
-        os.makedirs(path)
-    
-    def MoveFolder(self, source_path, dest_path):
-        pass
-    
-    def DeleteFolder(self, path):
-        pass
-
-    def LoadContent(self, file):
-        pass
-
-    def LoadMetadata(self, file):
-        return {}
-
-    def EditMetadata(self, path, metadata):
-        return metadata

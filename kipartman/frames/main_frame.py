@@ -86,10 +86,11 @@ class MainFrame(DialogMain):
                 page = self.pages[self.notebook.GetSelection()]
                 self.page_menus = page.GetMenus()
                 
-                for menu in self.page_menus:
-                    self.menu_bar.Insert(len(self.menu_bar.GetMenus())-1, menu['menu'], menu['title'])
-                    for menu_item in menu['menu'].GetMenuItems():
-                        self.Bind( wx.EVT_MENU, self.OnMenuItem, id = menu_item.GetId() )
+                if self.page_menus is not None:
+                    for menu in self.page_menus:
+                        self.menu_bar.Insert(len(self.menu_bar.GetMenus())-1, menu['menu'], menu['title'])
+                        for menu_item in menu['menu'].GetMenuItems():
+                            self.Bind( wx.EVT_MENU, self.OnMenuItem, id = menu_item.GetId() )
     
             except:
                 print_stack()

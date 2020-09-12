@@ -288,7 +288,10 @@ class PartsFrame(PanelParts):
         self.panel_categories.activate()
         self.panel_part_list.activate()
 
-
+    
+    def GetMenus(self):
+        return None
+    
     def onPartCategoriesSelectionChanged( self, event ):
         self.panel_part_list.Filters.replace(api.data.part.FilterCategory(event.category), 'category')
         event.Skip()
