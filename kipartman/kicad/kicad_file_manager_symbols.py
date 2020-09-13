@@ -292,6 +292,18 @@ class KicadSymbol():
             return self.symbol_model.name
         return self.symbol_file.Name
     
+    @property
+    def Content(self):
+        if self.symbol_model is not None:
+            return self.symbol_model.content
+        return self.symbol_file.Content
+
+    @property
+    def Description(self):
+        if self.symbol_model is not None:
+            return self._get_metadata(self.symbol_model.metadata, "D")
+        return self._get_metadata(self.symbol_file.Metadata, "D")
+    
     def _synchronize(self):
         file_changed = False
         model_changed = False
@@ -346,6 +358,17 @@ class KicadSymbol():
                 log.info(f"changed '{self.Name}' in database from '{self._library.library_file.DcmPath}'")
 
         return (file_changed, model_changed)
+    
+    def _get_metadata(self, metadata, field):
+        if metadata is None:
+            return ''
+        
+        for line in metadata.split('\n'):
+            line = re.sub(r"\n$", "", line)
+            if line.startswith(f"{field} "):
+                return re.sub(f"^{field} ", "", line)
+        
+        return ''
     
 class KicadLibrary():
     """
@@ -489,40 +512,6 @@ class KicadLibrary():
             self.library_model.mtime_dcm = self.library_file.MtimeDcm
             api.data.library.save(self.library_model)
             log.info(f"updated database for {self.library_model.path}")
-
-        
-#         if len(self.library_model.pendings())>0:
-            
-#         if os.path.exists(self.library_file.AbsDcmPath)==False:
-#             # missing dcm file, rebuild it from database
-#             for symbol in self._symbols:
-#                 symbol.symbol_file._metadata = symbol.symbol_model.metadata
-#  
-#             self.library_file._changed = True
-#             self.library_file.SaveDcm(self.library_model.mtime_dcm)
-#             log.info(f"rebuild file {self.library_file.DcmPath} from database")
-# 
-#         if self.library_model.mtime_lib-self.library_file.MtimeLib>=DELTA_FILE:
-#             # database is newer than library file, update file
-#             self.library_file = self._library_model_to_file(self.library_model, self.library_file)
-#             self.library_file.SaveLib(self.library_model.mtime_lib)
-#             log.info(f"update file {self.library_file.Path} from database")
-#         elif self.library_file.MtimeLib-self.library_model.mtime_lib>=DELTA_FILE:
-#             # library file is newer than database, update databae
-#             self.library_model = self._library_file_to_model(self.library_file, self.library_model)
-#             api.data.library.save(self.library_model)
-#             log.info(f"update database from {self.library_file.Path}")
-# 
-#         if self.library_model.mtime_dcm-self.library_file.MtimeDcm>=DELTA_FILE:
-#             # database is newer than dcm file, update file
-#             self.library_file = self._library_model_to_file(self.library_model, self.library_file)
-#             self.library_file.SaveDcm(self.library_model.mtime_dcm)
-#             log.info(f"update file {self.library_file.DcmPath} from database")
-#         elif self.library_file.MtimeDcm-self.library_model.mtime_dcm>=DELTA_FILE:
-#             # dcm file is newer than database, update databae
-#             self.library_model = self._library_file_to_model(self.library_file, self.library_model)
-#             api.data.library.save(self.library_model)
-#             log.info(f"update database from {self.library_file.DcmPath}")
             
     def __repr__(self):
         res = "<KicadLibrary> ("
@@ -726,3 +715,13 @@ class KicadLibraryManager(KicadFileManager):
         self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
 
         log.info(f"library '{library.Path}' removed")
+
+    def DeleteFolder(self, path):
+#         if len(os.listdir(os.path.join(configuration.kicad_symbols_path, path)))>0:
+#             raise KicadFileManagerException(f"Folder '{path}' is not empty")
+        def action():
+            shutil.rmtree(os.path.join(configuration.kicad_symbols_path, path))
+        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+
+        log.info(f"folder '{path}' removed")
+        

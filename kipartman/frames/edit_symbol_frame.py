@@ -15,7 +15,6 @@ import glob
 import datetime
 import helper.hash as hash
 import json
-from kicad.kicad_file_manager import KicadLibCache, KicadFileManagerLib
 from helper.exception import print_stack
 from helper.log import log
 
@@ -43,40 +42,34 @@ class EditSymbolFrame(PanelEditSymbol):
         super(EditSymbolFrame, self).__init__(parent)
         self.snapeda_uid = ''
         self.symbol_path = ''
-        self.lib_cache = KicadFileManagerLib()
+        
+        # set initial state
+        self.SetSymbol(None)
+        self._enable(False)
         
     def SetSymbol(self, symbol):
         self.symbol = symbol
-        self.ShowSymbol(symbol)
+        self._show_symbol(symbol)
+        self._enable(False)
 
-    def ShowSymbol(self, symbol):
+    def EditSymbol(self, symbol):
+        self.symbol = symbol
+        self._show_symbol(symbol)
+        self._enable(True)
+        self._check()
+
+    def _show_symbol(self, symbol):
         # enable everything else
-        if symbol:
-            
-            if symbol.metadata:
-                metadata = json.loads(symbol.metadata)
-            else:
-                metadata = json.loads('{}')
+        if symbol is not None:
 
-            self.edit_symbol_name.Value = ''
-            self.symbol_path = ''
+            self.edit_symbol_name.Value = symbol.Name
+            self.edit_symbol_description.Value = symbol.Description
             
-            if NoneValue(symbol.source_path, '')!='':
-                name = os.path.basename(NoneValue(symbol.source_path, ''))
-                if name.endswith('.lib')==False:
-                    # path is a symbol
-                    self.edit_symbol_name.Value = name.replace(".mod", "")
-                    self.symbol_path = os.path.dirname(symbol.source_path)
-                    
-            self.edit_symbol_description.Value = MetadataValue(metadata, 'description', '')
-            self.edit_symbol_comment.Value = MetadataValue(metadata, 'comment', '')
-             
-            self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
-            
-            if self.edit_symbol_name.Value!='' and self.lib_cache.Exists(symbol.source_path):
-                self.lib_cache.LoadContent(symbol)
+#             self.button_open_url_snapeda.Label = MetadataValue(metadata, 'snapeda', '<None>')
+#             
+            if symbol.Content!='':
                 lib = kicad_lib_file.KicadLibFile()
-                lib.Load(symbol.content)
+                lib.Load(symbol.Content)
                 image_file = tempfile.NamedTemporaryFile()
                 lib.Render(image_file.name, self.panel_image_symbol.GetRect().width, self.panel_image_symbol.GetRect().height)
                 img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
@@ -84,14 +77,13 @@ class EditSymbolFrame(PanelEditSymbol):
             else:
                 img = wx.Image()
                 img.Create(1, 1)
-
+ 
             img = img.ConvertToBitmap()
             self.bitmap_edit_symbol.SetBitmap(img)
-                
+#                 
         else:
             self.edit_symbol_name.Value = ''
             self.edit_symbol_description.Value = ''
-            self.edit_symbol_comment.Value = ''
             self.button_open_url_snapeda.Label = "<None>"
 
             img = wx.Image()
@@ -99,17 +91,71 @@ class EditSymbolFrame(PanelEditSymbol):
             img = img.ConvertToBitmap()
             self.bitmap_edit_symbol.SetBitmap(img)
 
-
-        
-    def enable(self, enabled=True):
+    def _enable(self, enabled=True):
         self.edit_symbol_name.Enabled = enabled
         self.edit_symbol_description.Enabled = enabled
-        self.edit_symbol_comment.Enabled = enabled
         self.button_remove_url_snapeda.Enabled = enabled
         self.button_symbol_editApply.Enabled = enabled
         self.button_symbol_editCancel.Enabled = enabled
         self.button_snapeda.Enabled = enabled
+
+    def _check(self):
+        error = False
         
+        if self.edit_symbol_name.Value=="":
+            self.edit_symbol_name.SetBackgroundColour( colors.RED_ERROR )
+            error = True
+        else:
+            self.edit_symbol_name.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+        
+        if error:
+            self.button_symbol_editApply.Enabled = False
+        else:
+            self.button_symbol_editApply.Enabled = True
+    
+    def onButtonSymbolEditApply( self, event ):
+        symbol = self.symbol
+        
+        if symbol.metadata:
+            metadata = json.loads(symbol.metadata)
+        else:
+            metadata = json.loads('{}')
+        metadata['description'] = self.edit_symbol_description.Value
+        metadata['comment'] = self.edit_symbol_comment.Value
+        
+        if self.button_open_url_snapeda.Label!="<None>":
+            metadata['snapeda'] = self.button_open_url_snapeda.Label
+            metadata['snapeda_uid'] = self.snapeda_uid
+            metadata['updated'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        else:
+            metadata.pop('snapeda', '')
+            metadata.pop('snapeda_uid', '')
+            metadata.pop('updated', '')
+        
+        symbol.metadata = json.dumps(metadata)
+        if not symbol.content:
+            symbol.content = ''
+            symbol.md5 = hash.md5(symbol.content).hexdigest()
+            
+        # send result event
+        event = EditSymbolApplyEvent(
+            data=symbol,
+            # source_path is not changed in the symbol as we only have the filename here, not the full path
+            # the full path should be reconstructed by caller
+            symbol_name=self.edit_symbol_name.Value+".mod"
+            )
+        wx.PostEvent(self, event)
+    
+    def onButtonSymbolEditCancel( self, event ):
+        event = EditSymbolCancelEvent()
+        wx.PostEvent(self, event)
+    
+    def onTextEditSymbolNameText( self, event ):
+        event.Skip()
+
+    def onTextEditSymbolDescriptionText( self, event ):
+        event.Skip()
+
     def onButtonSnapedaClick( self, event ):
         # create a snapeda frame
         # dropdown frame
@@ -199,39 +245,3 @@ class EditSymbolFrame(PanelEditSymbol):
     def onButtonRemoveUrlSnapedaClick( self, event ):
         self.button_open_url_snapeda.Label = "<None>"
 
-    def onButtonSymbolEditApply( self, event ):
-        symbol = self.symbol
-        
-        if symbol.metadata:
-            metadata = json.loads(symbol.metadata)
-        else:
-            metadata = json.loads('{}')
-        metadata['description'] = self.edit_symbol_description.Value
-        metadata['comment'] = self.edit_symbol_comment.Value
-        
-        if self.button_open_url_snapeda.Label!="<None>":
-            metadata['snapeda'] = self.button_open_url_snapeda.Label
-            metadata['snapeda_uid'] = self.snapeda_uid
-            metadata['updated'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        else:
-            metadata.pop('snapeda', '')
-            metadata.pop('snapeda_uid', '')
-            metadata.pop('updated', '')
-        
-        symbol.metadata = json.dumps(metadata)
-        if not symbol.content:
-            symbol.content = ''
-            symbol.md5 = hash.md5(symbol.content).hexdigest()
-            
-        # send result event
-        event = EditSymbolApplyEvent(
-            data=symbol,
-            # source_path is not changed in the symbol as we only have the filename here, not the full path
-            # the full path should be reconstructed by caller
-            symbol_name=self.edit_symbol_name.Value+".mod"
-            )
-        wx.PostEvent(self, event)
-    
-    def onButtonSymbolEditCancel( self, event ):
-        event = EditSymbolCancelEvent()
-        wx.PostEvent(self, event)
