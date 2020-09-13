@@ -16,7 +16,7 @@ import wx.xrc
 
 class PanelEditSymbol ( wx.Panel ):
 
-	def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 926,271 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
+	def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 926,217 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
 		wx.Panel.__init__ ( self, parent, id = id, pos = pos, size = size, style = style, name = name )
 
 		bSizer1 = wx.BoxSizer( wx.HORIZONTAL )
@@ -56,16 +56,6 @@ class PanelEditSymbol ( wx.Panel ):
 		self.edit_symbol_description = wx.TextCtrl( self.m_panel7, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer1.Add( self.edit_symbol_description, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_staticText3 = wx.StaticText( self.m_panel7, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText3.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText3, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-
-		self.edit_symbol_comment = wx.TextCtrl( self.m_panel7, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
-		self.edit_symbol_comment.SetMinSize( wx.Size( -1,90 ) )
-
-		fgSizer1.Add( self.edit_symbol_comment, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
-
 		self.m_staticText42 = wx.StaticText( self.m_panel7, wx.ID_ANY, u"Snapeda", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText42.Wrap( -1 )
 
@@ -94,7 +84,7 @@ class PanelEditSymbol ( wx.Panel ):
 		button_symbol_edit.AddButton( self.button_symbol_editCancel )
 		button_symbol_edit.Realize();
 
-		bSizer15.Add( button_symbol_edit, 1, wx.EXPAND, 5 )
+		bSizer15.Add( button_symbol_edit, 0, wx.EXPAND|wx.BOTTOM, 5 )
 
 
 		self.m_panel7.SetSizer( bSizer15 )
@@ -140,7 +130,9 @@ class PanelEditSymbol ( wx.Panel ):
 
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
+		self.edit_symbol_name.Bind( wx.EVT_TEXT, self.onTextEditSymbolNameText )
 		self.button_snapeda.Bind( wx.EVT_BUTTON, self.onButtonSnapedaClick )
+		self.edit_symbol_description.Bind( wx.EVT_TEXT, self.onTextEditSymbolDescriptionText )
 		self.button_open_url_snapeda.Bind( wx.EVT_BUTTON, self.onButtonOpenUrlSnapedaClick )
 		self.button_remove_url_snapeda.Bind( wx.EVT_BUTTON, self.onButtonRemoveUrlSnapedaClick )
 		self.button_symbol_editApply.Bind( wx.EVT_BUTTON, self.onButtonSymbolEditApply )
@@ -155,7 +147,13 @@ class PanelEditSymbol ( wx.Panel ):
 	def onInitDialog( self, event ):
 		event.Skip()
 
+	def onTextEditSymbolNameText( self, event ):
+		event.Skip()
+
 	def onButtonSnapedaClick( self, event ):
+		event.Skip()
+
+	def onTextEditSymbolDescriptionText( self, event ):
 		event.Skip()
 
 	def onButtonOpenUrlSnapedaClick( self, event ):

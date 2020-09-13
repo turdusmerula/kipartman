@@ -10,8 +10,6 @@ from helper.exception import print_stack
 from helper.log import log
 import kicad
 
-state_image_list = None
-
 class LibraryPath(helper.tree.TreeContainerItem):
     def __init__(self, path):
         super(LibraryPath, self).__init__()
@@ -22,9 +20,6 @@ class LibraryPath(helper.tree.TreeContainerItem):
         return self.path
     
     def GetValue(self, col):
-#         if col==0:
-#             global state_image_list
-#             return state_image_list.GetBitmap('')
         if col==0:
             return os.path.basename(self.path)
 
@@ -47,8 +42,6 @@ class Library(helper.tree.TreeContainerItem):
         return self.library.Path
     
     def GetValue(self, col):
-#         if col==0:
-#             return state_image_list.GetBitmap('')
         if col==0:
             return os.path.basename(self.Path)
 
@@ -137,21 +130,6 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         self.tree_libraries_manager.AddTextColumn("name")
         self.tree_libraries_manager.OnSelectionChanged = self.onTreeLibrariesSelChanged
         self.tree_libraries_manager.OnItemBeforeContextMenu = self.onTreeLibrariesBeforeContextMenu
-
-        global state_image_list
-        state_image_list = helper.tree.TreeImageList(11, 10)
-        state_image_list.AddFile('', 'resources/none.png')
-        state_image_list.AddFile(None, 'resources/none.png')
-        state_image_list.AddFile('conflict_add', 'resources/conflict_add.png')
-        state_image_list.AddFile('conflict_change', 'resources/conflict_change.png')
-        state_image_list.AddFile('conflict_del', 'resources/conflict_del.png')
-        state_image_list.AddFile('income_add', 'resources/income_add.png')
-        state_image_list.AddFile('income_change', 'resources/income_change.png')
-        state_image_list.AddFile('income_del', 'resources/income_del.png')
-        state_image_list.AddFile('outgo_add', 'resources/outgo_add.png')
-        state_image_list.AddFile('outgo_change', 'resources/outgo_change.png')
-        state_image_list.AddFile('outgo_del', 'resources/outgo_del.png')
-        #state_image_list.AddFile('prop_changed', 'resources/prop_changed.png')
 #     
     def activate(self):
         self.tree_libraries_manager.Load()
@@ -300,8 +278,10 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
             return
         obj = self.tree_libraries_manager.ItemToObject(item)
         
+        remove_path = None
         if isinstance(obj, LibraryPath):
             path = obj.path
+            remove_path = path
         elif isinstance(obj, Library):
             path = obj.library.Path
             
@@ -326,6 +306,8 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
             try:
                 for library in libraries_to_remove:
                     self.library_manager.DeleteLibrary(library)
+                if remove_path is not None:
+                    self.library_manager.DeleteFolder(path)
             except Exception as e:
                 print_stack()
                 wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
@@ -338,6 +320,15 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         dlg.Destroy()
 
     def onMenuLibrariesAddSymbol( self, event ):
+        item = self.tree_libraries.GetSelection()
+        if item.IsOk()==False:
+            return
+        obj = self.tree_libraries_manager.ItemToObject(item)
+        if isinstance(obj, Library)==False:
+            return
+# 
+#         self.edit_state = 'add'
+#         self.new_symbol(obj.path)
         event.Skip()
 
     def onTreeLibrariesBeforeContextMenu( self, event ):
@@ -353,160 +344,3 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
             self.menu_libraries_add_symbol.Enable(False)
 
         event.Skip()
-
-# 
-#     def onMenuLibrariesRemove( self, event ):
-#         item = self.tree_libraries.GetSelection()
-#         if item.IsOk()==False:
-#             return
-#         obj = self.tree_libraries_manager.ItemToObject(item)
-#         path = obj.path
-#         try:
-#             self.manager_lib.DeleteFolder(path)
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
-#         self.load()
-#         
-# 
-#     def onMenuLibrariesAddSymbol( self, event ):
-#         item = self.tree_libraries.GetSelection()
-#         if item.IsOk()==False:
-#             return
-#         obj = self.tree_libraries_manager.ItemToObject(item)
-#         if isinstance(obj, DataModelLibrary)==False:
-#             return
-# 
-#         self.edit_state = 'add'
-#         self.new_symbol(obj.path)
-# 
-# 
-#     def onMenuSymbolsUpdate( self, event ):
-#         files = []
-#         for item in self.tree_symbols.GetSelections():
-#             obj = self.tree_symbols_manager.ItemToObject(item)
-#             if isinstance(obj, DataModelSymbol):
-#                 files.append(obj.symbol)
-#             elif isinstance(obj, DataModelSymbolPath):
-#                 for child in obj.childs:
-#                     if isinstance(child, DataModelSymbol):
-#                         files.append(child.symbol)
-#         
-#         try:
-#             self.manager_lib.Update(files) 
-#             self.load()
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Upload failed', wx.OK | wx.ICON_ERROR)
-#     
-#     def onMenuSymbolsForceUpdate( self, event ):
-#         files = []
-#         for item in self.tree_symbols.GetSelections():
-#             obj = self.tree_symbols_manager.ItemToObject(item)
-#             if isinstance(obj, DataModelSymbol):
-#                 files.append(obj.symbol)
-#             elif isinstance(obj, DataModelSymbolPath):
-#                 if obj.childs:
-#                     for child in obj.childs:
-#                         if isinstance(child, DataModelSymbol):
-#                             files.append(child.symbol)
-#         
-#         try:
-#             if len(files)>0:
-#                 self.manager_lib.Update(files, force=True) 
-#             self.load()
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Upload failed', wx.OK | wx.ICON_ERROR)
-#     
-#     def onMenuSymbolsCommit( self, event ):
-#         files = []
-#         for item in self.tree_symbols.GetSelections():
-#             obj = self.tree_symbols_manager.ItemToObject(item)
-#             if isinstance(obj, DataModelSymbol):
-#                 files.append(obj.symbol)
-#             elif isinstance(obj, DataModelSymbolPath):
-#                 for child in obj.childs:
-#                     if isinstance(child, DataModelSymbol):
-#                         files.append(child.symbol)
-#         
-#         try:
-#             self.manager_lib.Commit(files) 
-#             self.load()
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
-#             
-#     
-#     def onMenuSymbolsForceCommit( self, event ):
-#         files = []
-#         for item in self.tree_symbols.GetSelections():
-#             obj = self.tree_symbols_manager.ItemToObject(item)
-#             if isinstance(obj, DataModelSymbol):
-#                 files.append(obj.symbol)
-#             elif isinstance(obj, DataModelSymbolPath):
-#                 for child in obj.childs:
-#                     if isinstance(child, DataModelSymbol):
-#                         files.append(child.symbol)
-#         
-#         try:
-#             self.manager_lib.Commit(files, force=True) 
-#             self.load()
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Commit failed', wx.OK | wx.ICON_ERROR)
-# 
-#     def onMenuSymbolsAdd( self, event ):
-#         item = self.tree_symbols.GetSelection()
-#         if item.IsOk()==False:
-#             return
-#         obj = self.tree_symbols_manager.ItemToObject(item)
-#         if isinstance(obj, DataModelSymbolPath)==False:
-#             return
-# 
-#         self.edit_state = 'add'
-#         self.new_symbol(obj.path)
-#     
-#     def onMenuSymbolsEdit( self, event ):
-#         item = self.tree_symbols.GetSelection()
-#         if item.IsOk()==False:
-#             return
-#         symbolobj = self.tree_symbols_manager.ItemToObject(item)
-#         if isinstance(symbolobj, DataModelSymbol)==False:
-#             return
-#         state = symbolobj.symbol.state
-#         if state.rfind('income')!=-1 or state.rfind('conflict')!=-1:
-#             wx.MessageBox("Item should be updated prior to beeing edited", 'Can not edit', wx.OK | wx.ICON_ERROR)
-#             return
-#         
-#         self.edit_state = 'edit'
-#     
-#         self.edit_symbol(symbolobj.symbol)
-#     
-#     def onMenuSymbolsDelete( self, event ):
-#         files = []
-#         for item in self.tree_symbols.GetSelections():
-#             obj = self.tree_symbols_manager.ItemToObject(item)
-#             if isinstance(obj, DataModelSymbol):
-#                 files.append(obj.symbol)
-#             elif isinstance(obj, DataModelSymbolPath):
-#                 pass
-#         
-#         try:
-#             for file in files:
-#                 self.manager_lib.DeleteFile(file) 
-#             self.load()
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Delete failed', wx.OK | wx.ICON_ERROR)
-# 
-#     def onSearchSymbolsButton( self, event ):
-#         return self.onSearchSymbolsTextEnter(event)
-#     
-#     def onSearchSymbolsTextEnter( self, event ):
-#         # set search filter
-#         self.symbols_filter.remove('search')
-#         if self.search_symbols.Value!='':
-#             self.symbols_filter.add('search', self.search_symbols.Value)
-#         # apply new filter and reload
-#         self.loadSymbols()

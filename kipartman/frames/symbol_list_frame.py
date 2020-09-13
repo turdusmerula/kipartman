@@ -1,4 +1,5 @@
 from dialogs.panel_symbol_list import PanelSymbolList
+import frames.edit_symbol_frame
 import os
 import helper.tree
 import helper.filter
@@ -24,8 +25,6 @@ from helper.log import log
 # from helper.connection import check_backend
 # from helper.profiler import Trace
 
-state_image_list = None
-
 class Library(helper.tree.TreeContainerItem):
     def __init__(self, library):
         super(Library, self).__init__()
@@ -37,9 +36,6 @@ class Library(helper.tree.TreeContainerItem):
     
     def GetValue(self, col):
         if col==0:
-            global state_image_list
-            return state_image_list.GetBitmap('')
-        elif col==1:
             return self.Path
         return ''
 
@@ -54,9 +50,6 @@ class Symbol(helper.tree.TreeItem):
  
     def GetValue(self, col):
         if col==0:
-            global state_image_list
-            return state_image_list.GetBitmap('')
-        elif col==1:
             if self.parent is None:
                 return os.path.join(self.symbol.Library.Path, self.symbol.Name)
             else:
@@ -197,46 +190,20 @@ class SymbolListFrame(PanelSymbolList):
 
         # create symbol list
         self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbols, filters=self.Filters, library_manager=self.library_manager)
-        self.tree_symbols_manager.AddBitmapColumn("")
         self.tree_symbols_manager.AddTextColumn("name")
         self.tree_symbols_manager.OnSelectionChanged = self.onTreeModelsSelChanged
         self.tree_symbols_manager.OnItemBeforeContextMenu = self.onTreeModelsBeforeContextMenu
 
-        global state_image_list
-        state_image_list = helper.tree.TreeImageList(11, 10)
-        state_image_list.AddFile('', 'resources/none.png')
-        state_image_list.AddFile(None, 'resources/none.png')
-        state_image_list.AddFile('conflict_add', 'resources/conflict_add.png')
-        state_image_list.AddFile('conflict_change', 'resources/conflict_change.png')
-        state_image_list.AddFile('conflict_del', 'resources/conflict_del.png')
-        state_image_list.AddFile('income_add', 'resources/income_add.png')
-        state_image_list.AddFile('income_change', 'resources/income_change.png')
-        state_image_list.AddFile('income_del', 'resources/income_del.png')
-        state_image_list.AddFile('outgo_add', 'resources/outgo_add.png')
-        state_image_list.AddFile('outgo_change', 'resources/outgo_change.png')
-        state_image_list.AddFile('outgo_del', 'resources/outgo_del.png')
-        #state_image_list.AddFile('prop_changed', 'resources/prop_changed.png')
+        # create edit symbol panel
+        self.panel_edit_symbol = frames.edit_symbol_frame.EditSymbolFrame(self.splitter_horz)
+        self.panel_edit_symbol.Bind( frames.edit_symbol_frame.EVT_EDIT_SYMBOL_APPLY_EVENT, self.onEditSymbolApply )
+        self.panel_edit_symbol.Bind( frames.edit_symbol_frame.EVT_EDIT_SYMBOL_CANCEL_EVENT, self.onEditSymbolCancel )
 
-#         # create edit symbol panel
-#         self.panel_edit_symbol = EditSymbolFrame(self.symbol_splitter)
-#         self.symbol_splitter.SplitHorizontally(self.symbol_splitter.Window1, self.panel_edit_symbol, 400)
-#         self.panel_edit_symbol.Bind( EVT_EDIT_SYMBOL_APPLY_EVENT, self.onEditSymbolApply )
-#         self.panel_edit_symbol.Bind( EVT_EDIT_SYMBOL_CANCEL_EVENT, self.onEditSymbolCancel )
-# 
-#         self.toolbar_symbol.ToggleTool(self.toggle_symbol_path.GetId(), True)
-#         
-#         self.show_symbol_path = self.toolbar_symbol.GetToolState(self.toggle_symbol_path.GetId())
-#         self.previous_show_symbol_path = self. show_symbol_path
-#         
-#         self.show_both_changes = self.toolbar_symbol.GetToolState(self.toggle_show_both_changes.GetId())
-#         self.show_conflict_changes = self.toolbar_symbol.GetToolState(self.toggle_show_conflict_changes.GetId())
-#         self.show_incoming_changes = self.toolbar_symbol.GetToolState(self.toggle_show_incoming_changes.GetId())
-#         self.show_outgoing_changes = self.toolbar_symbol.GetToolState(self.toggle_show_outgoing_changes.GetId())
-#     
-#         # initial edit state
-#         self.show_symbol(None)
-#         self.edit_state = None
-# 
+        # organize panels
+        self.splitter_horz.Unsplit()
+        self.splitter_horz.SplitHorizontally( self.panel_up, self.panel_edit_symbol)
+        self.panel_down.Hide()
+
         # initial state
         self.toolbar_symbol.ToggleTool(self.toggle_symbol_path.GetId(), True)
         self.Flat = False
@@ -288,18 +255,15 @@ class SymbolListFrame(PanelSymbolList):
             self.menu_symbols_edit.Enable(False)
 
     def onTreeModelsSelChanged( self, event ):
-#         if self.edit_state:
-#             return
         item = self.tree_symbols.GetSelection()
         if item.IsOk()==False:
             return
-#         symbolobj = self.tree_symbols_manager.ItemToObject(item)
-#         if isinstance(symbolobj, DataModelSymbol)==False:
-#             self.show_symbol(None)
-#             return
-#         self.panel_edit_symbol.SetSymbol(symbolobj.symbol)
-# 
-#         self.show_symbol(symbolobj.symbol)
+        obj = self.tree_symbols_manager.ItemToObject(item)
+        if isinstance(obj, Symbol)==False:
+            self.panel_edit_symbol.SetSymbol(None)
+            return
+        self.panel_edit_symbol.SetSymbol(obj.symbol)
+        event.Skip()
 
     def onToggleSymbolPathClicked( self, event ):
         self.Flat = not self.toolbar_symbol.GetToolState(self.toggle_symbol_path.GetId())
@@ -331,7 +295,8 @@ class SymbolListFrame(PanelSymbolList):
 # 
 # 
 # 
-#     def onEditSymbolApply( self, event ):
+    def onEditSymbolApply( self, event ):
+        pass
 #         symbol = event.data
 #         symbol_name = event.symbol_name
 #                 
@@ -379,7 +344,8 @@ class SymbolListFrame(PanelSymbolList):
 # 
 #         self.load()
 # 
-#     def onEditSymbolCancel( self, event ):
+    def onEditSymbolCancel( self, event ):
+        pass
 #         symbol = None
 #         item = self.tree_symbols.GetSelection()
 #         if item.IsOk():

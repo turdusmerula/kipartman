@@ -748,9 +748,9 @@ class Canvas(object):
 # 
 #         return img_surface
 #     
-#     def to_view_width(self, width):
-#         x, y = self.ctx.device_to_user_distance(width, width)
-#         return x 
+    def to_view_width(self, width):
+        x, y = self.img_ctx.device_to_user_distance(width, width)
+        return x 
     
 class FootprintCanvas(Canvas):
     def __init__(self):
