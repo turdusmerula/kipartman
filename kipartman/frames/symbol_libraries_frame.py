@@ -71,9 +71,6 @@ class TreeManagerLibraries(helper.tree.TreeManager):
          
         self.SaveState()
         
-        # reload libraries from disk
-#         self.library_manager.Load()
-
         for folder in self.library_manager.Folders:
             pathobj = self.FindPath(folder)
             if pathobj is None:

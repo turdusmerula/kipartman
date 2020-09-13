@@ -12,6 +12,9 @@ import wx
 from helper.log import log
 from helper.exception import print_callstack, print_stack
 
+# the delta for comparing file changed time with microsecond precision
+DELTA_FILE=0.0001
+
 class KicadFileManagerException(Exception):
     def __init__(self, error):
         super(KicadFileManagerException, self).__init__(error)
@@ -27,27 +30,28 @@ class File(object):
 (FileChangedEvent, EVT_FILE_CHANGED) = wx.lib.newevent.NewEvent()
 
 class KicadFileManager(wx.EvtHandler):
-
     observer = None
     event_handler = None
     
     path = {}
-    path_handlers = {}
+    path_managers = {}
     
     class _CustomHandler(FileSystemEventHandler):
         def on_any_event(self, event):
             if hasattr(event, 'dest_path'): 
-                wx.CallAfter(self.on_change_prehook, event.dest_path)
+                wx.CallAfter(self._send_event, event.dest_path)
             elif hasattr(event, 'src_path'):
-                wx.CallAfter(self.on_change_prehook, event.src_path)
+                wx.CallAfter(self._send_event, event.src_path)
 
-        def on_change_prehook(self, path):
+        def _send_event(self, path):
+            log.info(f"File changed {path}")
             path_changed = path
             
             while path!='/':
-                if path in KicadFileManager.path_handlers:
-                    for handler in KicadFileManager.path_handlers[path]:
-                        wx.PostEvent(handler, FileChangedEvent(path=path_changed))
+                if path in KicadFileManager.path_managers:
+                    for manager in KicadFileManager.path_managers[path]:
+                        if manager._on_change_prehook(path=path_changed)==True:
+                            wx.PostEvent(manager._owner, FileChangedEvent(path=path_changed))
                         
                 path = os.path.dirname(path)
 
@@ -91,9 +95,9 @@ class KicadFileManager(wx.EvtHandler):
         # each path can have several instances
         if path not in KicadFileManager.path:
             KicadFileManager.path[path] = 0
-            KicadFileManager.path_handlers[path] = []
+            KicadFileManager.path_managers[path] = []
         KicadFileManager.path[path] += 1
-        KicadFileManager.path_handlers[path].append(self._owner)
+        KicadFileManager.path_managers[path].append(self)
         
         self._watch_from_path()
         log.info(f"Added observer for {path}")
@@ -101,23 +105,22 @@ class KicadFileManager(wx.EvtHandler):
     def _remove_path(self, path):
         if path in KicadFileManager.path:
             KicadFileManager.path[path] -= 1
-            KicadFileManager.path_handlers[path].remove(self._owner)
+            KicadFileManager.path_managers[path].remove(self)
             
             if KicadFileManager.path[path] == 0:
                 del KicadFileManager.path[path]
-                del KicadFileManager.path_handlers[path]
+                del KicadFileManager.path_managers[path]
 
         self._watch_from_path()
     
         log.info(f"Removed observer for {path}")
     
+    def _on_change_prehook(self, path):
+        return True
+    
     @staticmethod
     def DisableNotificationsForPath(path, action, *args, **kwargs):
         KicadFileManager.observer.unschedule_all()
-
-        handlers = []
-        for handler in KicadFileManager.observer.Handlers:
-            print("---", handler)
         
         res = None
         ex = None
