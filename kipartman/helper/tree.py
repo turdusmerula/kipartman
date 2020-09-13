@@ -791,7 +791,8 @@ class TreeManager(object):
         event = wx.dataview.DataViewEvent(wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED.typeId, self.tree_view, None, item)
         event.SetEventObject(self.tree_view)
         wx.PostEvent(self.tree_view, event)
-        
+
+
     def Sort(self):
         self.model.Resort()
 

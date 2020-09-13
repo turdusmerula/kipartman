@@ -172,7 +172,7 @@ class Part(models.Model):
     comment = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('VersionedFile', related_name='footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    symbol = models.ForeignKey('VersionedFile', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    symbol = models.ForeignKey('LibrarySymbol', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     childs = models.ManyToManyField('Part', blank=True)
     #parameters is defined inside PartParameter by ForeignKey part
     #offers is defined inside PartOffer by ForeignKey part

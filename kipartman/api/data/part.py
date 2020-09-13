@@ -28,6 +28,16 @@ class FilterCategory(Filter):
     def __str__(self):
         return f"category: {self.category.name}"
 
+class FilterSymbols(Filter):
+    def __init__(self, symbols):
+        self.symbols = symbols
+        super(FilterSymbols, self).__init__()
+    
+    def apply(self, request):
+        symbols_ids = [symbol.id for symbol in self.symbols]        
+        
+        return request.filter(symbol_id__in=symbols_ids)
+
 def _add_default_annotations(request):
     # add the field child_count in request result 
     request = request.select_related('category', 'footprint', 'symbol') # preload for performance

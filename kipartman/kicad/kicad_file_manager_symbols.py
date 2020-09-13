@@ -134,7 +134,7 @@ class KicadLibraryFile(File):
     
     def AddSymbol(self, symbol):
         if self.HasSymbol(symbol.Name):
-            raise KicadLibraryException(f"Symbol {symbol.name} already exists in {self.Path}")
+            raise KicadLibraryException(f"Symbol {symbol.Name} already exists in {self.Path}")
         self._symbols.append(symbol)
         symbol._library = self
         self._changed = True
@@ -540,7 +540,11 @@ class KicadLibraryManager(KicadFileManager):
     
     def __init__(self, owner):
         super(KicadLibraryManager, self).__init__(owner=owner, path=configuration.kicad_symbols_path) #, extensions=["lib", "dcm"])
-            
+
+    def Reload(self):
+        KicadLibraryManager.loaded = False
+        self._load()
+        
     def _load(self):
         if KicadLibraryManager.loaded==False:
             self._load_file_libraries()
@@ -643,14 +647,82 @@ class KicadLibraryManager(KicadFileManager):
         abspath = os.path.join(configuration.kicad_symbols_path, path)
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Folder '{path}' already exists")
-        super(KicadLibraryManager, self).CreateFolder(abspath)
-      
+        os.makedirs(abspath)
+        
+    def MoveFolder(self, path, newpath):
+        abspath = os.path.join(configuration.kicad_symbols_path, path)
+        if os.path.exists(abspath)==False:
+            raise KicadFileManagerException(f"Folder '{path}' does not exists")
+        newabspath = os.path.join(configuration.kicad_symbols_path, newpath)
+        if os.path.exists(newabspath):
+            raise KicadFileManagerException(f"Folder '{newpath}' already exists")
+        
+        # move files
+        def action():
+            os.makedirs(os.path.dirname(abspath), exist_ok=True)
+            os.rename(abspath, newabspath)
+        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+        log.info(f"moved folder '{abspath}' to '{newabspath}'")
+        
+        # edit database
+        libraries = api.data.library.find()
+        for library in libraries:
+            if library.path.startswith(path+os.sep):
+                previous_path = library.path
+                library.path = re.sub(f"^{path}", f"{newpath}", library.path)
+                api.data.library.save(library)
+                log.info(f"moved library '{previous_path}' to '{library.path}'")
+        
     def CreateLibrary(self, path):
         abspath = os.path.join(configuration.kicad_symbols_path, path)
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Library '{path}' already exists")
         
-        library = KicadLibrary(path)
+        library_file = KicadLibraryFile(path)
+        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=library_file.Save)
+        
+        library = KicadLibrary(library_file)
+        
         KicadLibraryManager.libraries.append(library)
-        library._changed = True
+
         return library
+
+    def MoveLibrary(self, library, newpath):
+        previousname = library.Path
+        newname = os.path.basename(newpath)
+        newpath = os.path.dirname(newpath)
+        newabspath = os.path.join(configuration.kicad_symbols_path, newpath)
+        
+        if os.path.exists(newabspath)==False:
+            raise KicadFileManagerException(f"Folder '{newpath}' does not exists")
+        if newname.endswith(".lib")==False:
+            raise KicadFileManagerException(f"'{newname}' is not a valid library name")
+        
+        def action():
+            os.rename(library.AbsPath, os.path.join(newabspath, newname))
+        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+        
+        library.library_model.path = os.path.join(newpath, newname)
+        api.data.library.save(library.library_model)
+        
+        log.info(f"library '{previousname}' renamed to '{os.path.join(newpath, newname)}'")
+
+        return library
+    
+    def DeleteLibrary(self, library):
+        symbols_to_remove = []
+        for symbol in library.Symbols:
+            symbols_to_remove.append(symbol.symbol_model)
+        
+        associated_parts = api.data.part.find([api.data.part.FilterSymbols(symbols_to_remove)])
+        for associated_part in associated_parts:
+            log.info(f"part '{associated_part.name} dissociated from {associated_part.symbol.name}")
+            associated_part.symbol = None
+            associated_part.save()
+        
+        library.library_model.delete()
+        def action():
+            os.remove(library.AbsPath)
+        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+
+        log.info(f"library '{library.Path}' removed")

@@ -265,8 +265,11 @@ class SymbolListFrame(PanelSymbolList):
                 self.tree_symbols_manager.Expand(library)
     
     def onFileLibChanged(self, event):
-        print("----", self, event.path)
         # do a synchronize when a file change on disk
+        self.tree_symbols_manager.Load()
+
+    def onButtonRefreshSymbolsClick( self, event ):
+        self.library_manager.Reload()
         self.tree_symbols_manager.Load()
 
     def onTreeModelsBeforeContextMenu( self, event ):
@@ -403,8 +406,6 @@ class SymbolListFrame(PanelSymbolList):
 #         self.show_outgoing_changes = self.toolbar_symbol.GetToolState(self.toggle_show_outgoing_changes.GetId())
 #         self.load()
 # 
-#     def onButtonRefreshSymbolsClick( self, event ):
-#         self.load()
 #         
 # 
 #     def onMenuLibrariesAddFolder( self, event ):

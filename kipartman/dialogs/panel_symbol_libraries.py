@@ -24,10 +24,10 @@ class PanelSymbolLibraries ( wx.Panel ):
 
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.button_refresh_categories = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+		self.button_refresh_libraries = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
-		self.button_refresh_categories.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer4.Add( self.button_refresh_categories, 0, wx.ALL|wx.EXPAND, 5 )
+		self.button_refresh_libraries.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer4.Add( self.button_refresh_libraries, 0, wx.ALL|wx.EXPAND, 5 )
 
 
 		bSizer2.Add( bSizer4, 0, wx.ALIGN_RIGHT, 5 )
@@ -61,7 +61,7 @@ class PanelSymbolLibraries ( wx.Panel ):
 
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
-		self.button_refresh_categories.Bind( wx.EVT_BUTTON, self.onButtonRefreshCategoriesClick )
+		self.button_refresh_libraries.Bind( wx.EVT_BUTTON, self.onButtonRefreshLibrariesClick )
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesAddFolder, id = self.menu_libraries_add_folder.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesAddLibrary, id = self.menu_libraries_add_library.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuLibrariesRename, id = self.menu_libraries_rename.GetId() )
@@ -76,7 +76,7 @@ class PanelSymbolLibraries ( wx.Panel ):
 	def onInitDialog( self, event ):
 		event.Skip()
 
-	def onButtonRefreshCategoriesClick( self, event ):
+	def onButtonRefreshLibrariesClick( self, event ):
 		event.Skip()
 
 	def onMenuLibrariesAddFolder( self, event ):

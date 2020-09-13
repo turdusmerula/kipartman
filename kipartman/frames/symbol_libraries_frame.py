@@ -157,11 +157,11 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         self.tree_libraries_manager.Load()
 
     def onFileLibChanged(self, event):
-        print("----", self, event.path)
         # do a synchronize when a file change on disk
         self.tree_libraries_manager.Load()
 
-    def onButtonRefreshCategoriesClick( self, event ):
+    def onButtonRefreshLibrariesClick( self, event ):
+        self.library_manager.Reload()
         self.tree_libraries_manager.Load()
         
     def onTreeLibrariesSelChanged( self, event ):
@@ -186,13 +186,14 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         if dlg.ShowModal() == wx.ID_OK:
             name = dlg.GetValue()
             try:
-                library_manager.CreateFolder(os.path.join(path, name))
+                self.library_manager.CreateFolder(os.path.join(path, name))
             except Exception as e:
                 print_stack()
                 wx.MessageBox(format(e), 'Error creating folder', wx.OK | wx.ICON_ERROR)
                 dlg.Destroy()
                 return
-
+            
+            self.library_manager.Reload()
             self.tree_libraries_manager.Load()
             
             # select created item
@@ -219,19 +220,14 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         if dlg.ShowModal() == wx.ID_OK:
             name = dlg.GetValue()
             try:
-                library = library_manager.CreateLibrary(os.path.join(path, name+".lib"))
+                library = self.library_manager.CreateLibrary(os.path.join(path, name+".lib"))
             except Exception as e:
                 print_stack()
                 wx.MessageBox(format(e), 'Error creating library', wx.OK | wx.ICON_ERROR)
                 dlg.Destroy()
                 return
-            
-            # save library on disk
-            library.Save()
-            
-            # save library on database
-            # TODO
-            
+
+            self.library_manager.Reload()
             self.tree_libraries_manager.Load()
             
             # select created item
@@ -243,10 +239,103 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         event.Skip()
 
     def onMenuLibrariesRename( self, event ):
+        item = self.tree_libraries.GetSelection()
+        if item.IsOk()==False:
+            return
+        obj = self.tree_libraries_manager.ItemToObject(item)
+ 
+        if isinstance(obj, LibraryPath):
+            dlg = wx.TextEntryDialog(self, 'Enter new folder name', 'Rename folder')
+            if dlg.ShowModal() == wx.ID_OK:
+                name = dlg.GetValue()
+                try:
+                    path = obj.path 
+                    newpath = os.path.join(os.path.dirname(path), name)
+                    self.library_manager.MoveFolder(path, newpath)
+                except Exception as e:
+                    print_stack()
+                    wx.MessageBox(format(e), 'Error renaming folder', wx.OK | wx.ICON_ERROR)
+                    dlg.Destroy()
+                    return
+            dlg.Destroy()
+
+            self.library_manager.Reload()
+            self.tree_libraries_manager.Load()
+            
+            # select created item
+            pathobj = self.tree_libraries_manager.FindPath(newpath)
+            if pathobj is not None:
+                self.tree_libraries_manager.Select(pathobj)
+
+        elif isinstance(obj, Library):
+            dlg = wx.TextEntryDialog(self, 'Enter new library name', 'Rename library')
+            if dlg.ShowModal() == wx.ID_OK:
+                name = dlg.GetValue()
+                try:
+                    if name.endswith(".lib")==False:
+                        name += ".lib"
+                    path = obj.library.Path                     
+                    newpath = os.path.join(os.path.dirname(path), name)
+                    library = self.library_manager.MoveLibrary(obj.library, newpath)
+                except Exception as e:
+                    print_stack()
+                    wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
+                    dlg.Destroy()
+                    return
+            dlg.Destroy()
+
+            self.library_manager.Reload()
+            self.tree_libraries_manager.Load()
+
+            # select created item
+            libraryobj = self.tree_libraries_manager.FindLibrary(library.Path)
+            if libraryobj is not None:
+                self.tree_libraries_manager.Select(libraryobj)
+
         event.Skip()
 
     def onMenuLibrariesRemove( self, event ):
-        event.Skip()
+        item = self.tree_libraries.GetSelection()
+        if item.IsOk()==False:
+            return
+        obj = self.tree_libraries_manager.ItemToObject(item)
+        
+        if isinstance(obj, LibraryPath):
+            path = obj.path
+        elif isinstance(obj, Library):
+            path = obj.library.Path
+            
+        libraries_to_remove = []
+        for library in self.library_manager.Libraries:
+            if library.Path==path:
+                libraries_to_remove.append(library)
+            elif library.Path.startswith(path+os.sep):
+                libraries_to_remove.append(library)
+
+        symbols_to_remove = []
+        for library in libraries_to_remove:
+            for symbol in library.Symbols:
+                symbols_to_remove.append(symbol.symbol_model)
+        
+        associated_parts = api.data.part.find([api.data.part.FilterSymbols(symbols_to_remove)])
+        if len(associated_parts.all())>0:
+            dlg = wx.MessageDialog(self, f"There is {len(associated_parts.all())} parts associated with selection, remove anyway?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
+        else:
+            dlg = wx.MessageDialog(self, f"Remove selection?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
+        if dlg.ShowModal()==wx.ID_YES:
+            try:
+                for library in libraries_to_remove:
+                    self.library_manager.DeleteLibrary(library)
+            except Exception as e:
+                print_stack()
+                wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
+                dlg.Destroy()
+                return
+
+            self.library_manager.Reload()
+            self.tree_libraries_manager.Load()
+
+        dlg.Destroy()
 
     def onMenuLibrariesAddSymbol( self, event ):
         event.Skip()
@@ -265,37 +354,6 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
 
         event.Skip()
 
-#     def onMenuLibrariesRename( self, event ):
-#         item = self.tree_libraries.GetSelection()
-#         if item.IsOk()==False:
-#             return
-#         obj = self.tree_libraries_manager.ItemToObject(item)
-#         path = obj.path 
-# 
-#         if isinstance(obj, DataModelLibraryPath):
-#             dlg = wx.TextEntryDialog(self, 'Enter new folder name', 'Rename folder')
-#             if dlg.ShowModal() == wx.ID_OK:
-#                 name = dlg.GetValue()
-#                 try:
-#                     newpath = os.path.join(os.path.dirname(path), name)
-#                     self.manager_lib.MoveFolder(path, newpath)
-#                 except Exception as e:
-#                     print_stack()
-#                     wx.MessageBox(format(e), 'Error renaming folder', wx.OK | wx.ICON_ERROR)
-#             dlg.Destroy()
-#         elif isinstance(obj, DataModelLibrary):
-#             dlg = wx.TextEntryDialog(self, 'Enter new library name', 'Rename library')
-#             if dlg.ShowModal() == wx.ID_OK:
-#                 name = dlg.GetValue()
-#                 try:
-#                     newpath = os.path.join(os.path.dirname(path), name+".lib")
-#                     self.manager_lib.MoveFolder(path, newpath)
-#                 except Exception as e:
-#                     print_stack()
-#                     wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
-#             dlg.Destroy()
-#         
-#         self.load()
 # 
 #     def onMenuLibrariesRemove( self, event ):
 #         item = self.tree_libraries.GetSelection()
