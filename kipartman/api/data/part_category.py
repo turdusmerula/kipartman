@@ -2,6 +2,10 @@ from api.models import Part, PartCategory
 from datetime import date, datetime
 import mptt
 
+class PartCategoryException(Exception):
+    def __init__(self, error):
+        super(PartCategoryException, self).__init__(error)
+
 def find(filters=[]):
     request = PartCategory.objects
     
@@ -15,26 +19,44 @@ def find_childs(parent_category=None):
         return PartCategory.objects.filter(parent_id=None)
     return PartCategory.objects.filter(parent_id=parent_category.id)
 
+def create():
+    return PartCategory()
+
+def save(category):
+    if category.parent is not None:
+        # check that instance will not be child of itself
+        parent = category.parent
+        while parent is not None:
+            if parent.pk==category.pk:
+                raise PartCategoryException('Category recursion forbidden')
+            parent = parent.parent
+    
+    category.save()
+    
+    return category
+
+def delete(category):
+    # set childrens to parent id
+    for child in category.get_children():
+        if category.is_child_node():
+            parent = category.get_ancestors(ascending=True)[0]
+        else:
+            parent = None 
+        current_child = PartCategory.objects.get(id=child.id)
+        current_child.move_to(parent, 'last-child')
+    Part.objects.filter(category=category.pk).update(category=category.parent)
+    # delete category
+    category.delete()
+    # cleanup tree inconsistencies
+    PartCategory._tree_manager.rebuild()
+    return None
+    
 ####################################################    
 # def add(category):
 #     category.save()
 # 
 # 
 # def delete(category):
-#     # set childrens to parent id
-#     for child in category.get_children():
-#         if category.is_child_node():
-#             parent = category.get_ancestors(ascending=True)[0]
-#         else:
-#             parent = None 
-#         current_child = PartCategory.objects.get(id=child.id)
-#         current_child.move_to(parent, 'last-child')
-#     Part.objects.filter(category=category.pk).update(category=category.parent)
-#     # delete category
-#     category.delete()
-#     # cleanup tree inconsistencies
-#     PartCategory._tree_manager.rebuild()
-#     return None
 # 
 #     
 #     

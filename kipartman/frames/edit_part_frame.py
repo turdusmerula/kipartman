@@ -1,6 +1,6 @@
 from dialogs.panel_edit_part import PanelEditPart
 # from frames.select_footprint_frame import SelectFootprintFrame
-# from frames.select_symbol_frame import SelectSymbolFrame
+from frames.select_symbol_frame import SelectSymbolFrame
 from frames.part_parameters_frame import PartParametersFrame
 # from frames.part_distributors_frame import PartDistributorsFrame
 # from frames.part_manufacturers_frame import PartManufacturersFrame
@@ -8,7 +8,7 @@ from frames.part_parameters_frame import PartParametersFrame
 # from frames.part_storages_frame import PartStoragesFrame
 # from frames.part_preview_data_frame import PartPreviewDataFrame
 # from frames.part_references_frame import PartReferencesFrame
-# from frames.dropdown_frame import DropdownFrame
+from frames.dropdown_frame import DropdownFrame
 # from frames.dropdown_dialog import DropdownDialog
 # from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
 import wx.lib.newevent
@@ -94,7 +94,7 @@ class EditPartFrame(PanelEditPart):
             else:
                 self.button_part_footprint.Label = "<none>"
             if part.symbol:
-                self.button_part_symbol.Label = os.path.basename(part.symbol.source_path).replace(".mod", "")
+                self.button_part_symbol.Label = part.symbol.name
             else:
                 self.button_part_symbol.Label = "<none>"
         else:
@@ -172,12 +172,13 @@ class EditPartFrame(PanelEditPart):
 #         event.Skip()
 #         
     def onButtonPartSymbolClick( self, event ):
-#         symbol = self.part.symbol
-#         frame = DropdownFrame(self.button_part_footprint, SelectSymbolFrame, symbol)
-#         frame.Dropdown(self.onSetSymbolCallback)
+        symbol = self.part.symbol
+        frame = DropdownFrame(self.button_part_footprint, SelectSymbolFrame, symbol)
+        frame.Dropdown(self.onSetSymbolCallback)
         event.Skip()
      
-#     def onSetSymbolCallback(self, symbol):
+    def onSetSymbolCallback(self, symbol):
+        pass
 #         if symbol:
 #             self.button_part_symbol.Label = os.path.basename(symbol.source_path).replace('.mod', '')
 #         else:

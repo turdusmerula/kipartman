@@ -9,7 +9,6 @@ from helper.exception import print_stack
 
 # from frames.dropdown_dialog import DropdownDialog
 # from frames.progression_frame import ProgressionFrame
-# from frames.edit_category_frame import EditCategoryFrame
 # from frames.select_part_parameter_frame import SelectPartParameterFrame
 # import helper.tree
 # import wx
@@ -326,61 +325,6 @@ class PartsFrame(PanelParts):
 #         self.loadCategories()
 # 
 # 
-#     def onMenuCategoryAddCategory( self, event ):
-#         category = EditCategoryFrame(self).addCategory(rest.model.PartCategoryNew)
-#         if category:
-#             try:
-#                 # retrieve parent item from selection
-#                 parentitem = self.tree_categories.GetSelection()
-#                 parentobj = None
-#                 category.parent = None
-#                 if parentitem:
-#                     parentobj = self.tree_categories_manager.ItemToObject(parentitem)
-#                     category.parent = parentobj.category
-#                     
-#                 # create category on server
-#                 category = rest.api.add_parts_category(category)
-#                 # create category on treeview
-#                 newitem = self.tree_categories_manager.AppendItem(parentobj, DataModelCategory(category)) 
-#                 # add category to item element
-#                 self.tree_categories_manager.SelectItem(newitem)
-#                 self.onTreeCategoriesSelChanged(None)
-#             except Exception as e:
-#                 print_stack()
-#                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-# 
-#     def onMenuCategoryEditCategory( self, event ):
-#         sel = self.tree_categories.GetSelection()
-#         if sel.IsOk()==False:
-#             return
-#         categoryobj = self.tree_categories_manager.ItemToObject(sel)
-#         if categoryobj is None:
-#             return
-#         category = EditCategoryFrame(self).editCategory(categoryobj.category)
-#         if not category is None:
-#             try:
-#                 categoryobj.category = rest.api.update_parts_category(categoryobj.category.id, category)
-#                 self.tree_categories_manager.UpdateItem(categoryobj)
-#                 self.onTreeCategoriesSelChanged(None)
-#             except Exception as e:
-#                 print_stack()
-#                 wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-# 
-#     def onMenuCategoryRemoveCategory( self, event ):
-#         sel = self.tree_categories.GetSelection()
-#         categoryobj = self.tree_categories_manager.ItemToObject(sel)
-#         if categoryobj is None:
-#             return
-#         try:
-#             res = wx.MessageDialog(self, "Remove category '"+categoryobj.category.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-#             if res==wx.ID_OK:
-#                 rest.api.delete_parts_category(categoryobj.category.id)
-#                 self.tree_categories_manager.DeleteItem(categoryobj.parent, categoryobj)
-#             else:
-#                 return
-#         except Exception as e:
-#             print_stack()
-#             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
 # 
 # 
 # 

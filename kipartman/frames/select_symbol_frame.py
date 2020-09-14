@@ -2,21 +2,24 @@ from dialogs.panel_select_symbol import PanelSelectSymbol
 import helper.tree
 import wx
 import os
-from kicad.kicad_file_manager import KicadFileManagerPretty, KicadFileManagerLib
-from kicad import kicad_lib_file
-import sync.version_manager
+from kicad.kicad_file_manager_symbols import KicadLibraryManager
+import kicad.kicad_file_manager
 import tempfile
 from helper.exception import print_stack
 from helper.log import log
 
-class DataModelSymbolPath(helper.tree.TreeContainerItem):
-    def __init__(self, path):
-        super(DataModelSymbolPath, self).__init__()
-        self.path = path
+class Library(helper.tree.TreeContainerItem):
+    def __init__(self, library):
+        super(Library, self).__init__()
+        self.library = library
+    
+    @property
+    def Path(self):
+        return self.library.Path
     
     def GetValue(self, col):
         if col==0:
-            return self.path
+            return self.library.Path
         return ''
 
     def HasContainerColumns(self):
@@ -28,52 +31,81 @@ class DataModelSymbolPath(helper.tree.TreeContainerItem):
             return True
         return False
     
-class DataModelSymbol(helper.tree.TreeItem):
+class Symbol(helper.tree.TreeItem):
     def __init__(self, symbol):
-        super(DataModelSymbol, self).__init__()
+        super(Symbol, self).__init__()
         self.symbol = symbol
             
     def GetValue(self, col):
-        name = os.path.basename(self.symbol.source_path).replace(".mod", "")
-        vMap = {
-            0 : name, 
-        }
-        return vMap[col]
+        if col==0:
+            return self.symbol.Name
+
+        return ""
 
 
 class TreeManagerSymbols(helper.tree.TreeManager):
-    def __init__(self, tree_view):
-        super(TreeManagerSymbols, self).__init__(tree_view)
+    def __init__(self, tree_view, *args, filters, library_manager , **kwargs):
+        super(TreeManagerSymbols, self).__init__(tree_view, *args, **kwargs)
 
-    def FindPath(self, path):
+        self.library_manager = library_manager
+        self.filters = filters
+
+    def Load(self):
+         
+        self.SaveState()
+        
+        for library in self._get_libraries():
+            libraryobj = self.FindLibrary(library)
+            if libraryobj is None:
+                libraryobj = self.AppendLibrary(library)
+            else:
+                libraryobj.library = library
+                self.Update(libraryobj)
+                
+            for symbol in library.Symbols:
+                symbolobj = self.FindSymbol(symbol)
+                if symbolobj is None:
+                    symbolobj = self.AppendSymbol(libraryobj, symbol)
+                else:
+                    symbolobj.symbol = symbol
+                    self.Update(symbolobj)
+        
+        self.PurgeState()
+
+    def _get_libraries(self):
+        res = []
+        filters = self.filters.get_filters()
+        for library in self.library_manager.Libraries:
+            filter = False
+            for f in self.filters.get_filters():
+                filter = filter or f.apply(library)
+            if filter==False:
+                res.append(library)
+        return res
+    
+    def AppendLibrary(self, path):
+        libraryobj = Library(path)
+        self.Append(None, libraryobj)
+        return libraryobj
+
+    def FindLibrary(self, library):
         for data in self.data:
-            if isinstance(data, DataModelSymbolPath) and data.path==os.path.normpath(path):
+            if isinstance(data, Library) and data.library.Path==library.Path:
                 return data
         return None
 
-    def AppendPath(self, path):
-        pathobj = self.FindPath(path)
-        if pathobj:
-            return pathobj
-        pathobj = DataModelSymbolPath(path)
-        parentpath = self.FindPath(os.path.dirname(path))
-        self.AppendItem(parentpath, pathobj)
-        return pathobj
-
-    def FindSymbol(self, path):
+    def FindSymbol(self, symbol):
         for data in self.data:
-            if isinstance(data, DataModelSymbol) and data.symbol.source_path==os.path.normpath(path):
+            if isinstance(data, Symbol) and data.symbol.Name==symbol.Name and data.symbol.Library.Path==symbol.Library.Path:
                 return data
         return None
 
-    def AppendSymbol(self, file):
-        symbolobj = self.FindSymbol(file.source_path)
-        if symbolobj:
-            return symbolobj
-        path = os.path.dirname(os.path.normpath(file.source_path))
-        pathobj = self.FindPath(path)
-        symbolobj = DataModelSymbol(file)
-        self.AppendItem(pathobj, symbolobj)
+    def AppendSymbol(self, library, symbol):
+        libraryobj = None
+        if library is not None:
+            libraryobj = self.FindLibrary(library)
+        symbolobj = Symbol(symbol)
+        self.Append(libraryobj, symbolobj)
         return symbolobj
 
 
@@ -86,59 +118,37 @@ class SelectSymbolFrame(PanelSelectSymbol):
         """
         super(SelectSymbolFrame, self).__init__(parent)
         
-        self.file_manager_lib = KicadFileManagerLib()
-        self.manager_lib = sync.version_manager.VersionManager(self.file_manager_lib)
-        self.manager_lib.on_change_hook = self.onFileLibChanged
-        self.lib_cache = KicadFileManagerLib()
+        # react to file change
+        self.library_manager = KicadLibraryManager(self)
+        self.Bind( kicad.kicad_file_manager.EVT_FILE_CHANGED, self.onFileLibChanged )
+
+        # symbols filters
+        self._filters = helper.filter.FilterSet(self)
+        self._filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
 
         # create symbols list
-        self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols)
+        self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, filters=self._filters, library_manager=self.library_manager)
         self.tree_symbols_manager.AddTextColumn("Name")
         
         self.search_filter = None
         self.search_symbol.Value = ''
-        self.load()
         
         if initial:
-            self.tree_symbols.Select(self.tree_symbols_manager.ObjectToItem(self.tree_symbols_manager.FindSymbol(initial.source_path)))
+            self.tree_symbols_manager.Select(self.tree_symbols_manager.FindSymbol(initial))
         
         # set result functions
         self.cancel = None
         self.result = None
 
-    def load(self):
-        try:
-            self.loadSymbols()
-            pass
-        except Exception as e:
-            print_stack()
-            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-
-    def loadSymbols(self):
-        # clear all
-        self.tree_symbols_manager.ClearItems()
-        
-        self.manager_lib.LoadState()
-        
-        # add folders with no library inside
-        # only versioned files are available from list
-        for file in self.file_manager_lib.files:
-            path = os.path.dirname(os.path.normpath(file))
-            file_version = self.manager_lib.GetFile(file)
-            if file_version and file_version.id:
-                filtered = False
-                if self.search_filter and file_version.source_path.find(self.search_filter)!=-1:
-                    filtered = False
-                elif self.search_filter:
-                    filtered = True
-                if filtered==False:
-                    if path!='':
-                        self.tree_symbols_manager.AppendPath(path)
-                    self.tree_symbols_manager.AppendSymbol(file_version)
+        self.tree_symbols_manager.Load()
 
     def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
-        self.load()
+        self.tree_symbols_manager.Load()
+
+    def onFilterChanged(self, event):
+        # do a synchronize when a filter changed
+        self.tree_symbols_manager.Load()
 
     def SetResult(self, result, cancel=None):
         self.result = result
@@ -151,7 +161,7 @@ class SelectSymbolFrame(PanelSelectSymbol):
             return    
         obj = self.tree_symbols_manager.ItemToObject(item)
 
-        if isinstance(obj, DataModelSymbol):
+        if isinstance(obj, Symbol):
             log.debug("----", obj.symbol.source_path)
             if self.lib_cache.Exists(obj.symbol.source_path):
                 self.lib_cache.LoadContent(obj.symbol)
@@ -177,7 +187,7 @@ class SelectSymbolFrame(PanelSelectSymbol):
     
     def onButtonOkClick( self, event ):
         symbol = self.tree_symbols_manager.ItemToObject(self.tree_symbols.GetSelection())
-        if isinstance(symbol, DataModelSymbol) and self.result:
+        if isinstance(symbol, Symbol) and self.result:
             self.result(symbol.symbol)
 
     def onSearchSymbolCancel( self, event ):

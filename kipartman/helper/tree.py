@@ -90,6 +90,10 @@ class TreeContainerItem(TreeItem):
     def HasContainerColumns(self):
         return True
 
+    @property
+    def Childs(self):
+        return self.childs
+    
     def IsContainer(self):
         return True # if ( self.childs is not None and len(self.childs)>0 ) else False
 
@@ -99,39 +103,112 @@ class TreeDummyItem(TreeItem):
 class TreeContainerLazyItem(TreeContainerItem):
     def __init__(self):
         super(TreeContainerLazyItem, self).__init__()
-        self.loaded = False
+        self._loaded = False
 
     def _lazy_load(self, manager):
-        if self.loaded:
+        if self._loaded:
             return
 
         # remove dummy item
-        if self.childs is not None and len(self.childs)>0 :
-            manager.model.ItemDeleted(manager.model.ObjectToItem(self), manager.model.ObjectToItem(self.childs[0]))
+        if self.childs is not None and len(self.childs)>0:
+            for child in self.childs:
+                if isinstance(child, TreeDummyItem):
+                    manager.Remove(child)
              
         # empty child list
-        self.childs = []
-        self.loaded = True
-        self.Load()
-        
-        if self.childs is not None:
-            for child in self.childs:
-                manager.model.ItemAdded(manager.model.ObjectToItem(self), manager.model.ObjectToItem(child))
-                if isinstance(child, TreeContainerLazyItem) and child.IsContainer():
-                    # add a dummy item to allow this item to appear with childs, it will be remove by lazy_load func
-                    manager.Append(child, TreeDummyItem())
+#         self.childs = []
+        self._loaded = True
+        self.Load(manager)
+         
+#         if self.childs is not None:
+#             for child in self.childs:
+#                 if manager.Find(child) is None:
+#                     print("** add", child)
+# #                     child.parent = self
+#                     manager.model.ItemAdded(manager.model.ObjectToItem(self), manager.model.ObjectToItem(child))
+#                     if isinstance(child, TreeContainerLazyItem) and child.IsContainer():
+#                         # add a dummy item to allow this item to appear with childs, it will be remove by lazy_load func
+#                         manager.Append(child, TreeDummyItem())
+#                     
+#                     manager.data.append(child)
+#                 else:
+#                     print("** update", child, child.IsContainer())
+#                     manager.Update(child)
+# #                     manager.model.ItemChanged(manager.model.ObjectToItem(child))
+# #                     if child.childs is None and child.IsContainer():
+# #                         manager.Append(child, TreeDummyItem())
+#                         
+#                 if child in manager.data_state:
+#                     manager.data_state.remove(child)
+
+#         setattr(self, "_to_add", [])
+#         setattr(self, "_to_update", [])
+# 
+#         self._loaded = True
+#         self.Load()
+# 
+#         to_add = getattr(self, "_to_add")
+#         to_update = getattr(self, "_to_update")
+#         
+#         to_remove = []
+#         if self.childs is not None:
+#             for child in self.childs:
+#                 if not ( child in to_add or child in to_update ):
+#                     to_remove.append(child)
+# 
+#         while len(to_add)>0:
+#             obj = to_add.pop()
+#             self.childs.append(obj)
+#             obj.parent = self
+#             manager.data.append(obj)
+#             # incase a SaveState was started
+#             if obj in manager.data_state:
+#                 manager.data_state.remove(obj)
+#             manager.model.ItemAdded(manager.model.ObjectToItem(self), manager.model.ObjectToItem(obj))
+#             if isinstance(obj, TreeContainerLazyItem) and obj.IsContainer():
+#                 # add a dummy item to allow this item to appear with childs, it will be remove by lazy_load func
+#                 manager.Append(obj, TreeDummyItem())
+#         
+#         while len(to_update)>0:
+#             obj = to_update.pop()
+#             self.childs.append(obj)
+#             obj.parent = self
+#             # incase a SaveState was started
+#             if obj in manager.data_state:
+#                 manager.data_state.remove(obj)
+#             manager.model.ItemChanged(manager.model.ObjectToItem(obj))
+# 
+#         while len(to_remove)>0:
+#             obj = to_remove.pop()
+#             self.childs.remove(obj)
+#             # incase a SaveState was started
+#             if obj in manager.data_state:
+#                 manager.data_state.remove(obj)
+#             manager.data.remove(obj)
+#             manager.model.ItemDeleted(manager.model.ObjectToItem(self), manager.model.ObjectToItem(obj))
+# 
+#         delattr(self, "_to_add")
+#         delattr(self, "_to_update")
 
     # override this for lazy loading childs
     def Load(self):
         pass
     
+    @property
     def Loaded(self):
         return self.loaded
-    
+
+    def Update(self):
+        super(TreeContainerLazyItem, self).Update()
+        self._loaded = False
+
     # override this for lazy loading to indicate if item contains childs
     def IsContainer(self):
-        return False
+        return True
 
+    def HasChilds(self):
+        return False
+    
 class TreeModel(wx.dataview.PyDataViewModel):
     def __init__(self, root_objs=[]):
         super(TreeModel, self).__init__()
@@ -516,7 +593,7 @@ class TreeManager(object):
             # reflected as at the end of onItemContextMenu the focus goes where the mouse was
             # before onItemContextMenu
             # self.tree_view.PopupMenu(self.context_menu, event.GetPosition())
-            # to prevent this we send the envent ourselves 
+            # to prevent this we send the event ourselves 
             id = self.tree_view.GetPopupMenuSelectionFromUser(self.context_menu, event.GetPosition())
             menu = self.context_menu.FindItemById(id)
             if menu is not None:
@@ -757,13 +834,13 @@ class TreeManager(object):
             
     def Expand(self, obj):
         item = self.model.ObjectToItem(obj)
-        if item:
+        if item.IsOk():
             self.tree_view.Expand(item)
     
     def ExpandAll(self):
         for obj in self.data:
             item = self.model.ObjectToItem(obj)
-            if item:
+            if item.IsOk():
                 self.tree_view.Expand(item)
 
     def Collapse(self, obj):
@@ -792,7 +869,14 @@ class TreeManager(object):
         event.SetEventObject(self.tree_view)
         wx.PostEvent(self.tree_view, event)
 
-
+    
+    def Find(self, obj):
+        for data in self.data:
+            if obj==data:
+                return obj
+        return None
+    
+    
     def Sort(self):
         self.model.Resort()
 
@@ -821,7 +905,9 @@ class TreeManager(object):
             parent.AddChild(obj)
             self.model.ItemAdded(self.model.ObjectToItem(parent), self.model.ObjectToItem(obj))
 
-        if isinstance(obj, TreeContainerLazyItem) and obj.IsContainer():
+        print("###1", obj)
+        if isinstance(obj, TreeContainerLazyItem) and obj.HasChilds():
+            print("###2", obj)
             # add a dummy item to allow this item to appear with childs, it will be remove by lazy_load func
             self.Append(obj, TreeDummyItem())
 
@@ -845,6 +931,24 @@ class TreeManager(object):
     def Update(self, obj):
         obj.Update()
         self.model.ItemChanged(self.model.ObjectToItem(obj))
+
+        if isinstance(obj, TreeContainerLazyItem):#  
+            if self.tree_view.IsExpanded(self.model.ObjectToItem(obj))==True:
+                obj._lazy_load(self)
+            
+            if obj.HasChilds() and obj.childs is None:
+                print("==", obj.category.name, obj.category.id)
+                self.Append(obj, TreeDummyItem())
+            elif obj.HasChilds():
+                # the dummy item should not be removed by PurgeState 
+                for child in obj.childs:
+                    if isinstance(child, TreeDummyItem):
+                        self.Update(child)
+            elif obj.HasChilds()==False and obj.childs is not None:
+                for child in obj.childs:
+                    if isinstance(child, TreeDummyItem):
+                        self.Remove(child)
+                obj.childs = None
 
         if obj in self.data_state:
             self.data_state.remove(obj)
@@ -882,6 +986,7 @@ class TreeManager(object):
             obj = non_container.pop()
             self.Remove(obj)
 
+        print("***", container)
         while len(container)>0:
             # only remove container with empty childs
             # implement pseudo recursively to remove childs first

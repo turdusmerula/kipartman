@@ -46,10 +46,8 @@ class Part(helper.tree.TreeContainerLazyItem):
         elif col==3:
             return self.part.comment
         elif col==4:
-            symbol = ""
             if self.part.symbol:
-                symbol = os.path.basename(self.part.symbol.source_path).replace('.mod', '')
-            return symbol
+                return self.part.symbol.name
         elif col==5:
             footprint = ""
             if self.part.footprint:
