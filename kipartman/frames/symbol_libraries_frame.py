@@ -131,9 +131,14 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         self.tree_libraries_manager.OnSelectionChanged = self.onTreeLibrariesSelChanged
         self.tree_libraries_manager.OnItemBeforeContextMenu = self.onTreeLibrariesBeforeContextMenu
 #     
+        self.loaded = False
+        
     def activate(self):
-        self.tree_libraries_manager.Load()
-
+        if self.loaded==False:
+            self.tree_libraries_manager.Clear()
+            self.tree_libraries_manager.Load()
+        self.loaded = False
+        
     def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
         self.tree_libraries_manager.Load()

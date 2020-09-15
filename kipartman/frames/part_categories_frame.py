@@ -24,19 +24,8 @@ class PartCategory(helper.tree.TreeContainerLazyItem):
         return True
 
     def Load(self, manager):
-        print("~~ Load", self.category.id, self.category.name)
-        
-#         for childcategory in api.data.part_category.find_childs(self.category):
-#             childcategoryobj = self.FindCategoryChild(childcategory)
-#             print("~~~", childcategoryobj)
-#             if childcategoryobj is None:
-#                 self.AddChild(PartCategory(childcategory))
-#             else:
-#                 childcategoryobj.category = childcategory
-
         for childcategory in api.data.part_category.find_childs(self.category):
             childcategoryobj = manager.FindCategory(childcategory.id)
-            print("~~~", childcategoryobj)
             if childcategoryobj is None:
                 manager.Append(self, PartCategory(childcategory))
             else:
@@ -65,12 +54,10 @@ class TreeManagerPartCategory(helper.tree.TreeManager):
         super(TreeManagerPartCategory, self).__init__(*args, **kwargs)
 
     def Load(self):
-        print("----")
 
         self.SaveState()
 
         for category in api.data.part_category.find_childs():
-            print("**", category.name)
             categoryobj = self.FindCategory(category.id)
             
             if categoryobj is None:
@@ -128,9 +115,6 @@ class PartCategoriesFrame(PanelPartCategories):
         if item.IsOk()==False:
             return
         categoryobj = self.tree_categories_manager.ItemToObject(item)
-        print("###", categoryobj.IsContainer(), categoryobj.category.name, categoryobj.category.id)
-        if categoryobj.childs is not None:
-            print("####", categoryobj.childs)
         wx.PostEvent(self, SelectCategoryEvent(category=categoryobj.category))
         event.Skip()
 
@@ -207,6 +191,11 @@ class PartCategoriesFrame(PanelPartCategories):
             if res==wx.ID_OK:
                 # create category
                 api.data.part_category.delete(categoryobj.category)
+                
+                # move item childs in tree to avoid inconsistency on Load
+                for child in categoryobj.Childs:
+                    self.tree_categories_manager.Move(child, categoryobj.parent)
+                
                 # update categories
                 self.tree_categories_manager.Load()                
             else:

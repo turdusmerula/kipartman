@@ -13,7 +13,6 @@ from snapeda.queries import DownloadQuery
 import zipfile
 import glob
 import datetime
-import helper.hash as hash
 import json
 from helper.exception import print_stack
 from helper.log import log

@@ -1,6 +1,7 @@
 from dialogs.panel_edit_part import PanelEditPart
 # from frames.select_footprint_frame import SelectFootprintFrame
 from frames.select_symbol_frame import SelectSymbolFrame
+from frames.select_part_frame import SelectPartFrame
 from frames.part_parameters_frame import PartParametersFrame
 # from frames.part_distributors_frame import PartDistributorsFrame
 # from frames.part_manufacturers_frame import PartManufacturersFrame
@@ -178,12 +179,11 @@ class EditPartFrame(PanelEditPart):
         event.Skip()
      
     def onSetSymbolCallback(self, symbol):
-        pass
-#         if symbol:
-#             self.button_part_symbol.Label = os.path.basename(symbol.source_path).replace('.mod', '')
-#         else:
-#             self.button_part_symbol.Label = "<none>"
-#         self.part.symbol = symbol
+        if symbol:
+            self.button_part_symbol.Label = symbol.Name
+        else:
+            self.button_part_symbol.Label = "<none>"
+        self.part.symbol = symbol.symbol_model
 # 
     def onTextEditPartCommentText( self, event ):
         self._check()

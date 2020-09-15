@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -18,7 +18,7 @@ import wx.aui
 class DialogMain ( wx.Frame ):
 
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Kipartman", pos = wx.DefaultPosition, size = wx.Size( 1160,686 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Kipartman", pos = wx.DefaultPosition, size = wx.Size( 1160,686 ), style = wx.DEFAULT_FRAME_STYLE|wx.MAXIMIZE|wx.TAB_TRAVERSAL )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
@@ -66,7 +66,7 @@ class DialogMain ( wx.Frame ):
 		self.info.SetEffectDuration( 500 )
 		bSizer5.Add( self.info, 0, wx.ALL|wx.EXPAND, 5 )
 
-		self.notebook = wx.aui.AuiNotebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.aui.AUI_NB_CLOSE_BUTTON|wx.aui.AUI_NB_CLOSE_ON_ACTIVE_TAB|wx.aui.AUI_NB_DEFAULT_STYLE|wx.aui.AUI_NB_TAB_MOVE|wx.aui.AUI_NB_TAB_SPLIT )
+		self.notebook = wx.aui.AuiNotebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.aui.AUI_NB_CLOSE_BUTTON|wx.aui.AUI_NB_CLOSE_ON_ACTIVE_TAB|wx.aui.AUI_NB_DEFAULT_STYLE|wx.aui.AUI_NB_TAB_EXTERNAL_MOVE|wx.aui.AUI_NB_TAB_MOVE|wx.aui.AUI_NB_TAB_SPLIT|wx.aui.AUI_NB_WINDOWLIST_BUTTON )
 
 		bSizer5.Add( self.notebook, 1, wx.EXPAND |wx.ALL, 5 )
 
@@ -88,6 +88,8 @@ class DialogMain ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.onMenuHelpAboutSelection, id = self.menu_about.GetId() )
 		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGED, self.onNotebookPageChanged )
 		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGING, self.onNotebookPageChanging )
+		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.onNotebookPageClose )
+		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CLOSED, self.onNotebookPageClosed )
 
 	def __del__( self ):
 		pass
@@ -122,6 +124,12 @@ class DialogMain ( wx.Frame ):
 		event.Skip()
 
 	def onNotebookPageChanging( self, event ):
+		event.Skip()
+
+	def onNotebookPageClose( self, event ):
+		event.Skip()
+
+	def onNotebookPageClosed( self, event ):
 		event.Skip()
 
 

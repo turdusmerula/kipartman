@@ -63,6 +63,9 @@ def create():
     
     return part
 
+def delete(part):
+    part.delete()
+    
 def duplicate(part):
     request = Part.objects
     

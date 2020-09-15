@@ -2,9 +2,8 @@ from dialogs.panel_select_part import PanelSelectPart
 import wx
 import wx.lib.newevent
 import wx.dataview
-import rest
-from frames.parts_frame import DataModelCategory, DataModelCategoryPath, DataModelPart, TreeManagerParts
-from frames.part_parameters_frame import DataModelPartParameter
+from frames.part_list_frame import PartCategory, Part, TreeManagerParts
+from frames.part_parameters_frame import PartParameter, TreeManagerPartParameter
 import helper.tree
 
 SelectPartOkEvent, EVT_SELECT_PART_OK_EVENT = wx.lib.newevent.NewEvent()
@@ -20,80 +19,59 @@ class SelectPartFrame(PanelSelectPart):
         """
         super(SelectPartFrame, self).__init__(parent)
     
-        # create parts list
-        self.tree_parts_manager = TreeManagerParts(self.tree_parts)
+        # parts filters
+        self._filters = helper.filter.FilterSet(self, self.toolbar_filters)
+        self.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
+        
+        # create part list
+        self.tree_parts_manager = TreeManagerParts(self.tree_parts, context_menu=self.menu_part, filters=self.Filters)
         self.tree_parts_manager.AddIntegerColumn("id")
         self.tree_parts_manager.AddTextColumn("name")
         self.tree_parts_manager.AddTextColumn("description")
         self.tree_parts_manager.AddIntegerColumn("comment")
+        self.tree_parts_manager.AddTextColumn("symbol")
+        self.tree_parts_manager.AddTextColumn("footprint")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelectionChanged
 
         # create parameters list
-        self.tree_parameters_manager = helper.tree.TreeManager(self.tree_parameters)
+        self.tree_parameters_manager = TreeManagerPartParameter(self.tree_parameters, context_menu=self.menu_parameter)
         self.tree_parameters_manager.AddToggleColumn("*")
         self.tree_parameters_manager.AddTextColumn("Parameter")
-        self.tree_parameters_manager.AddTextColumn("Min Value")
-        self.tree_parameters_manager.AddTextColumn("Nominal Value")
-        self.tree_parameters_manager.AddTextColumn("Max Value")
+        self.tree_parameters_manager.AddTextColumn("Value")
+        self.tree_parameters_manager.AddTextColumn("Min")
+        self.tree_parameters_manager.AddTextColumn("Max")
         self.tree_parameters_manager.AddTextColumn("Unit")
         self.tree_parameters_manager.AddTextColumn("Description")
-
-        # init filter
-        self.search_filter = None
-        self.search_part.Value = ''
-        self.load()
 
         # set result functions
         self.cancel = None
         self.result = None
         
-    def load(self):
-        # clear all
-        self.tree_parts_manager.ClearItems()
-        
-        # load parts
-        if self.search_filter:
-            parts = rest.api.find_parts(search=self.search_filter)
-        else:
-            parts = rest.api.find_parts()
+        # initial state
+        self.button_part_selectOK.Enabled = False            
 
-        # load categories
-        categories = {}
-        for part in parts:
-            if part.category:
-                category_name = part.category.path
-            else:
-                category_name = "/"
-
-            if category_name not in categories:
-                categories[category_name] = DataModelCategoryPath(part.category)
-                self.tree_parts_manager.AppendItem(None, categories[category_name])
-            self.tree_parts_manager.AppendItem(categories[category_name], DataModelPart(part, {}))
+        self.tree_parts_manager.Clear()
+        self.tree_parameters_manager.Load()
         
-        for category in categories:
-            self.tree_parts_manager.Expand(categories[category])
+        self.tree_parameters_manager.Clear()
 
-    def showParameters(self, part):
-        self.tree_parameters_manager.ClearItems()
-        
-        if part and part.parameters:
-            for parameter in part.parameters:
-                self.tree_parameters_manager.AppendItem(None, DataModelPartParameter(part, parameter))
 
     def SetResult(self, result, cancel=None):
         self.result = result
         self.cancel = cancel
         
-    # Virtual event handlers, overide them in your derived class
     def onTreePartsSelectionChanged( self, event ):
         item = self.tree_parts.GetSelection()
         if item.IsOk()==False:
             return
         partobj = self.tree_parts_manager.ItemToObject(item)
-        if isinstance(partobj, DataModelPart)==False:
+        if isinstance(partobj, Part)==False:
+            self.button_part_selectOK.Enabled = False
             return
-        partobj.part = rest.api.find_part(partobj.part.id, with_parameters=True)
-        self.showParameters(partobj.part)
+        
+        self.button_part_selectOK.Enabled = True
+#         partobj.part = rest.api.find_part(partobj.part.id, with_parameters=True)
+#         self.showParameters(partobj.part)
         
     def onButtonCancelClick( self, event ):
         event = SelectPartCancelEvent()

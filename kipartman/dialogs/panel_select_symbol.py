@@ -64,14 +64,14 @@ class PanelSelectSymbol ( wx.Panel ):
 
 		bSizer16.Add( bSizer2, 1, wx.EXPAND, 5 )
 
-		m_sdbSizer2 = wx.StdDialogButtonSizer()
-		self.m_sdbSizer2OK = wx.Button( self, wx.ID_OK )
-		m_sdbSizer2.AddButton( self.m_sdbSizer2OK )
-		self.m_sdbSizer2Cancel = wx.Button( self, wx.ID_CANCEL )
-		m_sdbSizer2.AddButton( self.m_sdbSizer2Cancel )
-		m_sdbSizer2.Realize();
+		button_symbol_edit = wx.StdDialogButtonSizer()
+		self.button_symbol_editOK = wx.Button( self, wx.ID_OK )
+		button_symbol_edit.AddButton( self.button_symbol_editOK )
+		self.button_symbol_editCancel = wx.Button( self, wx.ID_CANCEL )
+		button_symbol_edit.AddButton( self.button_symbol_editCancel )
+		button_symbol_edit.Realize();
 
-		bSizer16.Add( m_sdbSizer2, 0, wx.EXPAND|wx.BOTTOM, 5 )
+		bSizer16.Add( button_symbol_edit, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )
 
 
 		self.SetSizer( bSizer16 )
@@ -82,8 +82,8 @@ class PanelSelectSymbol ( wx.Panel ):
 		self.search_symbol.Bind( wx.EVT_TEXT_ENTER, self.onSearchSymbolTextEnter )
 		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
 		self.tree_symbols.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeSymbolsSelectionChanged, id = wx.ID_ANY )
-		self.m_sdbSizer2Cancel.Bind( wx.EVT_BUTTON, self.onButtonCancelClick )
-		self.m_sdbSizer2OK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
+		self.button_symbol_editCancel.Bind( wx.EVT_BUTTON, self.onButtonCancelClick )
+		self.button_symbol_editOK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
 
 	def __del__( self ):
 		pass

@@ -4,6 +4,7 @@ import wx
 import os
 from kicad.kicad_file_manager_symbols import KicadLibraryManager
 import kicad.kicad_file_manager
+from kicad import kicad_lib_file
 import tempfile
 from helper.exception import print_stack
 from helper.log import log
@@ -140,6 +141,10 @@ class SelectSymbolFrame(PanelSelectSymbol):
         self.cancel = None
         self.result = None
 
+        # initial state
+        self.button_symbol_editOK.Enabled = False
+        
+        self.tree_symbols_manager.Clear()
         self.tree_symbols_manager.Load()
 
     def onFileLibChanged(self, event):
@@ -162,21 +167,18 @@ class SelectSymbolFrame(PanelSelectSymbol):
         obj = self.tree_symbols_manager.ItemToObject(item)
 
         if isinstance(obj, Symbol):
-            log.debug("----", obj.symbol.source_path)
-            if self.lib_cache.Exists(obj.symbol.source_path):
-                self.lib_cache.LoadContent(obj.symbol)
+            if obj.symbol.Content!='':
                 lib = kicad_lib_file.KicadLibFile()
-                lib.Load(obj.symbol.content)
+                lib.Load(obj.symbol.Content)
                 image_file = tempfile.NamedTemporaryFile()
                 lib.Render(image_file.name, self.panel_image_symbol.GetRect().width, self.panel_image_symbol.GetRect().height)
                 img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
                 image_file.close()
-            else:
-                img = wx.Image()
-                img.Create(1, 1)
+            self.button_symbol_editOK.Enabled = True
         else:
             img = wx.Image()
             img.Create(1, 1)
+            self.button_symbol_editOK.Enabled = False
 
         img = img.ConvertToBitmap()
         self.image_symbol.SetBitmap(img)

@@ -17,7 +17,7 @@ import wx.dataview
 
 class PanelPartList ( wx.Panel ):
 
-	def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1209,647 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
+	def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1467,802 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
 		wx.Panel.__init__ ( self, parent, id = id, pos = pos, size = size, style = style, name = name )
 
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
@@ -75,7 +75,7 @@ class PanelPartList ( wx.Panel ):
 		self.panel_up.Layout()
 		self.sizer_part.Fit( self.panel_up )
 		self.panel_down = wx.Panel( self.splitter_horz, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.splitter_horz.SplitHorizontally( self.panel_up, self.panel_down, 449 )
+		self.splitter_horz.SplitHorizontally( self.panel_up, self.panel_down, 600 )
 		bSizer1.Add( self.splitter_horz, 1, wx.EXPAND, 5 )
 
 
@@ -100,6 +100,12 @@ class PanelPartList ( wx.Panel ):
 
 		self.menu_part.AppendSeparator()
 
+		self.menu_part_append_equivalent = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Append equivalent part", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_part_append_equivalent.SetBitmap( wx.Bitmap( u"resources/duplicate.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_part.Append( self.menu_part_append_equivalent )
+
+		self.menu_part.AppendSeparator()
+
 		self.menu_refresh_octopart_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Refresh part from octopart", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_refresh_octopart_part.SetBitmap( wx.NullBitmap )
 		self.menu_part.Append( self.menu_refresh_octopart_part )
@@ -117,6 +123,7 @@ class PanelPartList ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuPartEditPart, id = self.menu_part_edit_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartRemovePart, id = self.menu_part_remove_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartDuplicatePart, id = self.menu_part_duplicate_part.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuPartAppendEquivalentPart, id = self.menu_part_append_equivalent.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartRefreshOctopartPart, id = self.menu_refresh_octopart_part.GetId() )
 
 	def __del__( self ):
@@ -151,11 +158,14 @@ class PanelPartList ( wx.Panel ):
 	def onMenuPartDuplicatePart( self, event ):
 		event.Skip()
 
+	def onMenuPartAppendEquivalentPart( self, event ):
+		event.Skip()
+
 	def onMenuPartRefreshOctopartPart( self, event ):
 		event.Skip()
 
 	def splitter_horzOnIdle( self, event ):
-		self.splitter_horz.SetSashPosition( 449 )
+		self.splitter_horz.SetSashPosition( 600 )
 		self.splitter_horz.Unbind( wx.EVT_IDLE )
 
 	def PanelPartListOnContextMenu( self, event ):

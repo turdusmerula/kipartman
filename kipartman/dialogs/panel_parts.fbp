@@ -45,7 +45,7 @@
             <property name="minimum_size"></property>
             <property name="name">PanelParts</property>
             <property name="pos"></property>
-            <property name="size">848,489</property>
+            <property name="size">1527,761</property>
             <property name="subclass"></property>
             <property name="tooltip"></property>
             <property name="window_extra_style"></property>

@@ -56,11 +56,11 @@ class Part(helper.tree.TreeContainerLazyItem):
 
         return ""
 
-    def Load(self):
+    def Load(self, manager):
         for child in api.data.part.find([api.data.part.FilterChilds(self.part)]):
-            self.AddChild(Part(child))
+            manager.Append(self, Part(child))
     
-    def IsContainer(self):
+    def HasChilds(self):
         if self.part.child_count>0:
             return True
         return False
@@ -100,15 +100,19 @@ class TreeManagerParts(helper.tree.TreeManager):
     def LoadTree(self):
         for part in api.data.part.find(filters=self.filters.get_filters()):
             partobj = self.FindPart(part.id)
-            categoryobj = self.FindCategory(part.category.id)
-             
-            if categoryobj is None:
-                categoryobj = PartCategory(part.category)
-                self.Append(None, categoryobj)
+            
+            if part.category is not None:
+                categoryobj = self.FindCategory(part.category.id)
+                 
+                if categoryobj is None:
+                    categoryobj = PartCategory(part.category)
+                    self.Append(None, categoryobj)
+                else:
+                    categoryobj.category = part.category
+                    self.Update(categoryobj)
             else:
-                categoryobj.category = part.category
-                self.Update(categoryobj)
- 
+                categoryobj = None
+                
             if partobj is None:
                 partobj = Part(part)
                 self.Append(categoryobj, partobj)
@@ -255,19 +259,30 @@ class PartListFrame(PanelPartList):
         self.menu_part_edit_part.Enable(True)
         self.menu_part_remove_part.Enable(True)
         self.menu_part_duplicate_part.Enable(True)
+        self.menu_part_append_equivalent.Enable(True)
         if isinstance(obj, Part)==False:
             self.menu_part_edit_part.Enable(False)
             self.menu_part_remove_part.Enable(False)
             self.menu_part_duplicate_part.Enable(False)
+            self.menu_part_append_equivalent.Enable(False)
         event.Skip()
 
     def onMenuPartAddPart( self, event ):
         part = api.data.part.create()
         
-        # add category from filter
+        item = self.tree_parts.GetSelection()
         part.category = None
-        if len(self.Filters.get_filters_group('category'))==1:
-            part.category = self.Filters.get_filters_group('category')[0].category
+        if item.IsOk():
+            obj = self.tree_parts_manager.ItemToObject(item)
+            if isinstance(obj, PartCategory):
+                part.category = obj.category
+            elif isinstance(obj, Part):
+                part.category = obj.part.category
+        else:
+            # add category from filter
+            part.category = None
+            if len(self.Filters.get_filters_group('category'))==1:
+                part.category = self.Filters.get_filters_group('category')[0].category
 
         self.EditPart(part)
         event.Skip()
@@ -310,15 +325,16 @@ class PartListFrame(PanelPartList):
             if res==wx.ID_OK:
                 try:
                     # remove part
-                    rest.api.delete_part(part.id)
-                    self.tree_parts_manager.DeletePart(part)
+                    api.data.part.delete(part)
                 except Exception as e:
                     print_stack()
                     wx.MessageBox(format(e), 'Error updating stock', wx.OK | wx.ICON_ERROR)
-                     
+                    return
             else:
                 return
-        self.show_part(None)
+        self.SetPart(None)
+        
+        self.tree_parts_manager.Load()
         event.Skip()
 
     def onMenuPartDuplicatePart( self, event ):
@@ -331,6 +347,9 @@ class PartListFrame(PanelPartList):
 
         part = api.data.part.duplicate(obj.part)
         self.EditPart(part)
+        event.Skip()
+
+    def onMenuPartAppendEquivalentPart( self, event ):
         event.Skip()
 
     def onEditPartApply( self, event ):

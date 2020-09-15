@@ -84,7 +84,8 @@ class TreeContainerItem(TreeItem):
             self.AddChild(parent, obj)
     
     def RemoveChild(self, obj):
-        self.childs.remove(obj)
+        if self.childs is not None:
+            self.childs.remove(obj)
         obj.parent = None
         
     def HasContainerColumns(self):
@@ -92,6 +93,8 @@ class TreeContainerItem(TreeItem):
 
     @property
     def Childs(self):
+        if self.childs is None:
+            return []
         return self.childs
     
     def IsContainer(self):
@@ -115,83 +118,11 @@ class TreeContainerLazyItem(TreeContainerItem):
                 if isinstance(child, TreeDummyItem):
                     manager.Remove(child)
              
-        # empty child list
-#         self.childs = []
         self._loaded = True
         self.Load(manager)
-         
-#         if self.childs is not None:
-#             for child in self.childs:
-#                 if manager.Find(child) is None:
-#                     print("** add", child)
-# #                     child.parent = self
-#                     manager.model.ItemAdded(manager.model.ObjectToItem(self), manager.model.ObjectToItem(child))
-#                     if isinstance(child, TreeContainerLazyItem) and child.IsContainer():
-#                         # add a dummy item to allow this item to appear with childs, it will be remove by lazy_load func
-#                         manager.Append(child, TreeDummyItem())
-#                     
-#                     manager.data.append(child)
-#                 else:
-#                     print("** update", child, child.IsContainer())
-#                     manager.Update(child)
-# #                     manager.model.ItemChanged(manager.model.ObjectToItem(child))
-# #                     if child.childs is None and child.IsContainer():
-# #                         manager.Append(child, TreeDummyItem())
-#                         
-#                 if child in manager.data_state:
-#                     manager.data_state.remove(child)
-
-#         setattr(self, "_to_add", [])
-#         setattr(self, "_to_update", [])
-# 
-#         self._loaded = True
-#         self.Load()
-# 
-#         to_add = getattr(self, "_to_add")
-#         to_update = getattr(self, "_to_update")
-#         
-#         to_remove = []
-#         if self.childs is not None:
-#             for child in self.childs:
-#                 if not ( child in to_add or child in to_update ):
-#                     to_remove.append(child)
-# 
-#         while len(to_add)>0:
-#             obj = to_add.pop()
-#             self.childs.append(obj)
-#             obj.parent = self
-#             manager.data.append(obj)
-#             # incase a SaveState was started
-#             if obj in manager.data_state:
-#                 manager.data_state.remove(obj)
-#             manager.model.ItemAdded(manager.model.ObjectToItem(self), manager.model.ObjectToItem(obj))
-#             if isinstance(obj, TreeContainerLazyItem) and obj.IsContainer():
-#                 # add a dummy item to allow this item to appear with childs, it will be remove by lazy_load func
-#                 manager.Append(obj, TreeDummyItem())
-#         
-#         while len(to_update)>0:
-#             obj = to_update.pop()
-#             self.childs.append(obj)
-#             obj.parent = self
-#             # incase a SaveState was started
-#             if obj in manager.data_state:
-#                 manager.data_state.remove(obj)
-#             manager.model.ItemChanged(manager.model.ObjectToItem(obj))
-# 
-#         while len(to_remove)>0:
-#             obj = to_remove.pop()
-#             self.childs.remove(obj)
-#             # incase a SaveState was started
-#             if obj in manager.data_state:
-#                 manager.data_state.remove(obj)
-#             manager.data.remove(obj)
-#             manager.model.ItemDeleted(manager.model.ObjectToItem(self), manager.model.ObjectToItem(obj))
-# 
-#         delattr(self, "_to_add")
-#         delattr(self, "_to_update")
 
     # override this for lazy loading childs
-    def Load(self):
+    def Load(self, manager):
         pass
     
     @property
@@ -905,9 +836,7 @@ class TreeManager(object):
             parent.AddChild(obj)
             self.model.ItemAdded(self.model.ObjectToItem(parent), self.model.ObjectToItem(obj))
 
-        print("###1", obj)
         if isinstance(obj, TreeContainerLazyItem) and obj.HasChilds():
-            print("###2", obj)
             # add a dummy item to allow this item to appear with childs, it will be remove by lazy_load func
             self.Append(obj, TreeDummyItem())
 
@@ -929,34 +858,54 @@ class TreeManager(object):
             self.data_state.remove(obj)
         
     def Update(self, obj):
-        obj.Update()
-        self.model.ItemChanged(self.model.ObjectToItem(obj))
+        if obj is None:
+            self.model.ItemChanged(wx.dataview.NullDataViewItem)
+        else:
+            obj.Update()
+            self.model.ItemChanged(self.model.ObjectToItem(obj))
 
         if isinstance(obj, TreeContainerLazyItem):#  
             if self.tree_view.IsExpanded(self.model.ObjectToItem(obj))==True:
                 obj._lazy_load(self)
             
             if obj.HasChilds() and obj.childs is None:
-                print("==", obj.category.name, obj.category.id)
                 self.Append(obj, TreeDummyItem())
             elif obj.HasChilds():
                 # the dummy item should not be removed by PurgeState 
                 for child in obj.childs:
-                    if isinstance(child, TreeDummyItem):
-                        self.Update(child)
+                    self.Update(child)
             elif obj.HasChilds()==False and obj.childs is not None:
                 for child in obj.childs:
-                    if isinstance(child, TreeDummyItem):
-                        self.Remove(child)
+                    self.Remove(child)
                 obj.childs = None
 
         if obj in self.data_state:
             self.data_state.remove(obj)
     
-    def Move(self, obj, parent):
-        #TODO
-        pass
-    
+#     def Move(self, obj, newparent):
+#         if obj.parent is None:
+#             self.model.RemoveChild(obj)
+#             self.model.ItemDeleted(wx.dataview.NullDataViewItem, self.model.ObjectToItem(obj))
+#         else:
+#             parent = obj.parent
+#             obj.parent.RemoveChild(obj)
+#             self.model.ItemDeleted(self.model.ObjectToItem(parent), self.model.ObjectToItem(obj))
+#     
+#         if newparent is None:
+#             self.model.AddChild(obj)
+#             self.model.ItemAdded(wx.dataview.NullDataViewItem, self.model.ObjectToItem(obj))
+#         else:
+#             newparent.AddChild(obj)
+#             self.model.ItemAdded(self.model.ObjectToItem(newparent), self.model.ObjectToItem(obj))
+# #             self.model.ItemChanged(self.model.ObjectToItem(obj))
+# 
+# #         self.Update(obj)
+# #         self.Update(newparent)
+
+    def Move(self, obj, newparent):
+        self.Remove(obj)
+        self.Append(newparent, obj)
+
     def Refresh(self):
         self.model.Cleared()
         
@@ -986,7 +935,6 @@ class TreeManager(object):
             obj = non_container.pop()
             self.Remove(obj)
 
-        print("***", container)
         while len(container)>0:
             # only remove container with empty childs
             # implement pseudo recursively to remove childs first

@@ -99,6 +99,12 @@ class MainFrame(DialogMain):
         if page is not None:
             page.activate() 
 
+    def onNotebookPageClose( self, event ):
+        print("----", self.notebook)
+
+    def onNotebookPageClosed( self, event ):
+        print("----")
+
     def onMenuFileProjetSelection( self, event ):
         dlg = wx.FileDialog(
             self, message="Choose a kicad project file",
