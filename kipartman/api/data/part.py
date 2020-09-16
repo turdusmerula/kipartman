@@ -1,6 +1,11 @@
 from api.models import Part
 from django.db.models import Count
 from helper.filter import Filter
+from django.db.models import Q
+
+class PartException(Exception):
+    def __init__(self, error):
+        super(PartException, self).__init__(error)
 
 # filter to request part childs
 class FilterChilds(Filter):
@@ -38,6 +43,21 @@ class FilterSymbols(Filter):
         
         return request.filter(symbol_id__in=symbols_ids)
 
+class FilterTextSearch(Filter):
+    def __init__(self, value):
+        self.value = value
+        super(FilterTextSearch, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(
+                    Q(name__contains=self.value) |
+                    Q(description__contains=self.value) |
+                    Q(comment__contains=self.value)
+                )
+
+    def __str__(self):
+        return f"search: {self.value}"
+
 def _add_default_annotations(request):
     # add the field child_count in request result 
     request = request.select_related('category', 'footprint', 'symbol') # preload for performance
@@ -55,6 +75,18 @@ def find(filters=[]):
     return request.order_by('id').all()
 
 def save(part):
+    
+    childs = {}
+    for child in part.childs.add_pendings():
+        childs[child.id] = child
+    for childid in childs:
+        for childchild in childs[childid].childs.all():
+            if childchild.id not in childs:
+                childs[childchild.id] = childchild
+
+    if part.id in childs:
+        raise PartException("Recursive equivalence detected, a part can not contain itself as an equivalent part")
+
     part.save()
     
     

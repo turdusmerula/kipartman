@@ -25,7 +25,7 @@ class PartCategory(helper.tree.TreeContainerLazyItem):
 
     def Load(self, manager):
         for childcategory in api.data.part_category.find_childs(self.category):
-            childcategoryobj = manager.FindCategory(childcategory.id)
+            childcategoryobj = self.FindCategoryChild(childcategory)
             if childcategoryobj is None:
                 manager.Append(self, PartCategory(childcategory))
             else:

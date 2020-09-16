@@ -1,147 +1,15 @@
 from dialogs.panel_part_list import PanelPartList
 import frames.edit_part_frame
+from frames.select_part_frame import SelectPartFrame, EVT_SELECT_PART_OK_EVENT
+from frames.dropdown_dialog import DropdownDialog
+from frames.models.tree_manager_parts import PartCategory, Part, TreeManagerParts
 import api.data.part
-import helper.tree
 import helper.filter
 from helper.log import log
 from helper.profiler import Trace
-import os
 import wx
 from helper.exception import print_stack
 
-class PartCategory(helper.tree.TreeContainerItem):
-    def __init__(self, category):
-        super(PartCategory, self).__init__()
-        self.category = category
-        
-    def GetValue(self, col):
-        if col==0:
-            return self.category.id
-        elif col==1:
-            return self.category.path
-
-        return ""
-
-    def GetAttr(self, col, attr):
-        if col==1:
-            attr.Bold = True
-        return True
-
-    def IsEnabled(self, col):
-        return False
-
-class Part(helper.tree.TreeContainerLazyItem):
-    def __init__(self, part):
-        self.part = part
-        
-        super(Part, self).__init__()
-        
-    def GetValue(self, col):
-        if col==0:
-            return self.part.id
-        elif col==1:
-            return self.part.name
-        elif col==2:
-            return self.part.description
-        elif col==3:
-            return self.part.comment
-        elif col==4:
-            if self.part.symbol:
-                return self.part.symbol.name
-        elif col==5:
-            footprint = ""
-            if self.part.footprint:
-                footprint = os.path.basename(self.part.footprint.source_path).replace('.kicad_mod', '')
-            return footprint
-
-        return ""
-
-    def Load(self, manager):
-        for child in api.data.part.find([api.data.part.FilterChilds(self.part)]):
-            manager.Append(self, Part(child))
-    
-    def HasChilds(self):
-        if self.part.child_count>0:
-            return True
-        return False
-    
-class TreeManagerParts(helper.tree.TreeManager):
-
-    def __init__(self, tree_view, *args, filters, **kwargs):
-        model = TreeModelPart()
-        super(TreeManagerParts, self).__init__(tree_view, model, *args, **kwargs)
-
-        self.filters = filters
-        
-        self.flat = False
-
-    def Load(self):
-        
-        self.SaveState()
-        
-        if self.flat:
-            self.LoadFlat()
-        else:
-            self.LoadTree()
-        
-        self.PurgeState()
-
-
-    def LoadFlat(self):
-        for part in api.data.part.find(filters=self.filters.get_filters()):
-            partobj = self.FindPart(part.id)
-            if partobj is None:
-                partobj = Part(part)
-                self.Append(None, partobj)
-            else:
-                partobj.part = part
-                self.Update(partobj)
-            
-    def LoadTree(self):
-        for part in api.data.part.find(filters=self.filters.get_filters()):
-            partobj = self.FindPart(part.id)
-            
-            if part.category is not None:
-                categoryobj = self.FindCategory(part.category.id)
-                 
-                if categoryobj is None:
-                    categoryobj = PartCategory(part.category)
-                    self.Append(None, categoryobj)
-                else:
-                    categoryobj.category = part.category
-                    self.Update(categoryobj)
-            else:
-                categoryobj = None
-                
-            if partobj is None:
-                partobj = Part(part)
-                self.Append(categoryobj, partobj)
-            else:
-                partobj.part = part
-                self.Update(partobj)
-    
-    def FindPart(self, id):
-        for data in self.data:
-            if isinstance(data, Part) and ( isinstance(data.parent, PartCategory) or data.parent is None ) and data.part.id==id:
-                return data
-        return None
-    
-    def FindCategory(self, id):
-        for data in self.data:
-            if isinstance(data, PartCategory) and data.category.id==id:
-                return data
-        return None
-
-    def FindCategories(self,):
-        res = []
-        for data in self.data:
-            if isinstance(data, PartCategory):
-                res.append(data)
-        return res
-
-class TreeModelPart(helper.tree.TreeModel):
-    def __init__(self):
-        super(TreeModelPart, self).__init__()
 
 (EnterEditModeEvent, EVT_ENTER_EDIT_MODE) = wx.lib.newevent.NewEvent()
 (ExitEditModeEvent, EVT_EXIT_EDIT_MODE) = wx.lib.newevent.NewEvent()
@@ -156,12 +24,6 @@ class PartListFrame(PanelPartList):
         
         # create part list
         self.tree_parts_manager = TreeManagerParts(self.tree_parts, context_menu=self.menu_part, filters=self.Filters)
-        self.tree_parts_manager.AddIntegerColumn("id")
-        self.tree_parts_manager.AddTextColumn("name")
-        self.tree_parts_manager.AddTextColumn("description")
-        self.tree_parts_manager.AddIntegerColumn("comment")
-        self.tree_parts_manager.AddTextColumn("symbol")
-        self.tree_parts_manager.AddTextColumn("footprint")
         self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
         self.tree_parts_manager.OnItemBeforeContextMenu = self.onTreePartsBeforeContextMenu
 
@@ -350,8 +212,37 @@ class PartListFrame(PanelPartList):
         event.Skip()
 
     def onMenuPartAppendEquivalentPart( self, event ):
-        event.Skip()
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, Part)==False:
+            return
 
+        dropdown = DropdownDialog(self, SelectPartFrame, "")
+        dropdown.panel.Bind( EVT_SELECT_PART_OK_EVENT, self.onSelectEquivalentPartCallback )
+        dropdown.Dropdown()
+
+    def onSelectEquivalentPartCallback(self, event):
+        print("---", event.data)
+        item = self.tree_parts.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_parts_manager.ItemToObject(item)
+        if isinstance(obj, Part)==False:
+            return
+
+        try:
+            child = event.data
+            obj.part.childs.add_pending(child)
+            api.data.part.save(obj.part)
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+            return
+
+        self.tree_parts_manager.Load()
+        
     def onEditPartApply( self, event ):
         part = event.part
         new_part = part.id is None
