@@ -84,7 +84,7 @@ class PanelEditSymbol ( wx.Panel ):
 		button_symbol_edit.AddButton( self.button_symbol_editCancel )
 		button_symbol_edit.Realize();
 
-		bSizer15.Add( button_symbol_edit, 0, wx.EXPAND|wx.BOTTOM, 5 )
+		bSizer15.Add( button_symbol_edit, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )
 
 
 		self.m_panel7.SetSizer( bSizer15 )

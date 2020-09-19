@@ -112,6 +112,7 @@ class PanelSymbolList ( wx.Panel ):
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.Bind( wx.EVT_TOOL, self.onToggleSymbolPathClicked, id = self.toggle_symbol_path.GetId() )
+		self.search_symbols.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchSymbolsCancel )
 		self.search_symbols.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchSymbolsButton )
 		self.search_symbols.Bind( wx.EVT_TEXT_ENTER, self.onSearchSymbolsTextEnter )
 		self.button_refresh_symbols.Bind( wx.EVT_BUTTON, self.onButtonRefreshSymbolsClick )
@@ -128,6 +129,9 @@ class PanelSymbolList ( wx.Panel ):
 		event.Skip()
 
 	def onToggleSymbolPathClicked( self, event ):
+		event.Skip()
+
+	def onSearchSymbolsCancel( self, event ):
 		event.Skip()
 
 	def onSearchSymbolsButton( self, event ):

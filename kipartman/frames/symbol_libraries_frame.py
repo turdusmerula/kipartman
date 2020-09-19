@@ -64,6 +64,8 @@ class TreeManagerLibraries(helper.tree.TreeManager):
          
         self.SaveState()
         
+        self.library_manager.Load()
+        
         for folder in self.library_manager.Folders:
             pathobj = self.FindPath(folder)
             if pathobj is None:

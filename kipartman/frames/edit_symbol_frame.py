@@ -16,6 +16,7 @@ import datetime
 import json
 from helper.exception import print_stack
 from helper.log import log
+from helper import colors
 
 EditSymbolApplyEvent, EVT_EDIT_SYMBOL_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditSymbolCancelEvent, EVT_EDIT_SYMBOL_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -150,6 +151,7 @@ class EditSymbolFrame(PanelEditSymbol):
         wx.PostEvent(self, event)
     
     def onTextEditSymbolNameText( self, event ):
+#         self.symbol.symbol_file.
         event.Skip()
 
     def onTextEditSymbolDescriptionText( self, event ):
@@ -162,80 +164,80 @@ class EditSymbolFrame(PanelEditSymbol):
         dropdown.panel.Bind( EVT_SELECT_SNAPEDA_OK_EVENT, self.onSelectSnapedaFrameOk )
         dropdown.Dropdown()
 
-    def onSelectSnapedaFrameOk(self, event):
-        snapeda = event.data
-        if not snapeda:
-            return
-        log.debug(snapeda.json)
-        
-        self.edit_symbol_name.Value = snapeda.name()
-        self.edit_symbol_description.Value = snapeda.short_description()
-        self.snapeda_uid = snapeda.uniqueid()
-        
-        try:
-            download = DownloadQuery()
-            download.get(part_number=snapeda.name(), 
-                               manufacturer=snapeda.manufacturer(),
-                               uniqueid=snapeda.uniqueid(),
-                               has_symbol='True',
-                               has_footprint='False')
-            if download.error():
-                wx.MessageBox(download.error(), 'Error downloading symbol', wx.OK | wx.ICON_ERROR)
-                
-        except Exception as e:
-            print_stack()
-            log.error(format(e))
-            DialogSnapedaError(self).ShowModal()
-            return
-        
-        self.button_open_url_snapeda.Label = "https://www.snapeda.com"+snapeda._links().self().href()
-
-        # download symbol
-        if download.url() and download.url()!='':
-            try:
-                file =  tempfile.NamedTemporaryFile(mode='w+b', delete=False)
-                filename = file.name
-                log.info("Download from:", download.url())
-                content = scraper.get(download.url()).content
-                file.write(content)
-                file.close()
-            except:
-                print_stack()
-                wx.MessageBox(download.url(), 'Error loading symbol', wx.OK | wx.ICON_ERROR)
-                return
-                
-            # unzip file
-            try:
-                zip_ref = zipfile.ZipFile(filename, 'r')
-                zip_ref.extractall(filename+".tmp")
-                zip_ref.close()
-            except Exception as e:
-                print_stack()
-                wx.MessageBox(format(e), 'Error unziping symbol', wx.OK | wx.ICON_ERROR)
-
-            self.symbol.content = ''
-            for file in glob.glob(filename+".tmp/*"):
-                if file.endswith(".lib"):
-                    lib = KicadLibCache(filename+".tmp")
-                    symbols = lib.read_lib_file(os.path.basename(file))
-                    if len(symbols)>0:
-                        for symbol in symbols:
-                            self.symbol.content = symbols[symbol].content
-                            break
-                    
-                    mod = kicad_lib_file.KicadLibFile()
-                    mod.LoadFile(file)
-                    image_file = tempfile.NamedTemporaryFile()
-                    mod.Render(image_file.name, self.panel_image_symbol.GetRect().width, self.panel_image_symbol.GetRect().height)
-                    img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
-                    image_file.close()
-                    img = img.ConvertToBitmap()
-                    self.bitmap_edit_symbol.SetBitmap(img)
-            
-            self.symbol.md5 = hash.md5(self.symbol.content).hexdigest()
-
-        # download 3D symbol
-        #TODO
+#     def onSelectSnapedaFrameOk(self, event):
+#         snapeda = event.data
+#         if not snapeda:
+#             return
+#         log.debug(snapeda.json)
+#         
+#         self.edit_symbol_name.Value = snapeda.name()
+#         self.edit_symbol_description.Value = snapeda.short_description()
+#         self.snapeda_uid = snapeda.uniqueid()
+#         
+#         try:
+#             download = DownloadQuery()
+#             download.get(part_number=snapeda.name(), 
+#                                manufacturer=snapeda.manufacturer(),
+#                                uniqueid=snapeda.uniqueid(),
+#                                has_symbol='True',
+#                                has_footprint='False')
+#             if download.error():
+#                 wx.MessageBox(download.error(), 'Error downloading symbol', wx.OK | wx.ICON_ERROR)
+#                 
+#         except Exception as e:
+#             print_stack()
+#             log.error(format(e))
+#             DialogSnapedaError(self).ShowModal()
+#             return
+#         
+#         self.button_open_url_snapeda.Label = "https://www.snapeda.com"+snapeda._links().self().href()
+# 
+#         # download symbol
+#         if download.url() and download.url()!='':
+#             try:
+#                 file =  tempfile.NamedTemporaryFile(mode='w+b', delete=False)
+#                 filename = file.name
+#                 log.info("Download from:", download.url())
+#                 content = scraper.get(download.url()).content
+#                 file.write(content)
+#                 file.close()
+#             except:
+#                 print_stack()
+#                 wx.MessageBox(download.url(), 'Error loading symbol', wx.OK | wx.ICON_ERROR)
+#                 return
+#                 
+#             # unzip file
+#             try:
+#                 zip_ref = zipfile.ZipFile(filename, 'r')
+#                 zip_ref.extractall(filename+".tmp")
+#                 zip_ref.close()
+#             except Exception as e:
+#                 print_stack()
+#                 wx.MessageBox(format(e), 'Error unziping symbol', wx.OK | wx.ICON_ERROR)
+# 
+#             self.symbol.content = ''
+#             for file in glob.glob(filename+".tmp/*"):
+#                 if file.endswith(".lib"):
+#                     lib = KicadLibCache(filename+".tmp")
+#                     symbols = lib.read_lib_file(os.path.basename(file))
+#                     if len(symbols)>0:
+#                         for symbol in symbols:
+#                             self.symbol.content = symbols[symbol].content
+#                             break
+#                     
+#                     mod = kicad_lib_file.KicadLibFile()
+#                     mod.LoadFile(file)
+#                     image_file = tempfile.NamedTemporaryFile()
+#                     mod.Render(image_file.name, self.panel_image_symbol.GetRect().width, self.panel_image_symbol.GetRect().height)
+#                     img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
+#                     image_file.close()
+#                     img = img.ConvertToBitmap()
+#                     self.bitmap_edit_symbol.SetBitmap(img)
+#             
+#             self.symbol.md5 = hash.md5(self.symbol.content).hexdigest()
+# 
+#         # download 3D symbol
+#         #TODO
                         
     def onButtonOpenUrlSnapedaClick( self, event ):
         if self.button_open_url_snapeda.Label!="<None>":

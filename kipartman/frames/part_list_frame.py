@@ -61,7 +61,7 @@ class PartListFrame(PanelPartList):
     def EditMode(self):
         return self._edit_mode
     
-    @Flat.setter
+    @EditMode.setter
     def EditMode(self, value):
         self._edit_mode = value
         if self._edit_mode:
