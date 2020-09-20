@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!

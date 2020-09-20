@@ -2,6 +2,7 @@ from dialogs.dialog_main import DialogMain
 # from frames.buy_frame import BuyFrame
 from frames.parts_frame import PartsFrame
 from frames.symbols_frame import SymbolsFrame
+from frames.footprints_frame import FootprintsFrame
 # from frames.footprints_frame import FootprintsFrame
 # from frames.modules_frame import ModulesFrame
 # from frames.distributors_frame import DistributorsFrame
@@ -60,6 +61,11 @@ class MainFrame(DialogMain):
         symbols_frame = SymbolsFrame(self.notebook)
         self.pages.append(symbols_frame)
         self.notebook.AddPage(symbols_frame, "symbols", False)
+
+    def onMenuViewFootprintsSelection( self, event ):
+        footprints_frame = FootprintsFrame(self.notebook)
+        self.pages.append(footprints_frame)
+        self.notebook.AddPage(footprints_frame, "footprints", False)
 
     def onMenuViewTestSelection( self, event ):
         from frames.test_frame import TestFrame

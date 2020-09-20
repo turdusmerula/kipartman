@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -112,6 +112,7 @@ class PanelFootprintList ( wx.Panel ):
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.Bind( wx.EVT_TOOL, self.onToggleFootprintPathClicked, id = self.toggle_footprint_path.GetId() )
+		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchFootprintsCancel )
 		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintsButton )
 		self.search_footprints.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintsTextEnter )
 		self.button_refresh_footprints.Bind( wx.EVT_BUTTON, self.onButtonRefreshFootprintsClick )
@@ -128,6 +129,9 @@ class PanelFootprintList ( wx.Panel ):
 		event.Skip()
 
 	def onToggleFootprintPathClicked( self, event ):
+		event.Skip()
+
+	def onSearchFootprintsCancel( self, event ):
 		event.Skip()
 
 	def onSearchFootprintsButton( self, event ):

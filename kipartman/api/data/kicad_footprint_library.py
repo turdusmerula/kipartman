@@ -1,4 +1,4 @@
-from api.models import Library
+from api.models import KicadFootprintLibrary
 from django.db.models import Count
 from helper.filter import Filter
 
@@ -14,7 +14,7 @@ class FilterPath(Filter):
         return f"path: {self.path}"
 
 def find(filters=[]):
-    request = Library.objects
+    request = KicadFootprintLibrary.objects
         
     for filter in filters:
         request = filter.apply(request)
@@ -22,7 +22,7 @@ def find(filters=[]):
     return request.order_by('id').all()
 
 def create():
-    library = Library()
+    library = KicadFootprintLibrary()
     
     return library
 

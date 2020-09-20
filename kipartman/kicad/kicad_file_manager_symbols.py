@@ -22,9 +22,9 @@ def cut_path(path):
         return []
     return res
 
-class KicadLibraryException(Exception):
+class KicadSymbolLibraryException(Exception):
     def __init__(self, error):
-        super(KicadLibraryException, self).__init__(error)
+        super(KicadSymbolLibraryException, self).__init__(error)
 
 class KicadSymbolFile():
     def __init__(self, library, name, content, metadata=""):
@@ -67,9 +67,9 @@ class KicadSymbolFile():
         return self._changed_dcm
 
 #     def _
-class KicadLibraryFile(File):
+class KicadSymbolLibraryFile(File):
     def __init__(self, path):
-        super(KicadLibraryFile, self).__init__(path)
+        super(KicadSymbolLibraryFile, self).__init__(path)
         self._symbols = []
         
         if os.path.exists(self.AbsPath)==False:
@@ -144,14 +144,14 @@ class KicadLibraryFile(File):
     
     def AddSymbol(self, symbol):
         if self.HasSymbol(symbol.Name):
-            raise KicadLibraryException(f"Symbol {symbol.Name} already exists in {self.Path}")
+            raise KicadSymbolLibraryException(f"Symbol {symbol.Name} already exists in {self.Path}")
         self._symbols.append(symbol)
         symbol._library = self
         self._changed = True
         
     def RemoveSymbol(self, symbol):
         if self.HasSymbol(symbol.name)==False:
-            raise KicadLibraryException(f"Symbol {symbol.name} does not exists in {self.Path}")
+            raise KicadSymbolLibraryException(f"Symbol {symbol.name} does not exists in {self.Path}")
         for s in self._symbols:
             if s.Name==symbol.Name:
                 self._symbols.remove(s)
@@ -178,7 +178,17 @@ class KicadLibraryFile(File):
                 name = line.split(' ')[1]
             elif line.startswith("ENDDEF"):
                 content += line
-                self._symbols.append(KicadSymbolFile(self, name, content))
+                
+                dup = ""
+                dupn = 1
+                for symbol in self._symbols:
+                    if symbol.Name==name+dup:
+                        dup = f"_{dupn}"
+                        dupn += 1
+                if dup!="":
+                    log.info(f"duplication found in '{self.Path}', renamed to '{name+dup}'")
+                    
+                self._symbols.append(KicadSymbolFile(self, name+dup, content))
                 content = ''
             else:
                 content += line
@@ -213,7 +223,7 @@ class KicadLibraryFile(File):
         self._loaded_dcm = True
 
     def _save_lib_file(self, mtime=None):
-        log.debug(f"KicadLibraryFile._save_lib_file {self.AbsPath}")
+        log.debug(f"KicadSymbolLibraryFile._save_lib_file {self.AbsPath}")
 
         os.makedirs(os.path.dirname(self.AbsPath), exist_ok=True)
         with open(self.AbsPath, 'w', encoding='utf-8') as file:
@@ -235,7 +245,7 @@ class KicadLibraryFile(File):
             os.utime(self.AbsPath, (mtime, mtime))
 
     def _save_metadata_file(self, mtime=None):
-        log.debug(f"KicadLibraryFile._save_metadata_file {self.AbsDcmPath}")
+        log.debug(f"KicadSymbolLibraryFile._save_metadata_file {self.AbsDcmPath}")
         os.makedirs(os.path.dirname(self.AbsDcmPath), exist_ok=True)
         with open(self.AbsDcmPath, 'w', encoding='utf-8') as file:
             # TODO add generated from kicad
@@ -329,7 +339,7 @@ class KicadSymbol():
             log.info(f"added symbol '{self.Name}' in file '{self._library.library_file.Path}' from database")
         elif self.symbol_file is not None and self.symbol_model is None:
             # symbol exists in file but not in database
-            self.symbol_model = api.data.library_symbol.create()
+            self.symbol_model = api.data.kicad_symbol.create()
             self.symbol_model.library = self._library.library_model
             self.symbol_model.name = self.symbol_file.Name
             self.symbol_model.content = self.symbol_file.Content
@@ -337,7 +347,7 @@ class KicadSymbol():
             self._library.library_model.symbols.add_pending(self.symbol_model)
             model_changed = True
             log.info(f"added symbol '{self.Name}' in database from file '{self._library.library_file.Path}'")
-        elif self.symbol_file.Content!=self.symbol_model.content:
+        elif self.symbol_file._content!=self.symbol_model.content or self.symbol_file._metadata!=self.symbol_model.metadata:
             delta = self._library.library_file.MtimeLib-self._library.library_model.mtime_lib
 
             if delta<=-DELTA_FILE:
@@ -390,7 +400,7 @@ class KicadSymbol():
         res += ")"
         return res
 
-class KicadLibrary():
+class KicadSymbolLibrary():
     """
     This object is the bridge between library file and library record in database
     """
@@ -402,7 +412,7 @@ class KicadLibrary():
         self._symbols = []
     
         if library_file is None and library_model is None:
-            raise KicadLibraryException("Missing a file or a model for library")
+            raise KicadSymbolLibraryException("Missing a file or a model for library")
         
         self._load_symbols()
         
@@ -445,7 +455,7 @@ class KicadLibrary():
 
 #     def _library_file_to_model(self):
 #         if self.library_model is None:
-#             self.library_model = api.data.library.create()
+#             self.library_model = api.data.kicad_symbol_library.create()
 #     
 #         # fill library_model fields
 #         self.library_model.path = self.library_file.Path
@@ -457,7 +467,7 @@ class KicadLibrary():
 #             
 #             
 #             if symbolmodel is None:
-#                 symbolmodel = api.data.library_symbol.create()
+#                 symbolmodel = api.data.kicad_symbol.create()
 #             
 #             # fill symbol fiels
 #             symbolmodel.name = symbolfile.Name
@@ -471,7 +481,7 @@ class KicadLibrary():
 #     def _library_model_to_file(self, library_model, library_file=None):
 #         if library_file is None:
 #             # create it on disk
-#             library_file = KicadLibraryFile(path=library_model.path)
+#             library_file = KicadSymbolLibraryFile(path=library_model.path)
 # 
 #         # add symbols
 #         for symbolmodel in self.library_model.symbols.all():
@@ -491,17 +501,17 @@ class KicadLibrary():
         if self.library_file is None and self.library_model is not None:
             # library exists in database but not on disk
             # create it on disk
-            self.library_file = KicadLibraryFile(path=self.library_model.path)            
+            self.library_file = KicadSymbolLibraryFile(path=self.library_model.path)            
             self.library_file.Save(self.library_model.mtime_lib, self.library_model.mtime_dcm)
             log.info(f"created file '{self.library_file.path}'")
             
         elif self.library_file is not None and self.library_model is None:
             # library exists on disk but not in database
-            self.library_model = api.data.library.create()
+            self.library_model = api.data.kicad_symbol_library.create()
             self.library_model.path = self.library_file.Path
             self.library_model.mtime_lib = self.library_file.MtimeLib
             self.library_model.mtime_dcm = self.library_file.MtimeDcm
-            api.data.library.save(self.library_model)
+            api.data.kicad_symbol_library.save(self.library_model)
             log.info(f"created '{self.library_file.path}' in database")
     
         # at this point both library_file and library_model are presents
@@ -523,13 +533,13 @@ class KicadLibrary():
         if model_changed:
             self.library_model.mtime_lib = self.library_file.MtimeLib
             self.library_model.mtime_dcm = self.library_file.MtimeDcm
-            api.data.library.save(self.library_model)
+            api.data.kicad_symbol_library.save(self.library_model)
             log.info(f"updated '{self.library_model.path}' in database")
             
         log.debug(f"'{self.Path}' symbols: {self._symbols}")
 
     def __repr__(self):
-        res = "<KicadLibrary> ("
+        res = "<KicadSymbolLibrary> ("
         if self.library_file:
             res += f"file={self.library_file.Path} "
         if self.library_model:
@@ -537,39 +547,39 @@ class KicadLibrary():
         res += ")"
         return res
     
-class KicadLibraryManager(KicadFileManager):
+class KicadSymbolLibraryManager(KicadFileManager):
     libraries = []
     folders = []
     loaded = False
     
     def __init__(self, owner):
-        super(KicadLibraryManager, self).__init__(owner=owner, path=configuration.kicad_symbols_path) #, extensions=["lib", "dcm"])
+        super(KicadSymbolLibraryManager, self).__init__(owner=owner, path=configuration.kicad_symbols_path) #, extensions=["lib", "dcm"])
         self._load()
 
     def Reload(self):
-        KicadLibraryManager.loaded = False
+        KicadSymbolLibraryManager.loaded = False
         self._load()
     
     def Load(self):
         self._load()
         
     def _load(self):
-        if KicadLibraryManager.loaded==False:
+        if KicadSymbolLibraryManager.loaded==False:
             self._load_file_libraries()
             self._load_model_libraries()
-            for library in KicadLibraryManager.libraries:
+            for library in KicadSymbolLibraryManager.libraries:
                 library._synchronize()
                 
-        KicadLibraryManager.loaded = True
+        KicadSymbolLibraryManager.loaded = True
         
     def _load_file_libraries(self):
         """
         Recurse all folders to find lib files
         """
-        log.debug(f"KicadLibraryManager._load_file_libraries")
+        log.debug(f"KicadSymbolLibraryManager._load_file_libraries")
         
-        libraries = KicadLibraryManager.libraries
-        folders = KicadLibraryManager.folders
+        libraries = KicadSymbolLibraryManager.libraries
+        folders = KicadSymbolLibraryManager.folders
         
         libraries.clear()
         folders.clear()
@@ -592,19 +602,19 @@ class KicadLibraryManager(KicadFileManager):
         for folder in folders:
             for lib in glob(os.path.join(basepath, folder, "*.lib")):
                 rel_folder = os.path.relpath(os.path.normpath(os.path.abspath(lib)), basepath)
-                libraries.append(KicadLibrary(library_file=KicadLibraryFile(rel_folder)))
+                libraries.append(KicadSymbolLibrary(library_file=KicadSymbolLibraryFile(rel_folder)))
         folders.remove('')
     
     def _load_model_libraries(self):
-        log.debug(f"KicadLibraryManager._load_model_libraries")
+        log.debug(f"KicadSymbolLibraryManager._load_model_libraries")
 
-        libraries = KicadLibraryManager.libraries
-        folders = KicadLibraryManager.folders
+        libraries = KicadSymbolLibraryManager.libraries
+        folders = KicadSymbolLibraryManager.folders
         
-        for library in api.data.library.find():
+        for library in api.data.kicad_symbol_library.find():
             libraryset = self._find_library(library.path)
             if libraryset is None:
-                libraryset = KicadLibrary(library_model=library)
+                libraryset = KicadSymbolLibrary(library_model=library)
                 libraries.append(libraryset)
             else:
                 libraryset.library_model = library
@@ -634,7 +644,7 @@ class KicadLibraryManager(KicadFileManager):
 
             
     def _find_library(self, path):
-        for library in KicadLibraryManager.libraries:
+        for library in KicadSymbolLibraryManager.libraries:
             if library.Path==path:
                 return library
         return None
@@ -645,16 +655,16 @@ class KicadLibraryManager(KicadFileManager):
 
     def _on_change_prehook(self, path):
 #         if path.endswith(".lib") or path.endswith(".dcm") :
-        KicadLibraryManager.loaded = False
+        KicadSymbolLibraryManager.loaded = False
         return True
         
     @property
     def Libraries(self):
-        return KicadLibraryManager.libraries
+        return KicadSymbolLibraryManager.libraries
 
     @property
     def Folders(self):
-        return KicadLibraryManager.folders
+        return KicadSymbolLibraryManager.folders
 
     def CreateFolder(self, path):
         abspath = os.path.join(configuration.kicad_symbols_path, path)
@@ -678,12 +688,12 @@ class KicadLibraryManager(KicadFileManager):
         log.info(f"moved folder '{abspath}' to '{newabspath}'")
         
         # edit database
-        libraries = api.data.library.find()
+        libraries = api.data.kicad_symbol_library.find()
         for library in libraries:
             if library.path.startswith(path+os.sep):
                 previous_path = library.path
                 library.path = re.sub(f"^{path}", f"{newpath}", library.path)
-                api.data.library.save(library)
+                api.data.kicad_symbol_library.save(library)
                 log.info(f"moved library '{previous_path}' to '{library.path}'")
         
     def CreateLibrary(self, path):
@@ -691,12 +701,12 @@ class KicadLibraryManager(KicadFileManager):
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Library '{path}' already exists")
         
-        library_file = KicadLibraryFile(path)
+        library_file = KicadSymbolLibraryFile(path)
         self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=library_file.Save)
         
-        library = KicadLibrary(library_file)
+        library = KicadSymbolLibrary(library_file)
         
-        KicadLibraryManager.libraries.append(library)
+        KicadSymbolLibraryManager.libraries.append(library)
 
         return library
 
@@ -716,7 +726,7 @@ class KicadLibraryManager(KicadFileManager):
         self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
         
         library.library_model.path = os.path.join(newpath, newname)
-        api.data.library.save(library.library_model)
+        api.data.kicad_symbol_library.save(library.library_model)
         
         log.info(f"library '{previousname}' renamed to '{os.path.join(newpath, newname)}'")
 

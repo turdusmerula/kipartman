@@ -2,7 +2,7 @@ from dialogs.panel_select_symbol import PanelSelectSymbol
 import helper.tree
 import wx
 import os
-from kicad.kicad_file_manager_symbols import KicadLibraryManager
+from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager
 import kicad.kicad_file_manager
 from kicad import kicad_lib_file
 import tempfile
@@ -120,7 +120,7 @@ class SelectSymbolFrame(PanelSelectSymbol):
         super(SelectSymbolFrame, self).__init__(parent)
         
         # react to file change
-        self.library_manager = KicadLibraryManager(self)
+        self.library_manager = KicadSymbolLibraryManager(self)
         self.Bind( kicad.kicad_file_manager.EVT_FILE_CHANGED, self.onFileLibChanged )
 
         # symbols filters

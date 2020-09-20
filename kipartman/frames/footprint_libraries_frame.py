@@ -1,10 +1,10 @@
-from dialogs.panel_symbol_libraries import PanelSymbolLibraries
-# from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_SYMBOL_APPLY_EVENT, EVT_EDIT_SYMBOL_CANCEL_EVENT
-from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager
+from dialogs.panel_footprint_libraries import PanelFootprintLibraries
+# from frames.edit_footprint_frame import EditFootprintFrame, EVT_EDIT_FOOTPRINT_APPLY_EVENT, EVT_EDIT_FOOTPRINT_CANCEL_EVENT
+from kicad.kicad_file_manager_footprints import KicadFootprintLibraryManager
 import kicad.kicad_file_manager
 import helper.tree
 import os
-import api.data.kicad_symbol_library
+import api.data.kicad_footprint_library
 import wx
 from helper.exception import print_stack
 from helper.log import log
@@ -118,12 +118,12 @@ class TreeManagerLibraries(helper.tree.TreeManager):
 
 (SelectLibraryEvent, EVT_SELECT_LIBRARY) = wx.lib.newevent.NewEvent()
 
-class SymbolLibrariesFrame(PanelSymbolLibraries): 
+class FootprintLibrariesFrame(PanelFootprintLibraries): 
     def __init__(self, *args, **kwargs):
-        super(SymbolLibrariesFrame, self).__init__(*args, **kwargs)
+        super(FootprintLibrariesFrame, self).__init__(*args, **kwargs)
 
         # react to file change 
-        self.library_manager = KicadSymbolLibraryManager(self)
+        self.library_manager = KicadFootprintLibraryManager(self)
         self.Bind( kicad.kicad_file_manager.EVT_FILE_CHANGED, self.onFileLibChanged )
 
         # create libraries data
@@ -299,12 +299,12 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
             elif library.Path.startswith(path+os.sep):
                 libraries_to_remove.append(library)
 
-        symbols_to_remove = []
+        footprints_to_remove = []
         for library in libraries_to_remove:
-            for symbol in library.Symbols:
-                symbols_to_remove.append(symbol.symbol_model)
+            for footprint in library.Footprints:
+                footprints_to_remove.append(footprint.footprint_model)
         
-        associated_parts = api.data.part.find([api.data.part.FilterSymbols(symbols_to_remove)])
+        associated_parts = api.data.part.find([api.data.part.FilterFootprints(footprints_to_remove)])
         if len(associated_parts.all())>0:
             dlg = wx.MessageDialog(self, f"There is {len(associated_parts.all())} parts associated with selection, remove anyway?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
         else:
@@ -326,7 +326,7 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
 
         dlg.Destroy()
 
-    def onMenuLibrariesAddSymbol( self, event ):
+    def onMenuLibrariesAddFootprint( self, event ):
         item = self.tree_libraries.GetSelection()
         if item.IsOk()==False:
             return
@@ -335,7 +335,7 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
             return
 # 
 #         self.edit_state = 'add'
-#         self.new_symbol(obj.path)
+#         self.new_footprint(obj.path)
         event.Skip()
 
     def onTreeLibrariesBeforeContextMenu( self, event ):
@@ -346,8 +346,8 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
 
         self.menu_libraries_add_folder.Enable(True)
         self.menu_libraries_add_library.Enable(True)
-        self.menu_libraries_add_symbol.Enable(True)
+        self.menu_libraries_add_footprint.Enable(True)
         if isinstance(obj, Library)==False:
-            self.menu_libraries_add_symbol.Enable(False)
+            self.menu_libraries_add_footprint.Enable(False)
 
         event.Skip()

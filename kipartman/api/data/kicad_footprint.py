@@ -1,4 +1,4 @@
-from api.models import LibrarySymbol
+from api.models import KicadFootprint
 from helper.filter import Filter
 
 class FilterPath(Filter):
@@ -19,7 +19,7 @@ def _add_default_annotations(request):
     return request
 
 def find(filters=[]):
-    request = LibrarySymbol.objects
+    request = KicadFootprint.objects
     
     request = _add_default_annotations(request)
     
@@ -29,6 +29,6 @@ def find(filters=[]):
     return request.order_by('id').all()
 
 def create():
-    symbol = LibrarySymbol()
+    footprint = KicadFootprint()
     
-    return symbol
+    return footprint

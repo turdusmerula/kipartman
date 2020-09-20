@@ -172,6 +172,20 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">Footprints</property>
+                        <property name="name">menu_view_footprints</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection">onMenuViewFootprintsSelection</event>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help"></property>
+                        <property name="id">wxID_ANY</property>
+                        <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">Test</property>
                         <property name="name">menu_view_test</property>
                         <property name="permission">none</property>

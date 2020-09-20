@@ -340,7 +340,7 @@ class Part(models.Model):
     comment = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('VersionedFile', related_name='footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    symbol = models.ForeignKey('LibrarySymbol', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    symbol = models.ForeignKey('KicadSymbol', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     childs = models.ManyToManyField('Part', blank=True)
     #parameters is defined inside PartParameter by ForeignKey part
     #offers is defined inside PartOffer by ForeignKey part
@@ -469,7 +469,7 @@ class Distributor(models.Model):
         return '%d: %s' % (self.id, self.name)
 
 
-class Library(models.Model):
+class KicadSymbolLibrary(models.Model):
     path = models.TextField(blank=True, default='')
     #symbols is defined inside PartParameter by ForeignKey part
     mtime_lib = models.FloatField()
@@ -479,8 +479,8 @@ class Library(models.Model):
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
-class LibrarySymbol(models.Model):
-    library = models.ForeignKey('Library', related_name='symbols', null=False, blank=False, default=None, on_delete=models.CASCADE)
+class KicadSymbol(models.Model):
+    library = models.ForeignKey('KicadSymbolLibrary', related_name='symbols', null=False, blank=False, default=None, on_delete=models.CASCADE)
     name = models.TextField()
     content = models.TextField()
     metadata = models.TextField()
@@ -489,6 +489,24 @@ class LibrarySymbol(models.Model):
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
 
+
+class KicadFootprintLibrary(models.Model):
+    path = models.TextField(blank=True, default='')
+    #footprints is defined inside PartParameter by ForeignKey part
+    mtime_lib = models.FloatField()
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
+
+class KicadFootprint(models.Model):
+    library = models.ForeignKey('KicadFootprintLibrary', related_name='footprints', null=False, blank=False, default=None, on_delete=models.CASCADE)
+    name = models.TextField()
+    content = models.TextField()
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __unicode__(self):
+        return '%d: %s' % (self.id, self.name)
 
 
 class File(models.Model):

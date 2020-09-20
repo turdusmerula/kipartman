@@ -3,10 +3,10 @@ import frames.edit_symbol_frame
 import os
 import helper.tree
 import helper.filter
-from kicad.kicad_file_manager_symbols import KicadLibraryManager, KicadSymbolFile, KicadSymbol
+from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager, KicadSymbolFile, KicadSymbol
 import kicad.kicad_file_manager
-import api.data.library
-import api.data.library_symbol
+import api.data.kicad_symbol_library
+import api.data.kicad_symbol
 from helper.log import log
 from builtins import isinstance
 import wx
@@ -168,7 +168,7 @@ class TreeManagerSymbols(helper.tree.TreeManager):
         self.Append(libraryobj, symbolobj)
         return symbolobj
  
-class FilterLibraryPath(api.data.library_symbol.FilterPath):
+class FilterLibraryPath(api.data.kicad_symbol_library.FilterPath):
     def __init__(self, path):
         super(FilterLibraryPath, self).__init__(path)
     
@@ -186,7 +186,7 @@ class SymbolListFrame(PanelSymbolList):
         super(SymbolListFrame, self).__init__(*args, **kwargs)
 
         # react to file change
-        self.library_manager = KicadLibraryManager(self)
+        self.library_manager = KicadSymbolLibraryManager(self)
         self.Bind( kicad.kicad_file_manager.EVT_FILE_CHANGED, self.onFileLibChanged )
 
         # symbols filters

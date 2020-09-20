@@ -466,6 +466,7 @@
                                                                             <property name="window_extra_style"></property>
                                                                             <property name="window_name"></property>
                                                                             <property name="window_style"></property>
+                                                                            <event name="OnCancelButton">onSearchFootprintsCancel</event>
                                                                             <event name="OnSearchButton">onSearchFootprintsButton</event>
                                                                             <event name="OnTextEnter">onSearchFootprintsTextEnter</event>
                                                                         </object>
