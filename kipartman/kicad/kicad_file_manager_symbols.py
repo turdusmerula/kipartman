@@ -100,10 +100,6 @@ class KicadSymbolLibraryFile(File):
 
     @property
     def Symbols(self):
-#         self._read_lib_file()
-#         self._read_metadata_file()
-#         if self._loaded_lib==False:
-#         if self._loaded_dcm==False:
         return self._symbols
 
     @property
@@ -324,7 +320,12 @@ class KicadSymbol():
             return self._get_metadata(self.symbol_model.metadata, "D")
         return self._get_metadata(self.symbol_file.Metadata, "D")
     
-    
+    @property
+    def Metadata(self):
+        if self.symbol_model is not None:
+            return self.symbol_model.metadata
+        return self.symbol_file.Metadata
+        
     def _synchronize(self):
         file_changed = False
         model_changed = False
@@ -353,6 +354,9 @@ class KicadSymbol():
             if delta<=-DELTA_FILE:
                 # database is newer than file
                 self.symbol_file._content = self.symbol_model.content
+                self.symbol_file._content = self._set_content(self.symbol_file._content, "DEF", self.Name)
+                self.symbol_file._content = self._set_content(self.symbol_file._content, "F1", f'"{self.Name}'"")
+                
                 self.symbol_file._changed_lib = True
                 file_changed = True
                 log.info(f"updated symbol '{self.Name}' in file '{self._library.library_file.Path}' from database")
@@ -368,6 +372,8 @@ class KicadSymbol():
             if delta<=-DELTA_FILE:
                 # database is newer than file
                 self.symbol_file._metadata = self.symbol_model.metadata
+                self.symbol_file._metadata = self._set_metadata(self.symbol_file._metadata, "$CMP", self.Name)
+
                 self.symbol_file._changed_dcm = True
                 file_changed = True
                 log.info(f"updated symbol '{self.Name}' in file '{self._library.library_file.DcmPath}' from database")
@@ -388,6 +394,44 @@ class KicadSymbol():
             line = re.sub(r"\n$", "", line)
             if line.startswith(f"{field} "):
                 return re.sub(f"^{field} ", "", line)
+        
+        return ''
+
+    def _set_metadata(self, metadata, field, value):
+        if metadata is None:
+            return ''
+        
+        res = ''
+        for line in metadata.split('\n'):
+            line = re.sub(r"\n$", "", line)
+            if line.startswith(f"{field} "):
+                line = re.sub(f"{field}[ ]+([^ ]*)", f"{field} {value}", line)
+            res += line+"\n"
+        return res
+
+
+    def _get_content(self, content, field):
+        if content is None:
+            return ''
+        
+        for line in content.split('\n'):
+            line = re.sub(r"\n$", "", line)
+            if line.startswith(f"{field} "):
+                return re.sub(f"^{field} ", "", line)
+        
+        return ''
+
+    def _set_content(self, content, field, value):
+        if content is None:
+            return ''
+        
+        res = ''
+        for line in content.split('\n'):
+            line = re.sub(r"\n$", "", line)
+            if line.startswith(f"{field} "):
+                line = re.sub(f"{field}[ ]+([^ ]*)[ ]+([^ ]*)", f"{field} {value} \\2", line)
+            res += line+"\n"
+        return res
         
         return ''
 
@@ -452,46 +496,6 @@ class KicadSymbolLibrary():
         for symbol in self._symbols:
             if symbol.Name==name:
                 return symbol
-
-#     def _library_file_to_model(self):
-#         if self.library_model is None:
-#             self.library_model = api.data.kicad_symbol_library.create()
-#     
-#         # fill library_model fields
-#         self.library_model.path = self.library_file.Path
-#         self.library_model.mtime_lib = self.library_file.MtimeLib
-#         self.library_model.mtime_dcm = self.library_file.MtimeDcm
-#         
-#         # fill symbols
-#         for symbol in self.Symbols:
-#             
-#             
-#             if symbolmodel is None:
-#                 symbolmodel = api.data.kicad_symbol.create()
-#             
-#             # fill symbol fiels
-#             symbolmodel.name = symbolfile.Name
-#             symbolmodel.content = symbolfile.Content
-#             symbolmodel.metadata = symbolfile.Metadata
-#             
-#             self.library_model.symbols.add_pending(symbolmodel)
-#         
-#         return self.library_model
-#         
-#     def _library_model_to_file(self, library_model, library_file=None):
-#         if library_file is None:
-#             # create it on disk
-#             library_file = KicadSymbolLibraryFile(path=library_model.path)
-# 
-#         # add symbols
-#         for symbolmodel in self.library_model.symbols.all():
-#             symbol = None
-#             for s in self.Symbols:
-#                 if s.Name==symbolmodel.name:
-#                     symbol = s
-#              
-#             if symbol is None:
-#                 symbol = KicadSymbol(symbol_model=symbolmodel)
     
     def _synchronize(self):
         """
@@ -688,8 +692,7 @@ class KicadSymbolLibraryManager(KicadFileManager):
         log.info(f"moved folder '{abspath}' to '{newabspath}'")
         
         # edit database
-        libraries = api.data.kicad_symbol_library.find()
-        for library in libraries:
+        for library in api.data.kicad_symbol_library.find():
             if library.path.startswith(path+os.sep):
                 previous_path = library.path
                 library.path = re.sub(f"^{path}", f"{newpath}", library.path)

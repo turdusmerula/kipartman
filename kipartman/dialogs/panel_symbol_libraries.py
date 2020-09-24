@@ -40,20 +40,25 @@ class PanelSymbolLibraries ( wx.Panel ):
 		self.Layout()
 		self.menu_libraries = wx.Menu()
 		self.menu_libraries_add_folder = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Add folder", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries_add_folder.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_libraries.Append( self.menu_libraries_add_folder )
 
 		self.menu_libraries_add_library = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Add library", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries_add_library.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_libraries.Append( self.menu_libraries_add_library )
 
 		self.menu_libraries_rename = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Rename", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries_rename.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_libraries.Append( self.menu_libraries_rename )
 
 		self.menu_libraries_remove = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Remove", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries_remove.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_libraries.Append( self.menu_libraries_remove )
 
 		self.menu_libraries.AppendSeparator()
 
 		self.menu_libraries_add_symbol = wx.MenuItem( self.menu_libraries, wx.ID_ANY, u"Add symbol", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_libraries_add_symbol.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_libraries.Append( self.menu_libraries_add_symbol )
 
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelSymbolLibrariesOnContextMenu )

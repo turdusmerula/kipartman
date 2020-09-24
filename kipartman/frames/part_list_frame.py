@@ -70,7 +70,7 @@ class PartListFrame(PanelPartList):
             wx.PostEvent(self, ExitEditModeEvent())        
             
     def activate(self):
-        pass
+        self.tree_parts_manager.Load()
 
     def _expand_categories(self):
         if self.Flat==False:
@@ -79,7 +79,8 @@ class PartListFrame(PanelPartList):
     
     def _enable(self, value):
         self.panel_up.Enabled = value
-        
+
+
     def SetPart(self, part):
         self.panel_edit_part.SetPart(part)
         self._enable(True)
@@ -88,7 +89,8 @@ class PartListFrame(PanelPartList):
         self.EditMode = True
         self.panel_edit_part.EditPart(part)
         self._enable(False)
-                
+        
+
     def onToggleCategoryPathClicked( self, event ):
         self.Flat = not self.toolbar_part.GetToolState(self.toggle_part_path.GetId())
         event.Skip()

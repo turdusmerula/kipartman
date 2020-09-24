@@ -339,7 +339,7 @@ class Part(models.Model):
     description = models.TextField(blank=True, default='')
     comment = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    footprint = models.ForeignKey('VersionedFile', related_name='footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    footprint = models.ForeignKey('KicadFootprint', related_name='new_footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     symbol = models.ForeignKey('KicadSymbol', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     childs = models.ManyToManyField('Part', blank=True)
     #parameters is defined inside PartParameter by ForeignKey part
@@ -493,7 +493,6 @@ class KicadSymbol(models.Model):
 class KicadFootprintLibrary(models.Model):
     path = models.TextField(blank=True, default='')
     #footprints is defined inside PartParameter by ForeignKey part
-    mtime_lib = models.FloatField()
     updated = models.DateTimeField(auto_now=True)
     
     def __unicode__(self):
@@ -503,6 +502,7 @@ class KicadFootprint(models.Model):
     library = models.ForeignKey('KicadFootprintLibrary', related_name='footprints', null=False, blank=False, default=None, on_delete=models.CASCADE)
     name = models.TextField()
     content = models.TextField()
+    mtime = models.FloatField()
     updated = models.DateTimeField(auto_now=True)
     
     def __unicode__(self):

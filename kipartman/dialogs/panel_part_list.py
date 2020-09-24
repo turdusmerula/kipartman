@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -86,6 +86,10 @@ class PanelPartList ( wx.Panel ):
 		self.menu_part_add_part.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_part.Append( self.menu_part_add_part )
 
+		self.menu_part_duplicate_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Duplicate part", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_part_duplicate_part.SetBitmap( wx.Bitmap( u"resources/duplicate.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_part.Append( self.menu_part_duplicate_part )
+
 		self.menu_part_edit_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Edit part", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_part_edit_part.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_part.Append( self.menu_part_edit_part )
@@ -93,10 +97,6 @@ class PanelPartList ( wx.Panel ):
 		self.menu_part_remove_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Remove part", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_part_remove_part.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_part.Append( self.menu_part_remove_part )
-
-		self.menu_part_duplicate_part = wx.MenuItem( self.menu_part, wx.ID_ANY, u"Duplicate part", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_part_duplicate_part.SetBitmap( wx.Bitmap( u"resources/duplicate.png", wx.BITMAP_TYPE_ANY ) )
-		self.menu_part.Append( self.menu_part_duplicate_part )
 
 		self.menu_part.AppendSeparator()
 
@@ -120,9 +120,9 @@ class PanelPartList ( wx.Panel ):
 		self.search_parts.Bind( wx.EVT_TEXT_ENTER, self.onSearchPartsTextEnter )
 		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
 		self.Bind( wx.EVT_MENU, self.onMenuPartAddPart, id = self.menu_part_add_part.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuPartDuplicatePart, id = self.menu_part_duplicate_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartEditPart, id = self.menu_part_edit_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartRemovePart, id = self.menu_part_remove_part.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuPartDuplicatePart, id = self.menu_part_duplicate_part.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartAppendEquivalentPart, id = self.menu_part_append_equivalent.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartRefreshOctopartPart, id = self.menu_refresh_octopart_part.GetId() )
 
@@ -149,13 +149,13 @@ class PanelPartList ( wx.Panel ):
 	def onMenuPartAddPart( self, event ):
 		event.Skip()
 
+	def onMenuPartDuplicatePart( self, event ):
+		event.Skip()
+
 	def onMenuPartEditPart( self, event ):
 		event.Skip()
 
 	def onMenuPartRemovePart( self, event ):
-		event.Skip()
-
-	def onMenuPartDuplicatePart( self, event ):
 		event.Skip()
 
 	def onMenuPartAppendEquivalentPart( self, event ):

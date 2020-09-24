@@ -140,7 +140,10 @@ class FootprintLibrariesFrame(PanelFootprintLibraries):
             self.tree_libraries_manager.Clear()
             self.tree_libraries_manager.Load()
         self.loaded = False
-        
+
+    def UnselectAll(self):
+        self.tree_libraries.UnselectAll()
+
     def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
         self.tree_libraries_manager.Load()
@@ -205,7 +208,7 @@ class FootprintLibrariesFrame(PanelFootprintLibraries):
         if dlg.ShowModal() == wx.ID_OK:
             name = dlg.GetValue()
             try:
-                library = self.library_manager.CreateLibrary(os.path.join(path, name+".lib"))
+                library = self.library_manager.CreateLibrary(os.path.join(path, name+".pretty"))
             except Exception as e:
                 print_stack()
                 wx.MessageBox(format(e), 'Error creating library', wx.OK | wx.ICON_ERROR)
@@ -257,8 +260,8 @@ class FootprintLibrariesFrame(PanelFootprintLibraries):
             if dlg.ShowModal() == wx.ID_OK:
                 name = dlg.GetValue()
                 try:
-                    if name.endswith(".lib")==False:
-                        name += ".lib"
+                    if name.endswith(".pretty")==False:
+                        name += ".pretty"
                     path = obj.library.Path                     
                     newpath = os.path.join(os.path.dirname(path), name)
                     library = self.library_manager.MoveLibrary(obj.library, newpath)

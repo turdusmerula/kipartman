@@ -140,7 +140,10 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
             self.tree_libraries_manager.Clear()
             self.tree_libraries_manager.Load()
         self.loaded = False
-        
+
+    def UnselectAll(self):
+        self.tree_libraries.UnselectAll()
+
     def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
         self.tree_libraries_manager.Load()

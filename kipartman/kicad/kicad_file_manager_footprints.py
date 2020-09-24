@@ -27,44 +27,57 @@ class KicadFootprintLibraryException(Exception):
         super(KicadFootprintLibraryException, self).__init__(error)
 
 class KicadFootprintFile():
-    def __init__(self, library, name, content, metadata=""):
+    def __init__(self, library, name, content):
         self._library = library
         self._name = name
         self._content = content
-        self._metadata = metadata
-        
-        self._changed_lib = False
-        self._changed_dcm = False
 
     @property
     def Library(self):
         return self._library
     
     @property
+    def Path(self):
+        return os.path.join(self._library.Path, self._name+".kicad_mod")
+    
+    @property
+    def AbsPath(self):
+        return os.path.join(configuration.kicad_footprints_path, self.Path)
+
+    @property
     def Name(self):
         return self._name
-    
-    @Name.setter
-    def Name(self):
-        self._name
-        self._changed_lib = True
-        self._changed_dcm = True
+        
+    @property
+    def Mtime(self):
+        return os.path.getmtime(self.AbsPath)
         
     @property
     def Content(self):
         return self._content
 
-    @property
-    def Metadata(self):
-        return self._metadata
-    
-    @property
-    def ChangedLib(self):
-        return self._changed_lib
+    def _save_footprint_file(self, mtime=None):
+        log.debug(f"KicadFootprintFile._save_footprint_file {self.AbsPath}")
 
-    @property
-    def ChangedDcm(self):
-        return self._changed_dcm
+        os.makedirs(os.path.dirname(self.AbsPath), exist_ok=True)
+        with open(self.AbsPath, 'w', encoding='utf-8') as file:
+            file.write(self._content)
+
+        if mtime is not None:
+            # set last modification date to updated
+            os.utime(self.AbsPath, (mtime, mtime))
+
+    def Save(self, mtime=None):
+        def action():
+            self._save_footprint_file(mtime)
+            self._changed = False
+            self._loaded = True
+                 
+        KicadFileManager.DisableNotificationsForPath(self.AbsPath, action)
+
+    def __repr__(self):
+        res = f"<KicadFootprintFile> ({self.Name})"
+        return res
 
 #     def _
 class KicadFootprintLibraryFile(File):
@@ -73,69 +86,20 @@ class KicadFootprintLibraryFile(File):
         self._footprints = []
         
         if os.path.exists(self.AbsPath)==False:
-            self._loaded_lib = True
-            self._loaded_dcm = True
-            self._changed_lib = True
-            self._changed_dcm = True
+            self._loaded = True
         else:
-            self._loaded_lib = False
-            self._loaded_dcm = False
-            self._changed_lib = False
-            self._changed_dcm = False
+            self._loaded = False
     
-        self._read_lib_file()
-        self._read_metadata_file()
+        self._read_lib_folder()
     
     @property
     def AbsPath(self):
         return os.path.join(configuration.kicad_footprints_path, self.Path)
     
     @property
-    def AbsDcmPath(self):
-        return re.sub(r"\.lib$", ".dcm", self.AbsPath)
-        
-    @property
-    def DcmPath(self):
-        return re.sub(r"\.lib$", ".dcm", self.Path)
-
-    @property
     def Footprints(self):
-#         self._read_lib_file()
-#         self._read_metadata_file()
-#         if self._loaded_lib==False:
-#         if self._loaded_dcm==False:
         return self._footprints
-
-    @property
-    def ChangedLib(self):
-        res = self._changed_lib
-        if res==False:
-            for footprint in self._footprints:
-                if footprint.ChangedLib:
-                    return True
-            return False
-        return True
     
-    @property
-    def ChangedDcm(self):
-        res = self._changed_dcm
-        if res==False:
-            for footprint in self._footprints:
-                if footprint.ChangedDcm:
-                    return True
-            return False
-        return True
-
-    @property
-    def MtimeLib(self):
-        return os.path.getmtime(self.AbsPath)
-        
-    @property
-    def MtimeDcm(self):
-        if os.path.exists(self.AbsDcmPath):
-            return os.path.getmtime(self.AbsDcmPath)
-        return 0
-
     def HasFootprint(self, name):
         for footprint in self.Footprints:
             if footprint.Name==name:
@@ -158,140 +122,26 @@ class KicadFootprintLibraryFile(File):
                 break
         self._changed = True
 
-    def _read_lib_file(self):
+    def _read_lib_folder(self):
         self._footprints = []
-        if(os.path.isfile(self.AbsPath)==False):
+        if(os.path.isdir(self.AbsPath)==False):
             return
- 
-        content = ''
-        name = ''
-        for line in open(self.AbsPath, 'r', encoding='utf-8'):
-            if line.startswith("EESchema-LIBRARY"):
-                pass
-            elif line.startswith("#encoding"):
-                pass
-            elif line.startswith("#"):
-                pass
-                #content = content+line
-            elif line.startswith("DEF"):
-                content += line
-                name = line.split(' ')[1]
-            elif line.startswith("ENDDEF"):
-                content += line
-                
-                dup = ""
-                dupn = 1
-                for footprint in self._footprints:
-                    if footprint.Name==name+dup:
-                        dup = f"_{dupn}"
-                        dupn += 1
-                if dup!="":
-                    log.info(f"duplication found in '{self.Path}', renamed to '{name+dup}'")
-                    
-                self._footprints.append(KicadFootprintFile(self, name+dup, content))
-                content = ''
-            else:
-                content += line
 
-        self._loaded_lib = True
+        for path in glob(os.path.join(self.AbsPath, '*')):
+            if os.path.isfile(path) and path.endswith(".kicad_mod"):
+                with open(path, "r", encoding='utf-8') as f:
+                    content = f.read()
+                name = re.sub(r".*/(.*)\.kicad_mod$", r"\1", path)
+                self._footprints.append(KicadFootprintFile(self, name, content))
 
-    def _read_metadata_file(self):
-        dcm_path = re.sub(r"\.lib$", ".dcm", self.AbsPath)
-        if(os.path.isfile(dcm_path)==False):
-            return
- 
-        metadata = ''
-        name = ''
-        for line in open(dcm_path, 'r', encoding='utf-8'):
-            line = line.replace('\n', '')
-            if line.startswith("EESchema-DOCLIB"):
-                pass
-            elif line.startswith("#"):
-                pass
-            elif line.startswith("$CMP"):
-                metadata += line+'\n'
-                name = line.split(' ')[1]
-            elif line.startswith("$ENDCMP"):
-                metadata += line+'\n'
-                for footprint in self._footprints:
-                    if footprint.Name==name:
-                        footprint._metadata = metadata
-                metadata = ''
-            else:
-                metadata += line+'\n'
-    
-        self._loaded_dcm = True
-
-    def _save_lib_file(self, mtime=None):
-        log.debug(f"KicadFootprintLibraryFile._save_lib_file {self.AbsPath}")
-
-        os.makedirs(os.path.dirname(self.AbsPath), exist_ok=True)
-        with open(self.AbsPath, 'w', encoding='utf-8') as file:
-            # TODO add generated from kicad
-            file.write('EESchema-LIBRARY Version 2.3\n')
-            file.write('#encoding utf-8\n')
- 
-            for footprint in self._footprints:
-                file.write("#\n")
-                file.write(f"# {footprint.Name}\n")
-                file.write("#\n")
-                file.write(footprint.Content)
-             
-            file.write('#\n')
-            file.write('#End Library\n')
-
-        if mtime is not None:
-            # set last modification date to updated
-            os.utime(self.AbsPath, (mtime, mtime))
-
-    def _save_metadata_file(self, mtime=None):
-        log.debug(f"KicadFootprintLibraryFile._save_metadata_file {self.AbsDcmPath}")
-        os.makedirs(os.path.dirname(self.AbsDcmPath), exist_ok=True)
-        with open(self.AbsDcmPath, 'w', encoding='utf-8') as file:
-            # TODO add generated from kicad
-            file.write('EESchema-DOCLIB  Version 2.0\n')
- 
-            for footprint in self._footprints:
-                if footprint.Metadata!="":
-                    file.write("#\n")
-                    file.write(footprint.Metadata)
+        self._loaded = True
+        
+    def Save(self):
+        def action():
+            os.makedirs(self.AbsPath, exist_ok=True)
                  
-            file.write('#\n')
-            file.write('#End Doc Library\n')
-
-        if mtime is not None:
-            # set last modification date to updated
-            os.utime(self.AbsDcmPath, (mtime, mtime))
-
-    def Save(self, mtimelib=None, mtimedcm=None):
-        def action():
-            if self.ChangedLib:
-                self._save_lib_file(mtimelib)
-                self._changed_lib = False
-                self._loaded_lib = True
-                for footprint in self._footprints:
-                    footprint._changed_lib = False
-                
-            if self.ChangedDcm:
-                self._save_metadata_file(mtimedcm)
-                self._changed_dcm = False
-                self._loaded_dcm = True
-                for footprint in self._footprints:
-                    footprint._changed_dcm = False
-                
-                
         KicadFileManager.DisableNotificationsForPath(self.AbsPath, action)
-
-    def SaveLib(self, mtimelib=None):
-        def action():
-            self._save_lib_file(mtimelib)
-        KicadFileManager.DisableNotificationsForPath(self.AbsPath, action)
-
-    def SaveDcm(self, mtimedcm=None):
-        def action():
-            self._save_metadata_file(mtimedcm)
-        KicadFileManager.DisableNotificationsForPath(self.AbsPath, action)
-
+        
 class KicadFootprint():
     """
     This object is the bridge between footprint in library file and footprint record in database
@@ -311,85 +161,51 @@ class KicadFootprint():
         if self.footprint_model is not None:
             return self.footprint_model.name
         return self.footprint_file.Name
+            
+    @property
+    def Path(self):
+        if self.footprint_model is not None:
+            return os.path.join(self.footprint_model.library.path, self.footprint_model.name+".kicad_mod")
+        return self.footprint_file.Path
     
     @property
     def Content(self):
         if self.footprint_model is not None:
             return self.footprint_model.content
         return self.footprint_file.Content
-
-    @property
-    def Description(self):
-        if self.footprint_model is not None:
-            return self._get_metadata(self.footprint_model.metadata, "D")
-        return self._get_metadata(self.footprint_file.Metadata, "D")
-    
     
     def _synchronize(self):
-        file_changed = False
-        model_changed = False
-        
         if self.footprint_file is None and self.footprint_model is not None:
             # footprint exists in database but not in file
-            self._footprint_file = KicadFootprintFile(self._library.library_file, self.footprint_model.name, self.footprint_model.content, self.footprint_model.metadata)
-            self._footprint_file._changed_lib = True
-            self._footprint_file._changed_dcm = True
-            self._library.library_file.AddFootprint(self._footprint_file)
-            file_changed = True
-            log.info(f"added footprint '{self.Name}' in file '{self._library.library_file.Path}' from database")
+            self._footprint_file = KicadFootprintFile(self._library.library_folder, self.footprint_model.name, self.footprint_model.content)
+            self._footprint_file._changed = True
+            # TODO mtime
+            self._library.library_folder.AddFootprint(self._footprint_file)
+            self._footprint_file.Save(mtime=self.footprint_model.mtime)
+            log.info(f"added footprint file '{self.Path}' in library folder '{self._library.library_folder.Path}' from database")
         elif self.footprint_file is not None and self.footprint_model is None:
             # footprint exists in file but not in database
-            self.footprint_model = api.data.library_footprint.create()
+            self.footprint_model = api.data.kicad_footprint.create()
             self.footprint_model.library = self._library.library_model
             self.footprint_model.name = self.footprint_file.Name
             self.footprint_model.content = self.footprint_file.Content
-            self.footprint_model.metadata = self.footprint_file.Metadata
-            self._library.library_model.footprints.add_pending(self.footprint_model)
-            model_changed = True
-            log.info(f"added footprint '{self.Name}' in database from file '{self._library.library_file.Path}'")
-        elif self.footprint_file._content!=self.footprint_model.content or self.footprint_file._metadata!=self.footprint_model.metadata:
-            delta = self._library.library_file.MtimeLib-self._library.library_model.mtime_lib
-
+            self.footprint_model.mtime = self.footprint_file.Mtime
+            api.data.kicad_footprint.save(self.footprint_model)
+            log.info(f"added footprint '{self.Name}' in database from library folder '{self._library.library_folder.Path}'")
+        elif self.footprint_file._content!=self.footprint_model.content:
+            delta = self.footprint_file.Mtime-self.footprint_model.mtime
+ 
             if delta<=-DELTA_FILE:
                 # database is newer than file
                 self.footprint_file._content = self.footprint_model.content
-                self.footprint_file._changed_lib = True
-                file_changed = True
-                log.info(f"updated footprint '{self.Name}' in file '{self._library.library_file.Path}' from database")
+                self.footprint_file.Save(mtime=self.footprint_model.mtime)
+                log.info(f"updated footprint '{self.Name}' in library folder '{self._library.library_folder.Path}' from database")
             elif delta>=DELTA_FILE:
                 # file is newer than database
-                self.footprint_model.content = self.footprint_file._content
-                self._library.library_model.footprints.add_pending(self.footprint_model)
-                model_changed = True
-                log.info(f"updated footprint '{self.Name}' in database from file '{self._library.library_file.Path}'")
-
-            delta = self._library.library_file.MtimeDcm-self._library.library_model.mtime_dcm
-
-            if delta<=-DELTA_FILE:
-                # database is newer than file
-                self.footprint_file._metadata = self.footprint_model.metadata
-                self.footprint_file._changed_dcm = True
-                file_changed = True
-                log.info(f"updated footprint '{self.Name}' in file '{self._library.library_file.DcmPath}' from database")
-            elif delta>=DELTA_FILE:
-                # file is newer than database
-                self.footprint_model.metadata = self.footprint_file._metadata
-                self._library.library_model.footprints.add_pending(self.footprint_model)
-                model_changed = True
-                log.info(f"updated footprint '{self.Name}' in database from file '{self._library.library_file.DcmPath}'")
-
-        return (file_changed, model_changed)
-    
-    def _get_metadata(self, metadata, field):
-        if metadata is None:
-            return ''
-        
-        for line in metadata.split('\n'):
-            line = re.sub(r"\n$", "", line)
-            if line.startswith(f"{field} "):
-                return re.sub(f"^{field} ", "", line)
-        
-        return ''
+                self.footprint_model.content = self.footprint_file.Content
+                self.footprint_model.mtime = self.footprint_file.Mtime
+                api.data.kicad_footprint.save(self.footprint_model)
+                log.info(f"updated footprint '{self.Name}' in database from library folder '{self._library.library_folder.Path}'")
 
     def __repr__(self):
         res = "<KicadFootprint> ("
@@ -402,16 +218,16 @@ class KicadFootprint():
 
 class KicadFootprintLibrary():
     """
-    This object is the bridge between library file and library record in database
+    This object is the bridge between library on disk and library record in database
     """
     
-    def __init__(self, library_file=None, library_model=None):
-        self.library_file = library_file
+    def __init__(self, library_folder=None, library_model=None):
+        self.library_folder = library_folder
         self.library_model = library_model
         
         self._footprints = []
     
-        if library_file is None and library_model is None:
+        if library_folder is None and library_model is None:
             raise KicadFootprintLibraryException("Missing a file or a model for library")
         
         self._load_footprints()
@@ -420,13 +236,13 @@ class KicadFootprintLibrary():
     def AbsPath(self):
         if self.library_model is not None:
             return os.path.join(configuration.kicad_footprints_path, self.library_model.path)
-        return self.library_file.AbsPath
+        return self.library_folder.AbsPath
     
     @property
     def Path(self):
         if self.library_model is not None:
             return self.library_model.path
-        return self.library_file.Path
+        return self.library_folder.Path
 
     @property
     def Footprints(self):
@@ -435,10 +251,10 @@ class KicadFootprintLibrary():
     def _load_footprints(self):
         self._footprints = []
         
-        if self.library_file is not None:
-            for footprint in self.library_file.Footprints:
+        if self.library_folder is not None:
+            for footprint in self.library_folder.Footprints:
                 self._footprints.append(KicadFootprint(library=self, footprint_file=footprint))
-        
+         
         if self.library_model is not None:
             for footprint in self.library_model.footprints.all():
                 footprintset = self._find_footprint(footprint.name)
@@ -458,50 +274,31 @@ class KicadFootprintLibrary():
         synchronize file and database
         """
 
-        if self.library_file is None and self.library_model is not None:
+        if self.library_folder is None and self.library_model is not None:
             # library exists in database but not on disk
             # create it on disk
-            self.library_file = KicadFootprintLibraryFile(path=self.library_model.path)            
-            self.library_file.Save(self.library_model.mtime_lib, self.library_model.mtime_dcm)
-            log.info(f"created file '{self.library_file.path}'")
-            
-        elif self.library_file is not None and self.library_model is None:
+            self.library_folder = KicadFootprintLibraryFile(path=self.library_model.path)            
+            self.library_folder.Save()
+            log.info(f"created library folder '{self.library_folder.path}'")
+             
+        elif self.library_folder is not None and self.library_model is None:
             # library exists on disk but not in database
-            self.library_model = api.data.library.create()
-            self.library_model.path = self.library_file.Path
-            self.library_model.mtime_lib = self.library_file.MtimeLib
-            self.library_model.mtime_dcm = self.library_file.MtimeDcm
-            api.data.library.save(self.library_model)
-            log.info(f"created '{self.library_file.path}' in database")
-    
-        # at this point both library_file and library_model are presents
-        
-        file_changed = False
-        model_changed = False
+            self.library_model = api.data.kicad_footprint_library.create()
+            self.library_model.path = self.library_folder.Path
+            api.data.kicad_footprint_library.save(self.library_model)
+            log.info(f"created library '{self.library_folder.path}' in database")
+     
+        # at this point both library_folder and library_model are presents
+         
         for footprint in self._footprints:
-            fc, mc = footprint._synchronize()
-            if fc:
-                file_changed = True
-            if mc:
-                model_changed = True
-
-        if file_changed:
-            self.library_file.Save()
-            model_changed = True
-            log.info(f"updated file '{self.library_file.path}'")
-
-        if model_changed:
-            self.library_model.mtime_lib = self.library_file.MtimeLib
-            self.library_model.mtime_dcm = self.library_file.MtimeDcm
-            api.data.library.save(self.library_model)
-            log.info(f"updated '{self.library_model.path}' in database")
+            footprint._synchronize()
             
         log.debug(f"'{self.Path}' footprints: {self._footprints}")
 
     def __repr__(self):
         res = "<KicadFootprintLibrary> ("
-        if self.library_file:
-            res += f"file={self.library_file.Path} "
+        if self.library_folder:
+            res += f"file={self.library_folder.Path} "
         if self.library_model:
             res += f"model={self.library_model.path}"
         res += ")"
@@ -524,18 +321,17 @@ class KicadFootprintLibraryManager(KicadFileManager):
         self._load()
         
     def _load(self):
-        pass
-#         if KicadFootprintLibraryManager.loaded==False:
-#             self._load_file_libraries()
-#             self._load_model_libraries()
-#             for library in KicadFootprintLibraryManager.libraries:
-#                 library._synchronize()
-#                 
-#         KicadFootprintLibraryManager.loaded = True
+        if KicadFootprintLibraryManager.loaded==False:
+            self._load_file_libraries()
+            self._load_model_libraries()
+            for library in KicadFootprintLibraryManager.libraries:
+                library._synchronize()
+                 
+        KicadFootprintLibraryManager.loaded = True
         
     def _load_file_libraries(self):
         """
-        Recurse all folders to find lib files
+        Recurse all folders to find libraries
         """
         log.debug(f"KicadFootprintLibraryManager._load_file_libraries")
         
@@ -553,26 +349,26 @@ class KicadFootprintLibraryManager(KicadFileManager):
             path = to_explore.pop()
             if os.path.exists(path):
                 for folder in glob(os.path.join(path, "*/")):
-                    if folder!='/':
+                    if folder!='/' and folder.endswith(".pretty/")==False:
                         folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
                         if os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
                             to_explore.append(folder)
-         
+        
         folders.append('')
         # search for libs in folders
         for folder in folders:
-            for lib in glob(os.path.join(basepath, folder, "*.lib")):
+            for lib in glob(os.path.join(basepath, folder, "*.pretty")):
                 rel_folder = os.path.relpath(os.path.normpath(os.path.abspath(lib)), basepath)
-                libraries.append(KicadFootprintLibrary(library_file=KicadFootprintLibraryFile(rel_folder)))
+                libraries.append(KicadFootprintLibrary(library_folder=KicadFootprintLibraryFile(rel_folder)))
         folders.remove('')
     
     def _load_model_libraries(self):
         log.debug(f"KicadFootprintLibraryManager._load_model_libraries")
-
+ 
         libraries = KicadFootprintLibraryManager.libraries
         folders = KicadFootprintLibraryManager.folders
-        
-        for library in api.data.library.find():
+         
+        for library in api.data.kicad_footprint_library.find():
             libraryset = self._find_library(library.path)
             if libraryset is None:
                 libraryset = KicadFootprintLibrary(library_model=library)
@@ -580,7 +376,7 @@ class KicadFootprintLibraryManager(KicadFileManager):
             else:
                 libraryset.library_model = library
                 libraryset._load_footprints()
-    
+     
             # add folders
             pathel = self._cut_path(os.path.dirname(library.path))
             path = ''
@@ -632,7 +428,7 @@ class KicadFootprintLibraryManager(KicadFileManager):
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Folder '{path}' already exists")
         os.makedirs(abspath)
-        
+         
     def MoveFolder(self, path, newpath):
         abspath = os.path.join(configuration.kicad_footprints_path, path)
         if os.path.exists(abspath)==False:
@@ -640,274 +436,111 @@ class KicadFootprintLibraryManager(KicadFileManager):
         newabspath = os.path.join(configuration.kicad_footprints_path, newpath)
         if os.path.exists(newabspath):
             raise KicadFileManagerException(f"Folder '{newpath}' already exists")
-        
+         
         # move files
         def action():
             os.makedirs(os.path.dirname(abspath), exist_ok=True)
             os.rename(abspath, newabspath)
         self.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
         log.info(f"moved folder '{abspath}' to '{newabspath}'")
-        
+         
         # edit database
-        libraries = api.data.library.find()
-        for library in libraries:
+        for library in api.data.kicad_footprint_library.find():
             if library.path.startswith(path+os.sep):
                 previous_path = library.path
                 library.path = re.sub(f"^{path}", f"{newpath}", library.path)
-                api.data.library.save(library)
+                api.data.kicad_footprint_library.save(library)
                 log.info(f"moved library '{previous_path}' to '{library.path}'")
-        
+         
     def CreateLibrary(self, path):
         abspath = os.path.join(configuration.kicad_footprints_path, path)
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Library '{path}' already exists")
-        
-        library_file = KicadFootprintLibraryFile(path)
-        self.DisableNotificationsForPath(configuration.kicad_footprints_path, action=library_file.Save)
-        
-        library = KicadFootprintLibrary(library_file)
-        
+         
+        library_folder = KicadFootprintLibraryFile(path)
+        library_folder.Save()
+         
+        library = KicadFootprintLibrary(library_folder)
+         
         KicadFootprintLibraryManager.libraries.append(library)
-
+ 
         return library
-
+ 
     def MoveLibrary(self, library, newpath):
         previousname = library.Path
         newname = os.path.basename(newpath)
         newpath = os.path.dirname(newpath)
         newabspath = os.path.join(configuration.kicad_footprints_path, newpath)
-        
+          
         if os.path.exists(newabspath)==False:
             raise KicadFileManagerException(f"Folder '{newpath}' does not exists")
-        if newname.endswith(".lib")==False:
+        if newname.endswith(".pretty")==False:
             raise KicadFileManagerException(f"'{newname}' is not a valid library name")
-        
+          
         def action():
             os.rename(library.AbsPath, os.path.join(newabspath, newname))
         self.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
-        
+          
         library.library_model.path = os.path.join(newpath, newname)
-        api.data.library.save(library.library_model)
-        
+        api.data.kicad_footprint_library.save(library.library_model)
+          
         log.info(f"library '{previousname}' renamed to '{os.path.join(newpath, newname)}'")
-
+ 
         return library
-    
-    def DeleteLibrary(self, library):
+     
+    def RemoveLibrary(self, library):
         footprints_to_remove = []
         for footprint in library.Footprints:
             footprints_to_remove.append(footprint.footprint_model)
-        
+         
         associated_parts = api.data.part.find([api.data.part.FilterFootprints(footprints_to_remove)])
         for associated_part in associated_parts:
             log.info(f"part '{associated_part.name} dissociated from {associated_part.footprint.name}")
             associated_part.footprint = None
             associated_part.save()
-        
+         
         library.library_model.delete()
         def action():
-            os.remove(library.AbsPath)
+            shutil.rmtree(library.AbsPath)
         self.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
-
+ 
         log.info(f"library '{library.Path}' removed")
-
+ 
     def DeleteFolder(self, path):
 #         if len(os.listdir(os.path.join(configuration.kicad_footprints_path, path)))>0:
 #             raise KicadFileManagerException(f"Folder '{path}' is not empty")
         def action():
             shutil.rmtree(os.path.join(configuration.kicad_footprints_path, path))
         self.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
-
+ 
         log.info(f"folder '{path}' removed")
         
 
+    @staticmethod
+    def RenameFootprint(footprint, newname):
+        for f in footprint.Library.Footprints:
+            if newname==f.Name:
+                raise KicadFileManagerException(f"Footprint '{newname}' already exists in library '{footprint.Library.Path}'")
 
-# class KicadFileManagerPretty(KicadFileManager):
-#     def __init__(self):
-#         super(KicadFileManagerPretty, self).__init__()
-# 
-#         self.extensions = ['kicad_mod']
-#         
-#     def root_path(self):
-#         return configuration.kicad_footprints_path
-# 
-#     def version_file(self):
-#         return '.kiversion_mod'
-# 
-#     def category(self):
-#         return 'pretty'
-#     
-#     def Load(self):
-#         """
-#         fill cache files from disk
-#         """
-#         self.files = {}
-#         libraries, self.folders = self.GetLibraries()
-#         
-#         for library in libraries:
-#             footprints = self.GetFootprints(library)
-#             for footprint in footprints:
-#                 source_path = os.path.join(library, footprint)
-#                 content = Path(os.path.join(self.root_path(), source_path)).read_text()
-#                 md5 = hash.md5(content).hexdigest()
-#  
-#                 file = File()
-#                 file.source_path = source_path
-#                 file.md5 = md5
-# 
-#                 self.files[source_path] = file
-# 
-# 
-#     def GetLibraries(self, root_path=None):
-#         """
-#         Recurse all folders and return .pretty folders path
-#         @param root_path: path from which to start recursing, None starts from root
-#         """
-#         log.debug("===> GetLibraries----")
-#         basepath = os.path.normpath(os.path.abspath(self.root_path()))
-#         to_explore = [basepath]
-#         libraries = []
-#         folders = []
-#         
-#         while len(to_explore)>0:
-#             path = to_explore.pop()
-#             if os.path.exists(path):
-#                 for folder in glob(os.path.join(path, "*/")):
-#                     if folder!='/':
-#                         folders.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
-#                         if re.compile("^.*\.pretty$").match(os.path.normpath(os.path.abspath(folder))):
-#                             #print("=>", folder) 
-#                             libraries.append(os.path.relpath(os.path.normpath(os.path.abspath(folder)), basepath))
-#                         elif os.path.normpath(os.path.abspath(folder))!=os.path.normpath(os.path.abspath(path)):
-#                             to_explore.append(folder)
-#         #print("---------------------")
-#      
-#         return libraries, folders
-# 
-#     def GetFootprints(self, library_path):
-#         """
-#         Return all footprints in a pretty lib
-#         """
-#         #log.debug("===> GetFootprints----")
-#         footprints = []
-#  
-#         path = os.path.join(self.root_path(), library_path)        
-#         if os.path.exists(path):
-#             for kicad_mod in glob(os.path.join(path, "*.kicad_mod")):
-#                 #print("==>", kicad_mod) 
-#                 footprints.append(os.path.basename(kicad_mod))
-#         #print("----------------------")
-#      
-#         return footprints
-#  
-#     def Exists(self, path):
-#         return os.path.exists(os.path.join(self.root_path(), path))
-# 
-#     def CreateFile(self, path, content, overwrite=False):
-#         if self.Exists(path) and overwrite==False:
-#             raise KicadFileManagerException('File %s already exists'%path)
-# 
-#         fullpath = os.path.join(self.root_path(), path)
-#         if not os.path.exists(os.path.dirname(fullpath)):
-#             os.makedirs(os.path.dirname(fullpath))
-#         
-#         with open(fullpath, 'w', encoding='utf-8') as content_file:
-#             if content:
-#                 content_file.write(content)
-#             else:
-#                 content_file.write('')
-#         content_file.close() 
-# 
-#         file = File()
-#         file.source_path = path
-#         file.md5 = hash.md5(content).hexdigest()
-#         file.updated = rest.api.get_date()
-#         file.category = self.category()
-# 
-#         return file
-#     
-#     def EditFile(self, file, content, create=False):
-#         if self.Exists(file.source_path)==False and create==False:
-#             raise KicadFileManagerException('File %s does not exists'%file.source_path)
-# 
-#         fullpath = os.path.join(self.root_path(), file.source_path)
-#         if self.Exists(file.source_path)==True:
-#             md5file = hash.md5(Path(fullpath).read_text()).hexdigest()
-#             md5 = hash.md5(content).hexdigest()
-#             if md5==md5file:
-#                 return file, False
-#         
-#         if os.path.exists(os.path.dirname(fullpath))==False:
-#             os.makedirs(os.path.dirname(fullpath))
-#         with open(fullpath, 'w', encoding='utf-8') as content_file:
-#             if content:
-#                 content_file.write(content)
-#             else:
-#                 content_file.write('')
-#         content_file.close() 
-#  
-#         file.md5 = hash.md5(content).hexdigest()
-#         file.updated = rest.api.get_date()
-#            
-#         return file, True
-#     
-#     def MoveFile(self, file, dest_path, force=False):
-#         if self.Exists(file.source_path)==False and force==False:
-#             raise KicadFileManagerException('File %s does not exists'%file.source_path)
-#         if self.Exists(dest_path) and force==False:
-#             raise KicadFileManagerException('File %s already exists'%dest_path)
-#         
-#         os.rename(os.path.join(self.root_path(), file.source_path), 
-#                          os.path.join(self.root_path(), dest_path))
-# 
-#         file.source_path = dest_path
-#         #fullpath = os.path.join(self.root_path(), file.source_path)
-#         #file.updated = datetime.datetime.fromtimestamp(os.path.getmtime(fullpath)).strftime("%Y-%m-%dT%H:%M:%SZ")
-#         file.updated = rest.api.get_date()
-#         
-#         return file
-# 
-#     def DeleteFile(self, file, force=False):
-#         if self.Exists(file.source_path)==False and force==False:
-#             raise KicadFileManagerException('File %s does not exists'%file.source_path)
-#         
-#         fullpath = os.path.join(self.root_path(), file.source_path)
-#         if os.path.exists(fullpath):
-#             os.remove(fullpath)
-#         #file.updated = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-#         file.updated = rest.api.get_date()
-#     
-#         return file
-#     
-#     def LoadContent(self, file):
-#         if self.Exists(file.source_path)==False:
-#             raise KicadFileManagerException('File %s does not exists'%file.source_path)
-#         
-#         fullpath = os.path.join(self.root_path(), file.source_path)
-#         with open(fullpath, encoding='utf-8') as f:
-#             file.content = f.read()
-# 
-#     def CreateFolder(self, path):
-#         abspath = os.path.join(self.root_path(), path)
-#         if os.path.exists(abspath):
-#             raise KicadFileManagerException('Folder %s already exists'%path)
-#         else:
-#             os.makedirs(abspath)
-#     
-#     def MoveFolder(self, source_path, dest_path):
-#         abs_source_path = os.path.join(self.root_path(), source_path)
-#         abs_dest_path = os.path.join(self.root_path(), dest_path)
-#         if os.path.exists(abs_source_path)==False:
-#             raise KicadFileManagerException('Folder %s does not exists'%abs_source_path)
-#         if os.path.exists(abs_dest_path):
-#             raise KicadFileManagerException('Folder %s already exists'%abs_dest_path)
-#         shutil.move(abs_source_path, abs_dest_path)
-#     
-#     def DeleteFolder(self, path):
-#         abspath = os.path.join(self.root_path(), path)
-#         shutil.rmtree(abspath)
-#      
-# 
-# def replace_last(source_string, replace_what, replace_with):
-#     head, _sep, tail = source_string.rpartition(replace_what)
-#     return head + replace_with + tail
+        if footprint.footprint_file is not None:
+            abspath = footprint.footprint_file.AbsPath
+            footprint.footprint_file._name = newname
+            footprint.footprint_file.Save()
+            def action():
+                os.remove(abspath)
+            KicadFootprintLibraryManager.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
+            
+        if footprint.footprint_model is not None:
+            footprint.footprint_model.name = newname
+            footprint.footprint_model.mtime = footprint.footprint_file.Mtime
+            footprint.footprint_model.save()
+
+    @staticmethod
+    def RemoveFootprint(footprint):
+        if footprint.footprint_file is not None:
+            def action():
+                os.remove(footprint.footprint_file.AbsPath)
+            KicadFootprintLibraryManager.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
+            
+        if footprint.footprint_model is not None:
+            footprint.footprint_model.delete()

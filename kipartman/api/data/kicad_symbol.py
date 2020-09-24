@@ -1,5 +1,6 @@
 from api.models import KicadSymbol
 from helper.filter import Filter
+from django.db.models import Q
 
 class FilterPath(Filter):
     def __init__(self, path):
@@ -12,6 +13,20 @@ class FilterPath(Filter):
     def __str__(self):
         return f"path: {self.path}"
 
+class FilterTextSearch(Filter):
+    def __init__(self, value):
+        self.value = value
+        super(FilterTextSearch, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(
+                    Q(name__contains=self.value) |
+                    Q(content__contains=self.value) |
+                    Q(metadata__contains=self.value)
+                )
+
+    def __str__(self):
+        return f"search: {self.value}"
 
 def _add_default_annotations(request):
     # add the field child_count in request result 

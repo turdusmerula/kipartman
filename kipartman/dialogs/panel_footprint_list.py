@@ -96,15 +96,22 @@ class PanelFootprintList ( wx.Panel ):
 
 		self.SetSizer( bSizer1 )
 		self.Layout()
-		self.menu_footprints = wx.Menu()
-		self.menu_footprints_add = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Add footprint", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_footprints.Append( self.menu_footprints_add )
+		self.menu_footprint = wx.Menu()
+		self.menu_footprint_add = wx.MenuItem( self.menu_footprint, wx.ID_ANY, u"Add footprint", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprint_add.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_footprint.Append( self.menu_footprint_add )
 
-		self.menu_footprints_edit = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Edit footprint", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_footprints.Append( self.menu_footprints_edit )
+		self.menu_footprint_duplicate = wx.MenuItem( self.menu_footprint, wx.ID_ANY, u"Duplicate footprint", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprint_duplicate.SetBitmap( wx.Bitmap( u"resources/duplicate.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_footprint.Append( self.menu_footprint_duplicate )
 
-		self.menu_footprints_delete = wx.MenuItem( self.menu_footprints, wx.ID_ANY, u"Delete footprint", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_footprints.Append( self.menu_footprints_delete )
+		self.menu_footprint_edit = wx.MenuItem( self.menu_footprint, wx.ID_ANY, u"Edit footprint", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprint_edit.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_footprint.Append( self.menu_footprint_edit )
+
+		self.menu_footprint_remove = wx.MenuItem( self.menu_footprint, wx.ID_ANY, u"Delete footprint", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_footprint_remove.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_footprint.Append( self.menu_footprint_remove )
 
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelFootprintListOnContextMenu )
 
@@ -116,9 +123,10 @@ class PanelFootprintList ( wx.Panel ):
 		self.search_footprints.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchFootprintsButton )
 		self.search_footprints.Bind( wx.EVT_TEXT_ENTER, self.onSearchFootprintsTextEnter )
 		self.button_refresh_footprints.Bind( wx.EVT_BUTTON, self.onButtonRefreshFootprintsClick )
-		self.Bind( wx.EVT_MENU, self.onMenuFootprintsAdd, id = self.menu_footprints_add.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuFootprintsEdit, id = self.menu_footprints_edit.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuFootprintsDelete, id = self.menu_footprints_delete.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintAdd, id = self.menu_footprint_add.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintDuplicatePart, id = self.menu_footprint_duplicate.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintEdit, id = self.menu_footprint_edit.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFootprintRemove, id = self.menu_footprint_remove.GetId() )
 
 	def __del__( self ):
 		pass
@@ -143,13 +151,16 @@ class PanelFootprintList ( wx.Panel ):
 	def onButtonRefreshFootprintsClick( self, event ):
 		event.Skip()
 
-	def onMenuFootprintsAdd( self, event ):
+	def onMenuFootprintAdd( self, event ):
 		event.Skip()
 
-	def onMenuFootprintsEdit( self, event ):
+	def onMenuFootprintDuplicatePart( self, event ):
 		event.Skip()
 
-	def onMenuFootprintsDelete( self, event ):
+	def onMenuFootprintEdit( self, event ):
+		event.Skip()
+
+	def onMenuFootprintRemove( self, event ):
 		event.Skip()
 
 	def splitter_horzOnIdle( self, event ):
@@ -157,6 +168,6 @@ class PanelFootprintList ( wx.Panel ):
 		self.splitter_horz.Unbind( wx.EVT_IDLE )
 
 	def PanelFootprintListOnContextMenu( self, event ):
-		self.PopupMenu( self.menu_footprints, event.GetPosition() )
+		self.PopupMenu( self.menu_footprint, event.GetPosition() )
 
 

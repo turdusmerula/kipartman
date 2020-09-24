@@ -32,3 +32,7 @@ def create():
     footprint = KicadFootprint()
     
     return footprint
+
+def save(footprint):
+    footprint.save()
+    

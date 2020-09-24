@@ -33,7 +33,7 @@ class FootprintsFrame(PanelFootprints):
         self.panel_footprint_list = FootprintListFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
 #         self.panel_footprint_list.Bind( frames.part_list_frame.EVT_ENTER_EDIT_MODE, self.onPartsEnterEditMode )
 #         self.panel_footprint_list.Bind( frames.part_list_frame.EVT_EXIT_EDIT_MODE, self.onPartsExitEditMode )
-#         self.panel_footprint_list.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onPartsFilterChanged )
+        self.panel_footprint_list.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFootprintsFilterChanged )
 
         # organize panels
         self.splitter_vert.Unsplit()
@@ -52,6 +52,10 @@ class FootprintsFrame(PanelFootprints):
         self.panel_footprint_list.Filters.replace(FilterLibraryPath(event.path), 'path')
         event.Skip()
 
+    def onFootprintsFilterChanged( self, event ):
+        if len(self.panel_footprint_list.Filters.get_filters_group('path'))==0:
+            self.panel_libraries.UnselectAll()
+        event.Skip()
 
 
 

@@ -133,7 +133,8 @@ class EditPartFrame(PanelEditPart):
             self.button_part_editApply.Enabled = False
         else:
             self.button_part_editApply.Enabled = True
-                        
+
+
     def onButtonPartEditApply( self, event ):
         # save part
         self.part.save()

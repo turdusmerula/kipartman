@@ -16,7 +16,7 @@ def migrate_symbols(apps, schema_editor):
             for s in LibrarySymbol.objects.all():
                 if part.symbol.source_path==os.path.join(s.library.path, s.name+".mod"):
                     symbol = s
-            if s is None:
+            if symbol is None:
                 print(f"no match found for symbol {part.symbol.source_path}")
             part.newsymbol = symbol
             part.save()

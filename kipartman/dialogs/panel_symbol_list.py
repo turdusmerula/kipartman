@@ -96,15 +96,22 @@ class PanelSymbolList ( wx.Panel ):
 
 		self.SetSizer( bSizer1 )
 		self.Layout()
-		self.menu_symbols = wx.Menu()
-		self.menu_symbols_add = wx.MenuItem( self.menu_symbols, wx.ID_ANY, u"Add symbol", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_symbols.Append( self.menu_symbols_add )
+		self.menu_symbol = wx.Menu()
+		self.menu_symbol_add = wx.MenuItem( self.menu_symbol, wx.ID_ANY, u"Add symbol", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_symbol_add.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_symbol.Append( self.menu_symbol_add )
 
-		self.menu_symbols_edit = wx.MenuItem( self.menu_symbols, wx.ID_ANY, u"Edit symbol", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_symbols.Append( self.menu_symbols_edit )
+		self.menu_symbol_duplicate = wx.MenuItem( self.menu_symbol, wx.ID_ANY, u"Duplicate symbol", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_symbol_duplicate.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_symbol.Append( self.menu_symbol_duplicate )
 
-		self.menu_symbols_delete = wx.MenuItem( self.menu_symbols, wx.ID_ANY, u"Delete symbol", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_symbols.Append( self.menu_symbols_delete )
+		self.menu_symbol_edit = wx.MenuItem( self.menu_symbol, wx.ID_ANY, u"Edit symbol", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_symbol_edit.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_symbol.Append( self.menu_symbol_edit )
+
+		self.menu_symbol_remove = wx.MenuItem( self.menu_symbol, wx.ID_ANY, u"Remove symbol", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_symbol_remove.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_symbol.Append( self.menu_symbol_remove )
 
 		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelSymbolListOnContextMenu )
 
@@ -116,9 +123,10 @@ class PanelSymbolList ( wx.Panel ):
 		self.search_symbols.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchSymbolsButton )
 		self.search_symbols.Bind( wx.EVT_TEXT_ENTER, self.onSearchSymbolsTextEnter )
 		self.button_refresh_symbols.Bind( wx.EVT_BUTTON, self.onButtonRefreshSymbolsClick )
-		self.Bind( wx.EVT_MENU, self.onMenuSymbolsAdd, id = self.menu_symbols_add.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuSymbolsEdit, id = self.menu_symbols_edit.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuSymbolsDelete, id = self.menu_symbols_delete.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuSymbolAdd, id = self.menu_symbol_add.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuSymbolDuplicate, id = self.menu_symbol_duplicate.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuSymbolEdit, id = self.menu_symbol_edit.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuSymbolRemove, id = self.menu_symbol_remove.GetId() )
 
 	def __del__( self ):
 		pass
@@ -143,13 +151,16 @@ class PanelSymbolList ( wx.Panel ):
 	def onButtonRefreshSymbolsClick( self, event ):
 		event.Skip()
 
-	def onMenuSymbolsAdd( self, event ):
+	def onMenuSymbolAdd( self, event ):
 		event.Skip()
 
-	def onMenuSymbolsEdit( self, event ):
+	def onMenuSymbolDuplicate( self, event ):
 		event.Skip()
 
-	def onMenuSymbolsDelete( self, event ):
+	def onMenuSymbolEdit( self, event ):
+		event.Skip()
+
+	def onMenuSymbolRemove( self, event ):
 		event.Skip()
 
 	def splitter_horzOnIdle( self, event ):
@@ -157,6 +168,6 @@ class PanelSymbolList ( wx.Panel ):
 		self.splitter_horz.Unbind( wx.EVT_IDLE )
 
 	def PanelSymbolListOnContextMenu( self, event ):
-		self.PopupMenu( self.menu_symbols, event.GetPosition() )
+		self.PopupMenu( self.menu_symbol, event.GetPosition() )
 
 

@@ -1,31 +1,15 @@
 from dialogs.panel_symbol_list import PanelSymbolList
 import frames.edit_symbol_frame
-import os
-import helper.tree
-import helper.filter
 from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager, KicadSymbolFile, KicadSymbol
 import kicad.kicad_file_manager
 import api.data.kicad_symbol_library
 import api.data.kicad_symbol
-from helper.log import log
-from builtins import isinstance
+import os
 import wx
-
-# from dialogs.panel_symbols import PanelSymbols
-# from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_SYMBOL_APPLY_EVENT, EVT_EDIT_SYMBOL_CANCEL_EVENT
-# from helper.filter import Filter
-# import rest 
-# import helper.tree
-# import os
-# from helper.tree import TreeImageList
-# from helper.exception import print_stack
-# from configuration import configuration
-# import wx
-# import re
-# import sync
-# import json
-# from helper.connection import check_backend
-# from helper.profiler import Trace
+import helper.tree
+import helper.filter
+from helper.log import log
+from helper.filter import Filter
 
 class Library(helper.tree.TreeContainerItem):
     def __init__(self, library):
@@ -100,41 +84,57 @@ class TreeManagerSymbols(helper.tree.TreeManager):
 
     def _get_libraries(self):
         res = []
-        filters = self.filters.get_filters()
+        filters = self.filters.get_filters_group("path")
         for library in self.library_manager.Libraries:
             filter = False
-            for f in self.filters.get_filters():
+            for f in filters:
                 filter = filter or f.apply(library)
             if filter==False:
                 res.append(library)
         return res
     
     def LoadFlat(self):
+        filters = self.filters.get_filters()
+
         for library in self._get_libraries():
             for symbol in library.Symbols:
-                symbolobj = self.FindSymbol(symbol)
-                if symbolobj is None:
-                    symbolobj = self.AppendSymbol(None, symbol)
-                else:
-                    symbolobj.symbol = symbol
-                    self.Update(symbolobj)
+                filter = False
+                for f in filters:
+                    filter = filter or f.apply(symbol)
+                if filter==False:    
+                    symbolobj = self.FindSymbol(symbol)
+                    if symbolobj is None:
+                        symbolobj = self.AppendSymbol(None, symbol)
+                    else:
+                        symbolobj.symbol = symbol
+                        self.Update(symbolobj)
     
     def LoadTree(self):
+        filters = self.filters.get_filters()
         for library in self._get_libraries():
-            libraryobj = self.FindLibrary(library)
-            if libraryobj is None:
-                libraryobj = self.AppendLibrary(library)
-            else:
-                libraryobj.library = library
-                self.Update(libraryobj)
-                
+            library_symbols = []
             for symbol in library.Symbols:
-                symbolobj = self.FindSymbol(symbol)
-                if symbolobj is None:
-                    symbolobj = self.AppendSymbol(libraryobj, symbol)
+                filter = False
+                for f in filters:
+                    filter = filter or f.apply(symbol)
+                if filter==False:
+                    library_symbols.append(symbol)
+             
+            if len(library_symbols)>0:
+                libraryobj = self.FindLibrary(library)
+                if libraryobj is None:
+                    libraryobj = self.AppendLibrary(library)
                 else:
-                    symbolobj.symbol = symbol
-                    self.Update(symbolobj)
+                    libraryobj.library = library
+                    self.Update(libraryobj)
+             
+                for symbol in library_symbols:
+                    symbolobj = self.FindSymbol(symbol)
+                    if symbolobj is None:
+                        symbolobj = self.AppendSymbol(libraryobj, symbol)
+                    else:
+                        symbolobj.symbol = symbol
+                        self.Update(symbolobj)
     
     def FindSymbol(self, symbol):
         for data in self.data:
@@ -168,15 +168,31 @@ class TreeManagerSymbols(helper.tree.TreeManager):
         self.Append(libraryobj, symbolobj)
         return symbolobj
  
-class FilterLibraryPath(api.data.kicad_symbol_library.FilterPath):
+class FilterLibraryPath(helper.filter.Filter):
     def __init__(self, path):
-        super(FilterLibraryPath, self).__init__(path)
+        self.path = path
+        super(FilterLibraryPath, self).__init__()
     
-    def apply(self, request):
-        if isinstance(request, kicad.kicad_file_manager_symbols.KicadLibrary):
-            return request.Path.startswith(self.path)==False
-        else:
-            return super(FilterLibraryPath, self).apply(request)
+    def apply(self, library):
+        if isinstance(library, kicad.kicad_file_manager_symbols.KicadSymbolLibrary):
+            return library.Path.startswith(self.path)==False
+        return False
+    
+    def __str__(self):
+        return f"path: {self.path}"
+    
+class FilterTextSearch(helper.filter.Filter):
+    def __init__(self, value):
+        self.value = value
+        super(FilterTextSearch, self).__init__()
+    
+    def apply(self, symbol):
+        if isinstance(symbol, kicad.kicad_file_manager_symbols.KicadSymbol):
+            return not ( self.value in symbol.Content or self.value in symbol.Metadata or self.value in symbol.Name )
+        return False
+    
+    def __str__(self):
+        return f"search: {self.value}"
 
 (EnterEditModeEvent, EVT_ENTER_EDIT_MODE) = wx.lib.newevent.NewEvent()
 (ExitEditModeEvent, EVT_EXIT_EDIT_MODE) = wx.lib.newevent.NewEvent()
@@ -194,7 +210,7 @@ class SymbolListFrame(PanelSymbolList):
         self.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
 
         # create symbol list
-        self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbols, filters=self.Filters, library_manager=self.library_manager)
+        self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbol, filters=self.Filters, library_manager=self.library_manager)
         self.tree_symbols_manager.AddTextColumn("name")
         self.tree_symbols_manager.OnSelectionChanged = self.onTreeModelsSelChanged
         self.tree_symbols_manager.OnItemBeforeContextMenu = self.onTreeModelsBeforeContextMenu
@@ -262,30 +278,24 @@ class SymbolListFrame(PanelSymbolList):
         self.EditMode = True
         self.panel_edit_symbol.EditSymbol(symbol)
         self._enable(False)
+
     
-    
-    def onFileLibChanged(self, event):
-        # do a synchronize when a file change on disk
-        self.tree_symbols_manager.Load()
+    def onToggleSymbolPathClicked( self, event ):
+        self.Flat = not self.toolbar_symbol.GetToolState(self.toggle_symbol_path.GetId())
+        event.Skip()
 
     def onButtonRefreshSymbolsClick( self, event ):
         self.library_manager.Reload()
         self.tree_symbols_manager.Load()
 
-    def onTreeModelsBeforeContextMenu( self, event ):
-        item = self.tree_symbols.GetSelection()
-        if item.IsOk()==False:
-            return    
-        obj = self.tree_symbols_manager.ItemToObject(item)
- 
-        self.menu_symbols_add.Enable(True)
-        self.menu_symbols_delete.Enable(True)
-        self.menu_symbols_edit.Enable(True)
-        if isinstance(obj, Symbol):
-            self.menu_symbols_add.Enable(False)
-        else:
-            self.menu_symbols_delete.Enable(False)
-            self.menu_symbols_edit.Enable(False)
+    def onFileLibChanged(self, event):
+        # do a synchronize when a file change on disk
+        self.tree_symbols_manager.Load()
+
+    def onFilterChanged( self, event ):
+        self.tree_symbols_manager.Load()
+        self._expand_libraries()
+        event.Skip()
 
     def onTreeModelsSelChanged( self, event ):
         item = self.tree_symbols.GetSelection()
@@ -298,16 +308,24 @@ class SymbolListFrame(PanelSymbolList):
         self.panel_edit_symbol.SetSymbol(obj.symbol)
         event.Skip()
 
-    def onToggleSymbolPathClicked( self, event ):
-        self.Flat = not self.toolbar_symbol.GetToolState(self.toggle_symbol_path.GetId())
-        event.Skip()
+    def onTreeModelsBeforeContextMenu( self, event ):
+        item = self.tree_symbols.GetSelection()
+        if item.IsOk()==False:
+            return    
+        obj = self.tree_symbols_manager.ItemToObject(item)
+ 
+        self.menu_symbol_add.Enable(True)
+        self.menu_symbol_duplicate.Enable(True)
+        self.menu_symbol_remove.Enable(True)
+        self.menu_symbol_edit.Enable(True)
+        if isinstance(obj, Symbol):
+            self.menu_symbol_add.Enable(False)
+        else:
+            self.menu_symbol_duplicate.Enable(False)
+            self.menu_symbol_remove.Enable(False)
+            self.menu_symbol_edit.Enable(False)
 
-    def onFilterChanged( self, event ):
-        self.tree_symbols_manager.Load()
-        self._expand_libraries()
-        event.Skip()
-
-    def onMenuSymbolsAdd( self, event ):
+    def onMenuSymbolAdd( self, event ):
         item = self.tree_symbols.GetSelection()
         library = None
         if item.IsOk():
@@ -328,81 +346,84 @@ class SymbolListFrame(PanelSymbolList):
         
         event.Skip()
 
-    def onMenuSymbolsEdit( self, event ):
+    def onMenuSymbolDuplicate( self, event ):
+        item = self.tree_symbols.GetSelection()
+        
         event.Skip()
 
-    def onMenuSymbolsDelete( self, event ):
+    def onMenuSymbolEdit( self, event ):
+        item = self.tree_symbols.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_symbols_manager.ItemToObject(item)
+        if isinstance(obj, Library)==False:
+            return
+        self.EditSymbol(obj.symbol)
+        event.Skip()
+
+    def onMenuSymbolRemove( self, event ):
+        item = self.tree_symbols.GetSelection()
+        if item.IsOk()==False:
+            return
+        obj = self.tree_symbols_manager.ItemToObject(item)
+        
+        symbols_to_remove = []
+        library_to_remove = None
+        if isinstance(obj, Library):
+            library_to_remove = obj.library
+            for symbol in obj.library.Symbols:
+                symbols_to_remove.append(symbol)
+        else:
+            symbols_to_remove.append(obj.symbol)
+        
+        associated_parts = api.data.part.find([api.data.part.FilterFootprints(symbol.symbol_model for symbol in symbols_to_remove)])
+        if len(associated_parts.all())>0:
+            dlg = wx.MessageDialog(self, f"There is {len(associated_parts.all())} parts associated with selection, remove anyway?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
+        else:
+            dlg = wx.MessageDialog(self, f"Remove selection?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
+        if dlg.ShowModal()==wx.ID_YES:
+            try:
+                if library_to_remove is None:
+                    for symbol in symbols_to_remove:
+                        self.library_manager.RemoveSymbol(symbol)
+                else:
+                    self.library_manager.RemoveLibrary(library_to_remove)
+            except Exception as e:
+                print_stack()
+                wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
+                dlg.Destroy()
+                return
+
+            self.library_manager.Reload()
+            self.tree_symbols_manager.Load()
+
+        dlg.Destroy()
         event.Skip()
 # 
     def onEditSymbolApply( self, event ):
-        pass
-
-    def onSearchSymbolsCancel( self, event ):
+        self.tree_symbols_manager.Load()
+        self.SetFootprint(event.data)
         event.Skip()
 
-    def onSearchSymbolsButton( self, event ):
-        event.Skip()
-
-    def onSearchSymbolsTextEnter( self, event ):
-        event.Skip()
-
-#         symbol = event.data
-#         symbol_name = event.symbol_name
-#                 
-#         if self.edit_state=='add':
-#             # get library path
-#             library_path = ''
-#             symbol_path = os.path.join(symbol.source_path, symbol_name)
-#             try:
-#                 self.manager_lib.CreateFile(symbol_path, symbol.content)
-#             except Exception as e:
-#                 print_stack()
-#                 wx.MessageBox(format(e), 'Error creating symbol', wx.OK | wx.ICON_ERROR)                                    
-#                 return
-#             
-#         elif self.edit_state=='edit':
-#             # change library name if changed on disk
-#             library_path = os.path.dirname(symbol.source_path)
-#             symbol_path = os.path.normpath(os.path.join(library_path, symbol_name))
-#             
-#             if os.path.normpath(symbol.source_path)!=symbol_path:
-#                 # file was renamed
-#                 if self.tree_symbols.GetSelection().IsOk():
-#                     symbolobj = self.tree_symbols_manager.ItemToObject(self.tree_symbols.GetSelection())
-#                     try:
-#                         symbolobj.symbol = self.manager_lib.MoveFile(symbol.source_path, os.path.join(library_path, symbol_name))
-#                     except Exception as e:
-#                         print_stack()
-#                         wx.MessageBox(format(e), 'Error renaming symbol', wx.OK | wx.ICON_ERROR)                                    
-#                         return
-#             try:
-#                 if symbol.content:
-#                     self.manager_lib.EditFile(symbol_path, symbol.content, create=True)
-#             except Exception as e:
-#                 print_stack()
-#                 wx.MessageBox(format(e), 'Error editing symbol', wx.OK | wx.ICON_ERROR)                                    
-#                 return
-#             
-#         else:
-#             return
-#         
-#         self.manager_lib.EditMetadata(symbol_path, symbol.metadata)
-#         
-#         self.edit_state = None
-#         self.show_symbol(symbol)
-# 
-#         self.load()
-# 
     def onEditSymbolCancel( self, event ):
         self.tree_symbols_manager.Load()
-        
-        # reload the part after changing it
+
         item = self.tree_symbols.GetSelection()
         obj = self.tree_symbols_manager.ItemToObject(item)
         if isinstance(obj, Symbol):
             self.SetSymbol(obj.symbol)
         else:
             self.SetSymbol(None)
+        event.Skip()
 
-        self.EditMode = False        
+    def onSearchSymbolsCancel( self, event ):
+        self._filters.remove_group('search')
+        event.Skip()
+
+    def onSearchSymbolsButton( self, event ):
+        self._filters.replace(FilterTextSearch(self.search_symbols.Value), 'search')
+        event.Skip()
+
+    def onSearchSymbolsTextEnter( self, event ):
+        self._filters.replace(FilterTextSearch(self.search_symbols.Value), 'search')
         event.Skip()

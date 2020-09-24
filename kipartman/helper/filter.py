@@ -70,11 +70,13 @@ class FilterSet(wx.EvtHandler):
             filters = self.filters[name]
             if filter in filters:
                 filters.remove(filter)
+        self.refresh_filter_panel()
         wx.PostEvent(self, FilterChangedEvent())
 
     def remove_group(self, name):
         if name in self.filters:
             self.filters.pop(name)
+        self.refresh_filter_panel()
         wx.PostEvent(self, FilterChangedEvent())
 
     def onCheckFilterClick( self, event ):
@@ -99,7 +101,7 @@ class FilterSet(wx.EvtHandler):
             return []
                 
         return self.filters[group]
-
+                
 class Filter(object):
     def __init__(self):
         pass

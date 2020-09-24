@@ -43,6 +43,16 @@ class FilterSymbols(Filter):
         
         return request.filter(symbol_id__in=symbols_ids)
 
+class FilterFootprints(Filter):
+    def __init__(self, footprints):
+        self.footprints = footprints
+        super(FilterFootprints, self).__init__()
+    
+    def apply(self, request):
+        footprints_ids = [footprint.id for footprint in self.footprints]        
+        
+        return request.filter(footprint_id__in=footprints_ids)
+
 class FilterTextSearch(Filter):
     def __init__(self, value):
         self.value = value

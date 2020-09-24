@@ -3,6 +3,8 @@ encoding//env/lib/python3.6/site-packages/watchdog-0.10.3-py3.6.egg/watchdog/obs
 encoding//kipartman/api/config/urls.py=utf-8
 encoding//kipartman/api/migrations/0001_initial.py=utf-8
 encoding//kipartman/api/migrations/0002_initial_data.py=utf-8
+encoding//kipartman/api/migrations/0003_auto_20170602_1025.py=utf-8
+encoding//kipartman/api/migrations/0004_auto_20170602_1454.py=utf-8
 encoding//kipartman/api/models.py=utf-8
 encoding//kipartman/api/tests.py=utf-8
 encoding//kipartman/dialogs/dialog_buy.py=utf-8

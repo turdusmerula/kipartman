@@ -33,7 +33,7 @@ class SymbolsFrame(PanelSymbols):
         self.panel_symbol_list = SymbolListFrame(self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
 #         self.panel_symbol_list.Bind( frames.part_list_frame.EVT_ENTER_EDIT_MODE, self.onPartsEnterEditMode )
 #         self.panel_symbol_list.Bind( frames.part_list_frame.EVT_EXIT_EDIT_MODE, self.onPartsExitEditMode )
-#         self.panel_symbol_list.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onPartsFilterChanged )
+        self.panel_symbol_list.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onSymbolsFilterChanged )
 
         # organize panels
         self.splitter_vert.Unsplit()
@@ -50,4 +50,9 @@ class SymbolsFrame(PanelSymbols):
     
     def onSymbolLibrarySelectionChanged( self, event ):
         self.panel_symbol_list.Filters.replace(FilterLibraryPath(event.path), 'path')
+        event.Skip()
+
+    def onSymbolsFilterChanged( self, event ):
+        if len(self.panel_symbol_list.Filters.get_filters_group('path'))==0:
+            self.panel_libraries.UnselectAll()
         event.Skip()
