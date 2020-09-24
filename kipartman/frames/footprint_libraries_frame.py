@@ -315,9 +315,9 @@ class FootprintLibrariesFrame(PanelFootprintLibraries):
         if dlg.ShowModal()==wx.ID_YES:
             try:
                 for library in libraries_to_remove:
-                    self.library_manager.DeleteLibrary(library)
+                    self.library_manager.RemoveLibrary(library)
                 if remove_path is not None:
-                    self.library_manager.DeleteFolder(path)
+                    self.library_manager.RemoveFolder(path)
             except Exception as e:
                 print_stack()
                 wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)

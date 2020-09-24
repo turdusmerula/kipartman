@@ -280,7 +280,6 @@ class FootprintListFrame(PanelFootprintList):
         self.panel_edit_footprint.EditFootprint(footprint)
         self._enable(False)
 
-
     
     def onToggleFootprintPathClicked( self, event ):
         self.Flat = not self.toolbar_footprint.GetToolState(self.toggle_footprint_path.GetId())
@@ -312,20 +311,22 @@ class FootprintListFrame(PanelFootprintList):
 
     def onTreeModelsBeforeContextMenu( self, event ):
         item = self.tree_footprints.GetSelection()
+ 
+        self.menu_footprint_add.Enable(False)
+        self.menu_footprint_duplicate.Enable(False)
+        self.menu_footprint_remove.Enable(False)
+        self.menu_footprint_edit.Enable(False)
+
         if item.IsOk()==False:
             return    
         obj = self.tree_footprints_manager.ItemToObject(item)
- 
-        self.menu_footprint_add.Enable(True)
-        self.menu_footprint_duplicate.Enable(True)
-        self.menu_footprint_remove.Enable(True)
-        self.menu_footprint_edit.Enable(True)
+        
         if isinstance(obj, Footprint):
-            self.menu_footprint_add.Enable(False)
+            self.menu_footprint_duplicate.Enable(True)
+            self.menu_footprint_remove.Enable(True)
+            self.menu_footprint_edit.Enable(True)
         else:
-            self.menu_footprint_duplicate.Enable(False)
-            self.menu_footprint_remove.Enable(False)
-            self.menu_footprint_edit.Enable(False)
+            self.menu_footprint_add.Enable(True)
 
     def onMenuFootprintAdd( self, event ):
         item = self.tree_footprints.GetSelection()

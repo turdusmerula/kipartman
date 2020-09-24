@@ -10,6 +10,7 @@ import helper.tree
 import helper.filter
 from helper.log import log
 from helper.filter import Filter
+from helper.exception import print_stack
 
 class Library(helper.tree.TreeContainerItem):
     def __init__(self, library):
@@ -279,6 +280,11 @@ class SymbolListFrame(PanelSymbolList):
         self.panel_edit_symbol.EditSymbol(symbol)
         self._enable(False)
 
+    def AddSymbol(self, library):
+        self.EditMode = True
+        self.panel_edit_symbol.AddSymbol(library)
+        self._enable(False)
+
     
     def onToggleSymbolPathClicked( self, event ):
         self.Flat = not self.toolbar_symbol.GetToolState(self.toggle_symbol_path.GetId())
@@ -310,20 +316,22 @@ class SymbolListFrame(PanelSymbolList):
 
     def onTreeModelsBeforeContextMenu( self, event ):
         item = self.tree_symbols.GetSelection()
-        if item.IsOk()==False:
-            return    
-        obj = self.tree_symbols_manager.ItemToObject(item)
  
-        self.menu_symbol_add.Enable(True)
-        self.menu_symbol_duplicate.Enable(True)
-        self.menu_symbol_remove.Enable(True)
-        self.menu_symbol_edit.Enable(True)
+        self.menu_symbol_add.Enable(False)
+        self.menu_symbol_duplicate.Enable(False)
+        self.menu_symbol_remove.Enable(False)
+        self.menu_symbol_edit.Enable(False)
+
+        if item.IsOk()==False:
+            return 
+        obj = self.tree_symbols_manager.ItemToObject(item)
+
         if isinstance(obj, Symbol):
-            self.menu_symbol_add.Enable(False)
+            self.menu_symbol_duplicate.Enable(True)
+            self.menu_symbol_remove.Enable(True)
+            self.menu_symbol_edit.Enable(True)
         else:
-            self.menu_symbol_duplicate.Enable(False)
-            self.menu_symbol_remove.Enable(False)
-            self.menu_symbol_edit.Enable(False)
+            self.menu_symbol_add.Enable(True)
 
     def onMenuSymbolAdd( self, event ):
         item = self.tree_symbols.GetSelection()
@@ -338,11 +346,8 @@ class SymbolListFrame(PanelSymbolList):
         if library is None:
             # TODO
             return
-        
-        symbol_file = KicadSymbolFile(library.library_file, "", "")
-        symbol = KicadSymbol(library, symbol_file=symbol_file)
-        
-        self.EditSymbol(symbol)
+                
+        self.AddSymbol(library)
         
         event.Skip()
 
@@ -356,7 +361,7 @@ class SymbolListFrame(PanelSymbolList):
         if not item.IsOk():
             return
         obj = self.tree_symbols_manager.ItemToObject(item)
-        if isinstance(obj, Library)==False:
+        if isinstance(obj, Symbol)==False:
             return
         self.EditSymbol(obj.symbol)
         event.Skip()
@@ -402,7 +407,8 @@ class SymbolListFrame(PanelSymbolList):
 # 
     def onEditSymbolApply( self, event ):
         self.tree_symbols_manager.Load()
-        self.SetFootprint(event.data)
+        self.SetSymbol(event.data)
+        self.EditMode = False
         event.Skip()
 
     def onEditSymbolCancel( self, event ):
@@ -414,6 +420,7 @@ class SymbolListFrame(PanelSymbolList):
             self.SetSymbol(obj.symbol)
         else:
             self.SetSymbol(None)
+        self.EditMode = False
         event.Skip()
 
     def onSearchSymbolsCancel( self, event ):

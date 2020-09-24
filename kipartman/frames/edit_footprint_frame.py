@@ -1,5 +1,4 @@
 from dialogs.panel_edit_footprint import PanelEditFootprint
-from frames.draw_footprint_frame import DrawFootprintFrame
 from frames.dropdown_dialog import DropdownDialog
 import wx.lib.newevent
 from helper.exception import print_stack
@@ -21,13 +20,16 @@ def NoneValue(value, default):
 class EditFootprintFrame(PanelEditFootprint): 
     def __init__(self, parent):
         super(EditFootprintFrame, self).__init__(parent)
-        self.snapeda_uid = ''
-        self.footprint_path = ''
+        
+        # set initial state
+        self.SetFootprint(None)
+        self._enable(False)
         
     def SetFootprint(self, footprint):
         self.footprint = footprint
         self._show_footprint(footprint)
         self._enable(False)
+        self._check()
 
     def EditFootprint(self, footprint):
         self.footprint = footprint

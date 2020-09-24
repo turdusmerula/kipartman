@@ -1,6 +1,6 @@
 from dialogs.panel_symbol_libraries import PanelSymbolLibraries
 # from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_SYMBOL_APPLY_EVENT, EVT_EDIT_SYMBOL_CANCEL_EVENT
-from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager
+from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager, KicadSymbolFile, KicadSymbol
 import kicad.kicad_file_manager
 import helper.tree
 import os
@@ -117,6 +117,7 @@ class TreeManagerLibraries(helper.tree.TreeManager):
         self.Append(pathobj, libraryobj)
 
 (SelectLibraryEvent, EVT_SELECT_LIBRARY) = wx.lib.newevent.NewEvent()
+(AddSymbolEvent, EVT_ADD_SYMBOL) = wx.lib.newevent.NewEvent()
 
 class SymbolLibrariesFrame(PanelSymbolLibraries): 
     def __init__(self, *args, **kwargs):
@@ -315,9 +316,9 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         if dlg.ShowModal()==wx.ID_YES:
             try:
                 for library in libraries_to_remove:
-                    self.library_manager.DeleteLibrary(library)
+                    self.library_manager.RemoveLibrary(library)
                 if remove_path is not None:
-                    self.library_manager.DeleteFolder(path)
+                    self.library_manager.RemoveFolder(path)
             except Exception as e:
                 print_stack()
                 wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
@@ -336,9 +337,9 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         obj = self.tree_libraries_manager.ItemToObject(item)
         if isinstance(obj, Library)==False:
             return
-# 
-#         self.edit_state = 'add'
-#         self.new_symbol(obj.path)
+        
+        wx.PostEvent(self, AddSymbolEvent(library=obj.library))
+        
         event.Skip()
 
     def onTreeLibrariesBeforeContextMenu( self, event ):
