@@ -167,7 +167,7 @@ def save(self, overload, *args, **kwargs):
                     getattr(self, field).add(el)
                 else:
                     raise f"{field.name}: save not implemented for this relation "
-                     
+        pendings.clear()
      
     return res
  

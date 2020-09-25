@@ -4,8 +4,8 @@ from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager, KicadSym
 import kicad.kicad_file_manager
 import api.data.kicad_symbol_library
 import api.data.kicad_symbol
-import os
 import wx
+import os
 import helper.tree
 import helper.filter
 from helper.log import log
@@ -353,6 +353,7 @@ class SymbolListFrame(PanelSymbolList):
 
     def onMenuSymbolDuplicate( self, event ):
         item = self.tree_symbols.GetSelection()
+        library = None
         
         event.Skip()
 
@@ -407,7 +408,7 @@ class SymbolListFrame(PanelSymbolList):
 # 
     def onEditSymbolApply( self, event ):
         self.tree_symbols_manager.Load()
-        
+
         symbol = event.data
         symbolobj = self.tree_symbols_manager.FindSymbol(symbol)
         self.tree_symbols_manager.Select(symbolobj)

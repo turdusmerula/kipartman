@@ -9,8 +9,8 @@ import os
 import helper.tree
 import helper.filter
 from helper.log import log
-from helper.exception import print_stack
 from helper.filter import Filter
+from helper.exception import print_stack
 
 class Library(helper.tree.TreeContainerItem):
     def __init__(self, library):
@@ -280,6 +280,11 @@ class FootprintListFrame(PanelFootprintList):
         self.panel_edit_footprint.EditFootprint(footprint)
         self._enable(False)
 
+    def AddFootprint(self, library):
+        self.EditMode = True
+        self.panel_edit_footprint.AddFootprint(library)
+        self._enable(False)
+
     
     def onToggleFootprintPathClicked( self, event ):
         self.Flat = not self.toolbar_footprint.GetToolState(self.toggle_footprint_path.GetId())
@@ -341,11 +346,8 @@ class FootprintListFrame(PanelFootprintList):
         if library is None:
             # TODO
             return
-        
-        footprint_file = KicadFootprintFile(library.library_file, "", "")
-        footprint = KicadFootprint(library, footprint_file=footprint_file)
-        
-        self.EditFootprint(footprint)
+                
+        self.AddFootprint(library)
         
         event.Skip()
 
@@ -406,7 +408,13 @@ class FootprintListFrame(PanelFootprintList):
 # 
     def onEditFootprintApply( self, event ):
         self.tree_footprints_manager.Load()
-        self.SetFootprint(event.data)
+
+        footprint = event.data
+        footprintobj = self.tree_footprints_manager.FindFootprint(footprint)
+        self.tree_footprints_manager.Select(footprintobj)
+
+        self.SetFootprint(footprint)
+        self.EditMode = False
         event.Skip()
 
     def onEditFootprintCancel( self, event ):
@@ -418,6 +426,7 @@ class FootprintListFrame(PanelFootprintList):
             self.SetFootprint(obj.footprint)
         else:
             self.SetFootprint(None)
+        self.EditMode = False
         event.Skip()
 
     def onSearchFootprintsCancel( self, event ):

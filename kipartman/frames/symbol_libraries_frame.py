@@ -1,5 +1,4 @@
 from dialogs.panel_symbol_libraries import PanelSymbolLibraries
-# from frames.edit_symbol_frame import EditSymbolFrame, EVT_EDIT_SYMBOL_APPLY_EVENT, EVT_EDIT_SYMBOL_CANCEL_EVENT
 from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager, KicadSymbolFile, KicadSymbol
 import kicad.kicad_file_manager
 import helper.tree
@@ -353,7 +352,9 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         obj = self.tree_libraries_manager.ItemToObject(item)
 
         if isinstance(obj, Library):
-            self.menu_libraries_add_folder.Enable(False)
+#             self.menu_libraries_add_folder.Enable(False)
             self.menu_libraries_add_symbol.Enable(True)
-
+        if isinstance(obj, LibraryPath):
+            self.menu_libraries_add_library.Enable(True)
+            
         event.Skip()
