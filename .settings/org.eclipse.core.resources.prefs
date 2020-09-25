@@ -6,6 +6,7 @@ encoding//kipartman/api/migrations/0002_initial_data.py=utf-8
 encoding//kipartman/api/migrations/0003_auto_20170602_1025.py=utf-8
 encoding//kipartman/api/migrations/0004_auto_20170602_1454.py=utf-8
 encoding//kipartman/api/models.py=utf-8
+encoding//kipartman/api/models2.py=utf-8
 encoding//kipartman/api/tests.py=utf-8
 encoding//kipartman/dialogs/dialog_buy.py=utf-8
 encoding//kipartman/dialogs/dialog_configuration.py=utf-8

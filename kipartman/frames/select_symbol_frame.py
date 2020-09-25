@@ -27,7 +27,7 @@ class Library(helper.tree.TreeContainerItem):
         return True
 
     def GetAttr(self, col, attr):
-        if col==1:
+        if col==0:
             attr.Bold = True
             return True
         return False

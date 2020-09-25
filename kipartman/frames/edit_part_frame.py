@@ -91,7 +91,7 @@ class EditPartFrame(PanelEditPart):
             self.edit_part_description.Value = NoneValue(part.description, "")
             self.edit_part_comment.Value = NoneValue(part.comment, '')
             if part.footprint:
-                self.button_part_footprint.Label = os.path.basename(part.footprint.source_path).replace(".kicad_mod", "")
+                self.button_part_footprint.Label = part.footprint.name
             else:
                 self.button_part_footprint.Label = "<none>"
             if part.symbol:

@@ -343,15 +343,17 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         event.Skip()
 
     def onTreeLibrariesBeforeContextMenu( self, event ):
+        self.menu_libraries_add_folder.Enable(True)
+        self.menu_libraries_add_library.Enable(False)
+        self.menu_libraries_add_symbol.Enable(False)
+        
         item = self.tree_libraries.GetSelection()
         if item.IsOk()==False:
             return    
         obj = self.tree_libraries_manager.ItemToObject(item)
 
-        self.menu_libraries_add_folder.Enable(True)
-        self.menu_libraries_add_library.Enable(True)
-        self.menu_libraries_add_symbol.Enable(True)
-        if isinstance(obj, Library)==False:
-            self.menu_libraries_add_symbol.Enable(False)
+        if isinstance(obj, Library):
+            self.menu_libraries_add_folder.Enable(False)
+            self.menu_libraries_add_symbol.Enable(True)
 
         event.Skip()

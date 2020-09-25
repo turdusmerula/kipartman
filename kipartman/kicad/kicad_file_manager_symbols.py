@@ -685,13 +685,17 @@ class KicadSymbolLibraryManager(KicadFileManager):
     def Folders(self):
         return KicadSymbolLibraryManager.folders
 
-    def CreateFolder(self, path):
+    @staticmethod
+    def CreateFolder(path):
         abspath = os.path.join(configuration.kicad_symbols_path, path)
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Folder '{path}' already exists")
         os.makedirs(abspath)
         
-    def MoveFolder(self, path, newpath):
+        KicadSymbolLibraryManager.loaded = False
+        
+    @staticmethod
+    def MoveFolder(path, newpath):
         abspath = os.path.join(configuration.kicad_symbols_path, path)
         if os.path.exists(abspath)==False:
             raise KicadFileManagerException(f"Folder '{path}' does not exists")
@@ -703,7 +707,7 @@ class KicadSymbolLibraryManager(KicadFileManager):
         def action():
             os.makedirs(os.path.dirname(abspath), exist_ok=True)
             os.rename(abspath, newabspath)
-        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+        KicadSymbolLibraryManager.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
         log.info(f"moved folder '{abspath}' to '{newabspath}'")
         
         # edit database
@@ -713,22 +717,28 @@ class KicadSymbolLibraryManager(KicadFileManager):
                 library.path = re.sub(f"^{path}", f"{newpath}", library.path)
                 api.data.kicad_symbol_library.save(library)
                 log.info(f"moved library '{previous_path}' to '{library.path}'")
-        
-    def CreateLibrary(self, path):
+
+        KicadSymbolLibraryManager.loaded = False
+
+    @staticmethod
+    def CreateLibrary(path):
         abspath = os.path.join(configuration.kicad_symbols_path, path)
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Library '{path}' already exists")
         
         library_file = KicadSymbolLibraryFile(path)
-        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=library_file.Save)
+        KicadSymbolLibraryManager.DisableNotificationsForPath(configuration.kicad_symbols_path, action=library_file.Save)
         
         library = KicadSymbolLibrary(library_file)
         
         KicadSymbolLibraryManager.libraries.append(library)
 
+        KicadSymbolLibraryManager.loaded = False
+
         return library
 
-    def MoveLibrary(self, library, newpath):
+    @staticmethod
+    def MoveLibrary(library, newpath):
         previousname = library.Path
         newname = os.path.basename(newpath)
         newpath = os.path.dirname(newpath)
@@ -741,16 +751,19 @@ class KicadSymbolLibraryManager(KicadFileManager):
         
         def action():
             os.rename(library.AbsPath, os.path.join(newabspath, newname))
-        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+        KicadSymbolLibraryManager.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
         
         library.library_model.path = os.path.join(newpath, newname)
         api.data.kicad_symbol_library.save(library.library_model)
         
         log.info(f"library '{previousname}' renamed to '{os.path.join(newpath, newname)}'")
 
+        KicadSymbolLibraryManager.loaded = False
+
         return library
     
-    def RemoveLibrary(self, library):
+    @staticmethod
+    def RemoveLibrary(library):
         symbols_to_remove = []
         for symbol in library.Symbols:
             symbols_to_remove.append(symbol.symbol_model)
@@ -766,16 +779,21 @@ class KicadSymbolLibraryManager(KicadFileManager):
             os.remove(library.AbsPath)
             if library.library_file is not None and os.path.exists(library.library_file.AbsDcmPath):
                 os.remove(library.library_file.AbsDcmPath)
-        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+        KicadSymbolLibraryManager.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+
+        KicadSymbolLibraryManager.loaded = False
 
         log.info(f"library '{library.Path}' removed")
 
-    def RemoveFolder(self, path):
+    @staticmethod
+    def RemoveFolder(path):
 #         if len(os.listdir(os.path.join(configuration.kicad_symbols_path, path)))>0:
 #             raise KicadFileManagerException(f"Folder '{path}' is not empty")
         def action():
             shutil.rmtree(os.path.join(configuration.kicad_symbols_path, path))
-        self.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+        KicadSymbolLibraryManager.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+
+        KicadSymbolLibraryManager.loaded = False
 
         log.info(f"folder '{path}' removed")
 
@@ -808,6 +826,8 @@ class KicadSymbolLibraryManager(KicadFileManager):
             
         library._symbols.append(symbol)
         
+        KicadSymbolLibraryManager.loaded = False
+        
         return symbol
     
     @staticmethod
@@ -830,10 +850,18 @@ class KicadSymbolLibraryManager(KicadFileManager):
             symbol.Library.library_model.mtime_dcm = symbol.Library.library_file.MtimeDcm
             symbol.Library.library_model.save()
 
+        KicadSymbolLibraryManager.loaded = False
+
     @staticmethod
     def RemoveSymbol(symbol):
         library = symbol.Library
-        
+
+        associated_parts = api.data.part.find([api.data.part.FilterSymbols([symbol.symbol_model])])
+        for associated_part in associated_parts:
+            log.info(f"part '{associated_part.name} dissociated from {associated_part.symbol.name}")
+            associated_part.symbol = None
+            associated_part.save()
+
         if symbol.symbol_file is not None:
             library.library_file._symbols.remove(symbol.symbol_file)
             library.library_file._changed_lib = True
@@ -846,3 +874,5 @@ class KicadSymbolLibraryManager(KicadFileManager):
             library.library_model.save()
             
         library._symbols.remove(symbol)
+
+        KicadSymbolLibraryManager.loaded = False

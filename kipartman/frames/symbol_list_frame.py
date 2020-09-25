@@ -381,7 +381,7 @@ class SymbolListFrame(PanelSymbolList):
         else:
             symbols_to_remove.append(obj.symbol)
         
-        associated_parts = api.data.part.find([api.data.part.FilterFootprints(symbol.symbol_model for symbol in symbols_to_remove)])
+        associated_parts = api.data.part.find([api.data.part.FilterSymbols(symbol.symbol_model for symbol in symbols_to_remove)])
         if len(associated_parts.all())>0:
             dlg = wx.MessageDialog(self, f"There is {len(associated_parts.all())} parts associated with selection, remove anyway?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
         else:
@@ -407,7 +407,12 @@ class SymbolListFrame(PanelSymbolList):
 # 
     def onEditSymbolApply( self, event ):
         self.tree_symbols_manager.Load()
-        self.SetSymbol(event.data)
+        
+        symbol = event.data
+        symbolobj = self.tree_symbols_manager.FindSymbol(symbol)
+        self.tree_symbols_manager.Select(symbolobj)
+
+        self.SetSymbol(symbol)
         self.EditMode = False
         event.Skip()
 

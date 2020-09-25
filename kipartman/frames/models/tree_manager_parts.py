@@ -43,10 +43,8 @@ class Part(helper.tree.TreeContainerLazyItem):
             if self.part.symbol:
                 return self.part.symbol.name
         elif col==5:
-            footprint = ""
             if self.part.footprint:
-                footprint = os.path.basename(self.part.footprint.source_path).replace('.kicad_mod', '')
-            return footprint
+                return self.part.footprint.name
 
         return ""
 
