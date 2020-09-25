@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -35,10 +35,10 @@ class PanelSelectSymbol ( wx.Panel ):
 
 		bSizer61.Add( self.search_symbol, 0, wx.ALL|wx.EXPAND, 5 )
 
-		self.button_refresh_parts = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+		self.button_refresh_symbols = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
-		self.button_refresh_parts.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer61.Add( self.button_refresh_parts, 0, wx.ALL|wx.EXPAND, 5 )
+		self.button_refresh_symbols.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer61.Add( self.button_refresh_symbols, 0, wx.ALL|wx.EXPAND, 5 )
 
 
 		bSizer4.Add( bSizer61, 0, wx.ALIGN_RIGHT, 5 )
@@ -78,10 +78,10 @@ class PanelSelectSymbol ( wx.Panel ):
 		self.Layout()
 
 		# Connect Events
+		self.search_symbol.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchSymbolCancel )
 		self.search_symbol.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchSymbolButton )
 		self.search_symbol.Bind( wx.EVT_TEXT_ENTER, self.onSearchSymbolTextEnter )
-		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
-		self.tree_symbols.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeSymbolsSelectionChanged, id = wx.ID_ANY )
+		self.button_refresh_symbols.Bind( wx.EVT_BUTTON, self.onButtonRefreshSymbolsClick )
 		self.button_symbol_editCancel.Bind( wx.EVT_BUTTON, self.onButtonCancelClick )
 		self.button_symbol_editOK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
 
@@ -90,16 +90,16 @@ class PanelSelectSymbol ( wx.Panel ):
 
 
 	# Virtual event handlers, overide them in your derived class
+	def onSearchSymbolCancel( self, event ):
+		event.Skip()
+
 	def onSearchSymbolButton( self, event ):
 		event.Skip()
 
 	def onSearchSymbolTextEnter( self, event ):
 		event.Skip()
 
-	def onButtonRefreshPartsClick( self, event ):
-		event.Skip()
-
-	def onTreeSymbolsSelectionChanged( self, event ):
+	def onButtonRefreshSymbolsClick( self, event ):
 		event.Skip()
 
 	def onButtonCancelClick( self, event ):
