@@ -1,5 +1,5 @@
 from dialogs.panel_edit_part import PanelEditPart
-# from frames.select_footprint_frame import SelectFootprintFrame
+from frames.select_footprint_frame import SelectFootprintFrame
 from frames.select_symbol_frame import SelectSymbolFrame
 from frames.select_part_frame import SelectPartFrame
 from frames.part_parameters_frame import PartParametersFrame
@@ -160,18 +160,17 @@ class EditPartFrame(PanelEditPart):
         event.Skip()
     
     def onButtonPartFootprintClick( self, event ):
-#         footprint = self.part.footprint
-#         frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame, footprint)
-#         frame.Dropdown(self.onSetFootprintCallback)
+        footprint = self.part.footprint
+        frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame, footprint)
+        frame.Dropdown(self.onSetFootprintCallback)
         event.Skip()
      
-#     def onSetFootprintCallback(self, footprint):
-#         if footprint:
-#             self.button_part_footprint.Label = os.path.basename(footprint.source_path).replace('.kicad_mod', '')
-#         else:
-#             self.button_part_footprint.Label = "<none>"
-#         self.part.footprint = footprint
-#         event.Skip()
+    def onSetFootprintCallback(self, footprint):
+        if footprint:
+            self.button_part_footprint.Label = footprint.Name
+        else:
+            self.button_part_footprint.Label = "<none>"
+        self.part.footprint = footprint.footprint_model
 #         
     def onButtonPartSymbolClick( self, event ):
         symbol = self.part.symbol

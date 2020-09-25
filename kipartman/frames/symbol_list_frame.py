@@ -4,8 +4,8 @@ from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager, KicadSym
 import kicad.kicad_file_manager
 import api.data.kicad_symbol_library
 import api.data.kicad_symbol
-import os
 import wx
+import os
 import helper.tree
 import helper.filter
 from helper.log import log
@@ -68,6 +68,8 @@ class TreeManagerSymbols(helper.tree.TreeManager):
         self.filters = filters
         
         self.flat = False
+
+        self.AddTextColumn("name")
 
     def Load(self):
          
@@ -212,7 +214,6 @@ class SymbolListFrame(PanelSymbolList):
 
         # create symbol list
         self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbol, filters=self.Filters, library_manager=self.library_manager)
-        self.tree_symbols_manager.AddTextColumn("name")
         self.tree_symbols_manager.OnSelectionChanged = self.onTreeModelsSelChanged
         self.tree_symbols_manager.OnItemBeforeContextMenu = self.onTreeModelsBeforeContextMenu
 
@@ -353,6 +354,7 @@ class SymbolListFrame(PanelSymbolList):
 
     def onMenuSymbolDuplicate( self, event ):
         item = self.tree_symbols.GetSelection()
+        library = None
         
         event.Skip()
 
@@ -407,7 +409,7 @@ class SymbolListFrame(PanelSymbolList):
 # 
     def onEditSymbolApply( self, event ):
         self.tree_symbols_manager.Load()
-        
+
         symbol = event.data
         symbolobj = self.tree_symbols_manager.FindSymbol(symbol)
         self.tree_symbols_manager.Select(symbolobj)

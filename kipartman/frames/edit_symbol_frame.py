@@ -1,5 +1,4 @@
 from dialogs.panel_edit_symbol import PanelEditSymbol
-from frames.select_snapeda_frame import SelectSnapedaFrame, EVT_SELECT_SNAPEDA_OK_EVENT
 from frames.dropdown_dialog import DropdownDialog
 import wx.lib.newevent
 from helper.exception import print_stack
@@ -7,17 +6,11 @@ from helper.log import log
 from helper import colors
 import os
 from kicad.kicad_file_manager_symbols import KicadSymbolLibraryManager, KicadSymbolFile, KicadSymbol
-from enum import Enum
 
 EditSymbolApplyEvent, EVT_EDIT_SYMBOL_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditSymbolCancelEvent, EVT_EDIT_SYMBOL_CANCEL_EVENT = wx.lib.newevent.NewEvent()
 
 none_image = os.path.abspath(os.path.join('resources', 'none-128x128.png'))
-
-def NoneValue(value, default):
-    if value:
-        return value
-    return default
 
 class EditSymbolFrame(PanelEditSymbol): 
     def __init__(self, parent):
@@ -102,12 +95,17 @@ class EditSymbolFrame(PanelEditSymbol):
             self.button_symbol_editApply.Enabled = self.button_symbol_editCancel.Enabled
     
     def onButtonSymbolEditApply( self, event ):
-        if self.symbol is None:
-            self.symbol = KicadSymbolLibraryManager.CreateSymbol(self.library, self.edit_symbol_name.Value)
-        else:
-            KicadSymbolLibraryManager.RenameSymbol(self.symbol, self.edit_symbol_name.Value)
-        
-        wx.PostEvent(self, EditSymbolApplyEvent(data=self.symbol))
+        try:
+            if self.symbol is None:
+                self.symbol = KicadSymbolLibraryManager.CreateSymbol(self.library, self.edit_symbol_name.Value)
+            else:
+                KicadSymbolLibraryManager.RenameSymbol(self.symbol, self.edit_symbol_name.Value)
+            
+            wx.PostEvent(self, EditSymbolApplyEvent(data=self.symbol))
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
+
         event.Skip()
     
     def onButtonSymbolEditCancel( self, event ):

@@ -56,6 +56,5 @@ encoding//kipartman/dialogs/panel_storages.py=utf-8
 encoding//kipartman/dialogs/panel_symbol_libraries.py=utf-8
 encoding//kipartman/dialogs/panel_symbol_list.py=utf-8
 encoding//kipartman/dialogs/panel_symbols.py=utf-8
-encoding//kipartman/dialogs/panel_test.py=utf-8
 encoding//test/test_wx/list/list1.py=utf-8
 encoding/setup.py=utf-8

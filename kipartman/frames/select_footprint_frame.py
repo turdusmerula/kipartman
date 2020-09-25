@@ -2,21 +2,25 @@ from dialogs.panel_select_footprint import PanelSelectFootprint
 import helper.tree
 import wx
 import os
-from kicad.kicad_file_manager import KicadFileManagerPretty
-from kicad import kicad_mod_file
-import sync.version_manager
-from configuration import configuration
+from kicad.kicad_file_manager_footprints import KicadFootprintLibraryManager
+import kicad.kicad_file_manager
+from kicad import kicad_lib_file
 import tempfile
 from helper.exception import print_stack
+from helper.log import log
 
-class DataModelFootprintPath(helper.tree.TreeContainerItem):
-    def __init__(self, path):
-        super(DataModelFootprintPath, self).__init__()
-        self.path = path
-        
+class Library(helper.tree.TreeContainerItem):
+    def __init__(self, library):
+        super(Library, self).__init__()
+        self.library = library
+    
+    @property
+    def Path(self):
+        return self.library.Path
+    
     def GetValue(self, col):
         if col==0:
-            return self.path
+            return self.library.Path
         return ''
 
     def HasContainerColumns(self):
@@ -27,53 +31,84 @@ class DataModelFootprintPath(helper.tree.TreeContainerItem):
             attr.Bold = True
             return True
         return False
-
-class DataModelFootprint(helper.tree.TreeItem):
+    
+class Footprint(helper.tree.TreeItem):
     def __init__(self, footprint):
-        super(DataModelFootprint, self).__init__()
+        super(Footprint, self).__init__()
         self.footprint = footprint
-
+            
     def GetValue(self, col):
-        name = os.path.basename(self.footprint.source_path).replace(".kicad_mod", "")
-        vMap = {
-            0 : name, 
-        }
-        return vMap[col]
+        if col==0:
+            return self.footprint.Name
+
+        return ""
 
 
 class TreeManagerFootprints(helper.tree.TreeManager):
-    def __init__(self, tree_view):
-        super(TreeManagerFootprints, self).__init__(tree_view)
+    def __init__(self, tree_view, *args, filters, library_manager , **kwargs):
+        super(TreeManagerFootprints, self).__init__(tree_view, *args, **kwargs)
 
-    def FindPath(self, path):
+        self.library_manager = library_manager
+        self.filters = filters
+
+        self.AddTextColumn("Name")
+
+    def Load(self):
+         
+        self.SaveState()
+        
+        for library in self._get_libraries():
+            libraryobj = self.FindLibrary(library)
+            if libraryobj is None:
+                libraryobj = self.AppendLibrary(library)
+            else:
+                libraryobj.library = library
+                self.Update(libraryobj)
+                
+            for footprint in library.Footprints:
+                footprintobj = self.FindFootprint(footprint)
+                if footprintobj is None:
+                    footprintobj = self.AppendFootprint(libraryobj, footprint)
+                else:
+                    footprintobj.footprint = footprint
+                    self.Update(footprintobj)
+        
+        self.PurgeState()
+
+    def _get_libraries(self):
+        res = []
+        filters = self.filters.get_filters()
+        for library in self.library_manager.Libraries:
+            filter = False
+            for f in self.filters.get_filters():
+                filter = filter or f.apply(library)
+            if filter==False:
+                res.append(library)
+        return res
+    
+    def AppendLibrary(self, path):
+        libraryobj = Library(path)
+        self.Append(None, libraryobj)
+        return libraryobj
+
+    def FindLibrary(self, library):
         for data in self.data:
-            if isinstance(data, DataModelFootprintPath) and data.path==os.path.normpath(path):
+            if isinstance(data, Library) and data.library.Path==library.Path:
                 return data
         return None
 
-    def AppendPath(self, path):
-        pathobj = self.FindPath(path)
-        if pathobj:
-            return pathobj
-        pathobj = DataModelFootprintPath(path)
-        parentpath = self.FindPath(os.path.dirname(path))
-        self.AppendItem(parentpath, pathobj)
-        return pathobj
-
-    def FindFootprint(self, path):
+    def FindFootprint(self, footprint):
         for data in self.data:
-            if isinstance(data, DataModelFootprint) and data.footprint.source_path==os.path.normpath(path):
+            if isinstance(data, Footprint) and data.footprint.Name==footprint.Name and data.footprint.Library.Path==footprint.Library.Path:
                 return data
         return None
 
-    def AppendFootprint(self, file):
-        footprintobj = self.FindFootprint(file.source_path)
-        if footprintobj:
-            return footprintobj
-        path = os.path.dirname(os.path.normpath(file.source_path))
-        pathobj = self.FindPath(path)
-        footprintobj = DataModelFootprint(file)
-        self.AppendItem(pathobj, footprintobj)
+    def AppendFootprint(self, library, footprint):
+        libraryobj = None
+        if library is not None:
+            libraryobj = self.FindLibrary(library)
+        footprintobj = Footprint(footprint)
+        self.Append(libraryobj, footprintobj)
         return footprintobj
 
 
@@ -85,60 +120,42 @@ class SelectFootprintFrame(PanelSelectFootprint):
         :param initial: item to select by default
         """
         super(SelectFootprintFrame, self).__init__(parent)
-
-        self.file_manager_pretty = KicadFileManagerPretty()
-        self.manager_pretty = sync.version_manager.VersionManager(self.file_manager_pretty)
-        self.manager_pretty.on_change_hook = self.onFilePrettyChanged
         
+        # react to file change
+        self.library_manager = KicadFootprintLibraryManager(self)
+        self.Bind( kicad.kicad_file_manager.EVT_FILE_CHANGED, self.onFileLibChanged )
+
+        # footprints filters
+        self._filters = helper.filter.FilterSet(self)
+        self._filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
+
         # create footprints list
-        self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints)
-        self.tree_footprints_manager.AddTextColumn("Name")
+        self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints, filters=self._filters, library_manager=self.library_manager)
+        self.tree_footprints_manager.OnSelectionChanged = self.onTreeFootprintsSelectionChanged
         
         self.search_filter = None
         self.search_footprint.Value = ''
-        self.load()
         
         if initial:
-            self.tree_footprints.Select(self.tree_footprints_manager.ObjectToItem(self.tree_footprints_manager.FindFootprint(initial.source_path)))
+            self.tree_footprints_manager.Select(self.tree_footprints_manager.FindFootprint(initial))
         
         # set result functions
         self.cancel = None
         self.result = None
 
-    def load(self):
-        try:
-            self.loadFootprints()
-        except Exception as e:
-            print_stack()
-            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-
-    def loadFootprints(self):
-        # clear all
-        self.tree_footprints_manager.ClearItems()
+        # initial state
+        self.button_footprint_editOK.Enabled = False
         
-        self.manager_pretty.LoadState()
-        
-        # add folders with no library inside
-        # only versioned files are available from list
-        for file in self.file_manager_pretty.files:
-            filename = os.path.basename(file)
-            path = os.path.dirname(os.path.normpath(file))
-            file_version = self.manager_pretty.GetFile(file)
-            if file_version and file_version.id:
-                filtered = False
-                if self.search_filter and file_version.source_path.find(self.search_filter)!=-1:
-                    filtered = False
-                elif self.search_filter:
-                    filtered = True
-                if filtered==False:
-                    pathobj = None
-                    if path!='':
-                        pathobj = self.tree_footprints_manager.AppendPath(path)
-                    self.tree_footprints_manager.AppendFootprint(file_version)
+        self.tree_footprints_manager.Clear()
+        self.tree_footprints_manager.Load()
 
-    def onFilePrettyChanged(self, event):
+    def onFileLibChanged(self, event):
         # do a synchronize when a file change on disk
-        self.load()
+        self.tree_footprints_manager.Load()
+
+    def onFilterChanged(self, event):
+        # do a synchronize when a filter changed
+        self.tree_footprints_manager.Load()
 
     def SetResult(self, result, cancel=None):
         self.result = result
@@ -146,26 +163,24 @@ class SelectFootprintFrame(PanelSelectFootprint):
         
     # Virtual event handlers, overide them in your derived class
     def onTreeFootprintsSelectionChanged( self, event ):
-
         item = self.tree_footprints.GetSelection()
         if item.IsOk()==False:
             return    
         obj = self.tree_footprints_manager.ItemToObject(item)
 
-        if isinstance(obj, DataModelFootprint):
-            if os.path.exists(os.path.join(configuration.kicad_footprints_path, obj.footprint.source_path)):
-                mod = kicad_mod_file.KicadModFile()
-                mod.LoadFile(os.path.join(configuration.kicad_footprints_path, obj.footprint.source_path))
+        if isinstance(obj, Footprint):
+            if obj.footprint.Content!='':
+                lib = kicad_lib_file.KicadLibFile()
+                lib.Load(obj.footprint.Content)
                 image_file = tempfile.NamedTemporaryFile()
-                mod.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
+                lib.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
                 img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
                 image_file.close()
-            else:
-                img = wx.Image()
-                img.Create(1, 1)
+            self.button_footprint_editOK.Enabled = True
         else:
             img = wx.Image()
             img.Create(1, 1)
+            self.button_footprint_editOK.Enabled = False
 
         img = img.ConvertToBitmap()
         self.image_footprint.SetBitmap(img)
@@ -176,7 +191,7 @@ class SelectFootprintFrame(PanelSelectFootprint):
     
     def onButtonOkClick( self, event ):
         footprint = self.tree_footprints_manager.ItemToObject(self.tree_footprints.GetSelection())
-        if isinstance(footprint, DataModelFootprint) and self.result:
+        if isinstance(footprint, Footprint) and self.result:
             self.result(footprint.footprint)
 
     def onSearchFootprintCancel( self, event ):
@@ -190,3 +205,7 @@ class SelectFootprintFrame(PanelSelectFootprint):
     def onSearchFootprintEnter( self, event ):
         self.search_filter = self.search_footprint.Value
         self.load()
+
+    def onButtonRefreshFootprintsClick( self, event ):
+        self.tree_footprints_manager.Load()
+        event.Skip()

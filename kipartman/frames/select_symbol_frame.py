@@ -51,6 +51,8 @@ class TreeManagerSymbols(helper.tree.TreeManager):
         self.library_manager = library_manager
         self.filters = filters
 
+        self.AddTextColumn("Name")
+
     def Load(self):
          
         self.SaveState()
@@ -129,7 +131,7 @@ class SelectSymbolFrame(PanelSelectSymbol):
 
         # create symbols list
         self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, filters=self._filters, library_manager=self.library_manager)
-        self.tree_symbols_manager.AddTextColumn("Name")
+        self.tree_symbols_manager.OnSelectionChanged = self.onTreeSymbolsSelectionChanged
         
         self.search_filter = None
         self.search_symbol.Value = ''
@@ -203,3 +205,7 @@ class SelectSymbolFrame(PanelSelectSymbol):
     def onSearchSymbolEnter( self, event ):
         self.search_filter = self.search_symbol.Value
         self.load()
+
+    def onButtonRefreshSymbolsClick( self, event ):
+        self.tree_symbols_manager.Load()
+        event.Skip()

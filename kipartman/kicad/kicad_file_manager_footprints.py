@@ -423,13 +423,17 @@ class KicadFootprintLibraryManager(KicadFileManager):
     def Folders(self):
         return KicadFootprintLibraryManager.folders
 
-    def CreateFolder(self, path):
+    @staticmethod
+    def CreateFolder(path):
         abspath = os.path.join(configuration.kicad_footprints_path, path)
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Folder '{path}' already exists")
         os.makedirs(abspath)
          
-    def MoveFolder(self, path, newpath):
+        KicadFootprintLibraryManager.loaded = False
+
+    @staticmethod
+    def MoveFolder(path, newpath):
         abspath = os.path.join(configuration.kicad_footprints_path, path)
         if os.path.exists(abspath)==False:
             raise KicadFileManagerException(f"Folder '{path}' does not exists")
@@ -441,7 +445,7 @@ class KicadFootprintLibraryManager(KicadFileManager):
         def action():
             os.makedirs(os.path.dirname(abspath), exist_ok=True)
             os.rename(abspath, newabspath)
-        self.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
+        KicadFootprintLibraryManager.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
         log.info(f"moved folder '{abspath}' to '{newabspath}'")
          
         # edit database
@@ -452,7 +456,23 @@ class KicadFootprintLibraryManager(KicadFileManager):
                 api.data.kicad_footprint_library.save(library)
                 log.info(f"moved library '{previous_path}' to '{library.path}'")
          
-    def CreateLibrary(self, path):
+        KicadFootprintLibraryManager.loaded = False
+
+    @staticmethod
+    def RemoveFolder(path):
+#         if len(os.listdir(os.path.join(configuration.kicad_footprints_path, path)))>0:
+#             raise KicadFileManagerException(f"Folder '{path}' is not empty")
+        def action():
+            shutil.rmtree(os.path.join(configuration.kicad_footprints_path, path))
+        KicadFootprintLibraryManager.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
+ 
+        log.info(f"folder '{path}' removed")
+        
+        KicadFootprintLibraryManager.loaded = False
+
+
+    @staticmethod
+    def CreateLibrary(path):
         abspath = os.path.join(configuration.kicad_footprints_path, path)
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Library '{path}' already exists")
@@ -464,9 +484,12 @@ class KicadFootprintLibraryManager(KicadFileManager):
          
         KicadFootprintLibraryManager.libraries.append(library)
  
+        KicadFootprintLibraryManager.loaded = False
+
         return library
  
-    def MoveLibrary(self, library, newpath):
+    @staticmethod
+    def MoveLibrary(library, newpath):
         previousname = library.Path
         newname = os.path.basename(newpath)
         newpath = os.path.dirname(newpath)
@@ -479,16 +502,19 @@ class KicadFootprintLibraryManager(KicadFileManager):
           
         def action():
             os.rename(library.AbsPath, os.path.join(newabspath, newname))
-        self.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
+        KicadFootprintLibraryManager.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
           
         library.library_model.path = os.path.join(newpath, newname)
         api.data.kicad_footprint_library.save(library.library_model)
           
         log.info(f"library '{previousname}' renamed to '{os.path.join(newpath, newname)}'")
  
+        KicadFootprintLibraryManager.loaded = False
+
         return library
      
-    def RemoveLibrary(self, library):
+    @staticmethod
+    def RemoveLibrary(library):
         footprints_to_remove = []
         for footprint in library.Footprints:
             footprints_to_remove.append(footprint.footprint_model)
@@ -502,20 +528,43 @@ class KicadFootprintLibraryManager(KicadFileManager):
         library.library_model.delete()
         def action():
             shutil.rmtree(library.AbsPath)
-        self.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
+        KicadFootprintLibraryManager.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
  
         log.info(f"library '{library.Path}' removed")
- 
-    def DeleteFolder(self, path):
-#         if len(os.listdir(os.path.join(configuration.kicad_footprints_path, path)))>0:
-#             raise KicadFileManagerException(f"Folder '{path}' is not empty")
-        def action():
-            shutil.rmtree(os.path.join(configuration.kicad_footprints_path, path))
-        self.DisableNotificationsForPath(configuration.kicad_footprints_path, action=action)
- 
-        log.info(f"folder '{path}' removed")
-        
 
+        KicadFootprintLibraryManager.loaded = False
+ 
+
+    @staticmethod
+    def CreateFootprint(library, name, content=""):
+        for s in library.Footprints:
+            if name==s.Name:
+                raise KicadFileManagerException(f"Footprint '{name}' already exists in library '{library.Path}'")
+
+        footprint = KicadFootprint(library)
+
+        if library.library_folder is not None:
+            footprint.footprint_file = KicadFootprintFile(library.library_folder, name=name, content=content)
+            library.library_folder._footprints.append(footprint.footprint_file)
+            footprint.footprint_file._changed = True
+            footprint.footprint_file.Save()
+        
+        if library.library_model is not None:
+            footprint.footprint_model = api.data.kicad_footprint.create()
+            footprint.footprint_model.library = library.library_model
+            footprint.footprint_model.name = name
+            footprint.footprint_model.content = content
+            if library.library_folder is not None:
+                footprint.footprint_model.mtime = footprint.footprint_file.Mtime
+            library.library_model.footprints.add_pending(footprint.footprint_model)
+            library.library_model.save()
+            
+        library._footprints.append(footprint)
+
+        KicadFootprintLibraryManager.loaded = False
+
+        return footprint
+    
     @staticmethod
     def RenameFootprint(footprint, newname):
         for f in footprint.Library.Footprints:
@@ -525,6 +574,7 @@ class KicadFootprintLibraryManager(KicadFileManager):
         if footprint.footprint_file is not None:
             abspath = footprint.footprint_file.AbsPath
             footprint.footprint_file._name = newname
+            footprint.footprint_file._changed = True
             footprint.footprint_file.Save()
             def action():
                 os.remove(abspath)
@@ -535,8 +585,12 @@ class KicadFootprintLibraryManager(KicadFileManager):
             footprint.footprint_model.mtime = footprint.footprint_file.Mtime
             footprint.footprint_model.save()
 
+        KicadFootprintLibraryManager.loaded = False
+
     @staticmethod
     def RemoveFootprint(footprint):
+        library = footprint.Library
+
         if footprint.footprint_file is not None:
             def action():
                 os.remove(footprint.footprint_file.AbsPath)
@@ -544,3 +598,7 @@ class KicadFootprintLibraryManager(KicadFileManager):
             
         if footprint.footprint_model is not None:
             footprint.footprint_model.delete()
+
+        library._footprints.remove(footprint)
+
+        KicadFootprintLibraryManager.loaded = False

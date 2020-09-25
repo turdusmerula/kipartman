@@ -23,10 +23,6 @@ class MainFrame(DialogMain):
 
         self.pages = []
 
-#         partsframe = PartsFrame(self.notebook)
-#         self.pages.append(partsframe)
-#         self.notebook.AddPage(partsframe, "Parts", False)
-
 #         self.distributorsframe = DistributorsFrame(self.notebook)
 #         self.manufacturersframe = ManufacturersFrame(self.notebook)
 #         self.storageframe = StoragesFrame(self.notebook)
@@ -55,17 +51,6 @@ class MainFrame(DialogMain):
         footprints_frame = FootprintsFrame(self.notebook)
         self.pages.append(footprints_frame)
         self.notebook.AddPage(footprints_frame, "footprints", False)
-
-    def onMenuViewTestSelection( self, event ):
-        from frames.test_frame import TestFrame
-        testframe = TestFrame(self.notebook)
-        self.pages.append(testframe)
-        self.notebook.AddPage(testframe, "Test", False)
-
-        from frames.part_categories_frame import CategoriesFrame
-        categories_frame = CategoriesFrame(testframe)
-        testframe.set_panel(categories_frame)
-        categories_frame.activate() 
         
     def onNotebookPageChanged( self, event ):
         if self.menus is None:

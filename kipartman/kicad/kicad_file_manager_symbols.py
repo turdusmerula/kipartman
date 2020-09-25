@@ -721,13 +721,26 @@ class KicadSymbolLibraryManager(KicadFileManager):
         KicadSymbolLibraryManager.loaded = False
 
     @staticmethod
+    def RemoveFolder(path):
+#         if len(os.listdir(os.path.join(configuration.kicad_symbols_path, path)))>0:
+#             raise KicadFileManagerException(f"Folder '{path}' is not empty")
+        def action():
+            shutil.rmtree(os.path.join(configuration.kicad_symbols_path, path))
+        KicadSymbolLibraryManager.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
+
+        KicadSymbolLibraryManager.loaded = False
+
+        log.info(f"folder '{path}' removed")
+
+
+    @staticmethod
     def CreateLibrary(path):
         abspath = os.path.join(configuration.kicad_symbols_path, path)
         if os.path.exists(abspath):
             raise KicadFileManagerException(f"Library '{path}' already exists")
         
         library_file = KicadSymbolLibraryFile(path)
-        KicadSymbolLibraryManager.DisableNotificationsForPath(configuration.kicad_symbols_path, action=library_file.Save)
+        library_file.Save()
         
         library = KicadSymbolLibrary(library_file)
         
@@ -781,21 +794,9 @@ class KicadSymbolLibraryManager(KicadFileManager):
                 os.remove(library.library_file.AbsDcmPath)
         KicadSymbolLibraryManager.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
 
-        KicadSymbolLibraryManager.loaded = False
-
         log.info(f"library '{library.Path}' removed")
 
-    @staticmethod
-    def RemoveFolder(path):
-#         if len(os.listdir(os.path.join(configuration.kicad_symbols_path, path)))>0:
-#             raise KicadFileManagerException(f"Folder '{path}' is not empty")
-        def action():
-            shutil.rmtree(os.path.join(configuration.kicad_symbols_path, path))
-        KicadSymbolLibraryManager.DisableNotificationsForPath(configuration.kicad_symbols_path, action=action)
-
         KicadSymbolLibraryManager.loaded = False
-
-        log.info(f"folder '{path}' removed")
 
     @staticmethod
     def CreateSymbol(library, name, content="", metadata=""):

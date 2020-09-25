@@ -1,5 +1,4 @@
 from dialogs.panel_footprint_libraries import PanelFootprintLibraries
-# from frames.edit_footprint_frame import EditFootprintFrame, EVT_EDIT_FOOTPRINT_APPLY_EVENT, EVT_EDIT_FOOTPRINT_CANCEL_EVENT
 from kicad.kicad_file_manager_footprints import KicadFootprintLibraryManager
 import kicad.kicad_file_manager
 import helper.tree
@@ -59,7 +58,10 @@ class TreeManagerLibraries(helper.tree.TreeManager):
         super(TreeManagerLibraries, self).__init__(tree_view, *args, **kwargs)
         
         self.library_manager = library_manager
-        
+
+#         self.AddBitmapColumn("s")
+        self.AddTextColumn("name")
+
     def Load(self):
          
         self.SaveState()
@@ -117,6 +119,7 @@ class TreeManagerLibraries(helper.tree.TreeManager):
         self.Append(pathobj, libraryobj)
 
 (SelectLibraryEvent, EVT_SELECT_LIBRARY) = wx.lib.newevent.NewEvent()
+(AddFootprintEvent, EVT_ADD_FOOTPRINT) = wx.lib.newevent.NewEvent()
 
 class FootprintLibrariesFrame(PanelFootprintLibraries): 
     def __init__(self, *args, **kwargs):
@@ -128,8 +131,6 @@ class FootprintLibrariesFrame(PanelFootprintLibraries):
 
         # create libraries data
         self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries, library_manager=self.library_manager)
-#         self.tree_libraries_manager.AddBitmapColumn("s")
-        self.tree_libraries_manager.AddTextColumn("name")
         self.tree_libraries_manager.OnSelectionChanged = self.onTreeLibrariesSelChanged
         self.tree_libraries_manager.OnItemBeforeContextMenu = self.onTreeLibrariesBeforeContextMenu
 #     
@@ -336,21 +337,25 @@ class FootprintLibrariesFrame(PanelFootprintLibraries):
         obj = self.tree_libraries_manager.ItemToObject(item)
         if isinstance(obj, Library)==False:
             return
-# 
-#         self.edit_state = 'add'
-#         self.new_footprint(obj.path)
+        
+        wx.PostEvent(self, AddFootprintEvent(library=obj.library))
+        
         event.Skip()
 
     def onTreeLibrariesBeforeContextMenu( self, event ):
+        self.menu_libraries_add_folder.Enable(True)
+        self.menu_libraries_add_library.Enable(False)
+        self.menu_libraries_add_footprint.Enable(False)
+        
         item = self.tree_libraries.GetSelection()
         if item.IsOk()==False:
             return    
         obj = self.tree_libraries_manager.ItemToObject(item)
 
-        self.menu_libraries_add_folder.Enable(True)
-        self.menu_libraries_add_library.Enable(True)
-        self.menu_libraries_add_footprint.Enable(True)
-        if isinstance(obj, Library)==False:
-            self.menu_libraries_add_footprint.Enable(False)
+        if isinstance(obj, Library):
+#             self.menu_libraries_add_folder.Enable(False)
+            self.menu_libraries_add_footprint.Enable(True)
+        if isinstance(obj, LibraryPath):
+            self.menu_libraries_add_library.Enable(True)
 
         event.Skip()

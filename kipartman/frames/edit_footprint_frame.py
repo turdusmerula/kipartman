@@ -12,11 +12,6 @@ EditFootprintCancelEvent, EVT_EDIT_FOOTPRINT_CANCEL_EVENT = wx.lib.newevent.NewE
 
 none_image = os.path.abspath(os.path.join('resources', 'none-128x128.png'))
 
-def NoneValue(value, default):
-    if value:
-        return value
-    return default
-
 class EditFootprintFrame(PanelEditFootprint): 
     def __init__(self, parent):
         super(EditFootprintFrame, self).__init__(parent)
@@ -27,13 +22,23 @@ class EditFootprintFrame(PanelEditFootprint):
         
     def SetFootprint(self, footprint):
         self.footprint = footprint
+        
         self._show_footprint(footprint)
         self._enable(False)
         self._check()
 
     def EditFootprint(self, footprint):
         self.footprint = footprint
+        
         self._show_footprint(footprint)
+        self._enable(True)
+        self._check()
+
+    def AddFootprint(self, library):
+        self.library = library
+        self.footprint = None
+        
+        self._show_footprint(self.footprint)
         self._enable(True)
         self._check()
 
@@ -82,14 +87,20 @@ class EditFootprintFrame(PanelEditFootprint):
         if error:
             self.button_footprint_editApply.Enabled = False
         else:
-            self.button_footprint_editApply.Enabled = True
+            self.button_footprint_editApply.Enabled = self.button_footprint_editCancel.Enabled
                         
 
     def onButtonFootprintEditApply( self, event ):
-        if self.edit_footprint_name.Value!=self.footprint.Name:
-            KicadFootprintLibraryManager.RenameFootprint(self.footprint, self.edit_footprint_name.Value)
+        try:
+            if self.footprint is None:
+                self.footprint = KicadFootprintLibraryManager.CreateFootprint(self.library, self.edit_footprint_name.Value)
+            else:
+                KicadFootprintLibraryManager.RenameFootprint(self.footprint, self.edit_footprint_name.Value)
 
-        wx.PostEvent(self, EditFootprintApplyEvent(data=self.footprint))
+            wx.PostEvent(self, EditFootprintApplyEvent(data=self.footprint))
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
         event.Skip()
     
     def onButtonFootprintEditCancel( self, event ):
