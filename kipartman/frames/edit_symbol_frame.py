@@ -110,6 +110,7 @@ class EditSymbolFrame(PanelEditSymbol):
     
     def onButtonSymbolEditCancel( self, event ):
         wx.PostEvent(self, EditSymbolCancelEvent())
+        event.Skip()
 
     def onTextEditSymbolNameText( self, event ):
         self._check()

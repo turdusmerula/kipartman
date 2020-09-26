@@ -33,15 +33,15 @@ class PanelSelectSymbol ( wx.Panel ):
 		self.search_symbol.ShowCancelButton( False )
 		self.search_symbol.SetMinSize( wx.Size( 200,-1 ) )
 
-		bSizer61.Add( self.search_symbol, 0, wx.ALL|wx.EXPAND, 5 )
+		bSizer61.Add( self.search_symbol, 1, wx.ALL|wx.EXPAND, 5 )
 
 		self.button_refresh_symbols = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
 		self.button_refresh_symbols.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer61.Add( self.button_refresh_symbols, 0, wx.ALL|wx.EXPAND, 5 )
+		bSizer61.Add( self.button_refresh_symbols, 0, wx.ALL, 5 )
 
 
-		bSizer4.Add( bSizer61, 0, wx.ALIGN_RIGHT, 5 )
+		bSizer4.Add( bSizer61, 0, wx.ALIGN_RIGHT|wx.EXPAND, 5 )
 
 		self.tree_symbols = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer4.Add( self.tree_symbols, 1, wx.ALL|wx.EXPAND, 5 )

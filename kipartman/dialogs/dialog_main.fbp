@@ -186,12 +186,12 @@
                         <property name="help"></property>
                         <property name="id">wxID_ANY</property>
                         <property name="kind">wxITEM_NORMAL</property>
-                        <property name="label">Test</property>
-                        <property name="name">menu_view_test</property>
+                        <property name="label">Parameters</property>
+                        <property name="name">menu_view_parameters</property>
                         <property name="permission">none</property>
                         <property name="shortcut"></property>
                         <property name="unchecked_bitmap"></property>
-                        <event name="OnMenuSelection">onMenuViewTestSelection</event>
+                        <event name="OnMenuSelection">onMenuViewParametersSelection</event>
                     </object>
                 </object>
                 <object class="wxMenu" expanded="1">

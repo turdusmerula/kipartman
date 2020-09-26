@@ -11,6 +11,14 @@ class FilterPart(Filter):
     def apply(self, request):
         return request.filter(part_id=self.part.id)
 
+class FilterParameter(Filter):
+    def __init__(self, parameter):
+        self.parameter = parameter
+        super(FilterParameter, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(parameter_id=self.parameter.id)
+
 def find(filters=[]):
     request = api.models.PartParameter.objects
     

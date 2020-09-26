@@ -68,6 +68,14 @@ class FilterTextSearch(Filter):
     def __str__(self):
         return f"search: {self.value}"
 
+class FilterParameter(Filter):
+    def __init__(self, parameter):
+        self.parameter = parameter
+        super(FilterParameter, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(parameters__parameter__id=self.parameter.id)
+
 def _add_default_annotations(request):
     # add the field child_count in request result 
     request = request.select_related('category', 'footprint', 'symbol') # preload for performance

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -68,7 +68,7 @@ class PanelPartList ( wx.Panel ):
 		self.sizer_part.Add( bSizer11, 0, wx.EXPAND, 5 )
 
 		self.tree_parts = wx.dataview.DataViewCtrl( self.panel_up, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.sizer_part.Add( self.tree_parts, 1, wx.ALL|wx.EXPAND, 5 )
+		self.sizer_part.Add( self.tree_parts, 1, wx.EXPAND|wx.BOTTOM|wx.RIGHT|wx.LEFT, 5 )
 
 
 		self.panel_up.SetSizer( self.sizer_part )

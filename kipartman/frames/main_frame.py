@@ -3,6 +3,7 @@ from dialogs.dialog_main import DialogMain
 from frames.parts_frame import PartsFrame
 from frames.symbols_frame import SymbolsFrame
 from frames.footprints_frame import FootprintsFrame
+from frames.parameters_frame import ParametersFrame
 # from frames.distributors_frame import DistributorsFrame
 # from frames.manufacturers_frame import ManufacturersFrame
 # from frames.configuration_frame import ConfigurationFrame
@@ -52,6 +53,11 @@ class MainFrame(DialogMain):
         self.pages.append(footprints_frame)
         self.notebook.AddPage(footprints_frame, "footprints", False)
         
+    def onMenuViewParametersSelection( self, event ):
+        parameters_frame = ParametersFrame(self.notebook)
+        self.pages.append(parameters_frame)
+        self.notebook.AddPage(parameters_frame, "parameters", False)
+
     def onNotebookPageChanged( self, event ):
         if self.menus is None:
             return

@@ -214,7 +214,7 @@ class FootprintListFrame(PanelFootprintList):
 
         # create footprint list
         self.tree_footprints_manager = TreeManagerFootprints(self.tree_footprints, context_menu=self.menu_footprint, filters=self.Filters, library_manager=self.library_manager)
-        self.tree_footprints_manager.OnSelectionChanged = self.onTreeModelsSelChanged
+        self.tree_footprints_manager.OnSelectionChanged = self.onTreeFootprintsSelectionChanged
         self.tree_footprints_manager.OnItemBeforeContextMenu = self.onTreeModelsBeforeContextMenu
 
         # create edit footprint panel
@@ -304,7 +304,7 @@ class FootprintListFrame(PanelFootprintList):
         self._expand_libraries()
         event.Skip()
 
-    def onTreeModelsSelChanged( self, event ):
+    def onTreeFootprintsSelectionChanged( self, event ):
         item = self.tree_footprints.GetSelection()
         if item.IsOk()==False:
             return

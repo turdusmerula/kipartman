@@ -24,7 +24,7 @@ class PartListFrame(PanelPartList):
         
         # create part list
         self.tree_parts_manager = TreeManagerParts(self.tree_parts, context_menu=self.menu_part, filters=self.Filters)
-        self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelChanged
+        self.tree_parts_manager.OnSelectionChanged = self.onTreePartsSelectionChanged
         self.tree_parts_manager.OnItemBeforeContextMenu = self.onTreePartsBeforeContextMenu
 
         # create edit part panel
@@ -104,7 +104,7 @@ class PartListFrame(PanelPartList):
         self._expand_categories()
         event.Skip()
 
-    def onTreePartsSelChanged( self, event ):
+    def onTreePartsSelectionChanged( self, event ):
         item = self.tree_parts.GetSelection()
         if item.IsOk()==False:
             return

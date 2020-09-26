@@ -37,6 +37,11 @@ class TreeManagerParameters(helper.tree.TreeManager):
     def __init__(self, tree_view, *args, filters, **kwargs):
         super(TreeManagerParameters, self).__init__(tree_view, *args, **kwargs)
 
+        self.AddTextColumn("Name")
+        self.AddTextColumn("Description")
+        self.AddTextColumn("Unit")
+        self.AddTextColumn("Numeric")
+
         self.filters = filters
 
     def Load(self):
@@ -78,11 +83,7 @@ class SelectParameterFrame(PanelSelectParameter):
             
         # create parameters list
         self.tree_parameters_manager = TreeManagerParameters(self.tree_parameters, filters=self.filters)
-        self.tree_parameters_manager.AddTextColumn("Name")
-        self.tree_parameters_manager.AddTextColumn("Description")
-        self.tree_parameters_manager.AddTextColumn("Unit")
-        self.tree_parameters_manager.AddTextColumn("Numeric")
-        self.tree_parameters_manager.OnSelectionChanged = self.onTreeParametersSelChanged
+        self.tree_parameters_manager.OnSelectionChanged = self.onTreeParametersSelectionChanged
         
         if initial:
             self.tree_parameters.Select(self.tree_parameters_manager.ObjectToItem(self.tree_parameters_manager.FindPartParameter(initial)))
@@ -100,7 +101,7 @@ class SelectParameterFrame(PanelSelectParameter):
         self.cancel = cancel
         
         
-    def onTreeParametersSelChanged( self, event ):
+    def onTreeParametersSelectionChanged( self, event ):
         item = self.tree_parameters.GetSelection()
         if item.IsOk():
             self.button_select_parameterOK.Enabled = True

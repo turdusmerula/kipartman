@@ -91,7 +91,7 @@ class PartCategoriesFrame(PanelPartCategories):
         self.tree_categories_manager.AddTextColumn("description")
 #         self.tree_categories_manager.DropAccept(DataModelCategory, self.onTreeCategoriesDropCategory)
 #         self.tree_categories_manager.DropAccept(DataModelPart, self.onTreeCategoriesDropPart)
-        self.tree_categories_manager.OnSelectionChanged = self.onTreeCategoriesSelChanged
+        self.tree_categories_manager.OnSelectionChanged = self.onTreeCategoriesSelectionChanged
         self.tree_categories_manager.OnItemBeforeContextMenu = self.onTreeCategoriesBeforeContextMenu
 
         self.loaded = False
@@ -110,7 +110,7 @@ class PartCategoriesFrame(PanelPartCategories):
         self.tree_categories_manager.Load()
         event.Skip()
 
-    def onTreeCategoriesSelChanged( self, event ):
+    def onTreeCategoriesSelectionChanged( self, event ):
         item = self.tree_categories.GetSelection()
         if item.IsOk()==False:
             return

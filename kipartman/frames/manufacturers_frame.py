@@ -46,7 +46,7 @@ class ManufacturersFrame(PanelManufacturers):
         # create manufacturers list
         self.tree_manufacturers_manager = TreeManagerManufacturers(self.tree_manufacturers)
         self.tree_manufacturers_manager.AddTextColumn("name")
-        self.tree_manufacturers_manager.OnSelectionChanged = self.onTreeManufacturersSelChanged
+        self.tree_manufacturers_manager.OnSelectionChanged = self.onTreeManufacturersSelectionChanged
 
         self.panel_edit_manufacturer.Enabled = False
         self.panel_manufacturers.Enabled = True
@@ -133,7 +133,7 @@ class ManufacturersFrame(PanelManufacturers):
     def onButtonRefreshManufacturersClick( self, event ):
         self.load()
     
-    def onTreeManufacturersSelChanged( self, event ):
+    def onTreeManufacturersSelectionChanged( self, event ):
         item = self.tree_manufacturers.GetSelection()
         if item.IsOk()==False:
             return

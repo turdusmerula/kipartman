@@ -131,7 +131,7 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
 
         # create libraries data
         self.tree_libraries_manager = TreeManagerLibraries(self.tree_libraries, context_menu=self.menu_libraries, library_manager=self.library_manager)
-        self.tree_libraries_manager.OnSelectionChanged = self.onTreeLibrariesSelChanged
+        self.tree_libraries_manager.OnSelectionChanged = self.onTreeLibrariesSelectionChanged
         self.tree_libraries_manager.OnItemBeforeContextMenu = self.onTreeLibrariesBeforeContextMenu
 #     
         self.loaded = False
@@ -153,7 +153,7 @@ class SymbolLibrariesFrame(PanelSymbolLibraries):
         self.library_manager.Reload()
         self.tree_libraries_manager.Load()
         
-    def onTreeLibrariesSelChanged( self, event ):
+    def onTreeLibrariesSelectionChanged( self, event ):
         item = self.tree_libraries.GetSelection()
         obj = self.tree_libraries_manager.ItemToObject(item)
         path = ''

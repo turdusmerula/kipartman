@@ -53,7 +53,7 @@ class DistributorsFrame(PanelDistributors):
         self.tree_distributors_manager = TreeManagerDistributors(self.tree_distributors)
         self.tree_distributors_manager.AddToggleColumn("Allowed")
         self.tree_distributors_manager.AddTextColumn("Name")
-        self.tree_distributors_manager.OnSelectionChanged = self.onTreeDistributorsSelChanged
+        self.tree_distributors_manager.OnSelectionChanged = self.onTreeDistributorsSelectionChanged
 
         self.panel_edit_distributor.Enabled = False
         self.panel_distributors.Enabled = True
@@ -142,7 +142,7 @@ class DistributorsFrame(PanelDistributors):
     def onButtonRefreshDistributorsClick( self, event ):
         self.load()
     
-    def onTreeDistributorsSelChanged( self, event ):
+    def onTreeDistributorsSelectionChanged( self, event ):
         item = self.tree_distributors.GetSelection()
         if item.IsOk()==False:
             return

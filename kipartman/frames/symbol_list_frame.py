@@ -214,8 +214,8 @@ class SymbolListFrame(PanelSymbolList):
 
         # create symbol list
         self.tree_symbols_manager = TreeManagerSymbols(self.tree_symbols, context_menu=self.menu_symbol, filters=self.Filters, library_manager=self.library_manager)
-        self.tree_symbols_manager.OnSelectionChanged = self.onTreeModelsSelChanged
-        self.tree_symbols_manager.OnItemBeforeContextMenu = self.onTreeModelsBeforeContextMenu
+        self.tree_symbols_manager.OnSelectionChanged = self.onTreeSymbolsSelectionChanged
+        self.tree_symbols_manager.OnItemBeforeContextMenu = self.onTreeSymbolsBeforeContextMenu
 
         # create edit symbol panel
         self.panel_edit_symbol = frames.edit_symbol_frame.EditSymbolFrame(self.splitter_horz)
@@ -304,18 +304,18 @@ class SymbolListFrame(PanelSymbolList):
         self._expand_libraries()
         event.Skip()
 
-    def onTreeModelsSelChanged( self, event ):
+    def onTreeSymbolsSelectionChanged( self, event ):
         item = self.tree_symbols.GetSelection()
         if item.IsOk()==False:
             return
         obj = self.tree_symbols_manager.ItemToObject(item)
-        if isinstance(obj, Symbol)==False:
+        if isinstance(obj, Symbol):
+            self.panel_edit_symbol.SetSymbol(obj.symbol)
+        else:
             self.panel_edit_symbol.SetSymbol(None)
-            return
-        self.panel_edit_symbol.SetSymbol(obj.symbol)
         event.Skip()
 
-    def onTreeModelsBeforeContextMenu( self, event ):
+    def onTreeSymbolsBeforeContextMenu( self, event ):
         item = self.tree_symbols.GetSelection()
  
         self.menu_symbol_add.Enable(False)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -26,18 +26,28 @@ class PanelSelectParameter ( wx.Panel ):
 
 		bSizer4 = wx.BoxSizer( wx.VERTICAL )
 
+		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
+
 		self.search_parameter = wx.SearchCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		self.search_parameter.ShowSearchButton( True )
-		self.search_parameter.ShowCancelButton( True )
-		self.search_parameter.SetMinSize( wx.Size( 180,-1 ) )
+		self.search_parameter.ShowCancelButton( False )
+		self.search_parameter.SetMinSize( wx.Size( 200,-1 ) )
 
-		bSizer4.Add( self.search_parameter, 0, wx.ALL|wx.EXPAND, 5 )
+		bSizer61.Add( self.search_parameter, 1, wx.ALL|wx.EXPAND, 5 )
+
+		self.button_refresh_parameters = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+
+		self.button_refresh_parameters.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer61.Add( self.button_refresh_parameters, 0, wx.ALL, 5 )
+
+
+		bSizer4.Add( bSizer61, 0, wx.EXPAND, 5 )
 
 		self.tree_parameters = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer4.Add( self.tree_parameters, 1, wx.ALL|wx.EXPAND, 5 )
+		bSizer4.Add( self.tree_parameters, 1, wx.EXPAND|wx.ALL, 5 )
 
 
-		bSizer2.Add( bSizer4, 1, wx.EXPAND, 5 )
+		bSizer2.Add( bSizer4, 1, wx.EXPAND|wx.BOTTOM, 5 )
 
 
 		bSizer16.Add( bSizer2, 1, wx.EXPAND, 5 )
@@ -49,16 +59,17 @@ class PanelSelectParameter ( wx.Panel ):
 		button_select_parameter.AddButton( self.button_select_parameterCancel )
 		button_select_parameter.Realize();
 
-		bSizer16.Add( button_select_parameter, 0, wx.BOTTOM|wx.EXPAND, 5 )
+		bSizer16.Add( button_select_parameter, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 5 )
 
 
 		self.SetSizer( bSizer16 )
 		self.Layout()
 
 		# Connect Events
-		self.search_parameter.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchParameterCancel )
-		self.search_parameter.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchParameterButton )
-		self.search_parameter.Bind( wx.EVT_TEXT_ENTER, self.onSearchParameterEnter )
+		self.search_parameter.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchSymbolCancel )
+		self.search_parameter.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchSymbolButton )
+		self.search_parameter.Bind( wx.EVT_TEXT_ENTER, self.onSearchSymbolTextEnter )
+		self.button_refresh_parameters.Bind( wx.EVT_BUTTON, self.onButtonRefreshSymbolsClick )
 		self.button_select_parameterCancel.Bind( wx.EVT_BUTTON, self.onButtonCancelClick )
 		self.button_select_parameterOK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
 
@@ -67,13 +78,16 @@ class PanelSelectParameter ( wx.Panel ):
 
 
 	# Virtual event handlers, overide them in your derived class
-	def onSearchParameterCancel( self, event ):
+	def onSearchSymbolCancel( self, event ):
 		event.Skip()
 
-	def onSearchParameterButton( self, event ):
+	def onSearchSymbolButton( self, event ):
 		event.Skip()
 
-	def onSearchParameterEnter( self, event ):
+	def onSearchSymbolTextEnter( self, event ):
+		event.Skip()
+
+	def onButtonRefreshSymbolsClick( self, event ):
 		event.Skip()
 
 	def onButtonCancelClick( self, event ):
