@@ -19,8 +19,15 @@ class FilterParameter(Filter):
     def apply(self, request):
         return request.filter(parameter_id=self.parameter.id)
 
+def _add_default_annotations(request):
+    # add the field child_count in request result 
+    request = request.select_related('part', 'parameter') # preload for performance
+    return request
+
 def find(filters=[]):
     request = api.models.PartParameter.objects
+    
+    request = _add_default_annotations(request)
     
     for filter in filters:
         request = filter.apply(request)

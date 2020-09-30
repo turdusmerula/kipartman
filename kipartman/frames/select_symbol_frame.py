@@ -169,21 +169,21 @@ class SelectSymbolFrame(PanelSelectSymbol):
         obj = self.tree_symbols_manager.ItemToObject(item)
 
         if isinstance(obj, Symbol):
-            if obj.symbol.Content!='':
-                lib = kicad_lib_file.KicadLibFile()
-                lib.Load(obj.symbol.Content)
-                image_file = tempfile.NamedTemporaryFile()
-                lib.Render(image_file.name, self.panel_image_symbol.GetRect().width, self.panel_image_symbol.GetRect().height)
-                img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
-                image_file.close()
+#             if obj.symbol.Content!='':
+#                 lib = kicad_lib_file.KicadLibFile()
+#                 lib.Load(obj.symbol.Content)
+#                 image_file = tempfile.NamedTemporaryFile()
+#                 lib.Render(image_file.name, self.panel_image_symbol.GetRect().width, self.panel_image_symbol.GetRect().height)
+#                 img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
+#                 image_file.close()
             self.button_symbol_editOK.Enabled = True
         else:
-            img = wx.Image()
-            img.Create(1, 1)
+#             img = wx.Image()
+#             img.Create(1, 1)
             self.button_symbol_editOK.Enabled = False
 
-        img = img.ConvertToBitmap()
-        self.image_symbol.SetBitmap(img)
+#         img = img.ConvertToBitmap()
+#         self.image_symbol.SetBitmap(img)
     
     def onButtonCancelClick( self, event ):
         if self.cancel:

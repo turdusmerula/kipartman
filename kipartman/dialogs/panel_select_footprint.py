@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -33,7 +33,7 @@ class PanelSelectFootprint ( wx.Panel ):
 		self.search_footprint.ShowCancelButton( False )
 		self.search_footprint.SetMinSize( wx.Size( 200,-1 ) )
 
-		bSizer61.Add( self.search_footprint, 0, wx.ALL|wx.EXPAND, 5 )
+		bSizer61.Add( self.search_footprint, 1, wx.ALL|wx.EXPAND, 5 )
 
 		self.button_refresh_footprints = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
@@ -41,7 +41,7 @@ class PanelSelectFootprint ( wx.Panel ):
 		bSizer61.Add( self.button_refresh_footprints, 0, wx.ALL|wx.EXPAND, 5 )
 
 
-		bSizer4.Add( bSizer61, 0, wx.ALIGN_RIGHT, 5 )
+		bSizer4.Add( bSizer61, 0, wx.EXPAND, 5 )
 
 		self.tree_footprints = wx.dataview.DataViewCtrl( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer4.Add( self.tree_footprints, 1, wx.ALL|wx.EXPAND, 5 )

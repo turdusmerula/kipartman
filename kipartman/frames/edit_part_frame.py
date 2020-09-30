@@ -3,6 +3,7 @@ from frames.select_footprint_frame import SelectFootprintFrame
 from frames.select_symbol_frame import SelectSymbolFrame
 from frames.select_part_frame import SelectPartFrame
 from frames.part_parameters_frame import PartParametersFrame
+import api.data.part
 # from frames.part_distributors_frame import PartDistributorsFrame
 # from frames.part_manufacturers_frame import PartManufacturersFrame
 # from frames.part_attachements_frame import PartAttachementsFrame
@@ -55,11 +56,22 @@ class EditPartFrame(PanelEditPart):
 #         self.edit_part_references = PartReferencesFrame(self.notebook_part)
 #         self.notebook_part.AddPage(self.edit_part_references, "References")
 
+        self._category = None
+        self._footprint = None
+        self._symbol = None
+        
         # set initial state
         self.SetPart(None)
         self._enable(False)
         
     def SetPart(self, part):
+        self._category = None
+        if part is None:
+            self._footprint = None
+            self._symbol = None
+        else:
+            self._footprint = part.footprint
+            self._symbol = part.symbol
         self.part = part
         self._show_part(part)
         self.edit_part_parameters.SetPart(part)
@@ -73,6 +85,13 @@ class EditPartFrame(PanelEditPart):
         
 
     def EditPart(self, part):
+        self._category = None
+        if part is None:
+            self._footprint = None
+            self._symbol = None
+        else:
+            self._footprint = part.footprint
+            self._symbol = part.symbol
         self.part = part
         self._show_part(part)
         self.edit_part_parameters.EditPart(part)
@@ -85,16 +104,34 @@ class EditPartFrame(PanelEditPart):
         self._enable(True)
         self._check()
             
+    def AddPart(self, category):
+        self._category = category
+        self._footprint = None
+        self._symbol = None
+        self.part = None
+        self._show_part(None)
+        self.edit_part_parameters.EditPart(None)
+#         self.edit_part_distributors.EditPart(None)
+#         self.edit_part_manufacturers.EditPart(None)
+#         self.edit_part_storages.EditPart(None)
+#         self.edit_part_attachements.EditPart(None)
+#         self.edit_part_preview_data.EditPart(None)
+#         self.edit_part_references.EditPart(None)
+        self._enable(True)
+        self._check()
+
     def _show_part(self, part):
         if part is not None:
             self.edit_part_name.Value = NoneValue(part.name, "")
             self.edit_part_description.Value = NoneValue(part.description, "")
             self.edit_part_comment.Value = NoneValue(part.comment, '')
-            if part.footprint:
+            self.edit_part_value.Value = part.value
+#             self.show_part_value.value = part.value_content
+            if part.footprint is not None:
                 self.button_part_footprint.Label = part.footprint.name
             else:
                 self.button_part_footprint.Label = "<none>"
-            if part.symbol:
+            if part.symbol is not None:
                 self.button_part_symbol.Label = part.symbol.name
             else:
                 self.button_part_symbol.Label = "<none>"
@@ -102,14 +139,21 @@ class EditPartFrame(PanelEditPart):
             self.edit_part_name.Value = ''
             self.edit_part_description.Value = ''
             self.edit_part_comment.Value = ''
+            self.edit_part_value.Value = ''
+            self.show_part_value.value = ''
             self.button_part_footprint.Label = "<none>"
+            self.button_part_symbol.Label = "<none>"
             
     def _enable(self, enabled=True):
         self.edit_part_name.Enabled = enabled
         self.button_octopart.Enabled = enabled
         self.edit_part_description.Enabled = enabled
+        self.edit_part_value.Enabled = enabled
+        self.show_part_value.Enabled = enabled
         self.button_part_footprint.Enabled = enabled
+        self.button_remove_part_footprint.Enabled = enabled
         self.button_part_symbol.Enabled = enabled
+        self.button_remove_part_symbol.Enabled = enabled
         self.edit_part_comment.Enabled = enabled
         self.button_part_editApply.Enabled = enabled
         self.button_part_editCancel.Enabled = enabled
@@ -134,13 +178,58 @@ class EditPartFrame(PanelEditPart):
         else:
             self.button_part_editApply.Enabled = True
 
+    def _get_expanded_value(self, value):
+#         parameters = {}
+#         for parameter in api.data.part_parameter.find([api.data.part_parameter.FilterPart(part)]).all():
+#             parameters[parameter.parameter.name] = parameter
+#         
+#         res = ""
+#         token = None
+#         for c in part.value:
+#             if c=="{":
+#                 token = ""
+#             elif c=="}":
+#                 if token=="name":
+#                     res += part.name
+#                 if token in parameters:
+#                     res += ""
+#                 token = None
+#             else:
+#                 if token is None:
+#                     res += c
+#                 else:
+#                     token += c
+        return ""
 
     def onButtonPartEditApply( self, event ):
-        # save part
-        self.part.save()
         
-        # send result event
-        wx.PostEvent(self, EditPartApplyEvent(part=self.part))
+        try:
+            if self.part is None:
+                self.part = api.data.part.create()
+
+            self.part.name = self.edit_part_name.Value
+            self.part.description = self.edit_part_description.Value
+            self.part.value = self.edit_part_value.Value
+            self.part.footprint = self._footprint
+            self.part.symbol = self._symbol
+            self.part.comment = self.edit_part_comment.Value
+
+            self.edit_part_parameters.Save(self.part)
+#             self.edit_part_distributors.Save(self.part)
+#             self.edit_part_manufacturers.Save(self.part)
+#             self.edit_part_storages.Save(self.part)
+#             self.edit_part_attachements.Save(self.part)
+#             self.edit_part_references.Save(self.part)
+
+            # save part
+            api.data.part.save(self.part)
+
+            # send result event
+            wx.PostEvent(self, EditPartApplyEvent(part=self.part))
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
+        
         event.Skip()
          
     def onButtonPartEditCancel( self, event ):
@@ -149,46 +238,47 @@ class EditPartFrame(PanelEditPart):
 
     def onTextEditPartNameText( self, event ):
         self._check()
-        if self.part is not None:
-            self.part.name = self.edit_part_name.Value
         event.Skip()
         
     def onTextEditPartDescriptionText( self, event ):
         self._check()
-        if self.part is not None:
-            self.part.description = self.edit_part_description.Value
         event.Skip()
     
+    def onTextEditPartValueText( self, event ):
+        self._check()
+        self.show_part_value.Value = self._get_expanded_value(self.edit_part_value.Value)
+        event.Skip()
+
     def onButtonPartFootprintClick( self, event ):
-        footprint = self.part.footprint
-        frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame, footprint)
+        frame = DropdownFrame(self.button_part_footprint, SelectFootprintFrame, self._footprint)
         frame.Dropdown(self.onSetFootprintCallback)
         event.Skip()
      
     def onSetFootprintCallback(self, footprint):
-        if footprint:
-            self.button_part_footprint.Label = footprint.Name
-        else:
-            self.button_part_footprint.Label = "<none>"
-        self.part.footprint = footprint.footprint_model
-#         
+        self.button_part_footprint.Label = footprint.Name
+        self._footprint = footprint.footprint_model
+
+    def onButtonRemovePartFootprintClick( self, event ):
+        self._footprint = None
+        self.button_part_footprint.Label = "<none>"
+        event.Skip()
+
     def onButtonPartSymbolClick( self, event ):
-        symbol = self.part.symbol
-        frame = DropdownFrame(self.button_part_footprint, SelectSymbolFrame, symbol)
+        frame = DropdownFrame(self.button_part_footprint, SelectSymbolFrame, self._symbol)
         frame.Dropdown(self.onSetSymbolCallback)
         event.Skip()
      
     def onSetSymbolCallback(self, symbol):
-        if symbol:
-            self.button_part_symbol.Label = symbol.Name
-        else:
-            self.button_part_symbol.Label = "<none>"
-        self.part.symbol = symbol.symbol_model
-# 
+        self.button_part_symbol.Label = symbol.Name
+        self._symbol = symbol.symbol_model
+
+    def onButtonRemovePartSymbolClick( self, event ):
+        self._symbol = None
+        self.button_part_symbol.Label = "<none>"
+        event.Skip()
+
     def onTextEditPartCommentText( self, event ):
         self._check()
-        if self.part is not None:
-            self.part.comment = self.edit_part_comment.Value
         event.Skip()
 
 #     def onButtonOctopartClick( self, event ):

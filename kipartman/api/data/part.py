@@ -2,6 +2,7 @@ from api.models import Part
 from django.db.models import Count
 from helper.filter import Filter
 from django.db.models import Q
+import api.data.part_parameter
 
 class PartException(Exception):
     def __init__(self, error):
@@ -92,8 +93,31 @@ def find(filters=[]):
     
     return request.order_by('id').all()
 
+def expanded_value(part):
+    parameters = {}
+    for parameter in api.data.part_parameter.find([api.data.part_parameter.FilterPart(part)]).all():
+        parameters[parameter.parameter.name] = parameter
+    
+    res = ""
+    token = None
+    for c in part.value:
+        if c=="{":
+            token = ""
+        elif c=="}":
+            if token=="name":
+                res += part.name
+            if token in parameters:
+                res += ""
+            token = None
+        else:
+            if token is None:
+                res += c
+            else:
+                token += c
+    
 def save(part):
     
+    # build list of childs
     childs = {}
     for child in part.childs.add_pendings():
         childs[child.id] = child
@@ -105,6 +129,9 @@ def save(part):
     if part.id in childs:
         raise PartException("Recursive equivalence detected, a part can not contain itself as an equivalent part")
 
+    # build value
+    # TODO
+    
     part.save()
     
     

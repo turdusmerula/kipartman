@@ -83,6 +83,9 @@ class EditParameterFrame(PanelEditParameter):
             self.edit_parameter_description.Value = ""
             self.radio_choice_parameter_numeric.SetValue(True)
             self.button_search_unit.Label = "<none>"
+            self.static_unit.Show()
+            self.button_search_unit.Show()
+            self.button_remove_unit.Show()
  
     def _enable(self, enabled=True):
         self.edit_parameter_name.Enabled = enabled

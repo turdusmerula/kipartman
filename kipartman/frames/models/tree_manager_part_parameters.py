@@ -14,29 +14,37 @@ class PartParameter(helper.tree.TreeContainerItem):
             unit_symbol = self.part_parameter.parameter.unit.symbol
         
         if col==0:
-            if self.part.value_parameter is not None and self.part.value_parameter==self.part_parameter.parameter.name:
-                return True
-            return False
-        elif col==1:
             return self.part_parameter.parameter.name
-        elif col==5:
+        elif col==4:
             if self.part_parameter.parameter.unit:
                 return self.part_parameter.parameter.unit.name
-        elif col==6:
+        elif col==5:
             return self.part_parameter.parameter.description
         
         if self.part_parameter.parameter.numeric==True:
-            if col==2:
+            if col==1:
                 if self.part_parameter.nom_value is not None:
-                    return format_unit_prefix(self.part_parameter.nom_value, unit_symbol)
-            elif col==3:
+                    prefix = None
+                    if self.part_parameter.nom_prefix is not None:
+                        prefix = self.part_parameter.nom_prefix.symbol
+                    return format_unit_prefix(self.part_parameter.nom_value, unit_symbol, prefix)
+                return "-"
+            elif col==2:
                 if self.part_parameter.min_value is not None:
-                    return format_unit_prefix(self.part_parameter.min_value, unit_symbol)
-            elif col==4:
+                    prefix = None
+                    if self.part_parameter.min_prefix is not None:
+                        prefix = self.part_parameter.min_prefix.symbol
+                    return format_unit_prefix(self.part_parameter.min_value, unit_symbol, prefix)
+                return "-"
+            elif col==3:
                 if self.part_parameter.max_value is not None:
+                    prefix = None
+                    if self.part_parameter.max_prefix is not None:
+                        prefix = self.part_parameter.max_prefix.symbol
                     return format_unit_prefix(self.part_parameter.max_value, unit_symbol)
+                return "-"
         else:
-            if col==2:
+            if col==1:
                 return self.part_parameter.text_value
             
         return ""
@@ -58,7 +66,6 @@ class TreeManagerPartParameter(helper.tree.TreeManager):
 
         self.part = None
         
-        self.AddToggleColumn("*")
         self.AddTextColumn("Parameter")
         self.AddTextColumn("Value")
         self.AddTextColumn("Min")

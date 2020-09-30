@@ -169,21 +169,21 @@ class SelectFootprintFrame(PanelSelectFootprint):
         obj = self.tree_footprints_manager.ItemToObject(item)
 
         if isinstance(obj, Footprint):
-            if obj.footprint.Content!='':
-                lib = kicad_lib_file.KicadLibFile()
-                lib.Load(obj.footprint.Content)
-                image_file = tempfile.NamedTemporaryFile()
-                lib.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
-                img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
-                image_file.close()
+#             if obj.footprint.Content!='':
+#                 lib = kicad_lib_file.KicadLibFile()
+#                 lib.Load(obj.footprint.Content)
+#                 image_file = tempfile.NamedTemporaryFile()
+#                 lib.Render(image_file.name, self.panel_image_footprint.GetRect().width, self.panel_image_footprint.GetRect().height)
+#                 img = wx.Image(image_file.name, wx.BITMAP_TYPE_ANY)
+#                 image_file.close()
             self.button_footprint_editOK.Enabled = True
         else:
-            img = wx.Image()
-            img.Create(1, 1)
+#             img = wx.Image()
+#             img.Create(1, 1)
             self.button_footprint_editOK.Enabled = False
-
-        img = img.ConvertToBitmap()
-        self.image_footprint.SetBitmap(img)
+# 
+#         img = img.ConvertToBitmap()
+#         self.image_footprint.SetBitmap(img)
     
     def onButtonCancelClick( self, event ):
         if self.cancel:

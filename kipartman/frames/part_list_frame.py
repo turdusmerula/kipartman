@@ -132,23 +132,21 @@ class PartListFrame(PanelPartList):
         event.Skip()
 
     def onMenuPartAddPart( self, event ):
-        part = api.data.part.create()
-        
         item = self.tree_parts.GetSelection()
-        part.category = None
+        category = None
         if item.IsOk():
             obj = self.tree_parts_manager.ItemToObject(item)
             if isinstance(obj, PartCategory):
-                part.category = obj.category
+                category = obj.category
             elif isinstance(obj, Part):
-                part.category = obj.part.category
+                category = obj.part.category
         else:
             # add category from filter
-            part.category = None
+            category = None
             if len(self.Filters.get_filters_group('category'))==1:
-                part.category = self.Filters.get_filters_group('category')[0].category
+                category = self.Filters.get_filters_group('category')[0].category
 
-        self.EditPart(part)
+        self.AddPart(category)
         event.Skip()
 
     def onMenuPartEditPart( self, event ):
@@ -226,7 +224,6 @@ class PartListFrame(PanelPartList):
         dropdown.Dropdown()
 
     def onSelectEquivalentPartCallback(self, event):
-        print("---", event.data)
         item = self.tree_parts.GetSelection()
         if not item.IsOk():
             return
@@ -246,31 +243,13 @@ class PartListFrame(PanelPartList):
         self.tree_parts_manager.Load()
         
     def onEditPartApply( self, event ):
-        part = event.part
-        new_part = part.id is None
-
-        try:
-            api.data.part.save(part)
-        except Exception as e:
-            print_stack()
-            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-            return
-        
-        if new_part:
-            partobj = Part(part)
-            categoryobj = self.tree_parts_manager.FindCategory(part.category.id)
-            self.tree_parts_manager.Append(categoryobj, partobj)
-            
         self.tree_parts_manager.Load()
 
-        # reload the part after changing it
-        item = self.tree_parts.GetSelection()
-        obj = self.tree_parts_manager.ItemToObject(item)
-        if isinstance(obj, Part):
-            self.SetPart(obj.part)
-        else:
-            self.SetPart(None)
-            
+        part = event.part
+        partobj = self.tree_parts_manager.FindPart(part.id)
+        self.tree_parts_manager.Select(partobj)
+        
+        self.SetPart(part)
         self.EditMode = False
         event.Skip()
       

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -61,10 +61,8 @@ class PanelEditPart ( wx.Panel ):
 		self.edit_part_value = wx.TextCtrl( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer5.Add( self.edit_part_value, 1, wx.ALL|wx.EXPAND, 5 )
 
-		self.label_part_value = wx.StaticText( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.label_part_value.Wrap( -1 )
-
-		bSizer5.Add( self.label_part_value, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.show_part_value = wx.TextCtrl( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.BORDER_NONE )
+		bSizer5.Add( self.show_part_value, 1, wx.ALL|wx.EXPAND, 5 )
 
 
 		fgSizer1.Add( bSizer5, 1, wx.EXPAND, 5 )
@@ -82,16 +80,36 @@ class PanelEditPart ( wx.Panel ):
 
 		fgSizer1.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
+		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
+
 		self.button_part_footprint = wx.Button( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
-		fgSizer1.Add( self.button_part_footprint, 1, wx.ALL|wx.EXPAND, 5 )
+		bSizer6.Add( self.button_part_footprint, 1, wx.ALL|wx.EXPAND, 5 )
+
+		self.button_remove_part_footprint = wx.BitmapButton( self.panel_edit_part_basic, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+
+		self.button_remove_part_footprint.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer6.Add( self.button_remove_part_footprint, 0, wx.ALL|wx.EXPAND, 5 )
+
+
+		fgSizer1.Add( bSizer6, 1, wx.EXPAND, 5 )
 
 		self.m_staticText51 = wx.StaticText( self.panel_edit_part_basic, wx.ID_ANY, u"Symbol", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText51.Wrap( -1 )
 
 		fgSizer1.Add( self.m_staticText51, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
+		bSizer7 = wx.BoxSizer( wx.HORIZONTAL )
+
 		self.button_part_symbol = wx.Button( self.panel_edit_part_basic, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
-		fgSizer1.Add( self.button_part_symbol, 1, wx.ALL|wx.EXPAND, 5 )
+		bSizer7.Add( self.button_part_symbol, 1, wx.ALL|wx.EXPAND, 5 )
+
+		self.button_remove_part_symbol = wx.BitmapButton( self.panel_edit_part_basic, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+
+		self.button_remove_part_symbol.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer7.Add( self.button_remove_part_symbol, 0, wx.ALL|wx.EXPAND, 5 )
+
+
+		fgSizer1.Add( bSizer7, 1, wx.EXPAND, 5 )
 
 		self.m_staticText6 = wx.StaticText( self.panel_edit_part_basic, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
@@ -144,7 +162,9 @@ class PanelEditPart ( wx.Panel ):
 		self.edit_part_value.Bind( wx.EVT_TEXT, self.onTextEditPartValueText )
 		self.edit_part_description.Bind( wx.EVT_TEXT, self.onTextEditPartDescriptionText )
 		self.button_part_footprint.Bind( wx.EVT_BUTTON, self.onButtonPartFootprintClick )
+		self.button_remove_part_footprint.Bind( wx.EVT_BUTTON, self.onButtonRemovePartFootprintClick )
 		self.button_part_symbol.Bind( wx.EVT_BUTTON, self.onButtonPartSymbolClick )
+		self.button_remove_part_symbol.Bind( wx.EVT_BUTTON, self.onButtonRemovePartSymbolClick )
 		self.edit_part_comment.Bind( wx.EVT_TEXT, self.onTextEditPartCommentText )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartEditApply )
 		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartEditCancel )
@@ -172,7 +192,13 @@ class PanelEditPart ( wx.Panel ):
 	def onButtonPartFootprintClick( self, event ):
 		event.Skip()
 
+	def onButtonRemovePartFootprintClick( self, event ):
+		event.Skip()
+
 	def onButtonPartSymbolClick( self, event ):
+		event.Skip()
+
+	def onButtonRemovePartSymbolClick( self, event ):
 		event.Skip()
 
 	def onTextEditPartCommentText( self, event ):
