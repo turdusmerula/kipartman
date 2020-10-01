@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -22,150 +22,83 @@ class PanelDistributors ( wx.Panel ):
 
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_splitter2 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
-		self.m_splitter2.Bind( wx.EVT_IDLE, self.m_splitter2OnIdle )
-		self.m_splitter2.SetMinimumPaneSize( 300 )
+		self.splitter_vert = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.splitter_vert.Bind( wx.EVT_IDLE, self.splitter_vertOnIdle )
+		self.splitter_vert.SetMinimumPaneSize( 300 )
 
-		self.panel_distributors = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_distributor_list = wx.Panel( self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 
-		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
+		self.toolbar_filters = wx.ToolBar( self.panel_distributor_list, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
+		self.filters_label = wx.StaticText( self.toolbar_filters, wx.ID_ANY, u"Filters:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.filters_label.Wrap( -1 )
 
-		bSizer5 = wx.BoxSizer( wx.HORIZONTAL )
+		self.toolbar_filters.AddControl( self.filters_label )
+		self.toolbar_filters.Realize()
 
-		self.button_add_distributor = wx.BitmapButton( self.panel_distributors, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+		bSizer2.Add( self.toolbar_filters, 0, wx.EXPAND, 5 )
 
-		self.button_add_distributor.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer5.Add( self.button_add_distributor, 0, wx.ALL, 5 )
+		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.button_edit_distributor = wx.BitmapButton( self.panel_distributors, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+		self.search_distributors = wx.SearchCtrl( self.panel_distributor_list, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		self.search_distributors.ShowSearchButton( True )
+		self.search_distributors.ShowCancelButton( False )
+		self.search_distributors.SetMinSize( wx.Size( 200,-1 ) )
 
-		self.button_edit_distributor.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer5.Add( self.button_edit_distributor, 0, wx.ALL, 5 )
+		bSizer61.Add( self.search_distributors, 1, wx.ALL|wx.EXPAND, 5 )
 
-		self.button_remove_distributor = wx.BitmapButton( self.panel_distributors, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+		self.button_refresh_parameters = wx.BitmapButton( self.panel_distributor_list, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
-		self.button_remove_distributor.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer5.Add( self.button_remove_distributor, 0, wx.ALL, 5 )
-
-
-		bSizer4.Add( bSizer5, 1, wx.EXPAND, 5 )
-
-		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
-
-		self.button_refresh_distributors = wx.BitmapButton( self.panel_distributors, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
-
-		self.button_refresh_distributors.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer6.Add( self.button_refresh_distributors, 0, wx.ALL, 5 )
+		self.button_refresh_parameters.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer61.Add( self.button_refresh_parameters, 0, wx.ALL|wx.EXPAND, 5 )
 
 
-		bSizer4.Add( bSizer6, 0, 0, 5 )
+		bSizer2.Add( bSizer61, 0, wx.EXPAND, 5 )
 
-
-		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
-
-		self.tree_distributors = wx.dataview.DataViewCtrl( self.panel_distributors, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.tree_distributors = wx.dataview.DataViewCtrl( self.panel_distributor_list, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer2.Add( self.tree_distributors, 1, wx.ALL|wx.EXPAND, 5 )
 
 
-		self.panel_distributors.SetSizer( bSizer2 )
-		self.panel_distributors.Layout()
-		bSizer2.Fit( self.panel_distributors )
-		self.panel_edit_distributor = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer3 = wx.BoxSizer( wx.VERTICAL )
-
-		fgSizer1 = wx.FlexGridSizer( 0, 2, 0, 0 )
-		fgSizer1.AddGrowableCol( 1 )
-		fgSizer1.SetFlexibleDirection( wx.BOTH )
-		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
-
-		self.m_staticText3 = wx.StaticText( self.panel_edit_distributor, wx.ID_ANY, u"Distributor", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText3.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText3, 0, wx.ALL, 5 )
-
-		self.edit_distributor_name = wx.TextCtrl( self.panel_edit_distributor, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_distributor_name, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText4 = wx.StaticText( self.panel_edit_distributor, wx.ID_ANY, u"Address", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText4.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText4, 0, wx.ALL, 5 )
-
-		self.edit_distributor_address = wx.TextCtrl( self.panel_edit_distributor, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
-		fgSizer1.Add( self.edit_distributor_address, 0, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText6 = wx.StaticText( self.panel_edit_distributor, wx.ID_ANY, u"Website", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText6.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText6, 0, wx.ALL, 5 )
-
-		self.edit_distributor_website = wx.TextCtrl( self.panel_edit_distributor, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_distributor_website, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText7 = wx.StaticText( self.panel_edit_distributor, wx.ID_ANY, u"SKU URL", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText7.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText7, 0, wx.ALL, 5 )
-
-		self.edit_distributor_sku_url = wx.TextCtrl( self.panel_edit_distributor, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_distributor_sku_url, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText8 = wx.StaticText( self.panel_edit_distributor, wx.ID_ANY, u"Email", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText8.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText8, 0, wx.ALL, 5 )
-
-		self.edit_distributor_email = wx.TextCtrl( self.panel_edit_distributor, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_distributor_email, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText9 = wx.StaticText( self.panel_edit_distributor, wx.ID_ANY, u"Phone", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText9.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText9, 0, wx.ALL, 5 )
-
-		self.edit_distributor_phone = wx.TextCtrl( self.panel_edit_distributor, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_distributor_phone, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText11 = wx.StaticText( self.panel_edit_distributor, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText11.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText11, 0, wx.ALL, 5 )
-
-		self.edit_distributor_comment = wx.TextCtrl( self.panel_edit_distributor, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
-		fgSizer1.Add( self.edit_distributor_comment, 1, wx.ALL|wx.EXPAND, 5 )
-
-
-		bSizer3.Add( fgSizer1, 1, wx.EXPAND, 5 )
-
-		m_sdbSizer1 = wx.StdDialogButtonSizer()
-		self.m_sdbSizer1Apply = wx.Button( self.panel_edit_distributor, wx.ID_APPLY )
-		m_sdbSizer1.AddButton( self.m_sdbSizer1Apply )
-		self.m_sdbSizer1Cancel = wx.Button( self.panel_edit_distributor, wx.ID_CANCEL )
-		m_sdbSizer1.AddButton( self.m_sdbSizer1Cancel )
-		m_sdbSizer1.Realize();
-
-		bSizer3.Add( m_sdbSizer1, 0, wx.EXPAND, 5 )
-
-
-		self.panel_edit_distributor.SetSizer( bSizer3 )
-		self.panel_edit_distributor.Layout()
-		bSizer3.Fit( self.panel_edit_distributor )
-		self.m_splitter2.SplitVertically( self.panel_distributors, self.panel_edit_distributor, 294 )
-		bSizer1.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
+		self.panel_distributor_list.SetSizer( bSizer2 )
+		self.panel_distributor_list.Layout()
+		bSizer2.Fit( self.panel_distributor_list )
+		self.panel_right = wx.Panel( self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.splitter_vert.SplitVertically( self.panel_distributor_list, self.panel_right, 500 )
+		bSizer1.Add( self.splitter_vert, 1, wx.EXPAND, 5 )
 
 
 		self.SetSizer( bSizer1 )
 		self.Layout()
+		self.menu_distributor = wx.Menu()
+		self.menu_distributor_add = wx.MenuItem( self.menu_distributor, wx.ID_ANY, u"Add distributor", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_distributor_add.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_distributor.Append( self.menu_distributor_add )
+
+		self.menu_distributor_duplicate = wx.MenuItem( self.menu_distributor, wx.ID_ANY, u"Duplicate distributor", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_distributor_duplicate.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_distributor.Append( self.menu_distributor_duplicate )
+
+		self.menu_distributor_edit = wx.MenuItem( self.menu_distributor, wx.ID_ANY, u"Edit distributor", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_distributor_edit.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_distributor.Append( self.menu_distributor_edit )
+
+		self.menu_distributor_remove = wx.MenuItem( self.menu_distributor, wx.ID_ANY, u"Remove distributor", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_distributor_remove.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_distributor.Append( self.menu_distributor_remove )
+
+		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelDistributorsOnContextMenu )
+
 
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
-		self.button_add_distributor.Bind( wx.EVT_BUTTON, self.onButtonAddDistributorClick )
-		self.button_edit_distributor.Bind( wx.EVT_BUTTON, self.onButtonEditDistributorClick )
-		self.button_remove_distributor.Bind( wx.EVT_BUTTON, self.onButtonRemoveDistributorClick )
-		self.button_refresh_distributors.Bind( wx.EVT_BUTTON, self.onButtonRefreshDistributorsClick )
-		self.m_sdbSizer1Apply.Bind( wx.EVT_BUTTON, self.onApplyButtonClick )
-		self.m_sdbSizer1Cancel.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
+		self.search_distributors.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchDistributorsCancel )
+		self.search_distributors.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchDistributorsButton )
+		self.search_distributors.Bind( wx.EVT_TEXT_ENTER, self.onSearchDistributorsTextEnter )
+		self.button_refresh_parameters.Bind( wx.EVT_BUTTON, self.onButtonRefreshDistributorsClick )
+		self.Bind( wx.EVT_MENU, self.onMenuDistributorAdd, id = self.menu_distributor_add.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDistributorDuplicate, id = self.menu_distributor_duplicate.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDistributorEdit, id = self.menu_distributor_edit.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuDistributorRemove, id = self.menu_distributor_remove.GetId() )
 
 	def __del__( self ):
 		pass
@@ -175,26 +108,35 @@ class PanelDistributors ( wx.Panel ):
 	def onInitDialog( self, event ):
 		event.Skip()
 
-	def onButtonAddDistributorClick( self, event ):
+	def onSearchDistributorsCancel( self, event ):
 		event.Skip()
 
-	def onButtonEditDistributorClick( self, event ):
+	def onSearchDistributorsButton( self, event ):
 		event.Skip()
 
-	def onButtonRemoveDistributorClick( self, event ):
+	def onSearchDistributorsTextEnter( self, event ):
 		event.Skip()
 
 	def onButtonRefreshDistributorsClick( self, event ):
 		event.Skip()
 
-	def onApplyButtonClick( self, event ):
+	def onMenuDistributorAdd( self, event ):
 		event.Skip()
 
-	def onCancelButtonClick( self, event ):
+	def onMenuDistributorDuplicate( self, event ):
 		event.Skip()
 
-	def m_splitter2OnIdle( self, event ):
-		self.m_splitter2.SetSashPosition( 294 )
-		self.m_splitter2.Unbind( wx.EVT_IDLE )
+	def onMenuDistributorEdit( self, event ):
+		event.Skip()
+
+	def onMenuDistributorRemove( self, event ):
+		event.Skip()
+
+	def splitter_vertOnIdle( self, event ):
+		self.splitter_vert.SetSashPosition( 500 )
+		self.splitter_vert.Unbind( wx.EVT_IDLE )
+
+	def PanelDistributorsOnContextMenu( self, event ):
+		self.PopupMenu( self.menu_distributor, event.GetPosition() )
 
 

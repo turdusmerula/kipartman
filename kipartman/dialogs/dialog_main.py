@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -52,6 +52,9 @@ class DialogMain ( wx.Frame ):
 		self.menu_view_parameters = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Parameters", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_view.Append( self.menu_view_parameters )
 
+		self.menu_view_distributors = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Distributors", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_view.Append( self.menu_view_distributors )
+
 		self.menu_bar.Append( self.menu_view, u"View" )
 
 		self.menu_help = wx.Menu()
@@ -89,6 +92,7 @@ class DialogMain ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.onMenuViewSymbolsSelection, id = self.menu_view_symbols.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewFootprintsSelection, id = self.menu_view_footprints.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewParametersSelection, id = self.menu_view_parameters.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuViewDistributorsSelection, id = self.menu_view_distributors.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuHelpAboutSelection, id = self.menu_about.GetId() )
 		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGED, self.onNotebookPageChanged )
 		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGING, self.onNotebookPageChanging )
@@ -122,6 +126,9 @@ class DialogMain ( wx.Frame ):
 		event.Skip()
 
 	def onMenuViewParametersSelection( self, event ):
+		event.Skip()
+
+	def onMenuViewDistributorsSelection( self, event ):
 		event.Skip()
 
 	def onMenuHelpAboutSelection( self, event ):

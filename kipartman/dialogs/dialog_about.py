@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -38,7 +38,7 @@ class DialogAbout ( wx.Dialog ):
 
 		bSizer4.Add( self.m_staticText1, 0, wx.ALL, 5 )
 
-		self.m_staticText2 = wx.StaticText( self, wx.ID_ANY, u"Kipartman is an open source, freeware visual tool used to create and edit BOM for Kicad.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText2 = wx.StaticText( self, wx.ID_ANY, u"Kipartman is an open source visual tool used to create and edit BOM for Kicad.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText2.Wrap( -2 )
 
 		bSizer4.Add( self.m_staticText2, 1, wx.ALL|wx.EXPAND, 5 )

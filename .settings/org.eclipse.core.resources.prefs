@@ -9,7 +9,6 @@ encoding//kipartman/api/models.py=utf-8
 encoding//kipartman/api/tests.py=utf-8
 encoding//kipartman/dialogs/dialog_buy.py=utf-8
 encoding//kipartman/dialogs/dialog_configuration.py=utf-8
-encoding//kipartman/dialogs/dialog_draw_footprint.py=utf-8
 encoding//kipartman/dialogs/dialog_edit_attachement.py=utf-8
 encoding//kipartman/dialogs/dialog_edit_category.py=utf-8
 encoding//kipartman/dialogs/dialog_edit_part_manufacturer.py=utf-8

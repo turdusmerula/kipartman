@@ -4,8 +4,6 @@ from frames.select_unit_frame import SelectUnitFrame
 import wx
 from helper.exception import print_stack
 import api.data.unit
-import api.data.unit_prefix
-import api.data.part_parameter
 import helper.colors as colors
 
 EditParameterApplyEvent, EVT_EDIT_PARAMETER_APPLY_EVENT = wx.lib.newevent.NewEvent()

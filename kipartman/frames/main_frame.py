@@ -1,12 +1,12 @@
 from dialogs.dialog_main import DialogMain
+from frames.configuration_frame import ConfigurationFrame
 # from frames.buy_frame import BuyFrame
 from frames.parts_frame import PartsFrame
 from frames.symbols_frame import SymbolsFrame
 from frames.footprints_frame import FootprintsFrame
 from frames.parameters_frame import ParametersFrame
-# from frames.distributors_frame import DistributorsFrame
+from frames.distributors_frame import DistributorsFrame
 # from frames.manufacturers_frame import ManufacturersFrame
-# from frames.configuration_frame import ConfigurationFrame
 # from frames.storages_frame import StoragesFrame
 # from frames.project_frame import ProjectFrame
 from helper.exception import print_stack
@@ -24,12 +24,9 @@ class MainFrame(DialogMain):
 
         self.pages = []
 
-#         self.distributorsframe = DistributorsFrame(self.notebook)
 #         self.manufacturersframe = ManufacturersFrame(self.notebook)
 #         self.storageframe = StoragesFrame(self.notebook)
  
-#         self.pages.append(self.distributorsframe)
-#         self.notebook.AddPage(self.distributorsframe, "Distributors", False)
 #         self.pages.append(self.manufacturersframe)
 #         self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
 #         self.pages.append(self.storageframe)
@@ -57,6 +54,11 @@ class MainFrame(DialogMain):
         parameters_frame = ParametersFrame(self.notebook)
         self.pages.append(parameters_frame)
         self.notebook.AddPage(parameters_frame, "parameters", False)
+
+    def onMenuViewDistributorsSelection( self, event ):
+        distributors_frame = DistributorsFrame(self.notebook)
+        self.pages.append(distributors_frame)
+        self.notebook.AddPage(distributors_frame, "distributors", False)
 
     def onNotebookPageChanged( self, event ):
         if self.menus is None:

@@ -1,18 +1,13 @@
 from dialogs.panel_distributors import PanelDistributors
+import frames.edit_distributor_frame
 import wx
-import rest
 import helper.tree
 from helper.exception import print_stack
-from helper.connection import check_backend
+import api.data.distributor
 
-def NoneValue(value, default):
-    if value:
-        return value
-    return default
-
-class DataModelDistributor(helper.tree.TreeItem):
+class Distributor(helper.tree.TreeItem):
     def __init__(self, distributor):
-        super(DataModelDistributor, self).__init__()
+        super(Distributor, self).__init__()
         self.distributor = distributor
             
     def GetValue(self, col):
@@ -25,163 +20,206 @@ class DataModelDistributor(helper.tree.TreeItem):
     def SetValue(self, value, col):
         if col==0:
             self.distributor.allowed = value
-            self.distributor = rest.api.update_distributor(self.distributor.id, self.distributor)
+            self.distributor.save()
             return True
         return False
 
 class TreeManagerDistributors(helper.tree.TreeManager):
-    def __init__(self, tree_view):
-        super(TreeManagerDistributors, self).__init__(tree_view)
+    def __init__(self, tree_view, *args, filters, **kwargs):
+        super(TreeManagerDistributors, self).__init__(tree_view, *args, **kwargs)
+
+        self.filters = filters
+
+        self.AddToggleColumn("Allowed")
+        self.AddTextColumn("Name")
+
+    def Load(self):
+         
+        self.SaveState()
+        
+        filters = self.filters.get_filters()
+
+        for distributor in api.data.distributor.find(filters):
+            distributorobj = self.FindDistributor(distributor)
+            if distributorobj is None:
+                distributorobj = self.AppendDistributor(distributor)
+            else:
+                distributorobj.distributor = distributor
+                self.Update(distributorobj)
+        
+        self.PurgeState()
 
     def FindDistributor(self, distributor_id):
         for data in self.data:
-            if isinstance(data, DataModelDistributor) and data.distributor.id==distributor_id:
+            if isinstance(data, Distributor) and data.distributor.id==distributor_id:
                 return data
         return None
 
-    def UpdateDistributor(self, distributor):
-        distributorobj = self.FindDistributor(distributor.id)
-        if distributorobj is None:
-            return
-        self.UpdateItem(distributorobj)
+    def AppendDistributor(self, distributor):
+        distributorobj = Distributor(distributor)
+        self.Append(None, distributorobj)
+        return distributorobj
 
 class DistributorsFrame(PanelDistributors): 
     def __init__(self, parent):
         super(DistributorsFrame, self).__init__(parent)
         
+        # distributors filters
+        self._filters = helper.filter.FilterSet(self, self.toolbar_filters)
+        self.Filters.Bind( helper.filter.EVT_FILTER_CHANGED, self.onFilterChanged )
+
         # create distributors list
-        self.tree_distributors_manager = TreeManagerDistributors(self.tree_distributors)
-        self.tree_distributors_manager.AddToggleColumn("Allowed")
-        self.tree_distributors_manager.AddTextColumn("Name")
+        self.tree_distributors_manager = TreeManagerDistributors(self.tree_distributors, context_menu=self.menu_distributor, filters=self.Filters)
         self.tree_distributors_manager.OnSelectionChanged = self.onTreeDistributorsSelectionChanged
+        self.tree_distributors_manager.OnItemBeforeContextMenu = self.onTreeDistributorsBeforeContextMenu
 
-        self.panel_edit_distributor.Enabled = False
-        self.panel_distributors.Enabled = True
+        # create edit distributor panel
+        self.panel_edit_distributor = frames.edit_distributor_frame.EditDistributorFrame(self.splitter_vert)
+        self.panel_edit_distributor.Bind( frames.edit_distributor_frame.EVT_EDIT_DISTRIBUTOR_APPLY_EVENT, self.onEditDistributorApply )
+        self.panel_edit_distributor.Bind( frames.edit_distributor_frame.EVT_EDIT_DISTRIBUTOR_CANCEL_EVENT, self.onEditDistributorCancel )
+
+        # organize panels
+        self.splitter_vert.Unsplit()
+        self.splitter_vert.SplitVertically( self.panel_distributor_list, self.panel_edit_distributor)
+        self.panel_right.Hide()
         
-        self.loaded = False ;
-        
+    @property
+    def Filters(self):
+        return self._filters
+
+
     def activate(self):
-        if self.loaded==False:
-            self.load()
-        self.loaded = True
+        self.tree_distributors_manager.Load()
+
+    def _enable(self, value):
+        self.panel_distributor_list.Enabled = value
+
+
+    def GetMenus(self):
+        return None
+
+
+    def SetDistributor(self, distributor):
+        self.panel_edit_distributor.SetDistributor(distributor)
+        self._enable(True)
         
-    def loadDistributors(self):
-        try:
-            check_backend()
-        except Exception as e:
-            print_stack()
-            self.GetParent().GetParent().error_message(format(e))
-            return
+    def EditDistributor(self, distributor):
+        self.panel_edit_distributor.EditDistributor(distributor)
+        self._enable(False)
 
-        self.tree_distributors_manager.ClearItems()
-        
-        # retrieve categories
-        distributors = rest.api.find_distributors()
+    def AddDistributor(self):
+        self.panel_edit_distributor.AddDistributor()
+        self._enable(False)
 
-        for distributor in distributors:
-            self.tree_distributors_manager.AppendItem(None, DataModelDistributor(distributor))
-    
-    # Virtual event handlers, overide them in your derived class
-    def load(self):
-        try:
-            check_backend()
-        except Exception as e:
-            print_stack()
-            self.GetParent().GetParent().error_message(format(e))
-            return
-
-        try:
-            self.loadDistributors()
-        except Exception as e:
-            print_stack()
-            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-
-    def ShowDistributor(self, distributor):
-        self.distributor = distributor
-        
-        if distributor:
-            self.edit_distributor_name.Value = NoneValue(distributor.name, '')
-            self.edit_distributor_address.Value = NoneValue(distributor.address, '')
-            self.edit_distributor_website.Value = NoneValue(distributor.website, '')
-            self.edit_distributor_sku_url.Value = NoneValue(distributor.sku_url, '')
-            self.edit_distributor_email.Value = NoneValue(distributor.email, '')
-            self.edit_distributor_phone.Value = NoneValue(distributor.phone, '')
-            self.edit_distributor_comment.Value = NoneValue(distributor.comment, '')
-        else:
-            self.edit_distributor_name.Value = ''
-            self.edit_distributor_address.Value = ''
-            self.edit_distributor_website.Value = ''
-            self.edit_distributor_sku_url.Value = ''
-            self.edit_distributor_email.Value = ''
-            self.edit_distributor_phone.Value = ''
-            self.edit_distributor_comment.Value = ''
-
-    def onButtonAddDistributorClick( self, event ):
-        self.ShowDistributor(None)
-        self.panel_edit_distributor.Enabled = True
-        self.panel_distributors.Enabled = False
-
-    def onButtonEditDistributorClick( self, event ):
-        item = self.tree_distributors.GetSelection()
-        if item.IsOk()==False:
-            return 
-        distributor = self.tree_distributors_manager.ItemToObject(item)
-        self.ShowDistributor(distributor.distributor)
-        
-        self.panel_edit_distributor.Enabled = True
-        self.panel_distributors.Enabled = False
-
-    def onButtonRemoveDistributorClick( self, event ):
-        item = self.tree_distributors.GetSelection()
-        if item.IsOk()==False:
-            return
-        distributor = self.tree_distributors_manager.ItemToObject(item)
-        rest.api.delete_distributor(distributor.distributor.id)
-        self.tree_distributors_manager.DeleteItem(None, distributor)
-        
     def onButtonRefreshDistributorsClick( self, event ):
-        self.load()
-    
+        self.tree_distributors_manager.Load()
+        event.Skip()
+
+    def onFilterChanged( self, event ):
+        self.tree_distributors_manager.Load()
+        event.Skip()
+
     def onTreeDistributorsSelectionChanged( self, event ):
         item = self.tree_distributors.GetSelection()
         if item.IsOk()==False:
             return
-        distributor = self.tree_distributors_manager.ItemToObject(item)
-        self.ShowDistributor(distributor.distributor)
-    
-    def onApplyButtonClick( self, event ):
-        
-        if self.distributor is None:
-            distributor = rest.model.DistributorNew()
-            distributor.allowed = True
+        obj = self.tree_distributors_manager.ItemToObject(item)
+        if isinstance(obj, Distributor):
+            self.panel_edit_distributor.SetDistributor(obj.distributor)
         else:
-            distributor = self.distributor
-        
-        distributor.name = self.edit_distributor_name.Value
-        distributor.address = self.edit_distributor_address.Value
-        distributor.website = self.edit_distributor_website.Value
-        distributor.sku_url = self.edit_distributor_sku_url.Value
-        distributor.email = self.edit_distributor_email.Value
-        distributor.phone = self.edit_distributor_phone.Value
-        distributor.comment = self.edit_distributor_comment.Value
+            self.panel_edit_distributor.SetDistributor(None)
+        event.Skip()
 
-        try:
-            if self.distributor is None:
-                distributor = rest.api.add_distributor(distributor)
-                self.tree_distributors_manager.AppendItem(None, DataModelDistributor(distributor))
-            else:
-                distributor = rest.api.update_distributor(distributor.id, distributor)
-                self.tree_distributors_manager.UpdateDistributor(distributor)
-                
-            self.panel_edit_distributor.Enabled = False
-            self.panel_distributors.Enabled = True
-            
-        except Exception as e:
-            print_stack()
-            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+    def onTreeDistributorsBeforeContextMenu( self, event ):
+        item = self.tree_distributors.GetSelection()
+ 
+        self.menu_distributor_add.Enable(True)
+        self.menu_distributor_duplicate.Enable(False)
+        self.menu_distributor_remove.Enable(False)
+        self.menu_distributor_edit.Enable(False)
 
-        
-    def onCancelButtonClick( self, event ):
-        self.panel_edit_distributor.Enabled = False
-        self.panel_distributors.Enabled = True
+        if item.IsOk()==False:
+            return 
+        obj = self.tree_distributors_manager.ItemToObject(item)
+
+        if isinstance(obj, Distributor):
+            self.menu_distributor_duplicate.Enable(True)
+            self.menu_distributor_remove.Enable(True)
+            self.menu_distributor_edit.Enable(True)
+
+    def onMenuDistributorAdd( self, event ):
+        self.AddDistributor()
+        event.Skip()
+
+    def onMenuDistributorDuplicate( self, event ):
+        # TODO
+        event.Skip()
+
+    def onMenuDistributorEdit( self, event ):
+        item = self.tree_distributors.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_distributors_manager.ItemToObject(item)
+        if isinstance(obj, Distributor)==False:
+            return
+        self.EditDistributor(obj.distributor)
+        event.Skip()
+
+    def onMenuDistributorRemove( self, event ):
+        item = self.tree_distributors.GetSelection()
+        if item.IsOk()==False:
+            return
+        obj = self.tree_distributors_manager.ItemToObject(item)
+         
+        associated_parts = api.data.part.find([api.data.part.FilterDistributor(obj.distributor)])
+        if len(associated_parts.all())>0:
+            dlg = wx.MessageDialog(self, f"There is {len(associated_parts.all())} parts associated with selection, remove anyway?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
+        else:
+            dlg = wx.MessageDialog(self, f"Remove selection?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
+        if dlg.ShowModal()==wx.ID_YES:
+            try:
+                api.data.distributor.delete(obj.distributor)
+            except Exception as e:
+                print_stack()
+                wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
+                dlg.Destroy()
+                return
+ 
+            self.tree_distributors_manager.Load()
+ 
+        dlg.Destroy()
+        event.Skip()
+
+    def onEditDistributorApply( self, event ):
+        self.tree_distributors_manager.Load()
+
+        distributor = event.data
+        distributorobj = self.tree_distributors_manager.FindDistributor(distributor)
+        self.tree_distributors_manager.Select(distributorobj)
+
+        self.SetDistributor(distributor)
+        event.Skip()
+
+    def onEditDistributorCancel( self, event ):
+        self.tree_distributors_manager.Load()
+
+        item = self.tree_distributors.GetSelection()
+        obj = self.tree_distributors_manager.ItemToObject(item)
+        if isinstance(obj, Distributor):
+            self.SetDistributor(obj.distributor)
+        else:
+            self.SetDistributor(None)
+        event.Skip()
+
+    def onSearchDistributorsCancel( self, event ):
+        self._filters.remove_group('search')
+        event.Skip()
+
+    def onSearchDistributorsButton( self, event ):
+        self._filters.replace(api.data.distributor.FilterSearchText(self.search_distributors.Value), 'search')
+        event.Skip()
+
+    def onSearchDistributorsTextEnter( self, event ):
+        self._filters.replace(api.data.distributor.FilterSearchText(self.search_distributors.Value), 'search')
+        event.Skip()
 
