@@ -91,6 +91,7 @@ class EditDistributorFrame(PanelEditDistributor):
         else:
             self.button_distributor_editApply.Enabled = self.button_distributor_editCancel.Enabled
 
+
     def onDistributorValueChanged( self, event ):
         self._check()
         event.Skip()

@@ -41,7 +41,7 @@ class TreeManagerDistributors(helper.tree.TreeManager):
         filters = self.filters.get_filters()
 
         for distributor in api.data.distributor.find(filters):
-            distributorobj = self.FindDistributor(distributor)
+            distributorobj = self.FindDistributor(distributor.id)
             if distributorobj is None:
                 distributorobj = self.AppendDistributor(distributor)
             else:
@@ -111,6 +111,7 @@ class DistributorsFrame(PanelDistributors):
     def AddDistributor(self):
         self.panel_edit_distributor.AddDistributor()
         self._enable(False)
+
 
     def onButtonRefreshDistributorsClick( self, event ):
         self.tree_distributors_manager.Load()

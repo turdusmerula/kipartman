@@ -85,6 +85,14 @@ class FilterDistributor(Filter):
     def apply(self, request):
         return request.filter(offers__distributor__id=self.distributor.id)
 
+class FilterManufacturer(Filter):
+    def __init__(self, manufacturer):
+        self.manufacturer = manufacturer
+        super(FilterManufacturer, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(manufacturer__id=self.manufacturer.id)
+
 def _add_default_annotations(request):
     # add the field child_count in request result 
     request = request.select_related('category', 'footprint', 'symbol') # preload for performance

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -22,47 +22,38 @@ class PanelManufacturers ( wx.Panel ):
 
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_splitter2 = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
-		self.m_splitter2.Bind( wx.EVT_IDLE, self.m_splitter2OnIdle )
-		self.m_splitter2.SetMinimumPaneSize( 300 )
+		self.splitter_vert = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
+		self.splitter_vert.Bind( wx.EVT_IDLE, self.splitter_vertOnIdle )
+		self.splitter_vert.SetMinimumPaneSize( 300 )
 
-		self.panel_manufacturers = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_manufacturers = wx.Panel( self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 
-		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
+		self.toolbar_filters = wx.ToolBar( self.panel_manufacturers, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
+		self.filters_label = wx.StaticText( self.toolbar_filters, wx.ID_ANY, u"Filters:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.filters_label.Wrap( -1 )
 
-		bSizer5 = wx.BoxSizer( wx.HORIZONTAL )
+		self.toolbar_filters.AddControl( self.filters_label )
+		self.toolbar_filters.Realize()
 
-		self.button_add_manufacturer = wx.BitmapButton( self.panel_manufacturers, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+		bSizer2.Add( self.toolbar_filters, 0, wx.EXPAND, 5 )
 
-		self.button_add_manufacturer.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer5.Add( self.button_add_manufacturer, 0, wx.ALL, 5 )
+		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.button_edit_manufacturer = wx.BitmapButton( self.panel_manufacturers, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+		self.search_manufacturers = wx.SearchCtrl( self.panel_manufacturers, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		self.search_manufacturers.ShowSearchButton( True )
+		self.search_manufacturers.ShowCancelButton( False )
+		self.search_manufacturers.SetMinSize( wx.Size( 200,-1 ) )
 
-		self.button_edit_manufacturer.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer5.Add( self.button_edit_manufacturer, 0, wx.ALL, 5 )
+		bSizer61.Add( self.search_manufacturers, 1, wx.ALL|wx.EXPAND, 5 )
 
-		self.button_remove_manufacturer = wx.BitmapButton( self.panel_manufacturers, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
-
-		self.button_remove_manufacturer.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer5.Add( self.button_remove_manufacturer, 0, wx.ALL, 5 )
-
-
-		bSizer4.Add( bSizer5, 1, wx.EXPAND, 5 )
-
-		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
-
-		self.button_refresh_manufacturers = wx.BitmapButton( self.panel_manufacturers, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+		self.button_refresh_manufacturers = wx.BitmapButton( self.panel_manufacturers, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
 		self.button_refresh_manufacturers.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer6.Add( self.button_refresh_manufacturers, 0, wx.ALL, 5 )
+		bSizer61.Add( self.button_refresh_manufacturers, 0, wx.ALL|wx.EXPAND, 5 )
 
 
-		bSizer4.Add( bSizer6, 0, 0, 5 )
-
-
-		bSizer2.Add( bSizer4, 0, wx.EXPAND, 5 )
+		bSizer2.Add( bSizer61, 0, wx.EXPAND, 5 )
 
 		self.tree_manufacturers = wx.dataview.DataViewCtrl( self.panel_manufacturers, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer2.Add( self.tree_manufacturers, 1, wx.ALL|wx.EXPAND, 5 )
@@ -71,93 +62,43 @@ class PanelManufacturers ( wx.Panel ):
 		self.panel_manufacturers.SetSizer( bSizer2 )
 		self.panel_manufacturers.Layout()
 		bSizer2.Fit( self.panel_manufacturers )
-		self.panel_edit_manufacturer = wx.Panel( self.m_splitter2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer3 = wx.BoxSizer( wx.VERTICAL )
-
-		fgSizer1 = wx.FlexGridSizer( 0, 2, 0, 0 )
-		fgSizer1.AddGrowableCol( 1 )
-		fgSizer1.SetFlexibleDirection( wx.BOTH )
-		fgSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
-
-		self.m_staticText3 = wx.StaticText( self.panel_edit_manufacturer, wx.ID_ANY, u"Manufacturer", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText3.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText3, 0, wx.ALL, 5 )
-
-		self.edit_manufacturer_name = wx.TextCtrl( self.panel_edit_manufacturer, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_manufacturer_name, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText4 = wx.StaticText( self.panel_edit_manufacturer, wx.ID_ANY, u"Address", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText4.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText4, 0, wx.ALL, 5 )
-
-		self.edit_manufacturer_address = wx.TextCtrl( self.panel_edit_manufacturer, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
-		fgSizer1.Add( self.edit_manufacturer_address, 0, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText6 = wx.StaticText( self.panel_edit_manufacturer, wx.ID_ANY, u"Website", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText6.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText6, 0, wx.ALL, 5 )
-
-		self.edit_manufacturer_website = wx.TextCtrl( self.panel_edit_manufacturer, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_manufacturer_website, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText8 = wx.StaticText( self.panel_edit_manufacturer, wx.ID_ANY, u"Email", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText8.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText8, 0, wx.ALL, 5 )
-
-		self.edit_manufacturer_email = wx.TextCtrl( self.panel_edit_manufacturer, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_manufacturer_email, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText9 = wx.StaticText( self.panel_edit_manufacturer, wx.ID_ANY, u"Phone", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText9.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText9, 0, wx.ALL, 5 )
-
-		self.edit_manufacturer_phone = wx.TextCtrl( self.panel_edit_manufacturer, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_manufacturer_phone, 1, wx.ALL|wx.EXPAND, 5 )
-
-		self.m_staticText11 = wx.StaticText( self.panel_edit_manufacturer, wx.ID_ANY, u"Comment", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_staticText11.Wrap( -1 )
-
-		fgSizer1.Add( self.m_staticText11, 0, wx.ALL, 5 )
-
-		self.edit_manufacturer_comment = wx.TextCtrl( self.panel_edit_manufacturer, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
-		fgSizer1.Add( self.edit_manufacturer_comment, 1, wx.ALL|wx.EXPAND, 5 )
-
-
-		bSizer3.Add( fgSizer1, 1, wx.EXPAND, 5 )
-
-		m_sdbSizer1 = wx.StdDialogButtonSizer()
-		self.m_sdbSizer1Apply = wx.Button( self.panel_edit_manufacturer, wx.ID_APPLY )
-		m_sdbSizer1.AddButton( self.m_sdbSizer1Apply )
-		self.m_sdbSizer1Cancel = wx.Button( self.panel_edit_manufacturer, wx.ID_CANCEL )
-		m_sdbSizer1.AddButton( self.m_sdbSizer1Cancel )
-		m_sdbSizer1.Realize();
-
-		bSizer3.Add( m_sdbSizer1, 0, wx.EXPAND, 5 )
-
-
-		self.panel_edit_manufacturer.SetSizer( bSizer3 )
-		self.panel_edit_manufacturer.Layout()
-		bSizer3.Fit( self.panel_edit_manufacturer )
-		self.m_splitter2.SplitVertically( self.panel_manufacturers, self.panel_edit_manufacturer, 294 )
-		bSizer1.Add( self.m_splitter2, 1, wx.EXPAND, 5 )
+		self.panel_right = wx.Panel( self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.splitter_vert.SplitVertically( self.panel_manufacturers, self.panel_right, 540 )
+		bSizer1.Add( self.splitter_vert, 1, wx.EXPAND, 5 )
 
 
 		self.SetSizer( bSizer1 )
 		self.Layout()
+		self.menu_manufacturer = wx.Menu()
+		self.menu_manufacturer_add = wx.MenuItem( self.menu_manufacturer, wx.ID_ANY, u"Add manufacturer", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_manufacturer_add.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_manufacturer.Append( self.menu_manufacturer_add )
+
+		self.menu_manufacturer_duplicate = wx.MenuItem( self.menu_manufacturer, wx.ID_ANY, u"Duplicate manufacturer", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_manufacturer_duplicate.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_manufacturer.Append( self.menu_manufacturer_duplicate )
+
+		self.menu_manufacturer_edit = wx.MenuItem( self.menu_manufacturer, wx.ID_ANY, u"Edit manufacturer", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_manufacturer_edit.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_manufacturer.Append( self.menu_manufacturer_edit )
+
+		self.menu_manufacturer_remove = wx.MenuItem( self.menu_manufacturer, wx.ID_ANY, u"Remove manufacturer", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_manufacturer_remove.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_manufacturer.Append( self.menu_manufacturer_remove )
+
+		self.Bind( wx.EVT_RIGHT_DOWN, self.PanelManufacturersOnContextMenu )
+
 
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
-		self.button_add_manufacturer.Bind( wx.EVT_BUTTON, self.onButtonAddManufacturerClick )
-		self.button_edit_manufacturer.Bind( wx.EVT_BUTTON, self.onButtonEditManufacturerClick )
-		self.button_remove_manufacturer.Bind( wx.EVT_BUTTON, self.onButtonRemoveManufacturerClick )
+		self.search_manufacturers.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchManufacturersCancel )
+		self.search_manufacturers.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchManufacturersButton )
+		self.search_manufacturers.Bind( wx.EVT_TEXT_ENTER, self.onSearchManufacturersTextEnter )
 		self.button_refresh_manufacturers.Bind( wx.EVT_BUTTON, self.onButtonRefreshManufacturersClick )
-		self.m_sdbSizer1Apply.Bind( wx.EVT_BUTTON, self.onApplyButtonClick )
-		self.m_sdbSizer1Cancel.Bind( wx.EVT_BUTTON, self.onCancelButtonClick )
+		self.Bind( wx.EVT_MENU, self.onMenuManufacturerAdd, id = self.menu_manufacturer_add.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuManufacturerDuplicate, id = self.menu_manufacturer_duplicate.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuManufacturerEdit, id = self.menu_manufacturer_edit.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuManufacturerRemove, id = self.menu_manufacturer_remove.GetId() )
 
 	def __del__( self ):
 		pass
@@ -167,26 +108,35 @@ class PanelManufacturers ( wx.Panel ):
 	def onInitDialog( self, event ):
 		event.Skip()
 
-	def onButtonAddManufacturerClick( self, event ):
+	def onSearchManufacturersCancel( self, event ):
 		event.Skip()
 
-	def onButtonEditManufacturerClick( self, event ):
+	def onSearchManufacturersButton( self, event ):
 		event.Skip()
 
-	def onButtonRemoveManufacturerClick( self, event ):
+	def onSearchManufacturersTextEnter( self, event ):
 		event.Skip()
 
 	def onButtonRefreshManufacturersClick( self, event ):
 		event.Skip()
 
-	def onApplyButtonClick( self, event ):
+	def onMenuManufacturerAdd( self, event ):
 		event.Skip()
 
-	def onCancelButtonClick( self, event ):
+	def onMenuManufacturerDuplicate( self, event ):
 		event.Skip()
 
-	def m_splitter2OnIdle( self, event ):
-		self.m_splitter2.SetSashPosition( 294 )
-		self.m_splitter2.Unbind( wx.EVT_IDLE )
+	def onMenuManufacturerEdit( self, event ):
+		event.Skip()
+
+	def onMenuManufacturerRemove( self, event ):
+		event.Skip()
+
+	def splitter_vertOnIdle( self, event ):
+		self.splitter_vert.SetSashPosition( 540 )
+		self.splitter_vert.Unbind( wx.EVT_IDLE )
+
+	def PanelManufacturersOnContextMenu( self, event ):
+		self.PopupMenu( self.menu_manufacturer, event.GetPosition() )
 
 

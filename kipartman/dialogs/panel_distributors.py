@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -47,10 +47,10 @@ class PanelDistributors ( wx.Panel ):
 
 		bSizer61.Add( self.search_distributors, 1, wx.ALL|wx.EXPAND, 5 )
 
-		self.button_refresh_parameters = wx.BitmapButton( self.panel_distributor_list, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+		self.button_refresh_distributors = wx.BitmapButton( self.panel_distributor_list, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
-		self.button_refresh_parameters.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer61.Add( self.button_refresh_parameters, 0, wx.ALL|wx.EXPAND, 5 )
+		self.button_refresh_distributors.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer61.Add( self.button_refresh_distributors, 0, wx.ALL|wx.EXPAND, 5 )
 
 
 		bSizer2.Add( bSizer61, 0, wx.EXPAND, 5 )
@@ -94,7 +94,7 @@ class PanelDistributors ( wx.Panel ):
 		self.search_distributors.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchDistributorsCancel )
 		self.search_distributors.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchDistributorsButton )
 		self.search_distributors.Bind( wx.EVT_TEXT_ENTER, self.onSearchDistributorsTextEnter )
-		self.button_refresh_parameters.Bind( wx.EVT_BUTTON, self.onButtonRefreshDistributorsClick )
+		self.button_refresh_distributors.Bind( wx.EVT_BUTTON, self.onButtonRefreshDistributorsClick )
 		self.Bind( wx.EVT_MENU, self.onMenuDistributorAdd, id = self.menu_distributor_add.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDistributorDuplicate, id = self.menu_distributor_duplicate.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuDistributorEdit, id = self.menu_distributor_edit.GetId() )

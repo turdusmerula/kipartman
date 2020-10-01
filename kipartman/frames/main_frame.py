@@ -6,7 +6,7 @@ from frames.symbols_frame import SymbolsFrame
 from frames.footprints_frame import FootprintsFrame
 from frames.parameters_frame import ParametersFrame
 from frames.distributors_frame import DistributorsFrame
-# from frames.manufacturers_frame import ManufacturersFrame
+from frames.manufacturers_frame import ManufacturersFrame
 # from frames.storages_frame import StoragesFrame
 # from frames.project_frame import ProjectFrame
 from helper.exception import print_stack
@@ -59,6 +59,14 @@ class MainFrame(DialogMain):
         distributors_frame = DistributorsFrame(self.notebook)
         self.pages.append(distributors_frame)
         self.notebook.AddPage(distributors_frame, "distributors", False)
+
+    def onMenuViewManufacturersSelection( self, event ):
+        manufacturers_frame = ManufacturersFrame(self.notebook)
+        self.pages.append(manufacturers_frame)
+        self.notebook.AddPage(manufacturers_frame, "manufacturers", False)
+
+    def onMenuViewStoragesSelection( self, event ):
+        event.Skip()
 
     def onNotebookPageChanged( self, event ):
         if self.menus is None:
