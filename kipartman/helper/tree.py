@@ -236,7 +236,9 @@ class TreeModel(wx.dataview.PyDataViewModel):
     def SetValue(self, value, item, col):
         obj = self.ItemToObject(item)
         res = obj.SetValue(value, col)
-        self.ItemChanged(item)
+        if res==True:
+            obj.Update()
+            self.ItemChanged(item)
         return res
     
     # override this to indicate if a column has value

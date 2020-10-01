@@ -4,6 +4,7 @@ import wx
 import helper.tree
 from helper.exception import print_stack
 import api.data.distributor
+import api.data.part_offer
 
 class Distributor(helper.tree.TreeItem):
     def __init__(self, distributor):
@@ -181,7 +182,7 @@ class DistributorsFrame(PanelDistributors):
                 api.data.distributor.delete(obj.distributor)
             except Exception as e:
                 print_stack()
-                wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
+                wx.MessageBox(format(e), f"Error removing distributor '{obj.distributor.name}'", wx.OK | wx.ICON_ERROR)
                 dlg.Destroy()
                 return
  
@@ -194,7 +195,7 @@ class DistributorsFrame(PanelDistributors):
         self.tree_distributors_manager.Load()
 
         distributor = event.data
-        distributorobj = self.tree_distributors_manager.FindDistributor(distributor)
+        distributorobj = self.tree_distributors_manager.FindDistributor(distributor.id)
         self.tree_distributors_manager.Select(distributorobj)
 
         self.SetDistributor(distributor)

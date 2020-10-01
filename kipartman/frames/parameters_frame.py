@@ -190,7 +190,7 @@ class ParametersFrame(PanelParameters):
                 api.data.parameter.delete(obj.parameter)
             except Exception as e:
                 print_stack()
-                wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
+                wx.MessageBox(format(e), f"Error removing parameter '{obj.parameter.name}'", wx.OK | wx.ICON_ERROR)
                 dlg.Destroy()
                 return
  

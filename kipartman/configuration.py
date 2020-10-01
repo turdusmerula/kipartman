@@ -8,6 +8,7 @@ import platform
 from distutils.spawn import find_executable
 import shutil
 
+# TODO add signals for configuration change
 class Configuration(object):
     
     def __init__(self):
