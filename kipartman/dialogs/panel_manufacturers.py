@@ -26,10 +26,10 @@ class PanelManufacturers ( wx.Panel ):
 		self.splitter_vert.Bind( wx.EVT_IDLE, self.splitter_vertOnIdle )
 		self.splitter_vert.SetMinimumPaneSize( 300 )
 
-		self.panel_manufacturers = wx.Panel( self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_manufacturer_list = wx.Panel( self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer2 = wx.BoxSizer( wx.VERTICAL )
 
-		self.toolbar_filters = wx.ToolBar( self.panel_manufacturers, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
+		self.toolbar_filters = wx.ToolBar( self.panel_manufacturer_list, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
 		self.filters_label = wx.StaticText( self.toolbar_filters, wx.ID_ANY, u"Filters:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.filters_label.Wrap( -1 )
 
@@ -40,14 +40,14 @@ class PanelManufacturers ( wx.Panel ):
 
 		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.search_manufacturers = wx.SearchCtrl( self.panel_manufacturers, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		self.search_manufacturers = wx.SearchCtrl( self.panel_manufacturer_list, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		self.search_manufacturers.ShowSearchButton( True )
 		self.search_manufacturers.ShowCancelButton( False )
 		self.search_manufacturers.SetMinSize( wx.Size( 200,-1 ) )
 
 		bSizer61.Add( self.search_manufacturers, 1, wx.ALL|wx.EXPAND, 5 )
 
-		self.button_refresh_manufacturers = wx.BitmapButton( self.panel_manufacturers, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+		self.button_refresh_manufacturers = wx.BitmapButton( self.panel_manufacturer_list, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
 		self.button_refresh_manufacturers.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
 		bSizer61.Add( self.button_refresh_manufacturers, 0, wx.ALL|wx.EXPAND, 5 )
@@ -55,15 +55,15 @@ class PanelManufacturers ( wx.Panel ):
 
 		bSizer2.Add( bSizer61, 0, wx.EXPAND, 5 )
 
-		self.tree_manufacturers = wx.dataview.DataViewCtrl( self.panel_manufacturers, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.tree_manufacturers = wx.dataview.DataViewCtrl( self.panel_manufacturer_list, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer2.Add( self.tree_manufacturers, 1, wx.ALL|wx.EXPAND, 5 )
 
 
-		self.panel_manufacturers.SetSizer( bSizer2 )
-		self.panel_manufacturers.Layout()
-		bSizer2.Fit( self.panel_manufacturers )
+		self.panel_manufacturer_list.SetSizer( bSizer2 )
+		self.panel_manufacturer_list.Layout()
+		bSizer2.Fit( self.panel_manufacturer_list )
 		self.panel_right = wx.Panel( self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.splitter_vert.SplitVertically( self.panel_manufacturers, self.panel_right, 540 )
+		self.splitter_vert.SplitVertically( self.panel_manufacturer_list, self.panel_right, 540 )
 		bSizer1.Add( self.splitter_vert, 1, wx.EXPAND, 5 )
 
 

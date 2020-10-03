@@ -14,6 +14,7 @@ encoding//kipartman/dialogs/dialog_edit_category.py=utf-8
 encoding//kipartman/dialogs/dialog_edit_part_manufacturer.py=utf-8
 encoding//kipartman/dialogs/dialog_edit_part_parameter.py=utf-8
 encoding//kipartman/dialogs/dialog_edit_part_storage.py=utf-8
+encoding//kipartman/dialogs/dialog_edit_storage.py=utf-8
 encoding//kipartman/dialogs/dialog_main.py=utf-8
 encoding//kipartman/dialogs/dialog_order_options.py=utf-8
 encoding//kipartman/dialogs/dialog_progression.py=utf-8

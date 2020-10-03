@@ -7,7 +7,7 @@ from frames.footprints_frame import FootprintsFrame
 from frames.parameters_frame import ParametersFrame
 from frames.distributors_frame import DistributorsFrame
 from frames.manufacturers_frame import ManufacturersFrame
-# from frames.storages_frame import StoragesFrame
+from frames.storages_frame import StoragesFrame
 # from frames.project_frame import ProjectFrame
 from helper.exception import print_stack
 import os
@@ -66,7 +66,9 @@ class MainFrame(DialogMain):
         self.notebook.AddPage(manufacturers_frame, "manufacturers", False)
 
     def onMenuViewStoragesSelection( self, event ):
-        event.Skip()
+        storages_frame = StoragesFrame(self.notebook)
+        self.pages.append(storages_frame)
+        self.notebook.AddPage(storages_frame, "storages", False)
 
     def onNotebookPageChanged( self, event ):
         if self.menus is None:

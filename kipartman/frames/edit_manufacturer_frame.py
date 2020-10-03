@@ -1,6 +1,4 @@
 from dialogs.panel_edit_manufacturer import PanelEditManufacturer
-from frames.dropdown_dialog import DropdownDialog
-from frames.select_unit_frame import SelectUnitFrame
 import wx
 from helper.exception import print_stack
 import api.data.manufacturer
@@ -21,7 +19,7 @@ def NoneValue(value, default):
 
 class EditManufacturerFrame(PanelEditManufacturer): 
     def __init__(self, parent):
-        super(PanelEditManufacturer, self).__init__(parent)
+        super(EditManufacturerFrame, self).__init__(parent)
         
         # set initial state
         self.SetManufacturer(None)

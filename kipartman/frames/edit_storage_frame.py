@@ -1,12 +1,16 @@
 from dialogs.dialog_edit_storage import DialogEditStorage
-
 import wx
+from helper.exception import print_stack
+from helper import colors
+import api.data.storage
 
 class EditStorageFrame(DialogEditStorage):
     def __init__(self, parent): 
         super(EditStorageFrame, self).__init__(parent)
 
-    def addStorage(self, type):
+    def AddStorage(self, storage):
+        self.storage = api.data.storage.create(self.part)        
+        
         self.Title = "Add storage"
         self.button_validate.LabelText = "Add"
         result = self.ShowModal()
@@ -15,7 +19,9 @@ class EditStorageFrame(DialogEditStorage):
             return storage
         return None
     
-    def editStorage(self, storage):
+    def EditStorage(self, storage):
+        self.storage = storage
+        
         self.Title = "Edit storage"
         self.button_validate.LabelText = "Apply"
         self.text_name.Value = storage.name
@@ -23,14 +29,31 @@ class EditStorageFrame(DialogEditStorage):
         self.text_comment.Value = storage.comment
         result = self.ShowModal()
         if result==wx.ID_OK:
-            storage.name = self.text_name.Value
-            storage.description = self.text_description.Value
-            storage.comment = self.text_comment.Value
             return storage
         return None
-    
+
+    def _check(self):
+        error = False
+        
+        if self.text_name.Value=="...":
+            self.text_name.SetBackgroundColour( colors.RED_ERROR )
+            error = True
+        else:
+            self.text_name.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+            
+        if error:
+            self.button_part_editApply.Enabled = False
+        else:
+            self.button_part_editApply.Enabled = True
+
+    def onValueChanged( self, event ):
+        self._check()
+        
     # Virtual event handlers, overide them in your derived class
     def onValidateClick( self, event ):
+        self.storage.name = self.text_name.Value
+        self.storage.description = self.text_description.Value
+        self.storage.comment = self.text_comment.Value
         self.EndModal(wx.ID_OK)
     
     def onCancelClick( self, event ):

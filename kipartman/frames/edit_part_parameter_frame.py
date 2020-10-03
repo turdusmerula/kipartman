@@ -27,44 +27,6 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.choice_part_parameter_nom_prefix.SetItems(choices)
         self.choice_part_parameter_max_prefix.SetItems(choices)
     
-    def _check(self):
-        error = False
-        
-        if self.button_search_parameter.Label=="...":
-            self.button_search_parameter.SetBackgroundColour( colors.RED_ERROR )
-            error = True
-        else:
-            self.button_search_parameter.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-            
-        try:
-            if self.edit_part_parameter_min_value.Value!="":
-                float(self.edit_part_parameter_min_value.Value) 
-            self.edit_part_parameter_min_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-        except:
-            error = True
-            self.edit_part_parameter_min_value.SetBackgroundColour( colors.RED_ERROR )
-
-        try:
-            if self.edit_part_parameter_nom_value.Value!="":
-                float(self.edit_part_parameter_nom_value.Value) 
-            self.edit_part_parameter_nom_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-        except:
-            error = True
-            self.edit_part_parameter_nom_value.SetBackgroundColour( colors.RED_ERROR )
-
-        try:
-            if self.edit_part_parameter_max_value.Value!="":
-                float(self.edit_part_parameter_max_value.Value) 
-            self.edit_part_parameter_max_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-        except:
-            error = True
-            self.edit_part_parameter_max_value.SetBackgroundColour( colors.RED_ERROR )
-
-        if error:
-            self.button_part_editApply.Enabled = False
-        else:
-            self.button_part_editApply.Enabled = True
-
     def AddParameter(self, part):
         self.part = part        
         self.part_parameter = api.data.part_parameter.create(self.part)
@@ -139,6 +101,44 @@ class EditPartParameterFrame(DialogEditPartParameter):
         if result==wx.ID_OK:
             return self.part_parameter
         return None
+
+    def _check(self):
+        error = False
+        
+        if self.button_search_parameter.Label=="...":
+            self.button_search_parameter.SetBackgroundColour( colors.RED_ERROR )
+            error = True
+        else:
+            self.button_search_parameter.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+            
+        try:
+            if self.edit_part_parameter_min_value.Value!="":
+                float(self.edit_part_parameter_min_value.Value) 
+            self.edit_part_parameter_min_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+        except:
+            error = True
+            self.edit_part_parameter_min_value.SetBackgroundColour( colors.RED_ERROR )
+
+        try:
+            if self.edit_part_parameter_nom_value.Value!="":
+                float(self.edit_part_parameter_nom_value.Value) 
+            self.edit_part_parameter_nom_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+        except:
+            error = True
+            self.edit_part_parameter_nom_value.SetBackgroundColour( colors.RED_ERROR )
+
+        try:
+            if self.edit_part_parameter_max_value.Value!="":
+                float(self.edit_part_parameter_max_value.Value) 
+            self.edit_part_parameter_max_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+        except:
+            error = True
+            self.edit_part_parameter_max_value.SetBackgroundColour( colors.RED_ERROR )
+
+        if error:
+            self.button_part_editApply.Enabled = False
+        else:
+            self.button_part_editApply.Enabled = True
 
     def onButtonPartParameterEditApply( self, event ):
         if self.part_parameter.parameter is None:
