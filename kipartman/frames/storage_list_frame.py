@@ -1,9 +1,11 @@
 from dialogs.panel_storage_list import PanelStorageList
-import frames.edit_storage_frame
+import frames.storage_parts_frame
 from frames.select_storage_frame import SelectStorageFrame, EVT_SELECT_STORAGE_OK_EVENT
 from frames.dropdown_dialog import DropdownDialog
 from frames.models.tree_manager_storages import StorageCategory, Storage, TreeManagerStorages
+from frames.edit_storage_frame import EditStorageFrame
 import api.data.storage
+import api.data.part_storage
 import helper.filter
 from helper.log import log
 from helper.profiler import Trace
@@ -28,11 +30,11 @@ class StorageListFrame(PanelStorageList):
         self.tree_storages_manager.OnItemBeforeContextMenu = self.onTreeStoragesBeforeContextMenu
 
         # create edit storage panel
-        self.panel_edit_storage = frames.edit_storage_frame.EditStorageFrame(self.splitter_horz)
+        self.panel_storage_parts = frames.storage_parts_frame.StoragePartsFrame(self.splitter_horz)
 
         # organize panels
         self.splitter_horz.Unsplit()
-        self.splitter_horz.SplitHorizontally( self.panel_storage_locations, self.panel_edit_storage)
+        self.splitter_horz.SplitHorizontally( self.panel_storage_locations, self.panel_storage_parts)
         self.panel_down.Hide()
 
         # initial state
@@ -76,18 +78,12 @@ class StorageListFrame(PanelStorageList):
                 self.tree_storages_manager.Expand(category)
     
     def _enable(self, value):
-        self.panel_up.Enabled = value
-
+        pass
+        
 
     def SetStorage(self, storage):
-        self.panel_edit_storage.SetStorage(storage)
-        self._enable(True)
-        
-    def EditStorage(self, storage):
-        self.EditMode = True
-        self.panel_edit_storage.EditStorage(storage)
-        self._enable(False)
-        
+        self.panel_storage_parts.Filters.replace(api.data.part_storage.FilterStorage(storage), "storage")
+                
 
     def onToggleCategoryPathClicked( self, event ):
         self.Flat = not self.toolbar_storage.GetToolState(self.toggle_storage_path.GetId())
@@ -120,13 +116,9 @@ class StorageListFrame(PanelStorageList):
         self.menu_storage_add_storage.Enable(True)
         self.menu_storage_edit_storage.Enable(True)
         self.menu_storage_remove_storage.Enable(True)
-        self.menu_storage_duplicate_storage.Enable(True)
-        self.menu_storage_append_equivalent.Enable(True)
         if isinstance(obj, Storage)==False:
             self.menu_storage_edit_storage.Enable(False)
             self.menu_storage_remove_storage.Enable(False)
-            self.menu_storage_duplicate_storage.Enable(False)
-            self.menu_storage_append_equivalent.Enable(False)
         event.Skip()
 
     def onMenuStorageAddStorage( self, event ):
@@ -144,7 +136,11 @@ class StorageListFrame(PanelStorageList):
             if len(self.Filters.get_filters_group('category'))==1:
                 category = self.Filters.get_filters_group('category')[0].category
 
-        self.AddStorage(category)
+        storage = EditStorageFrame(self).AddStorage(category)
+        if storage:
+            # add category to item element
+            self.tree_storages_manager.Load()
+            self.tree_storages_manager.Select(storage)
         event.Skip()
 
     def onMenuStorageEditStorage( self, event ):
@@ -154,7 +150,11 @@ class StorageListFrame(PanelStorageList):
         obj = self.tree_storages_manager.ItemToObject(item)
         if isinstance(obj, Storage)==False:
             return
-        self.EditStorage(obj.storage)
+        storage = EditStorageFrame(self).EditStorage(obj.storage)
+        if storage:
+            # add category to item element
+            self.tree_storages_manager.Load()
+            self.tree_storages_manager.Select(storage)
         event.Skip()
 
     def onMenuStorageRemoveStorage( self, event ):
@@ -165,36 +165,22 @@ class StorageListFrame(PanelStorageList):
         if isinstance(obj, Storage)==False:
             return
         storage = obj.storage
-        if isinstance(obj.parent, Storage):
-            parent = obj.parent.storage
-            res = wx.MessageDialog(self, "Remove storage '"+storage.name+"' from '"+parent.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-            if res==wx.ID_OK:
-                # remove selected storage from substorages
-                parent = rest.api.find_storage(parent.id, with_childs=True)
-                for child in parent.childs:
-                    if child.id==storage.id:
-                        parent.childs.remove(child)
- 
-                #parent.childs.remove(storage)
-                rest.api.update_storage(parent.id, parent)
-                self.tree_storages_manager.DeleteChildStorage(parent, storage)
-            else:
-                return 
+        associated_parts = api.data.part.find([api.data.part.FilterStorage(storage)])
+        if len(associated_parts.all())>0:
+            dlg = wx.MessageDialog(self, f"There is {len(associated_parts.all())} parts associated with selection, remove anyway?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
         else:
-            res = wx.MessageDialog(self, "Remove storage '"+storage.name+"'", "Remove?", wx.OK|wx.CANCEL).ShowModal()
-            if res==wx.ID_OK:
-                try:
-                    # remove storage
-                    api.data.storage.delete(storage)
-                except Exception as e:
-                    print_stack()
-                    wx.MessageBox(format(e), 'Error updating stock', wx.OK | wx.ICON_ERROR)
-                    return
-            else:
+            dlg = wx.MessageDialog(self, f"Remove selection?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
+        if dlg.ShowModal()==wx.ID_YES:
+            try:
+                api.data.storage.delete(storage)
+            except Exception as e:
+                print_stack()
+                wx.MessageBox(format(e), 'Error removing %s:'%path, wx.OK | wx.ICON_ERROR)
+                dlg.Destroy()
                 return
-        self.SetStorage(None)
-        
-        self.tree_storages_manager.Load()
+
+            self.SetStorage(None)
+            self.tree_storages_manager.Load()
         event.Skip()
 
     def onMenuStorageDuplicateStorage( self, event ):

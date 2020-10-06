@@ -26,7 +26,7 @@ class PanelStorageCategories ( wx.Panel ):
 
 		bSizer4 = wx.BoxSizer( wx.VERTICAL )
 
-		self.button_refresh_categories = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+		self.button_refresh_categories = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.BORDER_NONE )
 
 		self.button_refresh_categories.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
 		bSizer4.Add( self.button_refresh_categories, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )

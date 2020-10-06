@@ -8,15 +8,15 @@ class EditStorageFrame(DialogEditStorage):
     def __init__(self, parent): 
         super(EditStorageFrame, self).__init__(parent)
 
-    def AddStorage(self, storage):
-        self.storage = api.data.storage.create(self.part)        
+    def AddStorage(self, category):
+        self.storage = api.data.storage.create()        
+        self.storage.category = category
         
         self.Title = "Add storage"
         self.button_validate.LabelText = "Add"
         result = self.ShowModal()
         if result==wx.ID_OK:
-            storage = type(name=self.text_name.Value, description=self.text_description.Value, comment=self.text_comment.Value)
-            return storage
+            return self.storage
         return None
     
     def EditStorage(self, storage):
@@ -35,16 +35,16 @@ class EditStorageFrame(DialogEditStorage):
     def _check(self):
         error = False
         
-        if self.text_name.Value=="...":
+        if self.text_name.Value=="":
             self.text_name.SetBackgroundColour( colors.RED_ERROR )
             error = True
         else:
             self.text_name.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
             
         if error:
-            self.button_part_editApply.Enabled = False
+            self.button_validate.Enabled = False
         else:
-            self.button_part_editApply.Enabled = True
+            self.button_validate.Enabled = True
 
     def onValueChanged( self, event ):
         self._check()
@@ -54,6 +54,8 @@ class EditStorageFrame(DialogEditStorage):
         self.storage.name = self.text_name.Value
         self.storage.description = self.text_description.Value
         self.storage.comment = self.text_comment.Value
+        api.data.storage.save(self.storage)
+        
         self.EndModal(wx.ID_OK)
     
     def onCancelClick( self, event ):

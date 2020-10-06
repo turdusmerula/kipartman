@@ -49,7 +49,7 @@ def create():
     return storage
 
 def delete(storage):
-    api.data.part_storage.find([api.data.part.FilterStorage(storage)]).delete()
+    api.data.part_storage.find([api.data.part_storage.FilterStorage(storage)]).delete()
 
     storage.delete()
     

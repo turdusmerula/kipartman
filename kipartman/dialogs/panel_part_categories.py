@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  1 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -24,7 +24,7 @@ class PanelPartCategories ( wx.Panel ):
 
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.button_refresh_categories = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+		self.button_refresh_categories = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|wx.BORDER_NONE|wx.BORDER_NONE )
 
 		self.button_refresh_categories.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
 		bSizer4.Add( self.button_refresh_categories, 0, wx.ALL|wx.EXPAND, 5 )

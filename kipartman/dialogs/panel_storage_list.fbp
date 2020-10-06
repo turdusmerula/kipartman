@@ -111,7 +111,7 @@
                         <property name="show">1</property>
                         <property name="size"></property>
                         <property name="splitmode">wxSPLIT_HORIZONTAL</property>
-                        <property name="style">wxSP_3D</property>
+                        <property name="style">wxSP_3D|wxSP_LIVE_UPDATE</property>
                         <property name="subclass"></property>
                         <property name="toolbar_pane">0</property>
                         <property name="tooltip"></property>
@@ -179,7 +179,7 @@
                                         <property name="border">5</property>
                                         <property name="flag">wxEXPAND</property>
                                         <property name="proportion">0</property>
-                                        <object class="wxToolBar" expanded="0">
+                                        <object class="wxToolBar" expanded="1">
                                             <property name="BottomDockable">1</property>
                                             <property name="LeftDockable">1</property>
                                             <property name="RightDockable">1</property>
@@ -293,29 +293,29 @@
                                             </object>
                                         </object>
                                     </object>
-                                    <object class="sizeritem" expanded="0">
+                                    <object class="sizeritem" expanded="1">
                                         <property name="border">5</property>
                                         <property name="flag">wxEXPAND</property>
                                         <property name="proportion">1</property>
-                                        <object class="wxBoxSizer" expanded="0">
+                                        <object class="wxBoxSizer" expanded="1">
                                             <property name="minimum_size"></property>
                                             <property name="name">bSizer7</property>
                                             <property name="orient">wxVERTICAL</property>
                                             <property name="permission">none</property>
-                                            <object class="sizeritem" expanded="0">
+                                            <object class="sizeritem" expanded="1">
                                                 <property name="border">5</property>
                                                 <property name="flag">wxEXPAND</property>
                                                 <property name="proportion">0</property>
-                                                <object class="wxBoxSizer" expanded="0">
+                                                <object class="wxBoxSizer" expanded="1">
                                                     <property name="minimum_size"></property>
                                                     <property name="name">bSizer112</property>
                                                     <property name="orient">wxHORIZONTAL</property>
                                                     <property name="permission">none</property>
-                                                    <object class="sizeritem" expanded="0">
+                                                    <object class="sizeritem" expanded="1">
                                                         <property name="border">5</property>
                                                         <property name="flag">wxEXPAND</property>
                                                         <property name="proportion">1</property>
-                                                        <object class="wxToolBar" expanded="0">
+                                                        <object class="wxToolBar" expanded="1">
                                                             <property name="BottomDockable">1</property>
                                                             <property name="LeftDockable">1</property>
                                                             <property name="RightDockable">1</property>
@@ -381,15 +381,15 @@
                                                                 <property name="permission">protected</property>
                                                                 <property name="statusbar"></property>
                                                                 <property name="tooltip"></property>
-                                                                <event name="OnToolClicked">onToggleCategoryPathClicked</event>
+                                                                <event name="OnToolClicked">onToggleStoragePathClicked</event>
                                                             </object>
                                                         </object>
                                                     </object>
-                                                    <object class="sizeritem" expanded="0">
+                                                    <object class="sizeritem" expanded="1">
                                                         <property name="border">5</property>
-                                                        <property name="flag"></property>
+                                                        <property name="flag">wxALIGN_CENTER_VERTICAL</property>
                                                         <property name="proportion">0</property>
-                                                        <object class="wxBoxSizer" expanded="0">
+                                                        <object class="wxBoxSizer" expanded="1">
                                                             <property name="minimum_size"></property>
                                                             <property name="name">bSizer611</property>
                                                             <property name="orient">wxHORIZONTAL</property>
@@ -397,7 +397,7 @@
                                                             <object class="sizeritem" expanded="0">
                                                                 <property name="border">5</property>
                                                                 <property name="flag">wxALL|wxEXPAND</property>
-                                                                <property name="proportion">0</property>
+                                                                <property name="proportion">1</property>
                                                                 <object class="wxSearchCtrl" expanded="0">
                                                                     <property name="BottomDockable">1</property>
                                                                     <property name="LeftDockable">1</property>
@@ -434,7 +434,7 @@
                                                                     <property name="minimize_button">0</property>
                                                                     <property name="minimum_size">200,-1</property>
                                                                     <property name="moveable">1</property>
-                                                                    <property name="name">search_parts</property>
+                                                                    <property name="name">search_storages</property>
                                                                     <property name="pane_border">1</property>
                                                                     <property name="pane_position"></property>
                                                                     <property name="pane_size"></property>
@@ -457,13 +457,14 @@
                                                                     <property name="window_extra_style"></property>
                                                                     <property name="window_name"></property>
                                                                     <property name="window_style"></property>
-                                                                    <event name="OnSearchButton">onSearchPartsButton</event>
-                                                                    <event name="OnTextEnter">onSearchPartsTextEnter</event>
+                                                                    <event name="OnCancelButton">onSearchStoragesCancel</event>
+                                                                    <event name="OnSearchButton">onSearchStoragesChanged</event>
+                                                                    <event name="OnTextEnter">onSearchStoragesChanged</event>
                                                                 </object>
                                                             </object>
                                                             <object class="sizeritem" expanded="0">
                                                                 <property name="border">5</property>
-                                                                <property name="flag">wxALL</property>
+                                                                <property name="flag">wxALL|wxEXPAND</property>
                                                                 <property name="proportion">0</property>
                                                                 <object class="wxBitmapButton" expanded="0">
                                                                     <property name="BottomDockable">1</property>
@@ -509,7 +510,7 @@
                                                                     <property name="minimize_button">0</property>
                                                                     <property name="minimum_size"></property>
                                                                     <property name="moveable">1</property>
-                                                                    <property name="name">button_refresh_parts</property>
+                                                                    <property name="name">button_refresh_storages</property>
                                                                     <property name="pane_border">1</property>
                                                                     <property name="pane_position"></property>
                                                                     <property name="pane_size"></property>
@@ -532,7 +533,7 @@
                                                                     <property name="window_extra_style"></property>
                                                                     <property name="window_name"></property>
                                                                     <property name="window_style">wxBORDER_NONE</property>
-                                                                    <event name="OnButtonClick">onButtonRefreshPartsClick</event>
+                                                                    <event name="OnButtonClick">onButtonRefreshStoragesClick</event>
                                                                 </object>
                                                             </object>
                                                         </object>

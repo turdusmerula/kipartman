@@ -22,7 +22,7 @@ class PanelStorageList ( wx.Panel ):
 
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 
-		self.splitter_horz = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D )
+		self.splitter_horz = wx.SplitterWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SP_3D|wx.SP_LIVE_UPDATE )
 		self.splitter_horz.Bind( wx.EVT_IDLE, self.splitter_horzOnIdle )
 
 		self.panel_storage_locations = wx.Panel( self.splitter_horz, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -50,20 +50,20 @@ class PanelStorageList ( wx.Panel ):
 
 		bSizer611 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.search_parts = wx.SearchCtrl( self.panel_storage_locations, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
-		self.search_parts.ShowSearchButton( True )
-		self.search_parts.ShowCancelButton( False )
-		self.search_parts.SetMinSize( wx.Size( 200,-1 ) )
+		self.search_storages = wx.SearchCtrl( self.panel_storage_locations, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
+		self.search_storages.ShowSearchButton( True )
+		self.search_storages.ShowCancelButton( False )
+		self.search_storages.SetMinSize( wx.Size( 200,-1 ) )
 
-		bSizer611.Add( self.search_parts, 0, wx.ALL|wx.EXPAND, 5 )
+		bSizer611.Add( self.search_storages, 1, wx.ALL|wx.EXPAND, 5 )
 
-		self.button_refresh_parts = wx.BitmapButton( self.panel_storage_locations, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
+		self.button_refresh_storages = wx.BitmapButton( self.panel_storage_locations, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0|wx.BORDER_NONE )
 
-		self.button_refresh_parts.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer611.Add( self.button_refresh_parts, 0, wx.ALL, 5 )
+		self.button_refresh_storages.SetBitmap( wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer611.Add( self.button_refresh_storages, 0, wx.ALL|wx.EXPAND, 5 )
 
 
-		bSizer112.Add( bSizer611, 0, 0, 5 )
+		bSizer112.Add( bSizer611, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 
 
 		bSizer7.Add( bSizer112, 0, wx.EXPAND, 5 )
@@ -103,10 +103,11 @@ class PanelStorageList ( wx.Panel ):
 
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
-		self.Bind( wx.EVT_TOOL, self.onToggleCategoryPathClicked, id = self.toggle_storage_path.GetId() )
-		self.search_parts.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchPartsButton )
-		self.search_parts.Bind( wx.EVT_TEXT_ENTER, self.onSearchPartsTextEnter )
-		self.button_refresh_parts.Bind( wx.EVT_BUTTON, self.onButtonRefreshPartsClick )
+		self.Bind( wx.EVT_TOOL, self.onToggleStoragePathClicked, id = self.toggle_storage_path.GetId() )
+		self.search_storages.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchStoragesCancel )
+		self.search_storages.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchStoragesChanged )
+		self.search_storages.Bind( wx.EVT_TEXT_ENTER, self.onSearchStoragesChanged )
+		self.button_refresh_storages.Bind( wx.EVT_BUTTON, self.onButtonRefreshStoragesClick )
 		self.Bind( wx.EVT_MENU, self.onMenuStorageAddStorage, id = self.menu_storage_add_storage.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuStorageEditStorage, id = self.menu_storage_edit_storage.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuStorageRemoveStorage, id = self.menu_storage_remove_storage.GetId() )
@@ -119,16 +120,17 @@ class PanelStorageList ( wx.Panel ):
 	def onInitDialog( self, event ):
 		event.Skip()
 
-	def onToggleCategoryPathClicked( self, event ):
+	def onToggleStoragePathClicked( self, event ):
 		event.Skip()
 
-	def onSearchPartsButton( self, event ):
+	def onSearchStoragesCancel( self, event ):
 		event.Skip()
 
-	def onSearchPartsTextEnter( self, event ):
+	def onSearchStoragesChanged( self, event ):
 		event.Skip()
 
-	def onButtonRefreshPartsClick( self, event ):
+
+	def onButtonRefreshStoragesClick( self, event ):
 		event.Skip()
 
 	def onMenuStorageAddStorage( self, event ):
