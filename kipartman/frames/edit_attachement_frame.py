@@ -1,7 +1,6 @@
 from dialogs.dialog_edit_attachement import DialogEditAttachement
 
 import wx
-import rest
 import os
 from configuration import configuration
 import webbrowser

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Dec 18 2018)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -76,9 +76,13 @@ class PanelPartPreviewData ( wx.Panel ):
 		self.m_staticText12 = wx.StaticText( self, wx.ID_ANY, u"3D Model", wx.DefaultPosition, wx.DefaultSize, wx.ST_ELLIPSIZE_MIDDLE|wx.ALIGN_CENTER_HORIZONTAL )
 		self.m_staticText12.Wrap( -1 )
 
+		self.m_staticText12.Hide()
+
 		bSizer6.Add( self.m_staticText12, 0, wx.ALL|wx.EXPAND, 5 )
 
 		self.panel_image_3d_model = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.panel_image_3d_model.Hide()
+
 		bSizer7 = wx.BoxSizer( wx.VERTICAL )
 
 		self.image_3d_model = wx.StaticBitmap( self.panel_image_3d_model, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, 0 )

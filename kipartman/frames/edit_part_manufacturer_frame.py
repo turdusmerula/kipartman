@@ -1,6 +1,5 @@
 from dialogs.dialog_edit_part_manufacturer import DialogEditPartManufacturer
 import wx
-import rest
 from helper.exception import print_stack
 
 class EditPartManufacturerFrame(DialogEditPartManufacturer):

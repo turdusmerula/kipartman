@@ -21,6 +21,8 @@ class PartParametersFrame(PanelPartParameters):
         self.tree_parameters_manager.Clear()
         self.SetPart(None)
                 
+        self._enable(False)
+
     def SetPart(self, part):
         self.part = part
         self.tree_parameters_manager.SetPart(part)

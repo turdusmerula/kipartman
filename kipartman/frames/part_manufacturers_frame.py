@@ -2,22 +2,66 @@ from dialogs.panel_part_manufacturers import PanelPartManufacturers
 from frames.edit_part_manufacturer_frame import EditPartManufacturerFrame
 import helper.tree
 
-class DataModelPartManufacturer(helper.tree.TreeContainerItem):
+class PartManufacturer(helper.tree.TreeContainerItem):
     def __init__(self, manufacturer):
-        super(DataModelPartManufacturer, self).__init__()
+        super(PartManufacturer, self).__init__()
         self.manufacturer = manufacturer
 
     def GetValue(self, col):
-        vMap = { 
-            0 : self.manufacturer.name,
-            1 : self.manufacturer.part_name,
-        }
-        return vMap[col]
+        if col==0:
+            return self.manufacturer.manufacturer.name
+        elif col==1:
+            return self.manufacturer.part_name
 
-    def IsContainer(self):
-        return False
+        return ""
 
-            
+class TreeManagerPartManufacturer(helper.tree.TreeManager):
+
+    def __init__(self, tree_view, *args, **kwargs):
+        super(TreeManagerPartManufacturer, self).__init__(tree_view, *args, **kwargs)
+
+        self.part = None
+        
+        self.AddTextColumn("manufacturer")
+        self.AddTextColumn("part name")
+        
+    def Load(self):
+        
+        self.SaveState()
+        
+        if self.part is not None:
+            for manufacturer in self.part.manufacturers.all():
+                manufacturerobj = self.FindManufacturer(manufacturer)
+                if manufacturerobj is None:
+                    manufacturerobj = PartManufacturer(manufacturer)
+                    self.Append(None, manufacturerobj)
+                else:
+                    manufacturerobj.part_manufacturer = manufacturer
+                    self.Update(manufacturerobj)
+
+#             # add not yet persisted data
+#             for parameter in self.part.parameters.pendings():
+#                 parameterobj = self.FindParameter(parameter)
+#                 if parameterobj is None:
+#                     parameterobj = PartParameter(parameter.part, parameter)
+#                     self.Append(None, parameterobj)
+#                 else:
+#                     parameterobj.part = self.part
+#                     parameterobj.part_parameter = parameter
+#                     self.Update(parameterobj)
+        
+        self.PurgeState()
+    
+    def SetPart(self, part):
+        self.part = part
+        self.Load()
+        
+    def FindManufacturer(self, manufacturer):
+        for data in self.data:
+            if isinstance(data, PartManufacturer) and data.manufacturer.id==manufacturer.id:
+                return data
+        return None
+
 class PartManufacturersFrame(PanelPartManufacturers):
     def __init__(self, parent): 
         """
@@ -28,52 +72,29 @@ class PartManufacturersFrame(PanelPartManufacturers):
         super(PartManufacturersFrame, self).__init__(parent)
 
         # create octoparts list
-        self.tree_manufacturers_manager = helper.tree.TreeManager(self.tree_manufacturers, context_menu=self.menu_manufacturers)
-        self.tree_manufacturers_manager.AddTextColumn("Manufacturer")
-        self.tree_manufacturers_manager.AddTextColumn("Part Name")
+        self.tree_manufacturers_manager = TreeManagerPartManufacturer(self.tree_manufacturers, context_menu=self.menu_manufacturers)
         self.tree_manufacturers_manager.OnItemBeforeContextMenu = self.onTreeManufacturersBeforeContextMenu
 
-        self.enable(False)
+        self.tree_manufacturers_manager.Clear()
+        self.SetPart(None)
+
+        self._enable(False)
         
     def SetPart(self, part):
         self.part = part
-        self.showManufacturers()
+        self.tree_manufacturers_manager.SetPart(part)
+        self._enable(False)
+        
+    def EditPart(self, part):
+        self.part = part
+        self.tree_manufacturers_manager.SetPart(part)
+        self._enable(True)
 
-    def enable(self, enabled=True):
+    def _enable(self, enabled=True):
         self.enabled = enabled
 
-    def FindManufacturer(self, name):
-        for data in self.tree_manufacturers_manager.data:
-            if data.manufacturer.name==name:
-                return data
-        return None
-
-    def AddManufacturer(self, manufacturer):
-        """
-        Add a manufacturer to the part
-        """
-        if self.part.manufacturers is None:
-            self.part.manufacturers = []
-        # add manufacturer
-        self.part.manufacturers.append(manufacturer)
-        self.tree_manufacturers_manager.AppendItem(None, DataModelPartManufacturer(manufacturer))
-
-    def RemoveManufacturer(self, name):
-        """
-        Remove a manufacturer using its name
-        """
-        if self.part.manufacturers is None or len(self.part.manufacturers) == 0:
-            return
-        manufacturerobj = self.FindManufacturer(name)
-        self.part.manufacturers.remove(manufacturerobj)
-        self.tree_manufacturers_manager.DeleteItem(None, manufacturerobj)
-
-    def showManufacturers(self):
-        self.tree_manufacturers_manager.ClearItems()
-
-        if self.part and self.part.manufacturers:
-            for manufacturer in self.part.manufacturers:
-                self.tree_manufacturers_manager.AppendItem(None, DataModelPartManufacturer(manufacturer))
+    def Save(self, part):
+        pass
             
     def onTreeManufacturersBeforeContextMenu( self, event ):
         self.menu_manufacturer_add_manufacturer.Enable(True)
@@ -98,7 +119,7 @@ class PartManufacturersFrame(PanelPartManufacturers):
             if self.part.manufacturers is None:
                 self.part.manufacturers = []
             self.part.manufacturers.append(manufacturer)
-            self.tree_manufacturers_manager.AppendItem(None, DataModelPartManufacturer(manufacturer))
+            self.tree_manufacturers_manager.AppendItem(None, PartManufacturer(manufacturer))
 
     def onMenuManufacturerEditManufacturer( self, event ):
         item = self.tree_manufacturers.GetSelection()
@@ -112,7 +133,7 @@ class PartManufacturersFrame(PanelPartManufacturers):
         manufacturers = []
         for item in self.tree_manufacturers.GetSelections():
             obj = self.tree_manufacturers_manager.ItemToObject(item)
-            if isinstance(obj, DataModelPartManufacturer):
+            if isinstance(obj, PartManufacturer):
                 manufacturers.append(obj)
         for manufacturerobj in manufacturers:
             self.part.manufacturers.remove(manufacturerobj.manufacturer)

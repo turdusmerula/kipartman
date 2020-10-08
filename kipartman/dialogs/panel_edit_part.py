@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -140,7 +140,7 @@ class PanelEditPart ( wx.Panel ):
 		self.panel_edit_part_extended = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer17 = wx.BoxSizer( wx.VERTICAL )
 
-		self.notebook_part = wx.aui.AuiNotebook( self.panel_edit_part_extended, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.notebook_part = wx.aui.AuiNotebook( self.panel_edit_part_extended, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.aui.AUI_NB_SCROLL_BUTTONS|wx.aui.AUI_NB_WINDOWLIST_BUTTON )
 
 		bSizer17.Add( self.notebook_part, 1, wx.EXPAND |wx.ALL, 5 )
 

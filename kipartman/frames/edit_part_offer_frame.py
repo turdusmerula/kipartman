@@ -1,6 +1,5 @@
 from dialogs.dialog_edit_part_offer import DialogEditPartOffer
 import wx
-import rest
 from helper.exception import print_stack
 
 # TODO: switch to a list for currency

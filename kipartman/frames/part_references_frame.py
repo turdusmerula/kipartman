@@ -1,25 +1,63 @@
 from dialogs.panel_part_references import PanelPartReferences
 import helper.tree
 
-class DataModelPartReference(helper.tree.TreeContainerItem):
-    def __init__(self, part, reference):
-        super(DataModelPartReference, self).__init__()
-        self.part = part
+class PartReference(helper.tree.TreeContainerItem):
+    def __init__(self, reference):
+        super(PartReference, self).__init__()
         self.reference = reference
 
     def GetValue(self, col):
-            
-        vMap = {
-            0 : self.reference.type,
-            1 : self.reference.manufacturer,
-            2 : self.reference.name,
-            3 : self.reference.description,
-            4 : self.reference.uid,
-        }
-        return vMap[col]
+        if col==0:
+            return self.reference.type
+        elif col==1:
+            return self.reference.manufacturer
+        elif col==2:
+            return self.reference.name
+        elif col==3:
+            return self.reference.description
+        elif col==4:
+            return self.reference.uid
 
-    def IsContainer(self):
-        return False
+        return ""
+
+class TreeManagerPartReference(helper.tree.TreeManager):
+
+    def __init__(self, tree_view, *args, **kwargs):
+        super(TreeManagerPartReference, self).__init__(tree_view, *args, **kwargs)
+
+        self.part = None
+        
+        self.AddTextColumn("provider")
+        self.AddTextColumn("manufacturer")
+        self.AddTextColumn("name")
+        self.AddTextColumn("description")
+        self.AddTextColumn("UID")
+        
+    def Load(self):
+        
+        self.SaveState()
+        
+        if self.part is not None:
+            for reference in self.part.references.all():
+                referenceobj = self.FindReference(reference)
+                if referenceobj is None:
+                    referenceobj = PartReference(reference)
+                    self.Append(None, referenceobj)
+                else:
+                    referenceobj.part_parameter = reference
+                    self.Update(referenceobj)
+        
+        self.PurgeState()
+    
+    def SetPart(self, part):
+        self.part = part
+        self.Load()
+        
+    def FindReference(self, reference):
+        for data in self.data:
+            if isinstance(data, PartReference) and data.reference.id==reference:
+                return data
+        return None
 
 class PartReferencesFrame(PanelPartReferences):
     def __init__(self, parent): 
@@ -31,74 +69,27 @@ class PartReferencesFrame(PanelPartReferences):
         super(PartReferencesFrame, self).__init__(parent)
 
         # create references list
-        self.tree_references_manager = helper.tree.TreeManager(self.tree_references, context_menu=self.menu_reference)
-        self.tree_references_manager.AddTextColumn("Provider")
-        self.tree_references_manager.AddTextColumn("Manufacturer")
-        self.tree_references_manager.AddTextColumn("Name")
-        self.tree_references_manager.AddTextColumn("Description")
-        self.tree_references_manager.AddTextColumn("UID")
+        self.tree_references_manager = TreeManagerPartReference(self.tree_references, context_menu=self.menu_reference)
         self.tree_references_manager.OnItemBeforeContextMenu = self.onTreeReferencesBeforeContextMenu
         
-        self.enable(False)
+        self.tree_references_manager.Clear()
+        self.SetPart(None)
+        
+        self._enable(False)
             
     def SetPart(self, part):
         self.part = part
-        self.showReferences()
+        self.tree_references_manager.SetPart(part)
+        self._enable(False)
     
-    def enable(self, enabled=True):
+    def EditPart(self, part):
+        self.part = part
+        self.tree_references_manager.SetPart(part)
+        self._enable(True)
+
+    def _enable(self, enabled=True):
         self.enabled = enabled
     
-    def AddReference(self, reference):
-        """
-        Add a reference to the part, or update if reference already exists
-        """
-        # check if reference exists
-        if self.ExistReference(reference.name):
-            # update existing reference
-            self.RemoveReference(reference.name)
-        
-        # add reference
-        if self.part.references is None:
-            self.part.references = []
-        self.part.references.append(reference)
-        self.tree_references_manager.AppendItem(None, DataModelPartReference(self.part, reference))
-
-    def ExistReference(self, name):
-        """
-        Test if a reference exists by its name
-        """
-        if not self.part.references:
-            return False
-        for param in self.part.references:
-            if param.name==name:
-                return True
-        return False
-
-    def FindReference(self, name):
-        for data in self.tree_references_manager.data:
-            if data.reference.name==name:
-                return data
-        return None
-        
-
-    def RemoveReference(self, name):
-        """
-        Remove a reference using its name
-        """
-        if not self.part.references:
-            return False
-        
-        referenceobj = self.FindReference(name)
-        self.part.references.remove(referenceobj.reference)
-        self.tree_references_manager.DeleteItem(None, referenceobj)
-
-    def showReferences(self):
-        self.tree_references_manager.ClearItems()
-    
-        if self.part and self.part.references:
-            for reference in self.part.references:
-                self.tree_references_manager.AppendItem(None, DataModelPartReference(self.part, reference))
-
     def onTreeReferencesBeforeContextMenu( self, event ):
         self.menu_reference_remove_reference.Enable(True)
         if len(self.tree_references.GetSelections())==0:
@@ -111,7 +102,7 @@ class PartReferencesFrame(PanelPartReferences):
         references = []
         for item in self.tree_references.GetSelections():
             obj = self.tree_references_manager.ItemToObject(item)
-            if isinstance(obj, DataModelPartReference):
+            if isinstance(obj, PartReference):
                 references.append(obj)
         for referenceobj in references:
             self.part.references.remove(referenceobj.reference)

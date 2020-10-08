@@ -4,19 +4,18 @@ from frames.select_symbol_frame import SelectSymbolFrame
 from frames.select_part_frame import SelectPartFrame
 from frames.part_parameters_frame import PartParametersFrame
 import api.data.part
-# from frames.part_distributors_frame import PartDistributorsFrame
-# from frames.part_manufacturers_frame import PartManufacturersFrame
-# from frames.part_attachements_frame import PartAttachementsFrame
-# from frames.part_storages_frame import PartStoragesFrame
-# from frames.part_preview_data_frame import PartPreviewDataFrame
-# from frames.part_references_frame import PartReferencesFrame
+from frames.part_distributors_frame import PartDistributorsFrame
+from frames.part_manufacturers_frame import PartManufacturersFrame
+from frames.part_attachements_frame import PartAttachementsFrame
+from frames.part_storages_frame import PartStoragesFrame
+from frames.part_preview_data_frame import PartPreviewDataFrame
+from frames.part_references_frame import PartReferencesFrame
 from frames.dropdown_frame import DropdownFrame
 # from frames.dropdown_dialog import DropdownDialog
 # from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
+# from octopart.extractor import OctopartExtractor
 import wx.lib.newevent
 import datetime
-# import rest
-# from octopart.extractor import OctopartExtractor
 import os
 from helper.exception import print_stack
 import pytz
@@ -37,24 +36,24 @@ class EditPartFrame(PanelEditPart):
         
         self.edit_part_parameters = PartParametersFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_parameters, "Parameters")
-#         
-#         self.edit_part_preview_data = PartPreviewDataFrame(self.notebook_part)
-#         self.notebook_part.AddPage(self.edit_part_preview_data, "Preview")
-# 
-#         self.edit_part_distributors = PartDistributorsFrame(self.notebook_part)
-#         self.notebook_part.AddPage(self.edit_part_distributors, "Distributors")
-# 
-#         self.edit_part_manufacturers = PartManufacturersFrame(self.notebook_part)
-#         self.notebook_part.AddPage(self.edit_part_manufacturers, "Manufacturers")
-# 
-#         self.edit_part_storages = PartStoragesFrame(self.notebook_part)
-#         self.notebook_part.AddPage(self.edit_part_storages, "Storages locations")
-# 
-#         self.edit_part_attachements = PartAttachementsFrame(self.notebook_part)
-#         self.notebook_part.AddPage(self.edit_part_attachements, "Attachements")
-# 
-#         self.edit_part_references = PartReferencesFrame(self.notebook_part)
-#         self.notebook_part.AddPage(self.edit_part_references, "References")
+         
+        self.edit_part_preview_data = PartPreviewDataFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_preview_data, "Preview")
+ 
+        self.edit_part_distributors = PartDistributorsFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_distributors, "Distributors")
+ 
+        self.edit_part_manufacturers = PartManufacturersFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_manufacturers, "Manufacturers")
+ 
+        self.edit_part_storages = PartStoragesFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_storages, "Storages locations")
+ 
+        self.edit_part_attachements = PartAttachementsFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_attachements, "Attachements")
+ 
+        self.edit_part_references = PartReferencesFrame(self.notebook_part)
+        self.notebook_part.AddPage(self.edit_part_references, "References")
 
         self._category = None
         self._footprint = None
@@ -75,12 +74,12 @@ class EditPartFrame(PanelEditPart):
         self.part = part
         self._show_part(part)
         self.edit_part_parameters.SetPart(part)
-#         self.edit_part_distributors.SetPart(part)
-#         self.edit_part_manufacturers.SetPart(part)
-#         self.edit_part_storages.SetPart(part)
-#         self.edit_part_attachements.SetPart(part)
-#         self.edit_part_preview_data.SetPart(part)
-#         self.edit_part_references.SetPart(part)
+        self.edit_part_distributors.SetPart(part)
+        self.edit_part_manufacturers.SetPart(part)
+        self.edit_part_storages.SetPart(part)
+        self.edit_part_attachements.SetPart(part)
+        self.edit_part_preview_data.SetPart(part)
+        self.edit_part_references.SetPart(part)
         self._enable(False)
         
 

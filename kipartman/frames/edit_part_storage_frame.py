@@ -2,7 +2,6 @@ from dialogs.dialog_edit_part_storage import DialogEditPartStorage
 from frames.select_storage_frame import SelectStorageFrame
 from frames.dropdown_frame import DropdownFrame
 import wx
-import rest
 
 class EditPartStorageFrame(DialogEditPartStorage):
     def __init__(self, parent): 

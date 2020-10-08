@@ -66,12 +66,12 @@ class TreeManagerPartParameter(helper.tree.TreeManager):
 
         self.part = None
         
-        self.AddTextColumn("Parameter")
-        self.AddTextColumn("Value")
-        self.AddTextColumn("Min")
-        self.AddTextColumn("Max")
-        self.AddTextColumn("Unit")
-        self.AddTextColumn("Description")
+        self.AddTextColumn("parameter")
+        self.AddTextColumn("value")
+        self.AddTextColumn("min")
+        self.AddTextColumn("max")
+        self.AddTextColumn("unit")
+        self.AddTextColumn("description")
         
     def Load(self):
         
