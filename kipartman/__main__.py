@@ -73,6 +73,12 @@ def main(args=None):
     from frames.main_frame import MainFrame
     app = wx.App()
     
+    # register providers
+    from providers.mouser.provider import MouserProvider
+    MouserProvider.register()
+    from providers.octopart.provider_scrap import OctopartProvider
+    OctopartProvider.register()
+    
     global dialog_main
     dialog_main = MainFrame(None)    
     dialog_main.Show()

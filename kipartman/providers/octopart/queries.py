@@ -1,4 +1,4 @@
-from octopart import models
+from providers.octopart import models
 from configuration import configuration
 import json
 import urllib.request

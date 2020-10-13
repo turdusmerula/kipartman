@@ -2,8 +2,8 @@ from dialogs.dialog_configuration import DialogConfiguration
 from configuration import configuration
 from currency.currency import Currency
 import wx
-from octopart.queries import PartsQuery as OctpartPartsQuery
-from snapeda.connection import SnapedaConnection, SnapedaConnectionException
+from providers.octopart.queries import PartsQuery as OctpartPartsQuery
+from providers.snapeda.connection import SnapedaConnection, SnapedaConnectionException
 from helper.exception import print_stack
 from helper.log import log
 
@@ -49,6 +49,7 @@ class ConfigurationFrame(DialogConfiguration):
         self.edit_octopart_apikey.Value = configuration.octopart_api_key
         self.edit_snapeda_user.Value = configuration.snapeda_user
         self.edit_snapeda_password.Value = configuration.snapeda_password
+        self.edit_mouser_apikey.Value = configuration.mouser_api_key
         
 
             
@@ -74,6 +75,7 @@ class ConfigurationFrame(DialogConfiguration):
         configuration.octopart_api_key = self.edit_octopart_apikey.Value
         configuration.snapeda_user = self.edit_snapeda_user.Value
         configuration.snapeda_password = self.edit_snapeda_password.Value
+        configuration.mouser_api_key = self.edit_mouser_apikey.Value
         
         configuration.Save()
                 
@@ -89,34 +91,7 @@ class ConfigurationFrame(DialogConfiguration):
             print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
         
-    def onTestOctopart( self, event ):
-        apikey = OctpartPartsQuery.apikey
-        
-        OctpartPartsQuery.apikey = self.edit_octopart_apikey.Value
-        try:
-            q = OctpartPartsQuery()
-            q.get('atmega328p')
-            self.data = q.results()
-            log.debug(self.data)
-            wx.MessageBox( 'OCTOPART CONNECTION OK', 
-                'OCTOPART CONNECTION OK', wx.OK )
-        except Exception as e:
-            print_stack()
-            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
-        OctpartPartsQuery.apikey = apikey
-           
-        
-    def onTestSnapeda( self, event ):
-        connection = SnapedaConnection()
-        
-        try:
-            connection.connect(self.edit_snapeda_user.Value, self.edit_snapeda_password.Value)
-            wx.MessageBox( 'SNAPEDA CONNECTION OK', 
-                'SNAPEDA CONNECTION OK', wx.OK )
-        except SnapedaConnectionException as e:
-            print_stack()
-            wx.MessageBox(format(e.error), 'Error', wx.OK | wx.ICON_ERROR)
-    
+            
     def onButtonKicadPathDefault( self, event ):
         path = configuration.FindKicad()
         if path:
@@ -133,4 +108,33 @@ class ConfigurationFrame(DialogConfiguration):
             self.dir_3d_models_path.Enabled = True
             self.dir_symbols_path.Enabled = True
             
-    
+    def onButtonTestSnapedaClick( self, event ):
+        connection = SnapedaConnection()
+        
+        try:
+            connection.connect(self.edit_snapeda_user.Value, self.edit_snapeda_password.Value)
+            wx.MessageBox( 'SNAPEDA CONNECTION OK', 
+                'SNAPEDA CONNECTION OK', wx.OK )
+        except SnapedaConnectionException as e:
+            print_stack()
+            wx.MessageBox(format(e.error), 'Error', wx.OK | wx.ICON_ERROR)
+
+    def onButtonTestOctopartClick( self, event ):
+        apikey = OctpartPartsQuery.apikey
+        
+        OctpartPartsQuery.apikey = self.edit_octopart_apikey.Value
+        try:
+            q = OctpartPartsQuery()
+            q.get('atmega328p')
+            self.data = q.results()
+            log.debug(self.data)
+            wx.MessageBox( 'OCTOPART CONNECTION OK', 
+                'OCTOPART CONNECTION OK', wx.OK )
+        except Exception as e:
+            print_stack()
+            wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
+        OctpartPartsQuery.apikey = apikey
+
+    def onButtonTestMouserClick( self, event ):
+        event.Skip()
+

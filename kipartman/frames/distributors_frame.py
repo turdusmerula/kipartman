@@ -12,11 +12,12 @@ class Distributor(helper.tree.TreeItem):
         self.distributor = distributor
             
     def GetValue(self, col):
-        vMap = { 
-            0 : self.distributor.allowed,
-            1 : self.distributor.name,
-        }
-        return vMap[col]
+        if col==0:
+            return self.distributor.allowed
+        elif col==1:
+            return self.distributor.name
+
+        return ''
 
     def SetValue(self, value, col):
         if col==0:
@@ -83,6 +84,8 @@ class DistributorsFrame(PanelDistributors):
         self.splitter_vert.Unsplit()
         self.splitter_vert.SplitVertically( self.panel_distributor_list, self.panel_edit_distributor)
         self.panel_right.Hide()
+        
+        self.tree_distributors_manager.Clear()
         
     @property
     def Filters(self):

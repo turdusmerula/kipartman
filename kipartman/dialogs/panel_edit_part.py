@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -45,8 +45,8 @@ class PanelEditPart ( wx.Panel ):
 
 		bSizer18.Add( self.edit_part_name, 1, wx.EXPAND|wx.ALL, 5 )
 
-		self.button_octopart = wx.Button( self.panel_edit_part_basic, wx.ID_ANY, u"Octopart", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer18.Add( self.button_octopart, 0, wx.ALL, 5 )
+		self.button_search = wx.Button( self.panel_edit_part_basic, wx.ID_ANY, u"Search from ▼", wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer18.Add( self.button_search, 0, wx.ALL, 5 )
 
 
 		fgSizer1.Add( bSizer18, 1, wx.EXPAND, 5 )
@@ -137,6 +137,9 @@ class PanelEditPart ( wx.Panel ):
 		self.panel_edit_part_basic.SetSizer( bSizer15 )
 		self.panel_edit_part_basic.Layout()
 		bSizer15.Fit( self.panel_edit_part_basic )
+		self.menu_search = wx.Menu()
+		self.panel_edit_part_basic.Bind( wx.EVT_RIGHT_DOWN, self.panel_edit_part_basicOnContextMenu )
+
 		self.panel_edit_part_extended = wx.Panel( self.m_splitter3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer17 = wx.BoxSizer( wx.VERTICAL )
 
@@ -158,7 +161,7 @@ class PanelEditPart ( wx.Panel ):
 		# Connect Events
 		self.Bind( wx.EVT_INIT_DIALOG, self.onInitDialog )
 		self.edit_part_name.Bind( wx.EVT_TEXT, self.onTextEditPartNameText )
-		self.button_octopart.Bind( wx.EVT_BUTTON, self.onButtonOctopartClick )
+		self.button_search.Bind( wx.EVT_BUTTON, self.onButtonSearchClick )
 		self.edit_part_value.Bind( wx.EVT_TEXT, self.onTextEditPartValueText )
 		self.edit_part_description.Bind( wx.EVT_TEXT, self.onTextEditPartDescriptionText )
 		self.button_part_footprint.Bind( wx.EVT_BUTTON, self.onButtonPartFootprintClick )
@@ -180,7 +183,7 @@ class PanelEditPart ( wx.Panel ):
 	def onTextEditPartNameText( self, event ):
 		event.Skip()
 
-	def onButtonOctopartClick( self, event ):
+	def onButtonSearchClick( self, event ):
 		event.Skip()
 
 	def onTextEditPartValueText( self, event ):
@@ -213,5 +216,8 @@ class PanelEditPart ( wx.Panel ):
 	def m_splitter3OnIdle( self, event ):
 		self.m_splitter3.SetSashPosition( 0 )
 		self.m_splitter3.Unbind( wx.EVT_IDLE )
+
+	def panel_edit_part_basicOnContextMenu( self, event ):
+		self.panel_edit_part_basic.PopupMenu( self.menu_search, event.GetPosition() )
 
 

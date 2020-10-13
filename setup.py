@@ -70,7 +70,8 @@ setup(
          'setuptools',
          'werkzeug==0.16.1',
          'connexion[swagger-ui]',
-         'profiling'
+         'profiling',
+          'beautifulsoup4'
     ],
 )
 

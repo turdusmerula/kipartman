@@ -11,10 +11,10 @@ class Manufacturer(helper.tree.TreeItem):
         self.manufacturer = manufacturer
             
     def GetValue(self, col):
-        vMap = { 
-            0 : self.manufacturer.name,
-        }
-        return vMap[col]
+        if col==0:
+            return self.manufacturer.name
+
+        return ''
 
 
 class TreeManagerManufacturers(helper.tree.TreeManager):
@@ -75,6 +75,8 @@ class ManufacturersFrame(PanelManufacturers):
         self.splitter_vert.Unsplit()
         self.splitter_vert.SplitVertically( self.panel_manufacturer_list, self.panel_edit_manufacturer)
         self.panel_right.Hide()
+        
+        self.tree_manufacturers_manager.Clear()
         
     @property
     def Filters(self):

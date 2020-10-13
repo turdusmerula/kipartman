@@ -215,7 +215,7 @@ class TreeModel(wx.dataview.PyDataViewModel):
         return self.ObjectToItem(obj.GetParent())
     
     # unless GetValue this functions return the real type of elements, not str (used mainly for compare natural types)
-    def GetColumnValue(self, item, col):
+    def GetRawValue(self, item, col):
         if item.IsOk()==False:
             return ''
         obj = self.ItemToObject(item)
@@ -223,9 +223,9 @@ class TreeModel(wx.dataview.PyDataViewModel):
 
     def GetValue(self, item, col):
         if self.columns_type[col]==ColumnType.BOOL or self.columns_type[col]==ColumnType.BITMAP:# or self.columns_type[col]==ColumnType.INTEGER or self.columns_type[col]==ColumnType.FLOAT:
-            return self.GetColumnValue(item, col)
+            return self.GetRawValue(item, col)
         else:
-            return str(self.GetColumnValue(item, col))
+            return str(self.GetRawValue(item, col))
 
     # override this to provide attributes
     def GetAttr(self, item, col, attr):
@@ -253,8 +253,8 @@ class TreeModel(wx.dataview.PyDataViewModel):
     
     # override this to provide custom compare function
     def Compare(self, item1, item2, column, ascending):
-        val1 = self.GetColumnValue(item1, column)
-        val2 = self.GetColumnValue(item2, column)
+        val1 = self.GetRawValue(item1, column)
+        val2 = self.GetRawValue(item2, column)
 
         if val1==val2:
             return 1 if ascending == (item1.__hash__() > item2.__hash__()) else -1

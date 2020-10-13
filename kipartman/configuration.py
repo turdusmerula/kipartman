@@ -44,6 +44,7 @@ class Configuration(object):
             self.octopart_api_key = read_value('octopart_api_key', '')
             self.snapeda_user = read_value('snapeda_user', '')
             self.snapeda_password = read_value('snapeda_password', '')
+            self.mouser_api_key = read_value('mouser_api_key', '')
                 
             self.base_currency = read_value('base_currency', 'EUR')
                 
@@ -75,6 +76,7 @@ class Configuration(object):
             content['octopart_api_key'] = self.octopart_api_key
             content['snapeda_user'] = self.snapeda_user
             content['snapeda_password'] = self.snapeda_password
+            content['mouser_api_key'] = self.mouser_api_key
 
             content['base_currency'] = self.base_currency
 

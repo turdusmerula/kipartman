@@ -11,12 +11,13 @@
         <property name="embedded_files_path">res</property>
         <property name="encoding">UTF-8</property>
         <property name="event_generation">connect</property>
-        <property name="file">panel_select_octopart</property>
+        <property name="file">dialog_provider_search_part</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
+        <property name="image_path_wrapper_function_name"></property>
         <property name="indent_with_spaces"></property>
         <property name="internationalize">0</property>
-        <property name="name">panel_select_octopart</property>
+        <property name="name">dialog_provider_search_part</property>
         <property name="namespace"></property>
         <property name="path">.</property>
         <property name="precompiled_header"></property>
@@ -25,30 +26,36 @@
         <property name="skip_php_events">1</property>
         <property name="skip_python_events">1</property>
         <property name="ui_table">UI</property>
+        <property name="use_array_enum">0</property>
         <property name="use_enum">0</property>
         <property name="use_microsoft_bom">0</property>
-        <object class="Panel" expanded="1">
+        <object class="Frame" expanded="1">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
+            <property name="center">wxBOTH</property>
             <property name="context_help"></property>
             <property name="context_menu">1</property>
             <property name="enabled">1</property>
             <property name="event_handler">impl_virtual</property>
+            <property name="extra_style"></property>
             <property name="fg"></property>
             <property name="font"></property>
             <property name="hidden">0</property>
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
             <property name="minimum_size"></property>
-            <property name="name">PanelSelectOctopart</property>
+            <property name="name">DialogProviderSearchPart</property>
             <property name="pos"></property>
-            <property name="size">1050,407</property>
-            <property name="subclass"></property>
+            <property name="size">500,300</property>
+            <property name="style">wxDEFAULT_FRAME_STYLE|wxFRAME_TOOL_WINDOW</property>
+            <property name="subclass">; ; forward_declare</property>
+            <property name="title"></property>
             <property name="tooltip"></property>
             <property name="window_extra_style"></property>
             <property name="window_name"></property>
             <property name="window_style">wxTAB_TRAVERSAL</property>
+            <property name="xrc_skip_sizer">1</property>
             <object class="wxBoxSizer" expanded="1">
                 <property name="minimum_size"></property>
                 <property name="name">bSizer16</property>
@@ -65,7 +72,7 @@
                         <property name="permission">none</property>
                         <object class="sizeritem" expanded="0">
                             <property name="border">5</property>
-                            <property name="flag">wxALL|wxALIGN_CENTER_VERTICAL|wxEXPAND</property>
+                            <property name="flag">wxALL|wxEXPAND</property>
                             <property name="proportion">0</property>
                             <object class="wxSearchCtrl" expanded="0">
                                 <property name="BottomDockable">1</property>
@@ -103,7 +110,7 @@
                                 <property name="minimize_button">0</property>
                                 <property name="minimum_size">150,-1</property>
                                 <property name="moveable">1</property>
-                                <property name="name">search_octopart</property>
+                                <property name="name">search_text</property>
                                 <property name="pane_border">1</property>
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
@@ -145,7 +152,7 @@
                                 <property name="id">wxID_ANY</property>
                                 <property name="maximum_size"></property>
                                 <property name="minimum_size"></property>
-                                <property name="name">tree_octoparts</property>
+                                <property name="name">tree_parts</property>
                                 <property name="permission">protected</property>
                                 <property name="pos"></property>
                                 <property name="size"></property>
@@ -162,7 +169,7 @@
                 </object>
                 <object class="sizeritem" expanded="0">
                     <property name="border">5</property>
-                    <property name="flag">wxEXPAND</property>
+                    <property name="flag">wxEXPAND|wxTOP|wxBOTTOM</property>
                     <property name="proportion">0</property>
                     <object class="wxStdDialogButtonSizer" expanded="0">
                         <property name="Apply">0</property>
@@ -181,6 +188,29 @@
                     </object>
                 </object>
             </object>
+        </object>
+        <object class="Panel" expanded="1">
+            <property name="aui_managed">0</property>
+            <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
+            <property name="bg"></property>
+            <property name="context_help"></property>
+            <property name="context_menu">1</property>
+            <property name="enabled">1</property>
+            <property name="event_handler">impl_virtual</property>
+            <property name="fg"></property>
+            <property name="font"></property>
+            <property name="hidden">0</property>
+            <property name="id">wxID_ANY</property>
+            <property name="maximum_size"></property>
+            <property name="minimum_size"></property>
+            <property name="name">PanelProviderSearchPart</property>
+            <property name="pos"></property>
+            <property name="size">1050,407</property>
+            <property name="subclass"></property>
+            <property name="tooltip"></property>
+            <property name="window_extra_style"></property>
+            <property name="window_name"></property>
+            <property name="window_style">wxTAB_TRAVERSAL</property>
         </object>
     </object>
 </wxFormBuilder_Project>

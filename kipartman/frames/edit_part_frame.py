@@ -10,8 +10,10 @@ from frames.part_attachements_frame import PartAttachementsFrame
 from frames.part_storages_frame import PartStoragesFrame
 from frames.part_preview_data_frame import PartPreviewDataFrame
 from frames.part_references_frame import PartReferencesFrame
+from frames.search_provider_part_dialog import SelectProviderPartDialog
 from frames.dropdown_frame import DropdownFrame
-# from frames.dropdown_dialog import DropdownDialog
+from providers.provider import Provider
+from frames.dropdown_menu import DropdownMenu
 # from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
 # from octopart.extractor import OctopartExtractor
 import wx.lib.newevent
@@ -62,6 +64,7 @@ class EditPartFrame(PanelEditPart):
         # set initial state
         self.SetPart(None)
         self._enable(False)
+        self._init_providers()
         
     def SetPart(self, part):
         self._category = None
@@ -119,6 +122,13 @@ class EditPartFrame(PanelEditPart):
         self._enable(True)
         self._check()
 
+    def _init_providers(self):
+        for provider in Provider.providers:
+            if provider.has_search_part:
+                menu_item = wx.MenuItem( self.menu_search, wx.ID_ANY, provider.name, wx.EmptyString, wx.ITEM_NORMAL )
+                self.menu_search.Append( menu_item )
+#                 self.Bind( wx.EVT_MENU, self.onMenuSelection, id = self.m_menuItem1.GetId() )
+        
     def _show_part(self, part):
         if part is not None:
             self.edit_part_name.Value = NoneValue(part.name, "")
@@ -145,7 +155,7 @@ class EditPartFrame(PanelEditPart):
             
     def _enable(self, enabled=True):
         self.edit_part_name.Enabled = enabled
-        self.button_octopart.Enabled = enabled
+        self.button_search.Enabled = enabled
         self.edit_part_description.Enabled = enabled
         self.edit_part_value.Enabled = enabled
         self.show_part_value.Enabled = enabled
@@ -278,6 +288,17 @@ class EditPartFrame(PanelEditPart):
 
     def onTextEditPartCommentText( self, event ):
         self._check()
+        event.Skip()
+
+    def onButtonSearchClick( self, event ):
+        self.context_menu_pos = self.button_search.ScreenToClient(wx.GetMousePosition())
+        id = DropdownMenu(self.button_search, self.menu_search).Dropdown()
+        menu = self.menu_search.FindItemById(id)
+        if menu is not None:
+            provider = Provider.get_provider(menu.ItemLabel)
+            select_part_dialog = SelectProviderPartDialog(self, provider)
+#             dropdown.panel.Bind( EVT_SELECT_OCTOPART_OK_EVENT, self.onSelectOctopartFrameOk )
+            select_part_dialog.Show()
         event.Skip()
 
 #     def onButtonOctopartClick( self, event ):
