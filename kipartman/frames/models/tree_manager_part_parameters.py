@@ -15,33 +15,19 @@ class PartParameter(helper.tree.TreeContainerItem):
         
         if col==0:
             return self.part_parameter.parameter.name
-        elif col==4:
+        elif col==2:
             if self.part_parameter.parameter.unit:
                 return self.part_parameter.parameter.unit.name
-        elif col==5:
+        elif col==3:
             return self.part_parameter.parameter.description
         
         if self.part_parameter.parameter.numeric==True:
             if col==1:
-                if self.part_parameter.nom_value is not None:
+                if self.part_parameter.value is not None:
                     prefix = None
-                    if self.part_parameter.nom_prefix is not None:
-                        prefix = self.part_parameter.nom_prefix.symbol
-                    return format_unit_prefix(self.part_parameter.nom_value, unit_symbol, prefix)
-                return "-"
-            elif col==2:
-                if self.part_parameter.min_value is not None:
-                    prefix = None
-                    if self.part_parameter.min_prefix is not None:
-                        prefix = self.part_parameter.min_prefix.symbol
-                    return format_unit_prefix(self.part_parameter.min_value, unit_symbol, prefix)
-                return "-"
-            elif col==3:
-                if self.part_parameter.max_value is not None:
-                    prefix = None
-                    if self.part_parameter.max_prefix is not None:
-                        prefix = self.part_parameter.max_prefix.symbol
-                    return format_unit_prefix(self.part_parameter.max_value, unit_symbol)
+                    if self.part_parameter.prefix is not None:
+                        prefix = self.part_parameter.prefix.symbol
+                    return format_unit_prefix(self.part_parameter.value, unit_symbol, prefix)
                 return "-"
         else:
             if col==1:
@@ -68,8 +54,6 @@ class TreeManagerPartParameter(helper.tree.TreeManager):
         
         self.AddTextColumn("parameter")
         self.AddTextColumn("value")
-        self.AddTextColumn("min")
-        self.AddTextColumn("max")
         self.AddTextColumn("unit")
         self.AddTextColumn("description")
         

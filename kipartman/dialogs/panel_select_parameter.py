@@ -30,7 +30,7 @@ class PanelSelectParameter ( wx.Panel ):
 
 		self.search_parameter = wx.SearchCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		self.search_parameter.ShowSearchButton( True )
-		self.search_parameter.ShowCancelButton( False )
+		self.search_parameter.ShowCancelButton( True )
 		self.search_parameter.SetMinSize( wx.Size( 200,-1 ) )
 
 		bSizer61.Add( self.search_parameter, 1, wx.ALL|wx.EXPAND, 5 )
@@ -66,9 +66,9 @@ class PanelSelectParameter ( wx.Panel ):
 		self.Layout()
 
 		# Connect Events
-		self.search_parameter.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchSymbolCancel )
-		self.search_parameter.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchSymbolButton )
-		self.search_parameter.Bind( wx.EVT_TEXT_ENTER, self.onSearchSymbolTextEnter )
+		self.search_parameter.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchParameterCancel )
+		self.search_parameter.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchParameterEnter )
+		self.search_parameter.Bind( wx.EVT_TEXT_ENTER, self.onSearchParameterEnter )
 		self.button_refresh_parameters.Bind( wx.EVT_BUTTON, self.onButtonRefreshSymbolsClick )
 		self.button_select_parameterCancel.Bind( wx.EVT_BUTTON, self.onButtonCancelClick )
 		self.button_select_parameterOK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
@@ -78,14 +78,12 @@ class PanelSelectParameter ( wx.Panel ):
 
 
 	# Virtual event handlers, overide them in your derived class
-	def onSearchSymbolCancel( self, event ):
+	def onSearchParameterCancel( self, event ):
 		event.Skip()
 
-	def onSearchSymbolButton( self, event ):
+	def onSearchParameterEnter( self, event ):
 		event.Skip()
 
-	def onSearchSymbolTextEnter( self, event ):
-		event.Skip()
 
 	def onButtonRefreshSymbolsClick( self, event ):
 		event.Skip()

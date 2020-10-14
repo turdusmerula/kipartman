@@ -23,9 +23,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
         for prefix in prefixes:
             self.prefix_symbol.append(prefix.symbol)
             choices.append(prefix.symbol+"  "+prefix.name+" ("+prefix.power+")")
-        self.choice_part_parameter_min_prefix.SetItems(choices)
-        self.choice_part_parameter_nom_prefix.SetItems(choices)
-        self.choice_part_parameter_max_prefix.SetItems(choices)
+        self.choice_numeric_value_prefix.SetItems(choices)
     
     def AddParameter(self, part):
         self.part = part        
@@ -38,9 +36,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.button_search_parameter.Label = "..."
         self.button_parameter_description.Label = ""
         self.button_parameter_unit.Label = ""
-        self.choice_part_parameter_min_prefix.SetSelection(0)
-        self.choice_part_parameter_nom_prefix.SetSelection(0)
-        self.choice_part_parameter_max_prefix.SetSelection(0)
+        self.choice_numeric_value_prefix.SetSelection(0)
 
         self._check()
         
@@ -71,29 +67,19 @@ class EditPartParameterFrame(DialogEditPartParameter):
             self.radio_choice_parameter_text.SetValue(True)
 
         if part_parameter.text_value is not None:
-            self.edit_part_parameter_value.Value = part_parameter.text_value
+            self.edit_text_value.Value = part_parameter.text_value
 
-        if part_parameter.min_value is not None:
-            self.edit_part_parameter_min_value.Value = str(part_parameter.min_value) 
-        if part_parameter.min_prefix is not None:
-            self.choice_part_parameter_min_prefix.SetSelection(part_parameter.min_prefix.id)
+        if part_parameter.value is not None:
+            self.edit_numeric_value.Value = str(part_parameter.value) 
+        if part_parameter.prefix is not None:
+            self.choice_numeric_value_prefix.SetSelection(part_parameter.prefix.id)
         else:
-            self.choice_part_parameter_min_prefix.SetSelection(0)
+            self.choice_numeric_value_prefix.SetSelection(0)
             
-        if part_parameter.nom_value is not None:
-            self.edit_part_parameter_nom_value.Value = str(part_parameter.nom_value) 
-        if part_parameter.nom_prefix is not None:
-            self.choice_part_parameter_nom_prefix.SetSelection(part_parameter.nom_prefix.id)
+        if part_parameter.parameter.unit is not None and part_parameter.parameter.unit.prefixable:
+            self.choice_numeric_value_prefix.Show()
         else:
-            self.choice_part_parameter_nom_prefix.SetSelection(0)
-            
-        if part_parameter.max_value is not None:
-            self.edit_part_parameter_max_value.Value = str(part_parameter.max_value) 
-        if part_parameter.max_prefix is not None:
-            self.choice_part_parameter_max_prefix.SetSelection(part_parameter.max_prefix.id)
-        else:
-            self.choice_part_parameter_max_prefix.SetSelection(0)
-            
+            self.choice_numeric_value_prefix.Hide()
             
         self._check()
             
@@ -112,28 +98,12 @@ class EditPartParameterFrame(DialogEditPartParameter):
             self.button_search_parameter.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
             
         try:
-            if self.edit_part_parameter_min_value.Value!="":
-                float(self.edit_part_parameter_min_value.Value) 
-            self.edit_part_parameter_min_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+            if self.edit_numeric_value.Value!="":
+                float(self.edit_numeric_value.Value) 
+            self.edit_numeric_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
         except:
             error = True
-            self.edit_part_parameter_min_value.SetBackgroundColour( colors.RED_ERROR )
-
-        try:
-            if self.edit_part_parameter_nom_value.Value!="":
-                float(self.edit_part_parameter_nom_value.Value) 
-            self.edit_part_parameter_nom_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-        except:
-            error = True
-            self.edit_part_parameter_nom_value.SetBackgroundColour( colors.RED_ERROR )
-
-        try:
-            if self.edit_part_parameter_max_value.Value!="":
-                float(self.edit_part_parameter_max_value.Value) 
-            self.edit_part_parameter_max_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-        except:
-            error = True
-            self.edit_part_parameter_max_value.SetBackgroundColour( colors.RED_ERROR )
+            self.edit_numeric_value.SetBackgroundColour( colors.RED_ERROR )
 
         if error:
             self.button_part_editApply.Enabled = False
@@ -144,48 +114,25 @@ class EditPartParameterFrame(DialogEditPartParameter):
         if self.part_parameter.parameter is None:
             raise ValueError('No parameter selected')
 
-        try:    
-            if self.edit_part_parameter_value.Value!='':
-                self.part_parameter.text_value = self.edit_part_parameter_value.Value
-            else:
+        try:
+            if self.radio_choice_parameter_numeric.Value==True:
                 self.part_parameter.text_value = None
-                
-            if self.edit_part_parameter_min_value.Value!='':
-                if self.choice_part_parameter_min_prefix.GetSelection()==0:
-                    self.part_parameter.min_prefix = None
-                else:
-                    self.part_parameter.min_prefix = api.data.unit_prefix.find_by_id(self.choice_part_parameter_min_prefix.GetSelection())
-                
-                num, prefix, unit = helper.unit.cut_unit_value(self.edit_part_parameter_min_value.Value)
-                v = helper.unit.expand_prefix(float(num), prefix)
-                self.part_parameter.min_value = v
-            else:
-                self.part_parameter.min_value = None
-                self.part_parameter.min_prefix = None
-    
-            if self.edit_part_parameter_nom_value.Value!='':
-                if self.choice_part_parameter_nom_prefix.GetSelection()==0:
-                    self.part_parameter.nom_prefix = None
-                else:
-                    self.part_parameter.nom_prefix = api.data.unit_prefix.find_by_id(self.choice_part_parameter_nom_prefix.GetSelection())
-                num, prefix, unit = helper.unit.cut_unit_value(self.edit_part_parameter_nom_value.Value)
-                v = helper.unit.expand_prefix(float(num), prefix)
-                self.part_parameter.nom_value = v
-            else:
-                self.part_parameter.nom_value = None
-                self.part_parameter.nom_prefix = None
 
-            if self.edit_part_parameter_max_value.Value!='':
-                if self.choice_part_parameter_max_prefix.GetSelection()==0:
-                    self.part_parameter.max_prefix = None
+                if self.part_parameter.parameter.unit_id is not None and self.part_parameter.parameter.unit.prefixable:
+                    if self.choice_numeric_value_prefix.GetSelection()==0:
+                        self.part_parameter.prefix = None
+                    else:
+                        self.part_parameter.prefix = api.data.unit_prefix.find_by_id(self.choice_numeric_value_prefix.GetSelection())
                 else:
-                    self.part_parameter.max_prefix = api.data.unit_prefix.find_by_id(self.choice_part_parameter_max_prefix.GetSelection())
-                num, prefix, unit = helper.unit.cut_unit_value(self.edit_part_parameter_max_value.Value)
+                    self.part_parameter.prefix = None
+                    
+                num, prefix, unit = helper.unit.cut_unit_value(self.edit_numeric_value.Value)
                 v = helper.unit.expand_prefix(float(num), prefix)
-                self.part_parameter.max_value = v
+                self.part_parameter.value = v
             else:
-                self.part_parameter.max_value = None
-                self.part_parameter.max_prefix = None
+                self.part_parameter.text_value = self.edit_text_value.Value
+                self.part_parameter.value = None
+                self.part_parameter.prefix = None
             
             if self.part_parameter.id is None:
                 self.part.parameters.add_pending(self.part_parameter)
@@ -201,44 +148,31 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.EndModal(wx.ID_OK)
     
     def onRadioNumeric( self, event ):
-        self.static_value.Hide()
-        self.edit_part_parameter_value.Hide()
+        self.static_text_value.Hide()
+        self.edit_text_value.Hide()
         
-        self.static_min_value.Show()
-        self.edit_part_parameter_min_value.Show()
-        self.choice_part_parameter_min_prefix.Show()
-        self.show_part_parameter_min_value.Show()
+        self.static_numeric_value.Show()
+        self.edit_numeric_value.Show()
+        if self.part_parameter.parameter_id is not None and self.part_parameter.parameter.unit is not None and self.part_parameter.parameter.unit.prefixable:
+            self.choice_numeric_value_prefix.Show()
+        else:
+            self.choice_numeric_value_prefix.Hide()
+        self.show_numeric_value.Show()
         
-        self.static_nom_value.Show()
-        self.edit_part_parameter_nom_value.Show()
-        self.choice_part_parameter_nom_prefix.Show()
-        self.show_part_parameter_nom_value.Show()
-        
-        self.static_max_value.Show()
-        self.edit_part_parameter_max_value.Show()
-        self.choice_part_parameter_max_prefix.Show()
-        self.show_part_parameter_max_value.Show()
+        self.Layout()
         
         self._check()
         
     def onRadioText( self, event ):
-        self.static_value.Show()
-        self.edit_part_parameter_value.Show()
+        self.static_text_value.Show()
+        self.edit_text_value.Show()
+        
+        self.static_numeric_value.Hide()
+        self.edit_numeric_value.Hide()
+        self.choice_numeric_value_prefix.Hide()
+        self.show_numeric_value.Hide()
 
-        self.static_min_value.Hide()
-        self.edit_part_parameter_min_value.Hide()
-        self.choice_part_parameter_min_prefix.Hide()
-        self.show_part_parameter_min_value.Hide()
-        
-        self.static_nom_value.Hide()
-        self.edit_part_parameter_nom_value.Hide()
-        self.choice_part_parameter_nom_prefix.Hide()
-        self.show_part_parameter_nom_value.Hide()
-        
-        self.static_max_value.Hide()
-        self.edit_part_parameter_max_value.Hide()
-        self.choice_part_parameter_max_prefix.Hide()
-        self.show_part_parameter_max_value.Hide()
+        self.Layout()
         
         self._check()
         
@@ -265,49 +199,21 @@ class EditPartParameterFrame(DialogEditPartParameter):
             self.button_parameter_unit.Label = f""
             
         self._check()
-        
-    def onEditPartParameterValueChanged( self, event ):
+
+    def onTextValueChanged( self, event ):
         self._check()
         event.Skip()
 
-    def onPartParameterMinValueChanged( self, event ):
+    def onNumericValueChanged( self, event ):
         try:
-            num, prefix, unit = helper.unit.cut_unit_value(self.edit_part_parameter_min_value.Value)
+            num, prefix, unit = helper.unit.cut_unit_value(self.edit_numeric_value.Value)
             v = helper.unit.expand_prefix(float(num), prefix)
 
-            if self.choice_part_parameter_min_prefix.GetSelection()<=0:
-                self.show_part_parameter_min_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol)
+            if self.choice_numeric_value_prefix.GetSelection()<=0:
+                self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol)
             else:
-                self.show_part_parameter_min_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol, self.prefix_symbol[self.choice_part_parameter_min_prefix.GetSelection()])
+                self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol, self.prefix_symbol[self.choice_numeric_value_prefix.GetSelection()])
         except:
-            self.show_part_parameter_min_value.Value = "#error"
-            
-        event.Skip()
-
-    def onPartParameterNomValueChanged( self, event ):
-        try:
-            num, prefix, unit = helper.unit.cut_unit_value(self.edit_part_parameter_nom_value.Value)
-            v = helper.unit.expand_prefix(float(num), prefix)
-            
-            if self.choice_part_parameter_nom_prefix.GetSelection()<=0:
-                self.show_part_parameter_nom_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol)
-            else:
-                self.show_part_parameter_nom_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol, self.prefix_symbol[self.choice_part_parameter_nom_prefix.GetSelection()])
-        except:
-            self.show_part_parameter_nom_value.Value = "#error"
-            
-        event.Skip()
-
-    def onPartParameterMaxValueChanged( self, event ):
-        try:
-            num, prefix, unit = helper.unit.cut_unit_value(self.edit_part_parameter_max_value.Value)
-            v = helper.unit.expand_prefix(float(num), prefix)
-
-            if self.choice_part_parameter_max_prefix.GetSelection()<=0:
-                self.show_part_parameter_max_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol)
-            else:
-                self.show_part_parameter_max_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol, self.prefix_symbol[self.choice_part_parameter_max_prefix.GetSelection()])
-        except:
-            self.show_part_parameter_max_value.Value = "#error"
+            self.show_numeric_value.Value = "#error"
             
         event.Skip()

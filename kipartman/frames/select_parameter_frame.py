@@ -125,9 +125,6 @@ class SelectParameterFrame(PanelSelectParameter):
     def onSearchParameterCancel( self, event ):
         self.filters.remove_group('search')
 
-    def onSearchParameterButton( self, event ):
-        self.filters.replace(api.data.parameter.FilterSearchText(self.search_parameter.Value), 'search')
-        
     def onSearchParameterEnter( self, event ):
         self.filters.replace(api.data.parameter.FilterSearchText(self.search_parameter.Value), 'search')
         event.Skip()

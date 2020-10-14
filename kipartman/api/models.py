@@ -86,12 +86,8 @@ class PartParameter(models.Model):
     part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)
     parameter = models.ForeignKey('Parameter', related_name='parameter', on_delete=models.DO_NOTHING, null=False, blank=False)
     text_value = models.TextField(null=True, blank=True)
-    min_value = models.FloatField(null=True)
-    min_prefix = models.ForeignKey('UnitPrefix', related_name='min', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    nom_value = models.FloatField(null=True)
-    nom_prefix = models.ForeignKey('UnitPrefix', related_name='nom', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    max_value = models.FloatField(null=True)
-    max_prefix = models.ForeignKey('UnitPrefix', related_name='max', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+    value = models.FloatField(null=True)
+    prefix = models.ForeignKey('UnitPrefix', related_name='min', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
@@ -156,6 +152,8 @@ class Parameter(models.Model):
 
 class ParameterAlias(models.Model):
     parameter = models.ForeignKey('Parameter', related_name='alias', null=False, blank=False, default=None, on_delete=models.CASCADE)
+    name = models.TextField(null=False, blank=False)
+    updated = models.DateTimeField(auto_now=True)
     
 class Manufacturer(models.Model):
     name = models.TextField(blank=False)
@@ -267,6 +265,7 @@ class VersionedFileHistory(models.Model):
 class Unit(models.Model):
     name = models.TextField()
     symbol = models.TextField(default='')
+    prefixable = models.BooleanField(default=True)        
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):

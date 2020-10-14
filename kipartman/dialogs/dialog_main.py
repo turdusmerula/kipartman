@@ -61,6 +61,9 @@ class DialogMain ( wx.Frame ):
 		self.menu_view_storages = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Storages", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_view.Append( self.menu_view_storages )
 
+		self.menu_view_units = wx.MenuItem( self.menu_view, wx.ID_ANY, u"Units", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_view.Append( self.menu_view_units )
+
 		self.menu_bar.Append( self.menu_view, u"View" )
 
 		self.menu_help = wx.Menu()
@@ -101,6 +104,7 @@ class DialogMain ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.onMenuViewDistributorsSelection, id = self.menu_view_distributors.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewManufacturersSelection, id = self.menu_view_manufacturers.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewStoragesSelection, id = self.menu_view_storages.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuViewUnitsSelection, id = self.menu_view_units.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuHelpAboutSelection, id = self.menu_about.GetId() )
 		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGED, self.onNotebookPageChanged )
 		self.notebook.Bind( wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGING, self.onNotebookPageChanging )
@@ -143,6 +147,9 @@ class DialogMain ( wx.Frame ):
 		event.Skip()
 
 	def onMenuViewStoragesSelection( self, event ):
+		event.Skip()
+
+	def onMenuViewUnitsSelection( self, event ):
 		event.Skip()
 
 	def onMenuHelpAboutSelection( self, event ):

@@ -18,7 +18,7 @@ import wx.dataview
 class DialogProviderSearchPart ( wx.Frame ):
 
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_TOOL_WINDOW|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1140,376 ), style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_TOOL_WINDOW|wx.TAB_TRAVERSAL )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
@@ -55,9 +55,9 @@ class DialogProviderSearchPart ( wx.Frame ):
 		self.Centre( wx.BOTH )
 
 		# Connect Events
-		self.search_text.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchOctopartButton )
-		self.search_text.Bind( wx.EVT_TEXT_ENTER, self.onSearchOctopartEnter )
-		self.tree_parts.Bind( wx.dataview.EVT_DATAVIEW_SELECTION_CHANGED, self.onTreeOctopartsSelectionChanged, id = wx.ID_ANY )
+		self.search_text.Bind( wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchCancel )
+		self.search_text.Bind( wx.EVT_SEARCHCTRL_SEARCH_BTN, self.onSearchEnter )
+		self.search_text.Bind( wx.EVT_TEXT_ENTER, self.onSearchEnter )
 		self.m_sdbSizer2Cancel.Bind( wx.EVT_BUTTON, self.onButtonCancelClick )
 		self.m_sdbSizer2OK.Bind( wx.EVT_BUTTON, self.onButtonOkClick )
 
@@ -66,33 +66,17 @@ class DialogProviderSearchPart ( wx.Frame ):
 
 
 	# Virtual event handlers, overide them in your derived class
-	def onSearchOctopartButton( self, event ):
+	def onSearchCancel( self, event ):
 		event.Skip()
 
-	def onSearchOctopartEnter( self, event ):
+	def onSearchEnter( self, event ):
 		event.Skip()
 
-	def onTreeOctopartsSelectionChanged( self, event ):
-		event.Skip()
 
 	def onButtonCancelClick( self, event ):
 		event.Skip()
 
 	def onButtonOkClick( self, event ):
 		event.Skip()
-
-
-###########################################################################
-## Class PanelProviderSearchPart
-###########################################################################
-
-class PanelProviderSearchPart ( wx.Panel ):
-
-	def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 1050,407 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
-		wx.Panel.__init__ ( self, parent, id = id, pos = pos, size = size, style = style, name = name )
-
-
-	def __del__( self ):
-		pass
 
 

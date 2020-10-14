@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -30,7 +30,7 @@ class PanelSelectUnit ( wx.Panel ):
 
 		self.search_unit = wx.SearchCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		self.search_unit.ShowSearchButton( True )
-		self.search_unit.ShowCancelButton( False )
+		self.search_unit.ShowCancelButton( True )
 		self.search_unit.SetMinSize( wx.Size( 200,-1 ) )
 
 		bSizer61.Add( self.search_unit, 1, wx.ALL|wx.EXPAND, 5 )

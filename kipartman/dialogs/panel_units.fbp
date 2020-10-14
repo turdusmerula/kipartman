@@ -11,13 +11,13 @@
         <property name="embedded_files_path">res</property>
         <property name="encoding">UTF-8</property>
         <property name="event_generation">connect</property>
-        <property name="file">panel_parameters</property>
+        <property name="file">panel_units</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
         <property name="image_path_wrapper_function_name"></property>
         <property name="indent_with_spaces"></property>
         <property name="internationalize">0</property>
-        <property name="name">panel_parameters</property>
+        <property name="name">panel_units</property>
         <property name="namespace"></property>
         <property name="path">.</property>
         <property name="precompiled_header"></property>
@@ -43,7 +43,7 @@
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
             <property name="minimum_size"></property>
-            <property name="name">PanelParameters</property>
+            <property name="name">PanelUnits</property>
             <property name="pos"></property>
             <property name="size">1616,756</property>
             <property name="subclass"></property>
@@ -154,7 +154,7 @@
                                 <property name="minimize_button">0</property>
                                 <property name="minimum_size"></property>
                                 <property name="moveable">1</property>
-                                <property name="name">panel_parameter_list</property>
+                                <property name="name">panel_unit_list</property>
                                 <property name="pane_border">1</property>
                                 <property name="pane_position"></property>
                                 <property name="pane_size"></property>
@@ -342,7 +342,7 @@
                                                     <property name="minimize_button">0</property>
                                                     <property name="minimum_size">200,-1</property>
                                                     <property name="moveable">1</property>
-                                                    <property name="name">search_parameters</property>
+                                                    <property name="name">search_units</property>
                                                     <property name="pane_border">1</property>
                                                     <property name="pane_position"></property>
                                                     <property name="pane_size"></property>
@@ -365,9 +365,9 @@
                                                     <property name="window_extra_style"></property>
                                                     <property name="window_name"></property>
                                                     <property name="window_style"></property>
-                                                    <event name="OnCancelButton">onSearchParametersCancel</event>
-                                                    <event name="OnSearchButton">onSearchParametersButton</event>
-                                                    <event name="OnTextEnter">onSearchParametersTextEnter</event>
+                                                    <event name="OnCancelButton">onSearchUnitsCancel</event>
+                                                    <event name="OnSearchButton">onSearchUnitsEnter</event>
+                                                    <event name="OnTextEnter">onSearchUnitsEnter</event>
                                                 </object>
                                             </object>
                                             <object class="sizeritem" expanded="0">
@@ -418,7 +418,7 @@
                                                     <property name="minimize_button">0</property>
                                                     <property name="minimum_size"></property>
                                                     <property name="moveable">1</property>
-                                                    <property name="name">button_refresh_parameters</property>
+                                                    <property name="name">button_refresh_units</property>
                                                     <property name="pane_border">1</property>
                                                     <property name="pane_position"></property>
                                                     <property name="pane_size"></property>
@@ -461,11 +461,11 @@
                                             <property name="id">wxID_ANY</property>
                                             <property name="maximum_size"></property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">tree_parameters</property>
+                                            <property name="name">tree_units</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
-                                            <property name="style"></property>
+                                            <property name="style">wxDV_SINGLE</property>
                                             <property name="subclass"></property>
                                             <property name="tooltip"></property>
                                             <property name="window_extra_style"></property>
@@ -476,7 +476,7 @@
                                 </object>
                                 <object class="wxMenu" expanded="1">
                                     <property name="label">MyMenu</property>
-                                    <property name="name">menu_parameter</property>
+                                    <property name="name">menu_unit</property>
                                     <property name="permission">protected</property>
                                     <object class="wxMenuItem" expanded="1">
                                         <property name="bitmap">Load From File; resources/add.png</property>
@@ -485,12 +485,12 @@
                                         <property name="help"></property>
                                         <property name="id">wxID_ANY</property>
                                         <property name="kind">wxITEM_NORMAL</property>
-                                        <property name="label">Add parameter</property>
-                                        <property name="name">menu_parameter_add</property>
+                                        <property name="label">Add unit</property>
+                                        <property name="name">menu_unit_add</property>
                                         <property name="permission">none</property>
                                         <property name="shortcut"></property>
                                         <property name="unchecked_bitmap"></property>
-                                        <event name="OnMenuSelection">onMenuParameterAdd</event>
+                                        <event name="OnMenuSelection">onMenuUnitAdd</event>
                                     </object>
                                     <object class="wxMenuItem" expanded="1">
                                         <property name="bitmap">Load From File; resources/add.png</property>
@@ -499,12 +499,12 @@
                                         <property name="help"></property>
                                         <property name="id">wxID_ANY</property>
                                         <property name="kind">wxITEM_NORMAL</property>
-                                        <property name="label">Duplicate parameter</property>
-                                        <property name="name">menu_parameter_duplicate</property>
+                                        <property name="label">Duplicate unit</property>
+                                        <property name="name">menu_unit_duplicate</property>
                                         <property name="permission">none</property>
                                         <property name="shortcut"></property>
                                         <property name="unchecked_bitmap"></property>
-                                        <event name="OnMenuSelection">onMenuParameterDuplicate</event>
+                                        <event name="OnMenuSelection">onMenuUnitDuplicate</event>
                                     </object>
                                     <object class="wxMenuItem" expanded="1">
                                         <property name="bitmap">Load From File; resources/edit.png</property>
@@ -513,12 +513,12 @@
                                         <property name="help"></property>
                                         <property name="id">wxID_ANY</property>
                                         <property name="kind">wxITEM_NORMAL</property>
-                                        <property name="label">Edit parameter</property>
-                                        <property name="name">menu_parameter_edit</property>
+                                        <property name="label">Edit unit</property>
+                                        <property name="name">menu_unit_edit</property>
                                         <property name="permission">none</property>
                                         <property name="shortcut"></property>
                                         <property name="unchecked_bitmap"></property>
-                                        <event name="OnMenuSelection">onMenuParameterEdit</event>
+                                        <event name="OnMenuSelection">onMenuUnitEdit</event>
                                     </object>
                                     <object class="wxMenuItem" expanded="1">
                                         <property name="bitmap">Load From File; resources/remove.png</property>
@@ -527,26 +527,12 @@
                                         <property name="help"></property>
                                         <property name="id">wxID_ANY</property>
                                         <property name="kind">wxITEM_NORMAL</property>
-                                        <property name="label">Remove parameter</property>
-                                        <property name="name">menu_parameter_remove</property>
+                                        <property name="label">Remove unit</property>
+                                        <property name="name">menu_unit_remove</property>
                                         <property name="permission">none</property>
                                         <property name="shortcut"></property>
                                         <property name="unchecked_bitmap"></property>
-                                        <event name="OnMenuSelection">onMenuParameterRemove</event>
-                                    </object>
-                                    <object class="wxMenuItem" expanded="1">
-                                        <property name="bitmap">Load From File; resources/remove.png</property>
-                                        <property name="checked">0</property>
-                                        <property name="enabled">1</property>
-                                        <property name="help"></property>
-                                        <property name="id">wxID_ANY</property>
-                                        <property name="kind">wxITEM_NORMAL</property>
-                                        <property name="label">Merge parameters</property>
-                                        <property name="name">menu_parameter_merge</property>
-                                        <property name="permission">none</property>
-                                        <property name="shortcut"></property>
-                                        <property name="unchecked_bitmap"></property>
-                                        <event name="OnMenuSelection">onMenuParameterMerge</event>
+                                        <event name="OnMenuSelection">onMenuUnitRemove</event>
                                     </object>
                                 </object>
                             </object>

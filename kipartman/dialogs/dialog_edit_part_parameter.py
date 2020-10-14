@@ -17,7 +17,7 @@ import wx.xrc
 class DialogEditPartParameter ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 459,398 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 471,360 ), style = wx.DEFAULT_DIALOG_STYLE )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
@@ -76,76 +76,34 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 		fgSizer1.Add( bSizer6, 1, wx.EXPAND, 5 )
 
-		self.static_value = wx.StaticText( self, wx.ID_ANY, u"Value", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.static_value.Wrap( -1 )
+		self.static_text_value = wx.StaticText( self, wx.ID_ANY, u"Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.static_text_value.Wrap( -1 )
 
-		fgSizer1.Add( self.static_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer1.Add( self.static_text_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.edit_part_parameter_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_part_parameter_value, 1, wx.ALL|wx.EXPAND, 5 )
+		self.edit_text_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		fgSizer1.Add( self.edit_text_value, 1, wx.ALL|wx.EXPAND, 5 )
 
-		self.static_min_value = wx.StaticText( self, wx.ID_ANY, u"Min Value", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.static_min_value.Wrap( -1 )
+		self.static_numeric_value = wx.StaticText( self, wx.ID_ANY, u"Value", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.static_numeric_value.Wrap( -1 )
 
-		fgSizer1.Add( self.static_min_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-
-		bSizer7 = wx.BoxSizer( wx.HORIZONTAL )
-
-		self.edit_part_parameter_min_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer7.Add( self.edit_part_parameter_min_value, 0, wx.ALL, 5 )
-
-		choice_part_parameter_min_prefixChoices = []
-		self.choice_part_parameter_min_prefix = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_part_parameter_min_prefixChoices, 0 )
-		self.choice_part_parameter_min_prefix.SetSelection( 0 )
-		bSizer7.Add( self.choice_part_parameter_min_prefix, 0, wx.ALL, 5 )
-
-		self.show_part_parameter_min_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.BORDER_NONE )
-		bSizer7.Add( self.show_part_parameter_min_value, 1, wx.ALL|wx.EXPAND, 5 )
-
-
-		fgSizer1.Add( bSizer7, 1, wx.EXPAND, 5 )
-
-		self.static_nom_value = wx.StaticText( self, wx.ID_ANY, u"Nominal Value", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.static_nom_value.Wrap( -1 )
-
-		fgSizer1.Add( self.static_nom_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		fgSizer1.Add( self.static_numeric_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		bSizer71 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.edit_part_parameter_nom_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer71.Add( self.edit_part_parameter_nom_value, 0, wx.ALL, 5 )
+		self.edit_numeric_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		bSizer71.Add( self.edit_numeric_value, 1, wx.ALL, 5 )
 
-		choice_part_parameter_nom_prefixChoices = []
-		self.choice_part_parameter_nom_prefix = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_part_parameter_nom_prefixChoices, 0 )
-		self.choice_part_parameter_nom_prefix.SetSelection( 0 )
-		bSizer71.Add( self.choice_part_parameter_nom_prefix, 0, wx.ALL, 5 )
+		choice_numeric_value_prefixChoices = []
+		self.choice_numeric_value_prefix = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_numeric_value_prefixChoices, 0 )
+		self.choice_numeric_value_prefix.SetSelection( 0 )
+		bSizer71.Add( self.choice_numeric_value_prefix, 1, wx.ALL, 5 )
 
-		self.show_part_parameter_nom_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.BORDER_NONE )
-		bSizer71.Add( self.show_part_parameter_nom_value, 1, wx.ALL|wx.EXPAND, 5 )
+		self.show_numeric_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.BORDER_NONE )
+		bSizer71.Add( self.show_numeric_value, 1, wx.EXPAND|wx.ALL, 5 )
 
 
 		fgSizer1.Add( bSizer71, 1, wx.EXPAND, 5 )
-
-		self.static_max_value = wx.StaticText( self, wx.ID_ANY, u"Max Value", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.static_max_value.Wrap( -1 )
-
-		fgSizer1.Add( self.static_max_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-
-		bSizer72 = wx.BoxSizer( wx.HORIZONTAL )
-
-		self.edit_part_parameter_max_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer72.Add( self.edit_part_parameter_max_value, 0, wx.ALL, 5 )
-
-		choice_part_parameter_max_prefixChoices = []
-		self.choice_part_parameter_max_prefix = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_part_parameter_max_prefixChoices, 0 )
-		self.choice_part_parameter_max_prefix.SetSelection( 0 )
-		bSizer72.Add( self.choice_part_parameter_max_prefix, 0, wx.ALL, 5 )
-
-		self.show_part_parameter_max_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY|wx.BORDER_NONE )
-		bSizer72.Add( self.show_part_parameter_max_value, 1, wx.ALL|wx.EXPAND, 5 )
-
-
-		fgSizer1.Add( bSizer72, 1, wx.EXPAND, 5 )
 
 
 		bSizer1.Add( fgSizer1, 1, wx.EXPAND, 5 )
@@ -171,13 +129,9 @@ class DialogEditPartParameter ( wx.Dialog ):
 		self.button_parameter_unit.Bind( wx.EVT_BUTTON, self.onButtonSearchParameterClick )
 		self.radio_choice_parameter_numeric.Bind( wx.EVT_RADIOBUTTON, self.onRadioNumeric )
 		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioText )
-		self.edit_part_parameter_value.Bind( wx.EVT_TEXT, self.onEditPartParameterValueChanged )
-		self.edit_part_parameter_min_value.Bind( wx.EVT_TEXT, self.onPartParameterMinValueChanged )
-		self.choice_part_parameter_min_prefix.Bind( wx.EVT_CHOICE, self.onPartParameterMinValueChanged )
-		self.edit_part_parameter_nom_value.Bind( wx.EVT_TEXT, self.onPartParameterNomValueChanged )
-		self.choice_part_parameter_nom_prefix.Bind( wx.EVT_CHOICE, self.onPartParameterNomValueChanged )
-		self.edit_part_parameter_max_value.Bind( wx.EVT_TEXT, self.onPartParameterMaxValueChanged )
-		self.choice_part_parameter_max_prefix.Bind( wx.EVT_CHOICE, self.onPartParameterMaxValueChanged )
+		self.edit_text_value.Bind( wx.EVT_TEXT, self.onTextValueChanged )
+		self.edit_numeric_value.Bind( wx.EVT_TEXT, self.onNumericValueChanged )
+		self.choice_numeric_value_prefix.Bind( wx.EVT_CHOICE, self.onNumericValueChanged )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartParameterEditApply )
 		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartParameterEditCancel )
 
@@ -197,18 +151,10 @@ class DialogEditPartParameter ( wx.Dialog ):
 	def onRadioText( self, event ):
 		event.Skip()
 
-	def onEditPartParameterValueChanged( self, event ):
+	def onTextValueChanged( self, event ):
 		event.Skip()
 
-	def onPartParameterMinValueChanged( self, event ):
-		event.Skip()
-
-
-	def onPartParameterNomValueChanged( self, event ):
-		event.Skip()
-
-
-	def onPartParameterMaxValueChanged( self, event ):
+	def onNumericValueChanged( self, event ):
 		event.Skip()
 
 

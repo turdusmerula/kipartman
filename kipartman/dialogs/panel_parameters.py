@@ -42,7 +42,7 @@ class PanelParameters ( wx.Panel ):
 
 		self.search_parameters = wx.SearchCtrl( self.panel_parameter_list, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER )
 		self.search_parameters.ShowSearchButton( True )
-		self.search_parameters.ShowCancelButton( False )
+		self.search_parameters.ShowCancelButton( True )
 		self.search_parameters.SetMinSize( wx.Size( 200,-1 ) )
 
 		bSizer61.Add( self.search_parameters, 0, wx.ALL|wx.EXPAND, 5 )
@@ -55,7 +55,7 @@ class PanelParameters ( wx.Panel ):
 
 		bSizer2.Add( bSizer61, 0, wx.ALIGN_RIGHT, 5 )
 
-		self.tree_parameters = wx.dataview.DataViewCtrl( self.panel_parameter_list, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_SINGLE )
+		self.tree_parameters = wx.dataview.DataViewCtrl( self.panel_parameter_list, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer2.Add( self.tree_parameters, 1, wx.EXPAND|wx.BOTTOM|wx.RIGHT|wx.LEFT, 5 )
 
 
@@ -79,6 +79,10 @@ class PanelParameters ( wx.Panel ):
 		self.menu_parameter_remove.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_parameter.Append( self.menu_parameter_remove )
 
+		self.menu_parameter_merge = wx.MenuItem( self.menu_parameter, wx.ID_ANY, u"Merge parameters", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parameter_merge.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_parameter.Append( self.menu_parameter_merge )
+
 		self.panel_parameter_list.Bind( wx.EVT_RIGHT_DOWN, self.panel_parameter_listOnContextMenu )
 
 		self.panel_right = wx.Panel( self.splitter_vert, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -99,6 +103,7 @@ class PanelParameters ( wx.Panel ):
 		self.Bind( wx.EVT_MENU, self.onMenuParameterDuplicate, id = self.menu_parameter_duplicate.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuParameterEdit, id = self.menu_parameter_edit.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuParameterRemove, id = self.menu_parameter_remove.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuParameterMerge, id = self.menu_parameter_merge.GetId() )
 
 	def __del__( self ):
 		pass
@@ -130,6 +135,9 @@ class PanelParameters ( wx.Panel ):
 		event.Skip()
 
 	def onMenuParameterRemove( self, event ):
+		event.Skip()
+
+	def onMenuParameterMerge( self, event ):
 		event.Skip()
 
 	def splitter_vertOnIdle( self, event ):

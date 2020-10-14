@@ -98,7 +98,7 @@
                                                 <property name="aui_row"></property>
                                                 <property name="best_size"></property>
                                                 <property name="bg"></property>
-                                                <property name="cancel_button">0</property>
+                                                <property name="cancel_button">1</property>
                                                 <property name="caption"></property>
                                                 <property name="caption_visible">1</property>
                                                 <property name="center_pane">0</property>
@@ -146,9 +146,9 @@
                                                 <property name="window_extra_style"></property>
                                                 <property name="window_name"></property>
                                                 <property name="window_style"></property>
-                                                <event name="OnCancelButton">onSearchSymbolCancel</event>
-                                                <event name="OnSearchButton">onSearchSymbolButton</event>
-                                                <event name="OnTextEnter">onSearchSymbolTextEnter</event>
+                                                <event name="OnCancelButton">onSearchParameterCancel</event>
+                                                <event name="OnSearchButton">onSearchParameterEnter</event>
+                                                <event name="OnTextEnter">onSearchParameterEnter</event>
                                             </object>
                                         </object>
                                         <object class="sizeritem" expanded="0">

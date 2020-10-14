@@ -101,6 +101,14 @@ class FilterStorage(Filter):
     def apply(self, request):
         return request.filter(storages__storage__id=self.storage.id)
 
+class FilterUnit(Filter):
+    def __init__(self, unit):
+        self.unit = unit
+        super(FilterUnit, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(parameters__parameter__unit__id=self.unit.id)
+
 def _add_default_annotations(request):
     # add the field child_count in request result 
     request = request.select_related('category', 'footprint', 'symbol') # preload for performance

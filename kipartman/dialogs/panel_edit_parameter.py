@@ -34,6 +34,30 @@ class PanelEditParameter ( wx.Panel ):
 		self.edit_parameter_name = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer1.Add( self.edit_parameter_name, 1, wx.ALL|wx.EXPAND, 5 )
 
+		self.m_staticText7 = wx.StaticText( self, wx.ID_ANY, u"Alias", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText7.Wrap( -1 )
+
+		fgSizer1.Add( self.m_staticText7, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
+
+		combo_parameter_aliasChoices = []
+		self.combo_parameter_alias = wx.ComboBox( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, combo_parameter_aliasChoices, 0 )
+		bSizer4.Add( self.combo_parameter_alias, 1, wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
+
+		self.button_parameter_alias_add = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+
+		self.button_parameter_alias_add.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer4.Add( self.button_parameter_alias_add, 0, wx.TOP|wx.BOTTOM, 5 )
+
+		self.button_parameter_alias_remove = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
+
+		self.button_parameter_alias_remove.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		bSizer4.Add( self.button_parameter_alias_remove, 0, wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
+
+
+		fgSizer1.Add( bSizer4, 1, wx.EXPAND, 5 )
+
 		self.m_staticText4 = wx.StaticText( self, wx.ID_ANY, u"Description", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText4.Wrap( -1 )
 
@@ -82,12 +106,12 @@ class PanelEditParameter ( wx.Panel ):
 		self.button_search_unit = wx.Button( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.BU_LEFT )
 		self.button_search_unit.Enable( False )
 
-		bSizer3.Add( self.button_search_unit, 1, wx.ALL|wx.EXPAND, 5 )
+		bSizer3.Add( self.button_search_unit, 1, wx.EXPAND|wx.TOP|wx.BOTTOM|wx.LEFT, 5 )
 
 		self.button_remove_unit = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
 
 		self.button_remove_unit.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
-		bSizer3.Add( self.button_remove_unit, 0, wx.ALL, 5 )
+		bSizer3.Add( self.button_remove_unit, 0, wx.TOP|wx.BOTTOM|wx.RIGHT, 5 )
 
 
 		fgSizer1.Add( bSizer3, 1, wx.EXPAND, 5 )
@@ -110,6 +134,9 @@ class PanelEditParameter ( wx.Panel ):
 
 		# Connect Events
 		self.edit_parameter_name.Bind( wx.EVT_TEXT, self.onTextEditParameterName )
+		self.combo_parameter_alias.Bind( wx.EVT_TEXT, self.onComboParameterAliasChange )
+		self.button_parameter_alias_add.Bind( wx.EVT_BUTTON, self.onButtonParameterAliasAddClick )
+		self.button_parameter_alias_remove.Bind( wx.EVT_BUTTON, self.onButtonParameterAliasRemoveClick )
 		self.edit_parameter_description.Bind( wx.EVT_TEXT, self.onTextEditParameterDescription )
 		self.radio_choice_parameter_numeric.Bind( wx.EVT_RADIOBUTTON, self.onRadioNumeric )
 		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioText )
@@ -124,6 +151,15 @@ class PanelEditParameter ( wx.Panel ):
 
 	# Virtual event handlers, overide them in your derived class
 	def onTextEditParameterName( self, event ):
+		event.Skip()
+
+	def onComboParameterAliasChange( self, event ):
+		event.Skip()
+
+	def onButtonParameterAliasAddClick( self, event ):
+		event.Skip()
+
+	def onButtonParameterAliasRemoveClick( self, event ):
 		event.Skip()
 
 	def onTextEditParameterDescription( self, event ):

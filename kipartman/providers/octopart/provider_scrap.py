@@ -15,7 +15,7 @@ def convert_int(value):
     return int(value)
 
 class OctopartProvider(Provider):
-    name = "Octopart"
+    name = "Octopart scrapper (experimental)"
         
     # capabilities
     has_search_part = True

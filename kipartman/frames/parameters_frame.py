@@ -199,6 +199,9 @@ class ParametersFrame(PanelParameters):
         dlg.Destroy()
         event.Skip()
 
+    def onMenuParameterMerge( self, event ):
+        event.Skip()
+
     def onEditParameterApply( self, event ):
         self.tree_parameters_manager.Load()
 

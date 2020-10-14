@@ -10,7 +10,7 @@ from frames.part_attachements_frame import PartAttachementsFrame
 from frames.part_storages_frame import PartStoragesFrame
 from frames.part_preview_data_frame import PartPreviewDataFrame
 from frames.part_references_frame import PartReferencesFrame
-from frames.search_provider_part_dialog import SelectProviderPartDialog
+from frames.search_provider_part_dialog import SelectProviderPartDialog, EVT_SELECT_PART_OK_EVENT
 from frames.dropdown_frame import DropdownFrame
 from providers.provider import Provider
 from frames.dropdown_menu import DropdownMenu
@@ -296,11 +296,14 @@ class EditPartFrame(PanelEditPart):
         menu = self.menu_search.FindItemById(id)
         if menu is not None:
             provider = Provider.get_provider(menu.ItemLabel)
-            select_part_dialog = SelectProviderPartDialog(self, provider)
-#             dropdown.panel.Bind( EVT_SELECT_OCTOPART_OK_EVENT, self.onSelectOctopartFrameOk )
+            select_part_dialog = SelectProviderPartDialog(self, provider, self.edit_part_name.Value)
+            select_part_dialog.Bind( EVT_SELECT_PART_OK_EVENT, self.onSelectProviderPartFrameOk )
             select_part_dialog.Show()
         event.Skip()
 
+    def onSelectProviderPartFrameOk(self, event):
+        pass
+    
 #     def onButtonOctopartClick( self, event ):
 #         # create an octopart frame
 #         # dropdown frame

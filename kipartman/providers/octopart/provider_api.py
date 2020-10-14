@@ -175,7 +175,7 @@ query_part = f"""{{
   aka_mpns
 }}"""
 
-query_query = f"""{{
+# query_query = f"""{{
 #   attributes: [Attribute!]!
 #   manufacturers(ids: [String!]): [Company!]!
 #   sellers(ids: [String!]): [Company!]!
@@ -213,7 +213,7 @@ query_query = f"""{{
 #     options: PartMatchOptions
 #   ): [PartMatch!]!
 # }
-}}"""
+# }}"""
 
 # type PartCad {
 #   add_to_library_url: String
@@ -349,7 +349,7 @@ query_query = f"""{{
 
 
 class OctopartProvider(Provider):
-    name = "Octopart"
+    name = "Octopart api"
     
     baseurl = "https://octopart.com/api/v4/endpoint"
     
@@ -517,55 +517,55 @@ class OctopartProvider(Provider):
 #   multipack_quantity: Int
 # }
  
-part {
-  id
-  name
-  mpn
-  generic_mpn
-  manufacturer {
-    id
-    name
-    aliases
-    homepage_url
-    slug
-    is_verified
-    is_broker
-    is_distributorapi
-  }
-  manufacturer_url
-  free_sample_url
-  document_collections {
-    name
-    documents {
-      name
-      page_count
-      created_at
-      url
-      credit_string
-      credit_url
-      mime_type
-    }
-  }
-  short_description
-  descriptions {
-    text
-    credit_string
-    credit_url
-  }
-  images {
-    url
-    credit_string
-    credit_url
-  }
-  specs {
-    attribute
-    display_value
-  }
-  slug
-  octopart_url
-  similar_parts {
-      name
-  }
+# part {
+#   id
+#   name
+#   mpn
+#   generic_mpn
+#   manufacturer {
+#     id
+#     name
+#     aliases
+#     homepage_url
+#     slug
+#     is_verified
+#     is_broker
+#     is_distributorapi
+#   }
+#   manufacturer_url
+#   free_sample_url
+#   document_collections {
+#     name
+#     documents {
+#       name
+#       page_count
+#       created_at
+#       url
+#       credit_string
+#       credit_url
+#       mime_type
+#     }
+#   }
+#   short_description
+#   descriptions {
+#     text
+#     credit_string
+#     credit_url
+#   }
+#   images {
+#     url
+#     credit_string
+#     credit_url
+#   }
+#   specs {
+#     attribute
+#     display_value
+#   }
+#   slug
+#   octopart_url
+#   similar_parts {
+#       name
+#   }
 #   companion_products: [SponsoredPart!]!
 #  category: Category
 #   series: PartSeries
@@ -579,25 +579,25 @@ part {
 #   median_price_1000: PricePoint
 #   total_avail: Int!
 #   avg_avail: Float!
-  sellers(include_brokers: true, authorized_only: false) {
-    company {
-      id
-      name
-      aliases
-      homepage_url
-      slug
-      is_verified
-      is_broker
-      is_distributorapi
-    }     
-    offers: [Offer!]!
-    is_authorized
-    is_broker
-    is_rfq
-  }
+#   sellers(include_brokers: true, authorized_only: false) {
+#     company {
+#       id
+#       name
+#       aliases
+#       homepage_url
+#       slug
+#       is_verified
+#       is_broker
+#       is_distributorapi
+#     }     
+#     offers: [Offer!]!
+#     is_authorized
+#     is_broker
+#     is_rfq
+#   }
 #   estimated_factory_lead_days: Int
 #   aka_mpns: [String!]!
-}
+# }
 # 
 # type PartCad {
 #   add_to_library_url: String

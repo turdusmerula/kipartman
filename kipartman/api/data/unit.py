@@ -26,7 +26,18 @@ class FilterSearchUnit(Filter):
         return request.filter(name=self.name)
 
     def __str__(self):
-        return f"search: {self.text}"
+        return f"search: {self.name}"
+
+class FilterSearchSymbol(Filter):
+    def __init__(self, symbol):
+        self.symbol = symbol
+        super(FilterSearchSymbol, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(symbol=self.symbol)
+
+    def __str__(self):
+        return f"search: {self.symbol}"
 
 def find(filters=[]):
     request = Unit.objects
@@ -35,3 +46,12 @@ def find(filters=[]):
         request = filter.apply(request)
     
     return request.order_by('id').all()
+
+def create():
+    return Unit()
+
+def save(unit):
+    unit.save()
+
+def delete(unit):
+    unit.delete()

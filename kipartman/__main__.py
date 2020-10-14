@@ -74,10 +74,12 @@ def main(args=None):
     app = wx.App()
     
     # register providers
-    from providers.mouser.provider import MouserProvider
-    MouserProvider.register()
-    from providers.octopart.provider_scrap import OctopartProvider
-    OctopartProvider.register()
+    import providers.mouser.provider
+    providers.mouser.provider.MouserProvider.register()
+    import providers.octopart.provider_scrap
+    providers.octopart.provider_scrap.OctopartProvider.register()
+    import providers.octopart.provider_api
+    providers.octopart.provider_api.OctopartProvider.register()
     
     global dialog_main
     dialog_main = MainFrame(None)    
