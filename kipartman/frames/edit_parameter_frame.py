@@ -4,6 +4,7 @@ from frames.select_unit_frame import SelectUnitFrame
 import wx
 from helper.exception import print_stack
 import api.data.unit
+import api.data.parameter_alias
 import helper.colors as colors
 
 EditParameterApplyEvent, EVT_EDIT_PARAMETER_APPLY_EVENT = wx.lib.newevent.NewEvent()
@@ -19,6 +20,7 @@ class EditParameterFrame(PanelEditParameter):
         super(EditParameterFrame, self).__init__(parent)
 
         self._unit = None
+        self._alias = []
         
         # set initial state
         self.SetParameter(None)
@@ -27,21 +29,21 @@ class EditParameterFrame(PanelEditParameter):
 
     def SetParameter(self, parameter):
         self.parameter = parameter
-        if parameter is None:
-            self._unit = None
-        else:
+        self._unit = None
+        self._alias = []
+        if parameter is not None:
             self._unit = parameter.unit
-        
+
         self._show_parameter(parameter)
         self._enable(False)
         self._check()
 
     def EditParameter(self, parameter):
         self.parameter = parameter
-        if parameter is None:
-            self._unit = None
-        else:
-            self._unit = parameter.unit
+        self._unit = parameter.unit
+        self._alias = []
+        for alias in parameter.alias.all():
+            self._alias.append(alias.name)
         
         self._show_parameter(parameter)
         self._enable(True)
@@ -50,6 +52,7 @@ class EditParameterFrame(PanelEditParameter):
     def AddParameter(self):
         self.parameter = None
         self._unit = None
+        self._alias = []
         
         self._show_parameter(self.parameter)
         self._enable(True)
@@ -59,6 +62,11 @@ class EditParameterFrame(PanelEditParameter):
         # enable everything else
         if parameter is not None:
             self.edit_parameter_name.Value = parameter.name
+            
+            self.combo_parameter_alias.Clear()
+            for alias in self._alias:
+                self.combo_parameter_alias.Append(alias)
+
             self.edit_parameter_description.Value = parameter.description
             
             if parameter.numeric:
@@ -78,6 +86,7 @@ class EditParameterFrame(PanelEditParameter):
                 self.button_search_unit.Label = "<none>"
         else:
             self.edit_parameter_name.Value = ""
+            self.combo_parameter_alias.Clear()
             self.edit_parameter_description.Value = ""
             self.radio_choice_parameter_numeric.SetValue(True)
             self.button_search_unit.Label = "<none>"
@@ -87,6 +96,10 @@ class EditParameterFrame(PanelEditParameter):
  
     def _enable(self, enabled=True):
         self.edit_parameter_name.Enabled = enabled
+        self.combo_parameter_alias.Enable = enabled
+        self.combo_parameter_alias.SetEditable(enabled)
+        self.button_parameter_alias_add.Enable = enabled
+        self.button_parameter_alias_remove.Enable = enabled
         self.edit_parameter_description.Enabled = enabled
         self.radio_choice_parameter_numeric.Enabled = enabled
         self.radio_choice_parameter_text.Enabled = enabled
@@ -104,20 +117,54 @@ class EditParameterFrame(PanelEditParameter):
         else:
             self.edit_parameter_name.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
         
+        if self.combo_parameter_alias.Value=="":
+            self.button_parameter_alias_add.Enabled = False
+            self.button_parameter_alias_remove.Enabled = False
+        else:
+            self.button_parameter_alias_add.Enabled = self.button_parameter_editCancel.Enabled
+            self.button_parameter_alias_remove.Enabled = self.button_parameter_editCancel.Enabled
+            
+            if self.combo_parameter_alias.Value in self._alias:
+                self.button_parameter_alias_add.Enabled = False
+            if self.combo_parameter_alias.Value not in self._alias:
+                self.button_parameter_alias_remove.Enabled = False
+            
         if error:
             self.button_parameter_editApply.Enabled = False
         else:
             self.button_parameter_editApply.Enabled = self.button_parameter_editCancel.Enabled
 
     def onButtonPartParameterEditApply( self, event ):
-        if self.parameter is None and len(api.data.parameter.find([api.data.parameter.FilterSearchParameter(self.edit_parameter_name.Value)]).all())>0:
-            raise KicadParameterFrameException(f"parameter '{self.edit_parameter_name.Value}' already exists")
         
         try:
+            if self.parameter is None and len(api.data.parameter.find([api.data.parameter.FilterSearchParameter(self.edit_parameter_name.Value)]).all())>0:
+                raise KicadParameterFrameException(f"parameter '{self.edit_parameter_name.Value}' already exists")
+
             if self.parameter is None:
                 self.parameter = api.data.parameter.create()
             
             self.parameter.name = self.edit_parameter_name.Value
+            
+            for alias in self.parameter.alias.all():
+                if alias.name not in self._alias:
+                    self.parameter.alias.remove_pending(alias)
+            for alias in self._alias:
+                parameter_alias = api.data.parameter_alias.create()
+                parameter_alias.name = alias
+                
+                # check if alias must be add
+                found = False
+                for a in self.parameter.alias.all():
+                    if alias==a.name:
+                        found = True
+                
+                if found==False:
+                    if len(api.data.parameter_alias.find([api.data.parameter_alias.FilterName(alias)]))>0:
+                        raise KicadParameterFrameException(f"parameter '{alias}' already exists")
+                    if len(api.data.parameter.find([api.data.parameter.FilterName(alias)]))>0: 
+                        raise KicadParameterFrameException(f"parameter '{alias}' already exists")
+                    self.parameter.alias.add_pending(parameter_alias)
+                
             self.parameter.description = self.edit_parameter_description.Value
             
             self.parameter.unit = self._unit
@@ -132,7 +179,7 @@ class EditParameterFrame(PanelEditParameter):
             wx.PostEvent(self, EditParameterApplyEvent(data=self.parameter))
         except Exception as e:
             print_stack()
-            wx.MessageBox(format(e), 'Error renaming library', wx.OK | wx.ICON_ERROR)
+            wx.MessageBox(format(e), 'Error saving parameter', wx.OK | wx.ICON_ERROR)
 
         event.Skip()
 
@@ -142,6 +189,25 @@ class EditParameterFrame(PanelEditParameter):
 
     def onTextEditParameterName( self, event ):
         self._check()
+        event.Skip()
+
+    def onComboParameterAliasChange( self, event ):
+        self._check()
+        event.Skip()
+
+    def onButtonParameterAliasAddClick( self, event ):
+        self._alias.append(self.combo_parameter_alias.Value)
+        self.combo_parameter_alias.Clear()
+        for alias in self._alias:
+            self.combo_parameter_alias.Append(alias)
+        
+        event.Skip()
+
+    def onButtonParameterAliasRemoveClick( self, event ):
+        self._alias.remove(self.combo_parameter_alias.Value)
+        self.combo_parameter_alias.Clear()
+        for alias in self._alias:
+            self.combo_parameter_alias.Append(alias)
         event.Skip()
 
     def onTextEditParameterDescription( self, event ):

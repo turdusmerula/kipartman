@@ -1,9 +1,11 @@
 from dialogs.panel_parameters import PanelParameters
 import frames.edit_parameter_frame
+from frames.merge_parameters_dialog import MergeParametersDialog, EVT_SELECT_PARAMETER_OK_EVENT
 import wx
 import helper.filter
 from helper.exception import print_stack
 import api.data.parameter
+import api.data.part
 
 class Parameter(helper.tree.TreeItem):
     def __init__(self, parameter):
@@ -92,6 +94,8 @@ class ParametersFrame(PanelParameters):
         self.splitter_vert.SplitVertically( self.panel_parameter_list, self.panel_edit_parameter)
         self.panel_right.Hide()
 
+        self.tree_parameters_manager.Clear()
+        
     @property
     def Filters(self):
         return self._filters
@@ -129,33 +133,44 @@ class ParametersFrame(PanelParameters):
         event.Skip()
 
     def onTreeParametersSelectionChanged( self, event ):
-        item = self.tree_parameters.GetSelection()
-        if item.IsOk()==False:
-            return
-        obj = self.tree_parameters_manager.ItemToObject(item)
-        if isinstance(obj, Parameter):
-            self.panel_edit_parameter.SetParameter(obj.parameter)
+        items = self.tree_parameters.GetSelections()
+        if len(items)==1:
+            item = items[0]
+            if item.IsOk()==False:
+                return
+            obj = self.tree_parameters_manager.ItemToObject(item)
+            if isinstance(obj, Parameter):
+                self.panel_edit_parameter.SetParameter(obj.parameter)
+            else:
+                self.panel_edit_parameter.SetParameter(None)
         else:
             self.panel_edit_parameter.SetParameter(None)
+            
         event.Skip()
 
     def onTreeParametersBeforeContextMenu( self, event ):
-        item = self.tree_parameters.GetSelection()
+        items = self.tree_parameters.GetSelections()
  
         self.menu_parameter_add.Enable(True)
         self.menu_parameter_duplicate.Enable(False)
         self.menu_parameter_remove.Enable(False)
         self.menu_parameter_edit.Enable(False)
+        self.menu_parameter_merge.Enable(False)
 
-        if item.IsOk()==False:
-            return 
-        obj = self.tree_parameters_manager.ItemToObject(item)
-
-        if isinstance(obj, Parameter):
-            self.menu_parameter_duplicate.Enable(True)
+        if len(items)==1:
+            item = items[0]
+            if item.IsOk()==False:
+                return 
+            obj = self.tree_parameters_manager.ItemToObject(item)
+    
+            if isinstance(obj, Parameter):
+                self.menu_parameter_duplicate.Enable(True)
+                self.menu_parameter_remove.Enable(True)
+                self.menu_parameter_edit.Enable(True)
+        elif len(items)>1:
             self.menu_parameter_remove.Enable(True)
-            self.menu_parameter_edit.Enable(True)
-
+            self.menu_parameter_merge.Enable(True)
+            
     def onMenuParameterAdd( self, event ):
         self.AddParameter()
         event.Skip()
@@ -175,32 +190,67 @@ class ParametersFrame(PanelParameters):
         event.Skip()
 
     def onMenuParameterRemove( self, event ):
-        item = self.tree_parameters.GetSelection()
-        if item.IsOk()==False:
-            return
-        obj = self.tree_parameters_manager.ItemToObject(item)
-         
-        associated_parts = api.data.part.find([api.data.part.FilterParameter(obj.parameter)])
-        if len(associated_parts.all())>0:
-            dlg = wx.MessageDialog(self, f"There is {len(associated_parts.all())} parts associated with selection, remove anyway?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
-        else:
-            dlg = wx.MessageDialog(self, f"Remove selection?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
-        if dlg.ShowModal()==wx.ID_YES:
-            try:
-                api.data.parameter.delete(obj.parameter)
-            except Exception as e:
-                print_stack()
-                wx.MessageBox(format(e), f"Error removing parameter '{obj.parameter.name}'", wx.OK | wx.ICON_ERROR)
-                dlg.Destroy()
+        items = self.tree_parameters.GetSelections()
+        for item in items:
+            if item.IsOk()==False:
                 return
+            obj = self.tree_parameters_manager.ItemToObject(item)
+             
+            associated_parts = api.data.part.find([api.data.part.FilterParameter(obj.parameter)])
+            if len(associated_parts.all())>0:
+                dlg = wx.MessageDialog(self, f"There is {len(associated_parts.all())} parts associated with parameter '{obj.parameter.name}', remove anyway?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
+            else:
+                dlg = wx.MessageDialog(self, f"Remove selection?", 'Remove', wx.YES_NO | wx.ICON_EXCLAMATION)
+            if dlg.ShowModal()==wx.ID_YES:
+                try:
+                    api.data.parameter.delete(obj.parameter)
+                except Exception as e:
+                    print_stack()
+                    wx.MessageBox(format(e), f"Error removing parameter '{obj.parameter.name}'", wx.OK | wx.ICON_ERROR)
+                    dlg.Destroy()
+                    return
  
-            self.tree_parameters_manager.Load()
+        self.tree_parameters_manager.Load()
  
         dlg.Destroy()
         event.Skip()
 
     def onMenuParameterMerge( self, event ):
+        items = self.tree_parameters.GetSelections()
+        parameters = []
+        for item in items:
+            obj = self.tree_parameters_manager.ItemToObject(item)
+            parameters.append(obj.parameter)
+        merge_dialog = MergeParametersDialog(self, parameters)
+        merge_dialog.Bind( EVT_SELECT_PARAMETER_OK_EVENT, self.onMergeParameterCallback )
+        merge_dialog.ShowModal()
+        
         event.Skip()
+    
+    def onMergeParameterCallback(self, event):
+        items = self.tree_parameters.GetSelections()
+        parameters = []
+        merge_parameter = event.data
+        for item in items:
+            obj = self.tree_parameters_manager.ItemToObject(item)
+            if obj.parameter.name!=merge_parameter.name:
+                parameters.append(obj.parameter)
+        
+        for parameter in parameters:
+            # merge part_parameters
+            associated_part_parameters = api.data.part_parameter.find([api.data.part_parameter.FilterParameter(parameter)])
+            for part_parameter in associated_part_parameters.all():
+                part_parameter.parameter = merge_parameter
+                part_parameter.save()
+            # add merged parameter as alias
+            parameter_alias = api.data.parameter_alias.create()
+            parameter_alias.name = parameter.name
+            merge_parameter.alias.add_pending(parameter_alias)
+            # remove merged parameters
+            parameter.delete()
+        merge_parameter.save()
+        
+        self.tree_parameters_manager.Load()
 
     def onEditParameterApply( self, event ):
         self.tree_parameters_manager.Load()

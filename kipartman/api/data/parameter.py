@@ -29,6 +29,14 @@ class FilterSearchParameter(Filter):
     def __str__(self):
         return f"search: {self.text}"
 
+class FilterName(Filter):
+    def __init__(self, name):
+        self.name = name
+        super(FilterName, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(name=self.name)
+
 def _add_default_annotations(request):
     # add the field child_count in request result 
     request = request.select_related('unit') # preload for performance

@@ -55,7 +55,7 @@ class PanelParameters ( wx.Panel ):
 
 		bSizer2.Add( bSizer61, 0, wx.ALIGN_RIGHT, 5 )
 
-		self.tree_parameters = wx.dataview.DataViewCtrl( self.panel_parameter_list, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.tree_parameters = wx.dataview.DataViewCtrl( self.panel_parameter_list, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_MULTIPLE )
 		bSizer2.Add( self.tree_parameters, 1, wx.EXPAND|wx.BOTTOM|wx.RIGHT|wx.LEFT, 5 )
 
 
@@ -75,12 +75,12 @@ class PanelParameters ( wx.Panel ):
 		self.menu_parameter_edit.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_parameter.Append( self.menu_parameter_edit )
 
-		self.menu_parameter_remove = wx.MenuItem( self.menu_parameter, wx.ID_ANY, u"Remove parameter", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parameter_remove = wx.MenuItem( self.menu_parameter, wx.ID_ANY, u"Remove parameter(s)", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_parameter_remove.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_parameter.Append( self.menu_parameter_remove )
 
 		self.menu_parameter_merge = wx.MenuItem( self.menu_parameter, wx.ID_ANY, u"Merge parameters", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_parameter_merge.SetBitmap( wx.Bitmap( u"resources/remove.png", wx.BITMAP_TYPE_ANY ) )
+		self.menu_parameter_merge.SetBitmap( wx.Bitmap( u"resources/edit.png", wx.BITMAP_TYPE_ANY ) )
 		self.menu_parameter.Append( self.menu_parameter_merge )
 
 		self.panel_parameter_list.Bind( wx.EVT_RIGHT_DOWN, self.panel_parameter_listOnContextMenu )

@@ -148,6 +148,7 @@ class Parameter(models.Model):
     description = models.TextField(blank=True)
     unit = models.ForeignKey('Unit', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     numeric = models.BooleanField()
+    #alias is defined inside ParameterAlias by ForeignKey parameter
     updated = models.DateTimeField(auto_now=True)
 
 class ParameterAlias(models.Model):
