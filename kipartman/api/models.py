@@ -7,6 +7,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 import copy
 from django.utils.translation import gettext_lazy as _
 import helper.django
+from enum import Enum
 
 
 class PartValueField(models.TextField):
@@ -143,11 +144,16 @@ class PartAttachement(models.Model):
     def __unicode__(self):
         return '%d: %d %s' % (self.part.pk, self.file.pk, self.description)
 
+class ParameterType():
+    INTEGER = "integer"
+    FLOAT = "float"
+    TEXT = "text"
+    
 class Parameter(models.Model):
     name = models.TextField()
     description = models.TextField(blank=True)
     unit = models.ForeignKey('Unit', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    numeric = models.BooleanField()
+    value_type = models.TextField()
     #alias is defined inside ParameterAlias by ForeignKey parameter
     updated = models.DateTimeField(auto_now=True)
 

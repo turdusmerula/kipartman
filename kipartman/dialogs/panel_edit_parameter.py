@@ -83,10 +83,15 @@ class PanelEditParameter ( wx.Panel ):
 
 		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.radio_choice_parameter_numeric = wx.RadioButton( self, wx.ID_ANY, u"Numeric", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.radio_choice_parameter_numeric.Enable( False )
+		self.radio_choice_parameter_integer = wx.RadioButton( self, wx.ID_ANY, u"Integer", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.radio_choice_parameter_integer.Enable( False )
 
-		bSizer6.Add( self.radio_choice_parameter_numeric, 0, wx.ALL, 5 )
+		bSizer6.Add( self.radio_choice_parameter_integer, 0, wx.ALL, 5 )
+
+		self.radio_choice_parameter_float = wx.RadioButton( self, wx.ID_ANY, u"Float", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.radio_choice_parameter_float.Enable( False )
+
+		bSizer6.Add( self.radio_choice_parameter_float, 0, wx.ALL, 5 )
 
 		self.radio_choice_parameter_text = wx.RadioButton( self, wx.ID_ANY, u"Text", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.radio_choice_parameter_text.Enable( False )
@@ -138,8 +143,6 @@ class PanelEditParameter ( wx.Panel ):
 		self.button_parameter_alias_add.Bind( wx.EVT_BUTTON, self.onButtonParameterAliasAddClick )
 		self.button_parameter_alias_remove.Bind( wx.EVT_BUTTON, self.onButtonParameterAliasRemoveClick )
 		self.edit_parameter_description.Bind( wx.EVT_TEXT, self.onTextEditParameterDescription )
-		self.radio_choice_parameter_numeric.Bind( wx.EVT_RADIOBUTTON, self.onRadioNumeric )
-		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioText )
 		self.button_search_unit.Bind( wx.EVT_BUTTON, self.onButtonSearchUnitClick )
 		self.button_remove_unit.Bind( wx.EVT_BUTTON, self.onButtonRemoveUnitClick )
 		self.button_parameter_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartParameterEditApply )
@@ -163,12 +166,6 @@ class PanelEditParameter ( wx.Panel ):
 		event.Skip()
 
 	def onTextEditParameterDescription( self, event ):
-		event.Skip()
-
-	def onRadioNumeric( self, event ):
-		event.Skip()
-
-	def onRadioText( self, event ):
 		event.Skip()
 
 	def onButtonSearchUnitClick( self, event ):

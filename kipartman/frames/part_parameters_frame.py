@@ -56,7 +56,7 @@ class PartParametersFrame(PanelPartParameters):
             self.menu_parameter_remove_parameter.Enable(False)
         
     def onMenuParameterAddParameter( self, event ):
-        EditPartParameterFrame(self).AddParameter(self.part)
+        EditPartParameterFrame(self).AddPartParameter(self.part)
         self.tree_parameters_manager.Load()
         
     def onMenuParameterEditParameter( self, event ):
@@ -65,7 +65,7 @@ class PartParametersFrame(PanelPartParameters):
             return
         part_parameterobj = self.tree_parameters_manager.ItemToObject(item)
 
-        EditPartParameterFrame(self).EditParameter(self.part, part_parameterobj.part_parameter)
+        EditPartParameterFrame(self).EditPartParameter(self.part, part_parameterobj.part_parameter)
         self.tree_parameters_manager.Load()
 
     def onMenuParameterRemoveParameter( self, event ):

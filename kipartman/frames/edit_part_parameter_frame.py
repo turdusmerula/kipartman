@@ -25,7 +25,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
             choices.append(prefix.symbol+"  "+prefix.name+" ("+prefix.power+")")
         self.choice_numeric_value_prefix.SetItems(choices)
     
-    def AddParameter(self, part):
+    def AddPartParameter(self, part):
         self.part = part        
         self.part_parameter = api.data.part_parameter.create(self.part)
         
@@ -37,7 +37,8 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.button_parameter_description.Label = ""
         self.button_parameter_unit.Label = ""
         self.choice_numeric_value_prefix.SetSelection(0)
-
+        
+        self._show_parameter()
         self._check()
         
         result = self.ShowModal()
@@ -45,7 +46,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
             return self.part_parameter
         return None
 
-    def EditParameter(self, part, part_parameter):
+    def EditPartParameter(self, part, part_parameter):
         self.part = part
         self.part_parameter = part_parameter
 
@@ -53,41 +54,73 @@ class EditPartParameterFrame(DialogEditPartParameter):
 
         self.button_search_parameter.Label = part_parameter.parameter.name
         self.button_parameter_description.Label = part_parameter.parameter.description
-        
-        if part_parameter.parameter.unit is not None:
-            self.button_parameter_unit.Label = f"{part_parameter.parameter.unit.name} ({part_parameter.parameter.unit.symbol})"
-        else:
-            self.button_parameter_unit.Label = ""
-            
-        if part_parameter.parameter.numeric==True:
-            self.onRadioNumeric(None)
-            self.radio_choice_parameter_numeric.SetValue(True)
-        else:
-            self.onRadioText(None)
-            self.radio_choice_parameter_text.SetValue(True)
-
+                    
         if part_parameter.text_value is not None:
             self.edit_text_value.Value = part_parameter.text_value
 
-        if part_parameter.value is not None:
+        if part_parameter.value is not None and self.part_parameter.parameter.value_type==api.models.ParameterType.FLOAT:
             self.edit_numeric_value.Value = str(part_parameter.value) 
+        elif part_parameter.value is not None and self.part_parameter.parameter.value_type==api.models.ParameterType.INTEGER:
+            self.edit_numeric_value.Value = str(int(part_parameter.value)) 
+        
         if part_parameter.prefix is not None:
             self.choice_numeric_value_prefix.SetSelection(part_parameter.prefix.id)
         else:
             self.choice_numeric_value_prefix.SetSelection(0)
             
-        if part_parameter.parameter.unit is not None and part_parameter.parameter.unit.prefixable:
-            self.choice_numeric_value_prefix.Show()
-        else:
-            self.choice_numeric_value_prefix.Hide()
-            
+        self._show_parameter()
         self._check()
-            
+        
         result = self.ShowModal()
         if result==wx.ID_OK:
             return self.part_parameter
         return None
 
+    def _show_parameter(self):
+        if self.part_parameter.parameter.unit is not None:
+            self.button_parameter_unit.Label = f"{self.part_parameter.parameter.unit.name} ({self.part_parameter.parameter.unit.symbol})"
+        else:
+            self.button_parameter_unit.Label = ""
+            
+        if self.part_parameter.parameter.value_type==api.models.ParameterType.FLOAT:
+            self.static_text_value.Hide()
+            self.edit_text_value.Hide()
+            
+            self.static_numeric_value.Show()
+            self.edit_numeric_value.Show()
+            if self.part_parameter.parameter_id is not None and self.part_parameter.parameter.unit is not None and self.part_parameter.parameter.unit.prefixable:
+                self.choice_numeric_value_prefix.Show()
+            else:
+                self.choice_numeric_value_prefix.Hide()
+            self.show_numeric_value.Show()            
+            self.radio_choice_parameter_float.SetValue(True)
+        elif self.part_parameter.parameter.value_type==api.models.ParameterType.INTEGER:
+            self.static_text_value.Hide()
+            self.edit_text_value.Hide()
+            
+            self.static_numeric_value.Show()
+            self.edit_numeric_value.Show()
+            self.choice_numeric_value_prefix.Hide()
+            self.show_numeric_value.Show()
+            self.radio_choice_parameter_integer.SetValue(True)
+        else:
+            self.static_text_value.Show()
+            self.edit_text_value.Show()
+            
+            self.static_numeric_value.Hide()
+            self.edit_numeric_value.Hide()
+            self.choice_numeric_value_prefix.Hide()
+            self.show_numeric_value.Hide()
+            self.radio_choice_parameter_text.SetValue(True)
+        
+        self.Layout()
+
+                
+#         if self.part_parameter.parameter.unit is not None and self.part_parameter.parameter.unit.prefixable:
+#             self.choice_numeric_value_prefix.Show()
+#         else:
+#             self.choice_numeric_value_prefix.Hide()
+    
     def _check(self):
         error = False
         
@@ -146,36 +179,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
             return 
 
         self.EndModal(wx.ID_OK)
-    
-    def onRadioNumeric( self, event ):
-        self.static_text_value.Hide()
-        self.edit_text_value.Hide()
-        
-        self.static_numeric_value.Show()
-        self.edit_numeric_value.Show()
-        if self.part_parameter.parameter_id is not None and self.part_parameter.parameter.unit is not None and self.part_parameter.parameter.unit.prefixable:
-            self.choice_numeric_value_prefix.Show()
-        else:
-            self.choice_numeric_value_prefix.Hide()
-        self.show_numeric_value.Show()
-        
-        self.Layout()
-        
-        self._check()
-        
-    def onRadioText( self, event ):
-        self.static_text_value.Show()
-        self.edit_text_value.Show()
-        
-        self.static_numeric_value.Hide()
-        self.edit_numeric_value.Hide()
-        self.choice_numeric_value_prefix.Hide()
-        self.show_numeric_value.Hide()
-
-        self.Layout()
-        
-        self._check()
-        
+            
     def onButtonSearchParameterClick( self, event ):
         frame = DropdownDialog(self, SelectParameterFrame, "")
         frame.DropHere(self.onSelectParameterFrameOk)
@@ -207,12 +211,21 @@ class EditPartParameterFrame(DialogEditPartParameter):
     def onNumericValueChanged( self, event ):
         try:
             num, prefix, unit = helper.unit.cut_unit_value(self.edit_numeric_value.Value)
-            v = helper.unit.expand_prefix(float(num), prefix)
 
-            if self.choice_numeric_value_prefix.GetSelection()<=0:
-                self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol)
+            if self.part_parameter.parameter.value_type==api.models.ParameterType.FLOAT:
+                v = helper.unit.expand_prefix(float(num), prefix)
+            elif self.part_parameter.parameter.value_type==api.models.ParameterType.INTEGER:
+                v = int(num)
+            
+
+            if self.part_parameter.parameter.unit is not None:
+                if self.choice_numeric_value_prefix.GetSelection()<=0:
+                    self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol)
+                else:
+                    self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol, self.prefix_symbol[self.choice_numeric_value_prefix.GetSelection()])
             else:
-                self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol, self.prefix_symbol[self.choice_numeric_value_prefix.GetSelection()])
+                self.show_numeric_value.Value = str(v)
+            
         except:
             self.show_numeric_value.Value = "#error"
             

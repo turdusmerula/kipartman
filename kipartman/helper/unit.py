@@ -72,7 +72,7 @@ def expand_prefix(value, prefix):
         raise UnitException(f"Invalid prefix {prefix}")
     return value*symbol_power[prefix]
 
-def format_float(v):
+def format_float(v, digits=3):
     epsilon = 1e-5  
 
     if v<0:
@@ -86,7 +86,12 @@ def format_float(v):
     if frac<epsilon:
         return str(dec*sign) ;
     else:
-        return "{:.3}".format(v*sign)
+        s = str(int(round(v, 0)))
+        if len(s)<digits:
+            format = f"{{:.{digits-len(s)}f}}"
+            return format.format(v*sign)
+        else:
+            return s
    
 def format_unit_prefix(v, unit='', prefix=None):
     """

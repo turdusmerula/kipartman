@@ -18,12 +18,9 @@ class Parameter(helper.tree.TreeItem):
         elif col==1:
             return self.parameter.description
         elif col==2:
-            if self.parameter.numeric:
-                return "numeric"
-            else:
-                return "text"
+            return self.parameter.value_type
         elif col==3:
-            if self.parameter.numeric and self.parameter.unit is not None:
+            if self.parameter.unit is not None:
                 return self.parameter.unit.name
         return ''
  

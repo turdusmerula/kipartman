@@ -61,20 +61,25 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 		fgSizer1.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
+		bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.radio_choice_parameter_numeric = wx.RadioButton( self, wx.ID_ANY, u"Numeric", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.radio_choice_parameter_numeric.Enable( False )
+		self.radio_choice_parameter_integer = wx.RadioButton( self, wx.ID_ANY, u"Integer", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.radio_choice_parameter_integer.Enable( False )
 
-		bSizer6.Add( self.radio_choice_parameter_numeric, 0, wx.ALL, 5 )
+		bSizer61.Add( self.radio_choice_parameter_integer, 0, wx.ALL, 5 )
+
+		self.radio_choice_parameter_float = wx.RadioButton( self, wx.ID_ANY, u"Float", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.radio_choice_parameter_float.Enable( False )
+
+		bSizer61.Add( self.radio_choice_parameter_float, 0, wx.ALL, 5 )
 
 		self.radio_choice_parameter_text = wx.RadioButton( self, wx.ID_ANY, u"Text", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.radio_choice_parameter_text.Enable( False )
 
-		bSizer6.Add( self.radio_choice_parameter_text, 0, wx.ALL, 5 )
+		bSizer61.Add( self.radio_choice_parameter_text, 0, wx.ALL, 5 )
 
 
-		fgSizer1.Add( bSizer6, 1, wx.EXPAND, 5 )
+		fgSizer1.Add( bSizer61, 1, wx.EXPAND, 5 )
 
 		self.static_text_value = wx.StaticText( self, wx.ID_ANY, u"Value", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.static_text_value.Wrap( -1 )
@@ -127,8 +132,9 @@ class DialogEditPartParameter ( wx.Dialog ):
 		self.button_search_parameter.Bind( wx.EVT_BUTTON, self.onButtonSearchParameterClick )
 		self.button_parameter_description.Bind( wx.EVT_BUTTON, self.onButtonSearchParameterClick )
 		self.button_parameter_unit.Bind( wx.EVT_BUTTON, self.onButtonSearchParameterClick )
-		self.radio_choice_parameter_numeric.Bind( wx.EVT_RADIOBUTTON, self.onRadioNumeric )
-		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioText )
+		self.radio_choice_parameter_integer.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
+		self.radio_choice_parameter_float.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
+		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
 		self.edit_text_value.Bind( wx.EVT_TEXT, self.onTextValueChanged )
 		self.edit_numeric_value.Bind( wx.EVT_TEXT, self.onNumericValueChanged )
 		self.choice_numeric_value_prefix.Bind( wx.EVT_CHOICE, self.onNumericValueChanged )
@@ -145,11 +151,10 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 
 
-	def onRadioNumeric( self, event ):
+	def onRadioValueType( self, event ):
 		event.Skip()
 
-	def onRadioText( self, event ):
-		event.Skip()
+
 
 	def onTextValueChanged( self, event ):
 		event.Skip()

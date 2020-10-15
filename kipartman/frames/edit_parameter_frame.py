@@ -69,8 +69,13 @@ class EditParameterFrame(PanelEditParameter):
 
             self.edit_parameter_description.Value = parameter.description
             
-            if parameter.numeric:
-                self.radio_choice_parameter_numeric.SetValue(True)
+            if parameter.value_type==api.models.ParameterType.INTEGER:
+                self.radio_choice_parameter_integer.SetValue(True)
+                self.static_unit.Show()
+                self.button_search_unit.Show()
+                self.button_remove_unit.Show()
+            elif parameter.value_type==api.models.ParameterType.INTEGER:
+                self.radio_choice_parameter_float.SetValue(True)
                 self.static_unit.Show()
                 self.button_search_unit.Show()
                 self.button_remove_unit.Show()
@@ -88,7 +93,7 @@ class EditParameterFrame(PanelEditParameter):
             self.edit_parameter_name.Value = ""
             self.combo_parameter_alias.Clear()
             self.edit_parameter_description.Value = ""
-            self.radio_choice_parameter_numeric.SetValue(True)
+            self.radio_choice_parameter_float.SetValue(True)
             self.button_search_unit.Label = "<none>"
             self.static_unit.Show()
             self.button_search_unit.Show()
@@ -101,7 +106,8 @@ class EditParameterFrame(PanelEditParameter):
         self.button_parameter_alias_add.Enable = enabled
         self.button_parameter_alias_remove.Enable = enabled
         self.edit_parameter_description.Enabled = enabled
-        self.radio_choice_parameter_numeric.Enabled = enabled
+        self.radio_choice_parameter_float.Enabled = enabled
+        self.radio_choice_parameter_integer.Enabled = enabled
         self.radio_choice_parameter_text.Enabled = enabled
         self.button_search_unit.Enabled = enabled
         self.button_remove_unit.Enabled = enabled
@@ -128,7 +134,7 @@ class EditParameterFrame(PanelEditParameter):
                 self.button_parameter_alias_add.Enabled = False
             if self.combo_parameter_alias.Value not in self._alias:
                 self.button_parameter_alias_remove.Enabled = False
-            
+                    
         if error:
             self.button_parameter_editApply.Enabled = False
         else:
@@ -142,6 +148,7 @@ class EditParameterFrame(PanelEditParameter):
 
             if self.parameter is None:
                 self.parameter = api.data.parameter.create()
+
             
             self.parameter.name = self.edit_parameter_name.Value
             
@@ -169,10 +176,15 @@ class EditParameterFrame(PanelEditParameter):
             
             self.parameter.unit = self._unit
             
-            if self.radio_choice_parameter_numeric.Value:
-                self.parameter.numeric = True
+            if self.radio_choice_parameter_float.Value:
+                self.parameter.value_type = api.models.ParameterType.FLOAT
+            elif self.radio_choice_parameter_integer.Value:
+                self.parameter.value_type = api.models.ParameterType.INTEGER
             else:
-                self.parameter.numeric = False
+                self.parameter.value_type = api.models.ParameterType.TEXT
+                
+            if self.parameter.value_type==api.models.ParameterType.INTEGER and self._unit.prefixable==True:
+                raise KicadParameterFrameException(f"Cannot use a prefixable unit with an integer parameter")
                 
             self.parameter.save()
             
@@ -214,16 +226,13 @@ class EditParameterFrame(PanelEditParameter):
         self._check()
         event.Skip()
 
-    def onRadioNumeric( self, event ):
+    def onRadioValueType( self, event ):
         self._check()
         self.static_unit.Show()
-        self.button_search_unit.Show()
-        event.Skip()
-
-    def onRadioText( self, event ):
-        self._check()
-        self.static_unit.Hide()
-        self.button_search_unit.Hide()
+        if self.radio_choice_parameter_float.Value==True or self.radio_choice_parameter_integer.Value==True:
+            self.button_search_unit.Show()
+        else:
+            self.button_search_unit.Hide()
         event.Skip()
 
     def onButtonSearchUnitClick( self, event ):

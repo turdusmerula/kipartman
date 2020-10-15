@@ -21,7 +21,10 @@ class PartParameter(helper.tree.TreeContainerItem):
         elif col==3:
             return self.part_parameter.parameter.description
         
-        if self.part_parameter.parameter.numeric==True:
+        if self.part_parameter.parameter.value_type==api.models.ParameterType.TEXT:
+            if col==1:
+                return self.part_parameter.text_value
+        else:
             if col==1:
                 if self.part_parameter.value is not None:
                     prefix = None
@@ -29,9 +32,6 @@ class PartParameter(helper.tree.TreeContainerItem):
                         prefix = self.part_parameter.prefix.symbol
                     return format_unit_prefix(self.part_parameter.value, unit_symbol, prefix)
                 return "-"
-        else:
-            if col==1:
-                return self.part_parameter.text_value
             
         return ""
 
