@@ -15,7 +15,10 @@ class EditPartParameterFrame(DialogEditPartParameter):
         
         self.part = None
         self.part_parameter = None
-                
+        
+        self._unit = None
+        self._parameter = None
+        
     def loadPrefixes(self):
         prefixes = api.data.unit_prefix.find()
         choices = ["auto"]
@@ -28,10 +31,10 @@ class EditPartParameterFrame(DialogEditPartParameter):
     def AddPartParameter(self, part):
         self.part = part        
         self.part_parameter = api.data.part_parameter.create(self.part)
+        self._parameter = None
+        self._unit = None
         
         self.Title = "Add parameter"
-
-        self.onRadioNumeric(None)
 
         self.button_search_parameter.Label = "..."
         self.button_parameter_description.Label = ""
@@ -49,7 +52,11 @@ class EditPartParameterFrame(DialogEditPartParameter):
     def EditPartParameter(self, part, part_parameter):
         self.part = part
         self.part_parameter = part_parameter
-
+        self._parameter = part_parameter.parameter
+        self._unit = None
+        if self._parameter is not None:
+            self._unit = part_parameter.parameter.unit
+        
         self.Title = "Edit parameter"
 
         self.button_search_parameter.Label = part_parameter.parameter.name
@@ -77,32 +84,42 @@ class EditPartParameterFrame(DialogEditPartParameter):
         return None
 
     def _show_parameter(self):
-        if self.part_parameter.parameter.unit is not None:
-            self.button_parameter_unit.Label = f"{self.part_parameter.parameter.unit.name} ({self.part_parameter.parameter.unit.symbol})"
-        else:
-            self.button_parameter_unit.Label = ""
-            
-        if self.part_parameter.parameter.value_type==api.models.ParameterType.FLOAT:
-            self.static_text_value.Hide()
-            self.edit_text_value.Hide()
-            
-            self.static_numeric_value.Show()
-            self.edit_numeric_value.Show()
-            if self.part_parameter.parameter_id is not None and self.part_parameter.parameter.unit is not None and self.part_parameter.parameter.unit.prefixable:
-                self.choice_numeric_value_prefix.Show()
+        if self._parameter is not None:
+            if self._unit is not None:
+                self.button_parameter_unit.Label = f"{self._unit.name} ({self._unit.symbol})"
             else:
+                self.button_parameter_unit.Label = ""
+                
+            if self._parameter.value_type==api.models.ParameterType.FLOAT:
+                self.static_text_value.Hide()
+                self.edit_text_value.Hide()
+                
+                self.static_numeric_value.Show()
+                self.edit_numeric_value.Show()
+                if self._unit is not None and self._unit.prefixable:
+                    self.choice_numeric_value_prefix.Show()
+                else:
+                    self.choice_numeric_value_prefix.Hide()
+                self.show_numeric_value.Show()            
+                self.radio_choice_parameter_float.SetValue(True)
+            elif self._parameter.value_type==api.models.ParameterType.INTEGER:
+                self.static_text_value.Hide()
+                self.edit_text_value.Hide()
+                
+                self.static_numeric_value.Show()
+                self.edit_numeric_value.Show()
                 self.choice_numeric_value_prefix.Hide()
-            self.show_numeric_value.Show()            
-            self.radio_choice_parameter_float.SetValue(True)
-        elif self.part_parameter.parameter.value_type==api.models.ParameterType.INTEGER:
-            self.static_text_value.Hide()
-            self.edit_text_value.Hide()
-            
-            self.static_numeric_value.Show()
-            self.edit_numeric_value.Show()
-            self.choice_numeric_value_prefix.Hide()
-            self.show_numeric_value.Show()
-            self.radio_choice_parameter_integer.SetValue(True)
+                self.show_numeric_value.Show()
+                self.radio_choice_parameter_integer.SetValue(True)
+            else:
+                self.static_text_value.Show()
+                self.edit_text_value.Show()
+                
+                self.static_numeric_value.Hide()
+                self.edit_numeric_value.Hide()
+                self.choice_numeric_value_prefix.Hide()
+                self.show_numeric_value.Hide()
+                self.radio_choice_parameter_text.SetValue(True)
         else:
             self.static_text_value.Show()
             self.edit_text_value.Show()
@@ -112,14 +129,8 @@ class EditPartParameterFrame(DialogEditPartParameter):
             self.choice_numeric_value_prefix.Hide()
             self.show_numeric_value.Hide()
             self.radio_choice_parameter_text.SetValue(True)
-        
+            
         self.Layout()
-
-                
-#         if self.part_parameter.parameter.unit is not None and self.part_parameter.parameter.unit.prefixable:
-#             self.choice_numeric_value_prefix.Show()
-#         else:
-#             self.choice_numeric_value_prefix.Hide()
     
     def _check(self):
         error = False
@@ -143,15 +154,36 @@ class EditPartParameterFrame(DialogEditPartParameter):
         else:
             self.button_part_editApply.Enabled = True
 
+    def _show_numeric_value(self):
+        try:
+            num, prefix, unit = helper.unit.cut_unit_value(self.edit_numeric_value.Value)
+
+            if self._parameter.value_type==api.models.ParameterType.FLOAT:
+                v = helper.unit.expand_prefix(float(num), prefix)
+            elif self._parameter.value_type==api.models.ParameterType.INTEGER:
+                v = int(num)
+            
+            if self._unit is not None:
+                if self.choice_numeric_value_prefix.GetSelection()<=0:
+                    self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self._unit.symbol)
+                else:
+                    self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self._unit.symbol, self.prefix_symbol[self.choice_numeric_value_prefix.GetSelection()])
+            else:
+                self.show_numeric_value.Value = str(v)
+            
+        except:
+            self.show_numeric_value.Value = "#error"
+        
     def onButtonPartParameterEditApply( self, event ):
-        if self.part_parameter.parameter is None:
-            raise ValueError('No parameter selected')
 
         try:
-            if self.radio_choice_parameter_numeric.Value==True:
+            if self._parameter is None:
+                raise ValueError('No parameter selected')
+
+            if self.radio_choice_parameter_float.Value==True or self.radio_choice_parameter_integer.Value==True:
                 self.part_parameter.text_value = None
 
-                if self.part_parameter.parameter.unit_id is not None and self.part_parameter.parameter.unit.prefixable:
+                if self._parameter.unit_id is not None and self._parameter.unit.prefixable:
                     if self.choice_numeric_value_prefix.GetSelection()==0:
                         self.part_parameter.prefix = None
                     else:
@@ -166,9 +198,11 @@ class EditPartParameterFrame(DialogEditPartParameter):
                 self.part_parameter.text_value = self.edit_text_value.Value
                 self.part_parameter.value = None
                 self.part_parameter.prefix = None
-            
-            if self.part_parameter.id is None:
-                self.part.parameters.add_pending(self.part_parameter)
+
+            self._parameter.unit = self._unit            
+            self.part_parameter.parameter = self._parameter
+
+            self.part.parameters.add_pending(self.part_parameter)
         except ValueError as e:
             print_stack()
             wx.MessageBox(format(e), 'Error', wx.OK | wx.ICON_ERROR)
@@ -185,23 +219,14 @@ class EditPartParameterFrame(DialogEditPartParameter):
         frame.DropHere(self.onSelectParameterFrameOk)
     
     def onSelectParameterFrameOk(self, parameter):
-        self.part_parameter.parameter = parameter
+        self._parameter = parameter
+        self._unit = parameter.unit
         
         self.button_search_parameter.Label = parameter.name
         self.button_parameter_description.Label = parameter.description
         
-        if parameter.numeric:
-            self.radio_choice_parameter_numeric.SetValue(True)
-            self.onRadioNumeric(None)
-        else:
-            self.radio_choice_parameter_text.SetValue(True)
-            self.onRadioText(None)
-            
-        if parameter.unit is not None:
-            self.button_parameter_unit.Label = f"{parameter.unit.name} ({parameter.unit.symbol})"
-        else:
-            self.button_parameter_unit.Label = f""
-            
+        self._show_parameter()
+        self._show_numeric_value()
         self._check()
 
     def onTextValueChanged( self, event ):
@@ -209,24 +234,5 @@ class EditPartParameterFrame(DialogEditPartParameter):
         event.Skip()
 
     def onNumericValueChanged( self, event ):
-        try:
-            num, prefix, unit = helper.unit.cut_unit_value(self.edit_numeric_value.Value)
-
-            if self.part_parameter.parameter.value_type==api.models.ParameterType.FLOAT:
-                v = helper.unit.expand_prefix(float(num), prefix)
-            elif self.part_parameter.parameter.value_type==api.models.ParameterType.INTEGER:
-                v = int(num)
-            
-
-            if self.part_parameter.parameter.unit is not None:
-                if self.choice_numeric_value_prefix.GetSelection()<=0:
-                    self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol)
-                else:
-                    self.show_numeric_value.Value = helper.unit.format_unit_prefix(v, self.part_parameter.parameter.unit.symbol, self.prefix_symbol[self.choice_numeric_value_prefix.GetSelection()])
-            else:
-                self.show_numeric_value.Value = str(v)
-            
-        except:
-            self.show_numeric_value.Value = "#error"
-            
+        self._show_numeric_value()
         event.Skip()

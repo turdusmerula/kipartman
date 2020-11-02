@@ -95,7 +95,7 @@ class EditManufacturerFrame(PanelEditManufacturer):
         event.Skip()
 
     def onApplyButtonClick( self, event ):
-        if self.manufacturer is None and len(api.data.manufacturer.find([api.data.manufacturer.FilterSearchManufacturer(self.edit_manufacturer_name.Value)]).all())>0:
+        if self.manufacturer is None and len(api.data.manufacturer.find([api.data.manufacturer.FilterName(self.edit_manufacturer_name.Value)]).all())>0:
             raise KicadManufacturerFrameException(f"manufacturer '{self.edit_manufacturer_name.Value}' already exists")
         
         try:

@@ -22,7 +22,7 @@ def read(*names, **kwargs):
 
 setup(
     name='kipartman',
-    version='0.6.2',
+    version='2.0.0-a',
     description='Kicad part manager',
 #     long_description='%s\n%s' %
 #     (re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub(
@@ -52,26 +52,19 @@ setup(
 
     install_requires=[
          'wxPython',
-         'cfscrape',
-         'docutils',
-         'asyncio',
+#          'docutils',
+#          'asyncio',
          'pathlib2',
-         'pycairo',
+         'pycairo',     # to draw components
          'conan',
-         'pyrfc3339',
-#         # for kipart base
-         'connexion',
          'python_dateutil',
-         'django',
-         'django-mptt',
-         'watchdog',
+         'django-mptt', # tree management for django
+         'watchdog',    # watch for file change
          'numpy',
-         'sqlalchemy',
          'setuptools',
-         'werkzeug==0.16.1',
-         'connexion[swagger-ui]',
          'profiling',
-          'beautifulsoup4'
+         'cfscrape',        # web scrapper
+         'beautifulsoup4'   # html parser
     ],
 )
 

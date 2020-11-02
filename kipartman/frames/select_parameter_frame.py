@@ -15,11 +15,6 @@ class Parameter(helper.tree.TreeItem):
             return ""
         return self.parameter.unit.name+" ("+self.parameter.unit.symbol+")"
 
-    def numeric(self):
-        if self.parameter.numeric:
-            return "true"
-        return "false"
-
     def GetValue(self, col):
         if col==0:
             return self.parameter.name
@@ -28,7 +23,7 @@ class Parameter(helper.tree.TreeItem):
         elif col==2:
             return self.unit_string()
         elif col==3:
-            return self.numeric()
+            return self.parameter.value_type
 
         return ""
 
@@ -40,7 +35,7 @@ class TreeManagerParameters(helper.tree.TreeManager):
         self.AddTextColumn("Name")
         self.AddTextColumn("Description")
         self.AddTextColumn("Unit")
-        self.AddTextColumn("Numeric")
+        self.AddTextColumn("Type")
 
         self.filters = filters
 

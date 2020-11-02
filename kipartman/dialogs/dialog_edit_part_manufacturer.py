@@ -43,6 +43,8 @@ class DialogEditPartManufacturer ( wx.Dialog ):
 		self.button_add_manufacturer = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
 
 		self.button_add_manufacturer.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.button_add_manufacturer.Hide()
+
 		bSizer2.Add( self.button_add_manufacturer, 0, wx.ALL, 5 )
 
 
@@ -75,7 +77,9 @@ class DialogEditPartManufacturer ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 
 		# Connect Events
+		self.choice_manufacturer.Bind( wx.EVT_CHOICE, self.onValueChanged )
 		self.button_add_manufacturer.Bind( wx.EVT_BUTTON, self.onButtonAddDistributorClick )
+		self.edit_part_manufacturer_name.Bind( wx.EVT_TEXT, self.onValueChanged )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartManufacturerEditApply )
 		self.button_part_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartManufacturerEditCancel )
 
@@ -84,8 +88,12 @@ class DialogEditPartManufacturer ( wx.Dialog ):
 
 
 	# Virtual event handlers, overide them in your derived class
+	def onValueChanged( self, event ):
+		event.Skip()
+
 	def onButtonAddDistributorClick( self, event ):
 		event.Skip()
+
 
 	def onButtonPartManufacturerEditApply( self, event ):
 		event.Skip()

@@ -66,6 +66,7 @@ class Part(models.Model):
     #attachements: is defined inside PartAttachement by ForeignKey part
     #references: is defined inside PartReference by ForeignKey part
     value = PartValueField(blank=True, default="{name}")
+    metapart = models.BooleanField(null=False, default=False)
     updated = models.DateTimeField(auto_now=True)
     
     def __unicode__(self):
@@ -89,6 +90,8 @@ class PartParameter(models.Model):
     text_value = models.TextField(null=True, blank=True)
     value = models.FloatField(null=True)
     prefix = models.ForeignKey('UnitPrefix', related_name='min', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
+    metaparameter = models.BooleanField(null=False, default=False)
+    operator = models.TextField(null=True, default=None)
     updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):

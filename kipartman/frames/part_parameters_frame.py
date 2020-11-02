@@ -75,9 +75,6 @@ class PartParametersFrame(PanelPartParameters):
             parameters.append(obj)
  
         for parameterobj in parameters:
-            if parameterobj.part_parameter.id is None:
-                self.tree_parameters_manager.Remove(parameterobj)
-            else:
-                self.part.parameters.remove_pending(parameterobj.part_parameter)
+            self.part.parameters.remove_pending(parameterobj.part_parameter)
         self.tree_parameters_manager.Load()
 #  

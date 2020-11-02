@@ -109,7 +109,7 @@ class SelectProviderPartDialog(DialogProviderSearchPart):
     def onButtonOkClick( self, event ):
         parts = []
         for item in self.tree_parts.GetSelections():
-            obj = self.tree_octoparts_manager.ItemToObject(item)
+            obj = self.tree_provider_part_manager.ItemToObject(item)
             if isinstance(obj, Part):
                 parts.append(obj.part)
  

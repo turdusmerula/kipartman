@@ -13,6 +13,7 @@ from frames.part_references_frame import PartReferencesFrame
 from frames.search_provider_part_dialog import SelectProviderPartDialog, EVT_SELECT_PART_OK_EVENT
 from frames.dropdown_frame import DropdownFrame
 from providers.provider import Provider
+from providers.part_import import provider_part_to_model_part
 from frames.dropdown_menu import DropdownMenu
 # from frames.select_octopart_frame import SelectOctopartFrame, EVT_SELECT_OCTOPART_OK_EVENT
 # from octopart.extractor import OctopartExtractor
@@ -98,7 +99,7 @@ class EditPartFrame(PanelEditPart):
         self._show_part(part)
         self.edit_part_parameters.EditPart(part)
 #         self.edit_part_distributors.EditPart(part)
-#         self.edit_part_manufacturers.EditPart(part)
+        self.edit_part_manufacturers.EditPart(part)
 #         self.edit_part_storages.EditPart(part)
 #         self.edit_part_attachements.EditPart(part)
 #         self.edit_part_preview_data.EditPart(part)
@@ -114,7 +115,7 @@ class EditPartFrame(PanelEditPart):
         self._show_part(None)
         self.edit_part_parameters.EditPart(None)
 #         self.edit_part_distributors.EditPart(None)
-#         self.edit_part_manufacturers.EditPart(None)
+        self.edit_part_manufacturers.EditPart(None)
 #         self.edit_part_storages.EditPart(None)
 #         self.edit_part_attachements.EditPart(None)
 #         self.edit_part_preview_data.EditPart(None)
@@ -225,7 +226,7 @@ class EditPartFrame(PanelEditPart):
 
             self.edit_part_parameters.Save(self.part)
 #             self.edit_part_distributors.Save(self.part)
-#             self.edit_part_manufacturers.Save(self.part)
+            self.edit_part_manufacturers.Save(self.part)
 #             self.edit_part_storages.Save(self.part)
 #             self.edit_part_attachements.Save(self.part)
 #             self.edit_part_references.Save(self.part)
@@ -302,15 +303,11 @@ class EditPartFrame(PanelEditPart):
         event.Skip()
 
     def onSelectProviderPartFrameOk(self, event):
-        pass
+        for provider_part in event.data:
+            provider_part_to_model_part(provider_part, self.part)
+            
+        print(event.data)
     
-#     def onButtonOctopartClick( self, event ):
-#         # create an octopart frame
-#         # dropdown frame
-#         dropdown = DropdownDialog(self.button_octopart, SelectOctopartFrame, self.edit_part_name.Value)
-#         dropdown.panel.Bind( EVT_SELECT_OCTOPART_OK_EVENT, self.onSelectOctopartFrameOk )
-#         dropdown.Dropdown()
-# 
 #     def addReferenceFromOctopart(self, octopart):
 #         octopart_extractor = OctopartExtractor(octopart)
 # 

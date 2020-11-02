@@ -22,10 +22,10 @@ class FilterSearchText(Filter):
     def __str__(self):
         return f"search: {self.text}"
 
-class FilterSearchManufacturer(Filter):
+class FilterName(Filter):
     def __init__(self, name):
         self.name = name
-        super(FilterSearchManufacturer, self).__init__()
+        super(FilterName, self).__init__()
     
     def apply(self, request):
         return request.filter(name=self.name)
@@ -41,8 +41,8 @@ def find(filters=[]):
     
     return request.order_by('id').all()
 
-def create():
-    return api.models.Manufacturer()
+def create(**kwargs):
+    return api.models.Manufacturer(**kwargs)
 
 def save(manufacturer):
     manufacturer.save()

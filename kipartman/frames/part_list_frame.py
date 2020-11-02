@@ -123,12 +123,10 @@ class PartListFrame(PanelPartList):
         self.menu_part_edit_part.Enable(True)
         self.menu_part_remove_part.Enable(True)
         self.menu_part_duplicate_part.Enable(True)
-        self.menu_part_append_equivalent.Enable(True)
         if isinstance(obj, Part)==False:
             self.menu_part_edit_part.Enable(False)
             self.menu_part_remove_part.Enable(False)
             self.menu_part_duplicate_part.Enable(False)
-            self.menu_part_append_equivalent.Enable(False)
         event.Skip()
 
     def onMenuPartAddPart( self, event ):

@@ -27,10 +27,10 @@ def _add_pending_many_to_one(self, el):
     name = relation_field.name
       
     add_pendings = getattr(instance, "_add_pendings_")
-    if name not in add_pendings:
-        add_pendings[name] = []
-      
-    add_pendings[name].append((el, field))
+    if name in add_pendings:
+        add_pendings[name].append((el, field))
+    else:
+        add_pendings[name] = [(el, field)]
 
 def _add_pending_many_to_many(self, el):
 #     instance = self.instance
@@ -80,13 +80,23 @@ def _remove_pending_many_to_one(self, el):
     instance = self.instance
     field = self.field.remote_field
     name = field.name
+
+    in_add_pendings = False
+    if hasattr(instance, "_add_pendings_"):
+        add_pendings = getattr(instance, "_add_pendings_")
+        if name in add_pendings:
+            for addel, addfield in add_pendings[name]:
+                if el==addel:
+                    add_pendings[name].remove((addel, addfield))
+                    in_add_pendings = True
+    
+    if in_add_pendings==False:
+        remove_pendings = getattr(instance, "_remove_pendings_")
+        if name not in remove_pendings:
+            remove_pendings[name] = []
          
-    remove_pendings = getattr(instance, "_remove_pendings_")
-    if name not in remove_pendings:
-        remove_pendings[name] = []
-     
-    if el not in remove_pendings[name]:
-        remove_pendings[name].append(el)
+        if el not in remove_pendings[name]:
+            remove_pendings[name].append(el)
 
 def _remove_pending_many_to_many(self, el):
 #     instance = self.instance
@@ -183,7 +193,6 @@ def pendings(self):
         raise f"{field.name}: add_pending only implemented for one_to_many relation "
  
     return res
- 
  
 
 @overload_method(django.db.models.Model)

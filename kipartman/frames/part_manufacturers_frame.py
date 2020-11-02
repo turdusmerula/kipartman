@@ -3,17 +3,27 @@ from frames.edit_part_manufacturer_frame import EditPartManufacturerFrame
 import helper.tree
 
 class PartManufacturer(helper.tree.TreeContainerItem):
-    def __init__(self, manufacturer):
+    def __init__(self, part_manufacturer):
         super(PartManufacturer, self).__init__()
-        self.manufacturer = manufacturer
+        self.part_manufacturer = part_manufacturer
 
     def GetValue(self, col):
         if col==0:
-            return self.manufacturer.manufacturer.name
+            return self.part_manufacturer.manufacturer.name
         elif col==1:
-            return self.manufacturer.part_name
+            return self.part_manufacturer.part_name
 
         return ""
+
+    def GetAttr(self, col, attr):
+        res = False
+        if self.part_manufacturer.id is None:
+            attr.SetColour(helper.colors.GREEN_NEW_ITEM)
+            res = True
+        if self.part_manufacturer.removed_pending():
+            attr.SetStrikethrough(True)
+            res = True
+        return res
 
 class TreeManagerPartManufacturer(helper.tree.TreeManager):
 
@@ -30,25 +40,23 @@ class TreeManagerPartManufacturer(helper.tree.TreeManager):
         self.SaveState()
         
         if self.part is not None:
-            for manufacturer in self.part.manufacturers.all():
-                manufacturerobj = self.FindManufacturer(manufacturer)
-                if manufacturerobj is None:
-                    manufacturerobj = PartManufacturer(manufacturer)
-                    self.Append(None, manufacturerobj)
+            for part_manufacturer in self.part.manufacturers.all():
+                part_manufacturerobj = self.FindManufacturer(part_manufacturer)
+                if part_manufacturerobj is None:
+                    part_manufacturerobj = PartManufacturer(part_manufacturer)
+                    self.Append(None, part_manufacturerobj)
                 else:
-                    manufacturerobj.part_manufacturer = manufacturer
-                    self.Update(manufacturerobj)
+                    # all() extracts from database, fields are not updated to avoid discarding changes
+                    self.Update(part_manufacturerobj)
 
-#             # add not yet persisted data
-#             for parameter in self.part.parameters.pendings():
-#                 parameterobj = self.FindParameter(parameter)
-#                 if parameterobj is None:
-#                     parameterobj = PartParameter(parameter.part, parameter)
-#                     self.Append(None, parameterobj)
-#                 else:
-#                     parameterobj.part = self.part
-#                     parameterobj.part_parameter = parameter
-#                     self.Update(parameterobj)
+            # add not yet persisted data
+            for part_manufacturer in self.part.manufacturers.pendings():
+                part_manufacturerobj = self.FindManufacturer(part_manufacturer)
+                if part_manufacturerobj is None:
+                    part_manufacturerobj = PartManufacturer(part_manufacturer)
+                    self.Append(None, part_manufacturerobj)
+                else:
+                    self.Update(part_manufacturerobj)
         
         self.PurgeState()
     
@@ -56,9 +64,9 @@ class TreeManagerPartManufacturer(helper.tree.TreeManager):
         self.part = part
         self.Load()
         
-    def FindManufacturer(self, manufacturer):
+    def FindManufacturer(self, part_manufacturer):
         for data in self.data:
-            if isinstance(data, PartManufacturer) and data.manufacturer.id==manufacturer.id:
+            if isinstance(data, PartManufacturer) and data.part_manufacturer.id==part_manufacturer.id:
                 return data
         return None
 
@@ -114,20 +122,16 @@ class PartManufacturersFrame(PanelPartManufacturers):
 
     # Virtual event handlers, overide them in your derived class
     def onMenuManufacturerAddManufacturer( self, event ):
-        manufacturer = EditPartManufacturerFrame(self).AddManufacturer(self.part)
-        if manufacturer:
-            if self.part.manufacturers is None:
-                self.part.manufacturers = []
-            self.part.manufacturers.append(manufacturer)
-            self.tree_manufacturers_manager.AppendItem(None, PartManufacturer(manufacturer))
-
+        EditPartManufacturerFrame(self).AddManufacturer(self.part)
+        self.tree_manufacturers_manager.Load()
+            
     def onMenuManufacturerEditManufacturer( self, event ):
         item = self.tree_manufacturers.GetSelection()
         if not item.IsOk():
             return 
-        manufacturerobj = self.tree_manufacturers_manager.ItemToObject(item)
-        EditPartManufacturerFrame(self).EditManufacturer(self.part, manufacturerobj.manufacturer)
-        self.tree_manufacturers_manager.UpdateItem(manufacturerobj)
+        part_manufacturerobj = self.tree_manufacturers_manager.ItemToObject(item)
+        EditPartManufacturerFrame(self).EditManufacturer(self.part, part_manufacturerobj.part_manufacturer)
+        self.tree_manufacturers_manager.Load()
 
     def onMenuManufacturerRemoveManufacturer( self, event ):
         manufacturers = []
@@ -136,7 +140,6 @@ class PartManufacturersFrame(PanelPartManufacturers):
             if isinstance(obj, PartManufacturer):
                 manufacturers.append(obj)
         for manufacturerobj in manufacturers:
-            self.part.manufacturers.remove(manufacturerobj.manufacturer)
-            self.tree_manufacturers_manager.DeleteItem(None, manufacturerobj)
-
+            self.part.manufacturers.remove_pending(manufacturerobj.part_manufacturer)
+        self.tree_manufacturers_manager.Load()
         

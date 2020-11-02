@@ -31,9 +31,8 @@ class PartParameter(helper.tree.TreeContainerItem):
                     if self.part_parameter.prefix is not None:
                         prefix = self.part_parameter.prefix.symbol
                     return format_unit_prefix(self.part_parameter.value, unit_symbol, prefix)
-                return "-"
             
-        return ""
+        return "-"
 
     def GetAttr(self, col, attr):
         res = False
@@ -68,8 +67,7 @@ class TreeManagerPartParameter(helper.tree.TreeManager):
                     parameterobj = PartParameter(parameter.part, parameter)
                     self.Append(None, parameterobj)
                 else:
-                    parameterobj.part = self.part
-                    parameterobj.part_parameter = parameter
+                    # all() extracts from database, fields are not updated to avoid discarding changes
                     self.Update(parameterobj)
 
             # add not yet persisted data
@@ -79,8 +77,6 @@ class TreeManagerPartParameter(helper.tree.TreeManager):
                     parameterobj = PartParameter(parameter.part, parameter)
                     self.Append(None, parameterobj)
                 else:
-                    parameterobj.part = self.part
-                    parameterobj.part_parameter = parameter
                     self.Update(parameterobj)
         
         self.PurgeState()

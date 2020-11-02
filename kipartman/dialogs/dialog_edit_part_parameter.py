@@ -96,6 +96,13 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 		bSizer71 = wx.BoxSizer( wx.HORIZONTAL )
 
+		choice_operator_valueChoices = [ u"=", u"<", u"<=", u">", u">=", u"!=", u"<" ]
+		self.choice_operator_value = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_operator_valueChoices, 0 )
+		self.choice_operator_value.SetSelection( 0 )
+		self.choice_operator_value.Hide()
+
+		bSizer71.Add( self.choice_operator_value, 0, wx.ALL, 5 )
+
 		self.edit_numeric_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer71.Add( self.edit_numeric_value, 1, wx.ALL, 5 )
 
@@ -136,6 +143,7 @@ class DialogEditPartParameter ( wx.Dialog ):
 		self.radio_choice_parameter_float.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
 		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
 		self.edit_text_value.Bind( wx.EVT_TEXT, self.onTextValueChanged )
+		self.choice_operator_value.Bind( wx.EVT_CHOICE, self.onOperatorValueChoice )
 		self.edit_numeric_value.Bind( wx.EVT_TEXT, self.onNumericValueChanged )
 		self.choice_numeric_value_prefix.Bind( wx.EVT_CHOICE, self.onNumericValueChanged )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartParameterEditApply )
@@ -157,6 +165,9 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 
 	def onTextValueChanged( self, event ):
+		event.Skip()
+
+	def onOperatorValueChoice( self, event ):
 		event.Skip()
 
 	def onNumericValueChanged( self, event ):

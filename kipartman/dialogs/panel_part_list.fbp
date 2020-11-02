@@ -635,6 +635,26 @@
                     <property name="unchecked_bitmap"></property>
                     <event name="OnMenuSelection">onMenuPartAddPart</event>
                 </object>
+                <object class="wxMenuItem" expanded="1">
+                    <property name="bitmap">Load From File; resources/add.png</property>
+                    <property name="checked">0</property>
+                    <property name="enabled">1</property>
+                    <property name="help"></property>
+                    <property name="id">wxID_ANY</property>
+                    <property name="kind">wxITEM_NORMAL</property>
+                    <property name="label">Add new meta part</property>
+                    <property name="name">menu_part_add_meta_part</property>
+                    <property name="permission">none</property>
+                    <property name="shortcut"></property>
+                    <property name="unchecked_bitmap"></property>
+                    <event name="OnMenuSelection">onMenuPartAddMetaPart</event>
+                </object>
+                <object class="submenu" expanded="1">
+                    <property name="bitmap">Load From File; resources/add.png</property>
+                    <property name="label">Add new part from ...</property>
+                    <property name="name">menu_part_add_from</property>
+                    <property name="permission">protected</property>
+                </object>
                 <object class="wxMenuItem" expanded="0">
                     <property name="bitmap">Load From File; resources/duplicate.png</property>
                     <property name="checked">0</property>
@@ -681,33 +701,15 @@
                     <property name="name">m_separator2</property>
                     <property name="permission">none</property>
                 </object>
-                <object class="wxMenuItem" expanded="1">
-                    <property name="bitmap">Load From File; resources/duplicate.png</property>
-                    <property name="checked">0</property>
-                    <property name="enabled">1</property>
-                    <property name="help"></property>
-                    <property name="id">wxID_ANY</property>
-                    <property name="kind">wxITEM_NORMAL</property>
-                    <property name="label">Append equivalent part</property>
-                    <property name="name">menu_part_append_equivalent</property>
-                    <property name="permission">none</property>
-                    <property name="shortcut"></property>
-                    <property name="unchecked_bitmap"></property>
-                    <event name="OnMenuSelection">onMenuPartAppendEquivalentPart</event>
-                </object>
-                <object class="separator" expanded="1">
-                    <property name="name">m_separator21</property>
-                    <property name="permission">none</property>
-                </object>
                 <object class="wxMenuItem" expanded="0">
-                    <property name="bitmap">Load From File; </property>
+                    <property name="bitmap">Load From File; resources/edit.png</property>
                     <property name="checked">0</property>
                     <property name="enabled">1</property>
                     <property name="help"></property>
                     <property name="id">wxID_ANY</property>
                     <property name="kind">wxITEM_NORMAL</property>
-                    <property name="label">Refresh part from octopart</property>
-                    <property name="name">menu_refresh_octopart_part</property>
+                    <property name="label">Update part from providers</property>
+                    <property name="name">menu_update_part</property>
                     <property name="permission">none</property>
                     <property name="shortcut"></property>
                     <property name="unchecked_bitmap"></property>
