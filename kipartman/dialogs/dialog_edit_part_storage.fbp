@@ -332,13 +332,16 @@
                                 <property name="window_extra_style"></property>
                                 <property name="window_name"></property>
                                 <property name="window_style"></property>
+                                <event name="OnSpinCtrl">onValueChanged</event>
+                                <event name="OnSpinCtrlText">onValueChanged</event>
+                                <event name="OnTextEnter">onValueChanged</event>
                             </object>
                         </object>
                     </object>
                 </object>
                 <object class="sizeritem" expanded="1">
                     <property name="border">5</property>
-                    <property name="flag">wxEXPAND|wxALIGN_RIGHT</property>
+                    <property name="flag">wxEXPAND</property>
                     <property name="proportion">0</property>
                     <object class="wxBoxSizer" expanded="1">
                         <property name="minimum_size"></property>

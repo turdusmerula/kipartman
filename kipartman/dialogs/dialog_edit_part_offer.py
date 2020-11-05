@@ -43,6 +43,8 @@ class DialogEditPartOffer ( wx.Dialog ):
 		self.button_add_distributor = wx.BitmapButton( self, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize, wx.BU_AUTODRAW|0 )
 
 		self.button_add_distributor.SetBitmap( wx.Bitmap( u"resources/add.png", wx.BITMAP_TYPE_ANY ) )
+		self.button_add_distributor.Hide()
+
 		bSizer2.Add( self.button_add_distributor, 0, wx.ALL, 5 )
 
 
@@ -117,7 +119,13 @@ class DialogEditPartOffer ( wx.Dialog ):
 		self.Centre( wx.BOTH )
 
 		# Connect Events
+		self.choice_distributor.Bind( wx.EVT_CHOICE, self.onValueChanged )
 		self.button_add_distributor.Bind( wx.EVT_BUTTON, self.onButtonAddDistributorClick )
+		self.edit_part_offer_packaging_unit.Bind( wx.EVT_TEXT, self.onValueChanged )
+		self.edit_part_offer_quantity.Bind( wx.EVT_TEXT, self.onValueChanged )
+		self.edit_part_offer_unit_price.Bind( wx.EVT_TEXT, self.onValueChanged )
+		self.edit_part_offer_currency.Bind( wx.EVT_TEXT, self.onValueChanged )
+		self.edit_part_offer_sku.Bind( wx.EVT_TEXT, self.onValueChanged )
 		self.button_part_offer_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartOfferEditApply )
 		self.button_part_offer_editCancel.Bind( wx.EVT_BUTTON, self.onButtonPartOfferEditCancel )
 
@@ -126,8 +134,16 @@ class DialogEditPartOffer ( wx.Dialog ):
 
 
 	# Virtual event handlers, overide them in your derived class
+	def onValueChanged( self, event ):
+		event.Skip()
+
 	def onButtonAddDistributorClick( self, event ):
 		event.Skip()
+
+
+
+
+
 
 	def onButtonPartOfferEditApply( self, event ):
 		event.Skip()

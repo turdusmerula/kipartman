@@ -2,23 +2,34 @@ from dialogs.panel_part_references import PanelPartReferences
 import helper.tree
 
 class PartReference(helper.tree.TreeContainerItem):
-    def __init__(self, reference):
+    def __init__(self, part_reference):
         super(PartReference, self).__init__()
-        self.reference = reference
+        self.part_reference = part_reference
 
     def GetValue(self, col):
         if col==0:
-            return self.reference.type
+            return self.part_reference.type
         elif col==1:
-            return self.reference.manufacturer
+            return self.part_reference.manufacturer
         elif col==2:
-            return self.reference.name
+            return self.part_reference.name
         elif col==3:
-            return self.reference.description
+            return self.part_reference.description
         elif col==4:
-            return self.reference.uid
+            return self.part_reference.uid
 
         return ""
+
+    def GetAttr(self, col, attr):
+        res = False
+        if self.part_reference.id is None:
+            attr.SetColour(helper.colors.GREEN_NEW_ITEM)
+            res = True
+        if self.part_reference.removed_pending():
+            attr.SetStrikethrough(True)
+            res = True
+        return res
+
 
 class TreeManagerPartReference(helper.tree.TreeManager):
 
@@ -38,24 +49,34 @@ class TreeManagerPartReference(helper.tree.TreeManager):
         self.SaveState()
         
         if self.part is not None:
-            for reference in self.part.references.all():
-                referenceobj = self.FindReference(reference)
-                if referenceobj is None:
-                    referenceobj = PartReference(reference)
-                    self.Append(None, referenceobj)
+            for part_reference in self.part.references.all():
+                part_referenceobj = self.FindReference(part_reference)
+                if part_referenceobj is None:
+                    part_referenceobj = PartReference(part_reference)
+                    self.Append(None, part_referenceobj)
                 else:
-                    referenceobj.part_parameter = reference
-                    self.Update(referenceobj)
+                    # all() extracts from database, fields are not updated to avoid discarding changes
+                    self.Update(part_referenceobj)
         
+            # add not yet persisted data
+            for part_reference in self.part.references.pendings():
+                part_referenceobj = self.FindReference(part_reference)
+                if part_referenceobj is None:
+                    part_referenceobj = PartReference(part_reference)
+                    self.Append(None, part_referenceobj)
+                else:
+                    self.Update(part_referenceobj)
+
         self.PurgeState()
     
     def SetPart(self, part):
         self.part = part
+        self.Clear()
         self.Load()
         
-    def FindReference(self, reference):
+    def FindReference(self, part_reference):
         for data in self.data:
-            if isinstance(data, PartReference) and data.reference.id==reference:
+            if isinstance(data, PartReference) and data.part_reference.id==part_reference.id:
                 return data
         return None
 
@@ -105,5 +126,5 @@ class PartReferencesFrame(PanelPartReferences):
             if isinstance(obj, PartReference):
                 references.append(obj)
         for referenceobj in references:
-            self.part.references.remove(referenceobj.reference)
-            self.tree_references_manager.DeleteItem(None, referenceobj)
+            self.part.references.remove_pending(referenceobj.part_reference)
+        self.tree_references_manager.Load()

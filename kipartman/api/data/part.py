@@ -8,6 +8,14 @@ class PartException(Exception):
     def __init__(self, error):
         super(PartException, self).__init__(error)
 
+class FilterPart(Filter):
+    def __init__(self, part):
+        self.part = part
+        super(FilterPart, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(id=self.part.id)
+
 # filter to request part childs
 class FilterChilds(Filter):
     def __init__(self, part):

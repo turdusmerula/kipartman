@@ -40,8 +40,8 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_parameters = PartParametersFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_parameters, "Parameters")
          
-        self.edit_part_preview_data = PartPreviewDataFrame(self.notebook_part)
-        self.notebook_part.AddPage(self.edit_part_preview_data, "Preview")
+#         self.edit_part_preview_data = PartPreviewDataFrame(self.notebook_part)
+#         self.notebook_part.AddPage(self.edit_part_preview_data, "Preview")
  
         self.edit_part_distributors = PartDistributorsFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_distributors, "Distributors")
@@ -52,8 +52,8 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_storages = PartStoragesFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_storages, "Storages locations")
  
-        self.edit_part_attachements = PartAttachementsFrame(self.notebook_part)
-        self.notebook_part.AddPage(self.edit_part_attachements, "Attachements")
+#         self.edit_part_attachements = PartAttachementsFrame(self.notebook_part)
+#         self.notebook_part.AddPage(self.edit_part_attachements, "Attachements")
  
         self.edit_part_references = PartReferencesFrame(self.notebook_part)
         self.notebook_part.AddPage(self.edit_part_references, "References")
@@ -81,8 +81,8 @@ class EditPartFrame(PanelEditPart):
         self.edit_part_distributors.SetPart(part)
         self.edit_part_manufacturers.SetPart(part)
         self.edit_part_storages.SetPart(part)
-        self.edit_part_attachements.SetPart(part)
-        self.edit_part_preview_data.SetPart(part)
+#         self.edit_part_attachements.SetPart(part)
+#         self.edit_part_preview_data.SetPart(part)
         self.edit_part_references.SetPart(part)
         self._enable(False)
         
@@ -98,12 +98,12 @@ class EditPartFrame(PanelEditPart):
         self.part = part
         self._show_part(part)
         self.edit_part_parameters.EditPart(part)
-#         self.edit_part_distributors.EditPart(part)
+        self.edit_part_distributors.EditPart(part)
         self.edit_part_manufacturers.EditPart(part)
-#         self.edit_part_storages.EditPart(part)
+        self.edit_part_storages.EditPart(part)
 #         self.edit_part_attachements.EditPart(part)
 #         self.edit_part_preview_data.EditPart(part)
-#         self.edit_part_references.EditPart(part)
+        self.edit_part_references.EditPart(part)
         self._enable(True)
         self._check()
             
@@ -114,12 +114,12 @@ class EditPartFrame(PanelEditPart):
         self.part = None
         self._show_part(None)
         self.edit_part_parameters.EditPart(None)
-#         self.edit_part_distributors.EditPart(None)
+        self.edit_part_distributors.EditPart(None)
         self.edit_part_manufacturers.EditPart(None)
-#         self.edit_part_storages.EditPart(None)
+        self.edit_part_storages.EditPart(None)
 #         self.edit_part_attachements.EditPart(None)
 #         self.edit_part_preview_data.EditPart(None)
-#         self.edit_part_references.EditPart(None)
+        self.edit_part_references.EditPart(None)
         self._enable(True)
         self._check()
 
@@ -227,7 +227,7 @@ class EditPartFrame(PanelEditPart):
             self.edit_part_parameters.Save(self.part)
 #             self.edit_part_distributors.Save(self.part)
             self.edit_part_manufacturers.Save(self.part)
-#             self.edit_part_storages.Save(self.part)
+            self.edit_part_storages.Save(self.part)
 #             self.edit_part_attachements.Save(self.part)
 #             self.edit_part_references.Save(self.part)
 
@@ -305,7 +305,9 @@ class EditPartFrame(PanelEditPart):
     def onSelectProviderPartFrameOk(self, event):
         for provider_part in event.data:
             provider_part_to_model_part(provider_part, self.part)
-            
+        
+        self.SetPart(self.part)
+        
         print(event.data)
     
 #     def addReferenceFromOctopart(self, octopart):

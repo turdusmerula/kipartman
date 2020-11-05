@@ -3,12 +3,13 @@ from frames.edit_part_storage_frame import EditPartStorageFrame
 import helper.tree
 import wx
 from helper.exception import print_stack
+import api.data.part_storage
 
 class PartStorage(helper.tree.TreeContainerItem):
-    def __init__(self, part, storage):
+    def __init__(self, part, part_storage):
         super(PartStorage, self).__init__()
         self.part = part
-        self.storage = storage
+        self.part_storage = part_storage
 
     def GetValue(self, col):
         if col==0:
@@ -16,15 +17,25 @@ class PartStorage(helper.tree.TreeContainerItem):
         elif col==1:
             return self.part.name
         elif col==2:
-            return self.storage.storage.name
+            return self.part_storage.storage.name
         elif col==3: 
-            return self.storage.quantity
+            return self.part_storage.quantity
         elif col==4:
-            return self.storage.storage.description
+            return self.part_storage.storage.description
         elif col==5: 
-            return self.storage.storage.comment
+            return self.part_storage.storage.comment
 
         return ""
+
+    def GetAttr(self, col, attr):
+        res = False
+        if self.part_storage.id is None:
+            attr.SetColour(helper.colors.GREEN_NEW_ITEM)
+            res = True
+        if self.part_storage.removed_pending():
+            attr.SetStrikethrough(True)
+            res = True
+        return res
 
 class TreeManagerPartStorage(helper.tree.TreeManager):
 
@@ -45,36 +56,34 @@ class TreeManagerPartStorage(helper.tree.TreeManager):
         self.SaveState()
         
         if self.part is not None:
-            for storage in self.part.storages.all():
-                storageobj = self.FindStorage(storage)
-                if storageobj is None:
-                    storageobj = PartStorage(storage.part, storage)
-                    self.Append(None, storageobj)
+            for part_storage in self.part.storages.all():
+                part_storageobj = self.FindPartStorage(part_storage)
+                if part_storageobj is None:
+                    part_storageobj = PartStorage(part_storage.part, part_storage)
+                    self.Append(None, part_storageobj)
                 else:
-                    storageobj.part = self.part
-                    storageobj.part_storage = storage
-                    self.Update(storageobj)
+                    # all() extracts from database, fields are not updated to avoid discarding changes
+                    self.Update(part_storageobj)
 
-#             # add not yet persisted data
-#             for storage in self.part.storages.pendings():
-#                 storageobj = self.FindStorage(storage)
-#                 if storageobj is None:
-#                     storageobj = PartStorage(storage.part, storage)
-#                     self.Append(None, storageobj)
-#                 else:
-#                     storageobj.part = self.part
-#                     storageobj.part_storage = storage
-#                     self.Update(storageobj)
+            # add not yet persisted data
+            for part_storage in self.part.storages.pendings():
+                part_storageobj = self.FindPartStorage(part_storage)
+                if part_storageobj is None:
+                    part_storageobj = PartStorage(part_storage.part, part_storage)
+                    self.Append(None, part_storageobj)
+                else:
+                    self.Update(part_storageobj)
         
         self.PurgeState()
     
     def SetPart(self, part):
         self.part = part
+        self.Clear()
         self.Load()
         
-    def FindStorage(self, storage):
+    def FindPartStorage(self, part_storage):
         for data in self.data:
-            if isinstance(data, PartStorage) and data.storage.id==storage.id:
+            if isinstance(data, PartStorage) and data.part_storage.id==part_storage.id:
                 return data
         return None
             
@@ -132,34 +141,24 @@ class PartStoragesFrame(PanelPartStorages):
 
 
     def onMenuStorageAddStorage( self, event ):
-        storage = EditPartStorageFrame(self).AddStorage(self.part)
-        if storage is None:
-            return
-        if self.part.storages is None:
-            self.part.storages = []
-        self.part.storages.append(storage)
-        storageobj = PartStorage(self.part, storage)
-        self.tree_storages_manager.AppendItem(None, storageobj)
+        EditPartStorageFrame(self).AddStorage(self.part)
+        self.tree_storages_manager.Load()
 
     def onMenuStorageEditStorage( self, event ):
         item = self.tree_storages.GetSelection()
         if item.IsOk()==False:
             return 
-        object = self.tree_storages_manager.ItemToObject(item)
-
-        storage = EditPartStorageFrame(self).EditStorage(self.part, object.storage)
-        if storage is None:
-            return
-        object.storage = storage
-        self.tree_storages_manager.UpdateItem(object)
+        part_storageobj = self.tree_storages_manager.ItemToObject(item)
+        EditPartStorageFrame(self).EditStorage(self.part, part_storageobj.part_storage)
+        self.tree_storages_manager.Load()
 
     def onMenuStorageRemoveStorage( self, event ):
         item = self.tree_storages.GetSelection()
         if item.IsOk()==False:
             return
-        storageobj = self.FindStorage(self.tree_storages_manager.ItemToObject(item).storage.id)
-        self.part.storages.remove(storageobj.storage)
-        self.tree_storages_manager.DeleteItem(None, storageobj)
+        storageobj = self.tree_storages_manager.ItemToObject(item)
+        self.part.storages.remove_pending(storageobj.part_storage)
+        self.tree_storages_manager.Load()
 
     def onMenuStorageAddStock( self, event ):
         item = self.tree_storages.GetSelection()
@@ -172,7 +171,20 @@ class PartStoragesFrame(PanelPartStorages):
         dlg.SetValue("1")
         if dlg.ShowModal() == wx.ID_OK:
             try:
-                rest.api.update_stock({'part_id': self.part.id, 'storage': storageobj.storage, 'amount': int(dlg.GetValue()), 'reason': ''})
+                if self.enabled:
+                    part_storage = storageobj.part_storage
+                else:
+                    part_storage = api.data.part_storage.find([api.data.part_storage.FilterPartStorage(storageobj.part_storage.id)])[0]
+                
+                part_storage.quantity += int(dlg.GetValue())
+                
+                if self.enabled:
+                    self.part.storages.add_pending(part_storage)
+                    self.tree_storages_manager.Load()
+                else:
+                    part_storage.save()
+                    self.tree_storages_manager.SetPart(self.part)
+                    
             except Exception as e:
                 print_stack()
                 wx.MessageBox(format(e), 'Error updating stock', wx.OK | wx.ICON_ERROR)
@@ -190,7 +202,21 @@ class PartStoragesFrame(PanelPartStorages):
         dlg.SetValue("1")
         if dlg.ShowModal() == wx.ID_OK:
             try:
-                rest.api.update_stock({'part_id': self.part.id, 'storage': storageobj.storage, 'amount': -int(dlg.GetValue()), 'reason': ''})
+                if self.enabled:
+                    part_storage = storageobj.part_storage
+                else:
+                    part_storage = api.data.part_storage.find([api.data.part_storage.FilterPartStorage(storageobj.part_storage.id)])[0]
+                
+                part_storage.quantity -= int(dlg.GetValue())
+                
+                if self.enabled:
+                    self.part.storages.add_pending(part_storage)
+                    self.tree_storages_manager.Load()
+                else:
+                    part_storage.save()
+                    self.tree_storages_manager.SetPart(self.part)
+                
+                self.tree_storages_manager.Load()
             except Exception as e:
                 print_stack()
                 wx.MessageBox(format(e), 'Error updating stock', wx.OK | wx.ICON_ERROR)

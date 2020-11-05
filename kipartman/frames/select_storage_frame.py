@@ -57,7 +57,7 @@ class SelectStorageFrame(PanelSelectStorage):
         
         self.button_storage_selectOK.Enabled = True
         
-        self.tree_parameters_manager.SetStorage(storageobj.storage)
+#         self.tree_storages_manager.SetStorage(storageobj.storage)
 
     def onFilterChanged( self, event ):
         self.tree_storages_manager.Load()

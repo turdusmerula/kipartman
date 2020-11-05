@@ -83,6 +83,7 @@ class TreeManagerPartParameter(helper.tree.TreeManager):
     
     def SetPart(self, part):
         self.part = part
+        self.Clear()
         self.Load()
         
     def FindParameter(self, parameter):

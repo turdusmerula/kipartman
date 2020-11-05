@@ -258,6 +258,7 @@ class PartListFrame(PanelPartList):
         item = self.tree_parts.GetSelection()
         obj = self.tree_parts_manager.ItemToObject(item)
         if isinstance(obj, Part):
+            obj.part = api.data.part.find([api.data.part.FilterPart(obj.part)])[0]
             self.SetPart(obj.part)
         else:
             self.SetPart(None)
