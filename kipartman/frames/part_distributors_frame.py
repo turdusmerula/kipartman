@@ -18,30 +18,40 @@ class Distributor(helper.tree.TreeContainerItem):
         attr.Bold = True
         return True
 
-class Offer(helper.tree.TreeItem):
-    def __init__(self, offer):
-        super(Offer, self).__init__()
-        self.offer = offer
+class PartOffer(helper.tree.TreeItem):
+    def __init__(self, part_offer):
+        super(PartOffer, self).__init__()
+        self.part_offer = part_offer
 
     def item_price(self):
-        return self.offer.unit_price*self.offer.quantity
+        return self.part_offer.unit_price*self.part_offer.quantity
     
     def GetValue(self, col):
         if col==1:
-            return self.offer.packaging_unit
+            return self.part_offer.packaging_unit
         elif col==2:
-            return self.offer.packaging
+            return self.part_offer.packaging
         elif col==3:
-            return self.offer.quantity
+            return self.part_offer.quantity
         elif col==4:
             return "{0:.3f}".format(self.item_price())
         elif col==5:
-            return "{0:.3f}".format(self.offer.unit_price)
+            return "{0:.3f}".format(self.part_offer.unit_price)
         elif col==6:
-            return self.offer.currency
+            return self.part_offer.currency
         elif col==7:
-            return self.offer.sku
+            return self.part_offer.sku
         return ''
+
+    def GetAttr(self, col, attr):
+        res = False
+        if self.part_offer.id is None:
+            attr.SetColour(helper.colors.GREEN_NEW_ITEM)
+            res = True
+        if self.part_offer.removed_pending():
+            attr.SetStrikethrough(True)
+            res = True
+        return res
 
 class TreeManagerPartDistributor(helper.tree.TreeManager):
 
@@ -67,33 +77,39 @@ class TreeManagerPartDistributor(helper.tree.TreeManager):
         self.SaveState()
         
         if self.part is not None:
-            for offer in self.part.offers.all():
-                distributorobj = self.FindDistributor(offer.distributor)
+            for part_offer in self.part.offers.all():
+                distributorobj = self.FindDistributor(part_offer.distributor)
                 if distributorobj is None:
-                    distributorobj = Distributor(offer.distributor)
+                    distributorobj = Distributor(part_offer.distributor)
                     self.Append(None, distributorobj)
                 else:
-                    distributorobj.distributor = offer.distributor
+                    # all() extracts from database, fields are not updated to avoid discarding changes
                     self.Update(distributorobj)
                 
-                offerobj = self.FindOffer(offer)
-                if offerobj is None:
-                    offerobj = Offer(offer)
-                    self.Append(distributorobj, offerobj)
+                part_offerobj = self.FindPartOffer(part_offer)
+                if part_offerobj is None:
+                    part_offerobj = PartOffer(part_offer)
+                    self.Append(distributorobj, part_offerobj)
                 else:
-                    offerobj.offer = offer
-                    self.Update(offerobj)
+                    # all() extracts from database, fields are not updated to avoid discarding changes
+                    self.Update(part_offerobj)
                 
-#             # add not yet persisted data
-#             for parameter in self.part.parameters.pendings():
-#                 parameterobj = self.FindParameter(parameter)
-#                 if parameterobj is None:
-#                     parameterobj = PartParameter(parameter.part, parameter)
-#                     self.Append(None, parameterobj)
-#                 else:
-#                     parameterobj.part = self.part
-#                     parameterobj.part_parameter = parameter
-#                     self.Update(parameterobj)
+            for part_offer in self.part.offers.pendings():
+                distributorobj = self.FindDistributor(part_offer.distributor)
+                if distributorobj is None:
+                    distributorobj = Distributor(part_offer.distributor)
+                    self.Append(None, distributorobj)
+                else:
+                    # all() extracts from database, fields are not updated to avoid discarding changes
+                    self.Update(distributorobj)
+                
+                part_offerobj = self.FindPartOffer(part_offer)
+                if part_offerobj is None:
+                    part_offerobj = PartOffer(part_offer)
+                    self.Append(distributorobj, part_offerobj)
+                else:
+                    # all() extracts from database, fields are not updated to avoid discarding changes
+                    self.Update(part_offerobj)
         
         self.PurgeState()
     
@@ -103,13 +119,13 @@ class TreeManagerPartDistributor(helper.tree.TreeManager):
         
     def FindDistributor(self, distributor):
         for data in self.data:
-            if isinstance(data, Distributor) and data.distributor.id==distributor.id:
+            if isinstance(data, Distributor) and ( (data.distributor.id is not None and data.distributor.id==distributor.id) or (data.distributor.id is None and data.distributor==distributor)):
                 return data
         return None
 
-    def FindOffer(self, offer):
+    def FindPartOffer(self, part_offer):
         for data in self.data:
-            if isinstance(data, Offer) and data.offer.id==offer.id:
+            if isinstance(data, PartOffer) and ( (data.part_offer.id is not None and data.part_offer.id==part_offer.id) or (data.part_offer.id is None and data.part_offer==part_offer) ):
                 return data
         return None
 
@@ -161,6 +177,49 @@ class PartDistributorsFrame(PanelPartDistributors):
             self.menu_distributor_add_distributor.Enable(False)
             self.menu_distributor_edit_distributor.Enable(False)
             self.menu_distributor_remove_distributor.Enable(False)
+
+    def onMenuDistributorAddDistributor( self, event ):
+        item = self.tree_distributors.GetSelection()
+        distributor = None
+        currency = None
+        sku = None
+        packaging = None
+        if item.IsOk():
+            obj = self.tree_distributors_manager.ItemToObject(item)
+            if isinstance(obj, Distributor):
+                distributor = obj.distributor
+            elif isinstance(obj, PartOffer):
+                distributor = obj.part_offer.distributor
+                currency = obj.part_offer.currency
+                sku = obj.part_offer.sku
+                packaging = obj.part_offer.packaging
+        EditPartOfferFrame(self).AddPartOffer(self.part, distributor, currency, sku, packaging)
+        self.tree_distributors_manager.Load()
+
+    def onMenuDistributorEditDistributor( self, event ):
+        item = self.tree_distributors.GetSelection()
+        if not item.IsOk():
+            return
+        obj = self.tree_distributors_manager.ItemToObject(item)
+        if isinstance(obj, PartOffer)==False:
+            return
+        EditPartOfferFrame(self).EditPartOffer(self.part, obj.part_offer)
+        self.tree_distributors_manager.Load()        
+        event.Skip()
+
+    def onMenuDistributorRemoveDistributor( self, event ):
+        part_offers = []
+        for item in self.tree_distributors.GetSelections():
+            obj = self.tree_distributors_manager.ItemToObject(item)
+            if isinstance(obj, PartOffer):
+                part_offers.append(obj)
+            if isinstance(obj, Distributor):
+                for child in obj.childs:
+                    part_offers.append(child)
+        for part_offerobj in part_offers:
+            self.part.offers.remove_pending(part_offerobj.part_offer)
+        self.tree_distributors_manager.Load()
+        event.Skip()
 
 #     def AddPartDistributor(self, distributor):
 #         """

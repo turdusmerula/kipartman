@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -17,7 +17,7 @@ import wx.xrc
 class DialogEditPartOffer ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 431,321 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 433,352 ), style = wx.DEFAULT_DIALOG_STYLE )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
@@ -50,17 +50,27 @@ class DialogEditPartOffer ( wx.Dialog ):
 
 		fgSizer1.Add( bSizer2, 1, wx.EXPAND, 5 )
 
-		self.m_staticText4 = wx.StaticText( self, wx.ID_ANY, u"Packaging Unit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText4 = wx.StaticText( self, wx.ID_ANY, u"Packaging", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText4.Wrap( -1 )
 
 		fgSizer1.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+		self.edit_part_offer_packaging = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.edit_part_offer_packaging.SetHelpText( u"Number of items per package" )
+
+		fgSizer1.Add( self.edit_part_offer_packaging, 1, wx.ALL|wx.EXPAND, 5 )
+
+		self.m_staticText41 = wx.StaticText( self, wx.ID_ANY, u"Packaging Unit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText41.Wrap( -1 )
+
+		fgSizer1.Add( self.m_staticText41, 0, wx.ALL, 5 )
 
 		self.edit_part_offer_packaging_unit = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.edit_part_offer_packaging_unit.SetHelpText( u"Number of items per package" )
 
 		fgSizer1.Add( self.edit_part_offer_packaging_unit, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5 )
 
-		self.m_staticText6 = wx.StaticText( self, wx.ID_ANY, u"Quantity:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText6 = wx.StaticText( self, wx.ID_ANY, u"Quantity", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText6.Wrap( -1 )
 
 		fgSizer1.Add( self.m_staticText6, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -121,6 +131,7 @@ class DialogEditPartOffer ( wx.Dialog ):
 		# Connect Events
 		self.choice_distributor.Bind( wx.EVT_CHOICE, self.onValueChanged )
 		self.button_add_distributor.Bind( wx.EVT_BUTTON, self.onButtonAddDistributorClick )
+		self.edit_part_offer_packaging.Bind( wx.EVT_TEXT, self.onValueChanged )
 		self.edit_part_offer_packaging_unit.Bind( wx.EVT_TEXT, self.onValueChanged )
 		self.edit_part_offer_quantity.Bind( wx.EVT_TEXT, self.onValueChanged )
 		self.edit_part_offer_unit_price.Bind( wx.EVT_TEXT, self.onValueChanged )
@@ -139,6 +150,7 @@ class DialogEditPartOffer ( wx.Dialog ):
 
 	def onButtonAddDistributorClick( self, event ):
 		event.Skip()
+
 
 
 
