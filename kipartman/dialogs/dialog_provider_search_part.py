@@ -15,10 +15,10 @@ import wx.dataview
 ## Class DialogProviderSearchPart
 ###########################################################################
 
-class DialogProviderSearchPart ( wx.Frame ):
+class DialogProviderSearchPart ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 1140,376 ), style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_TOOL_WINDOW|wx.TAB_TRAVERSAL )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 838,302 ), style = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 

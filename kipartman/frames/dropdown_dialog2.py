@@ -1,6 +1,6 @@
 import wx
 
-class DropdownDialog(wx.Dialog):
+class DropdownDialog2(wx.Dialog):
     """
     Display a popup frame
     """
@@ -14,7 +14,7 @@ class DropdownDialog(wx.Dialog):
         Frame should contain a SetResult method allowing to set result and cancel callback 
         """
         self.result_callback = None
-        super(DropdownDialog, self).__init__(parent, style=wx.RESIZE_BORDER)
+        super(DropdownDialog2, self).__init__(parent, style=wx.RESIZE_BORDER)
         self.panel = frame(self, *args, **kwargs)
         self.SetSize( self.panel.GetSize())
         
@@ -23,7 +23,7 @@ class DropdownDialog(wx.Dialog):
         self.SetSizer(sizer)
         self.Layout()
 
-    def Dropdown(self):    
+    def DropDown(self):    
         pos = self.Parent.GetScreenPosition()
         pos.y = pos.y+self.Parent.GetSize().y
         
@@ -37,7 +37,8 @@ class DropdownDialog(wx.Dialog):
         self.panel.SetResult(self.result, self.cancel)
         
         self.SetPosition(pos)
-        self.ShowModal()
+
+        return self.ShowModal()
     
     def DropHere(self, result_callback=None):
         pos = wx.GetMousePosition()
@@ -59,7 +60,7 @@ class DropdownDialog(wx.Dialog):
     def result(self, data):
         if self.result_callback:
             self.result_callback(data)
-        self.Destroy()
+        self.EndModal(wx.ID_OK)
 
     def cancel(self):
-        self.Destroy()
+        self.EndModal(wx.ID_CANCEL)
