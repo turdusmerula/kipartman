@@ -143,6 +143,9 @@ class PanelEditParameter ( wx.Panel ):
 		self.button_parameter_alias_add.Bind( wx.EVT_BUTTON, self.onButtonParameterAliasAddClick )
 		self.button_parameter_alias_remove.Bind( wx.EVT_BUTTON, self.onButtonParameterAliasRemoveClick )
 		self.edit_parameter_description.Bind( wx.EVT_TEXT, self.onTextEditParameterDescription )
+		self.radio_choice_parameter_integer.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
+		self.radio_choice_parameter_float.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
+		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
 		self.button_search_unit.Bind( wx.EVT_BUTTON, self.onButtonSearchUnitClick )
 		self.button_remove_unit.Bind( wx.EVT_BUTTON, self.onButtonRemoveUnitClick )
 		self.button_parameter_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartParameterEditApply )
@@ -167,6 +170,11 @@ class PanelEditParameter ( wx.Panel ):
 
 	def onTextEditParameterDescription( self, event ):
 		event.Skip()
+
+	def onRadioValueType( self, event ):
+		event.Skip()
+
+
 
 	def onButtonSearchUnitClick( self, event ):
 		event.Skip()

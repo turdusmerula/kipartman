@@ -1,6 +1,6 @@
 import wx
 
-class DropdownDialog(wx.Dialog):
+class DropdownDialog2(wx.Dialog):
     """
     Display a popup frame
     """
@@ -13,8 +13,7 @@ class DropdownDialog(wx.Dialog):
         :param initial: item to select by default
         Frame should contain a SetResult method allowing to set result and cancel callback 
         """
-        self.result_callback = None
-        super(DropdownDialog, self).__init__(parent, style=wx.RESIZE_BORDER)
+        super(DropdownDialog2, self).__init__(parent, style=wx.RESIZE_BORDER)
         self.panel = frame(self, *args, **kwargs)
         self.SetSize( self.panel.GetSize())
         
@@ -23,7 +22,7 @@ class DropdownDialog(wx.Dialog):
         self.SetSizer(sizer)
         self.Layout()
 
-    def Dropdown(self):    
+    def DropDown(self):    
         pos = self.Parent.GetScreenPosition()
         pos.y = pos.y+self.Parent.GetSize().y
         
@@ -32,12 +31,9 @@ class DropdownDialog(wx.Dialog):
             pos.y = screenSize.y-self.panel.GetSize().y
         if pos.x+self.panel.GetSize().x>screenSize.x:
             pos.x = screenSize.x-self.panel.GetSize().x
-
-        # callbacks from panel
-        self.panel.SetResult(self.result, self.cancel)
         
         self.SetPosition(pos)
-        
+
         return self.ShowModal()
     
     def DropHere(self, result_callback=None):
@@ -48,20 +44,7 @@ class DropdownDialog(wx.Dialog):
             pos.y = screenSize.y-self.panel.GetSize().y
         if pos.x+self.panel.GetSize().x>screenSize.x:
             pos.x = screenSize.x-self.panel.GetSize().x
-
-        # callbacks from panel
-        self.panel.SetResult(self.result, self.cancel)
-
-        self.result_callback = result_callback
         
         self.SetPosition(pos)
-        
-        return self.ShowModal()
-        
-    def result(self, data):
-        if self.result_callback:
-            self.result_callback(data)
-        self.EndModal(wx.ID_OK)
 
-    def cancel(self):
-        self.EndModal(wx.ID_CANCEL)
+        return self.ShowModal()

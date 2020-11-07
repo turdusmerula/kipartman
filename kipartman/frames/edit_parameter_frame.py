@@ -49,12 +49,16 @@ class EditParameterFrame(PanelEditParameter):
         self._enable(True)
         self._check()
 
-    def AddParameter(self):
+    def AddParameter(self, name=None):
         self.parameter = None
         self._unit = None
         self._alias = []
         
         self._show_parameter(self.parameter)
+        
+        if name is not None:
+            self.edit_parameter_name.Value = name
+            
         self._enable(True)
         self._check()
 
@@ -183,7 +187,7 @@ class EditParameterFrame(PanelEditParameter):
             else:
                 self.parameter.value_type = api.models.ParameterType.TEXT
                 
-            if self.parameter.value_type==api.models.ParameterType.INTEGER and self._unit.prefixable==True:
+            if self.parameter.value_type==api.models.ParameterType.INTEGER and self._unit is not None and self._unit.prefixable==True:
                 raise KicadParameterFrameException(f"Cannot use a prefixable unit with an integer parameter")
                 
             self.parameter.save()
@@ -228,11 +232,14 @@ class EditParameterFrame(PanelEditParameter):
 
     def onRadioValueType( self, event ):
         self._check()
-        self.static_unit.Show()
         if self.radio_choice_parameter_float.Value==True or self.radio_choice_parameter_integer.Value==True:
+            self.static_unit.Show()
             self.button_search_unit.Show()
+            self.button_remove_unit.Show()
         else:
+            self.static_unit.Hide()
             self.button_search_unit.Hide()
+            self.button_remove_unit.Hide()
         event.Skip()
 
     def onButtonSearchUnitClick( self, event ):

@@ -34,8 +34,8 @@ def find(filters=[]):
     
     return request.order_by('id').all()
 
-def create(part):
-    part_parameter = PartManufacturer()
+def create(part, **kwargs):
+    part_parameter = PartManufacturer(**kwargs)
     part_parameter.part = part
     
     return part_parameter

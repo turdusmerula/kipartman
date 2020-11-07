@@ -81,7 +81,8 @@ class SelectParameterFrame(PanelSelectParameter):
         self.tree_parameters_manager.OnSelectionChanged = self.onTreeParametersSelectionChanged
         
         if initial:
-            self.tree_parameters.Select(self.tree_parameters_manager.ObjectToItem(self.tree_parameters_manager.FindPartParameter(initial)))
+            self.search_parameter.Value = initial
+            self.tree_parameters.Select(self.tree_parameters_manager.ObjectToItem(self.tree_parameters_manager.FindParameter(initial)))
         
         # set result functions
         self.cancel = None
