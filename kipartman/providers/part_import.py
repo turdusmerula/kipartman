@@ -1,10 +1,10 @@
+from frames.ask_create_parameter_dialog import AskCreateParameterDialog
 import api.data.manufacturer
 import api.data.parameter
 import api.data.parameter_alias
 from helper.exception import print_stack
 import wx
 
-from frames.ask_create_parameter_dialog import AskCreateParameterDialog
 
 def provider_part_to_model_part(parent_frame, provider_part, model_part):
     model_part.name = provider_part.name
@@ -53,7 +53,6 @@ def _import_manufacturer(provider_part, model_part):
 
 def _import_parameters(parent_frame, provider_part, model_part):
     for provider_parameter in provider_part.parameters:
-        
         parameters = api.data.parameter.find([api.data.parameter.FilterName(provider_parameter.name)])
         paramaters_alias = api.data.parameter_alias.find([api.data.parameter_alias.FilterName(provider_parameter.name)])
         if len(parameters)==0 and len(paramaters_alias)==0:
