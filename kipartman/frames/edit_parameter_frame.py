@@ -78,7 +78,7 @@ class EditParameterFrame(PanelEditParameter):
                 self.static_unit.Show()
                 self.button_search_unit.Show()
                 self.button_remove_unit.Show()
-            elif parameter.value_type==api.models.ParameterType.INTEGER:
+            elif parameter.value_type==api.models.ParameterType.FLOAT:
                 self.radio_choice_parameter_float.SetValue(True)
                 self.static_unit.Show()
                 self.button_search_unit.Show()
@@ -190,7 +190,7 @@ class EditParameterFrame(PanelEditParameter):
             if self.parameter.value_type==api.models.ParameterType.INTEGER and self._unit is not None and self._unit.prefixable==True:
                 raise KicadParameterFrameException(f"Cannot use a prefixable unit with an integer parameter")
                 
-            self.parameter.save()
+            api.data.parameter.save(self.parameter)
             
             wx.PostEvent(self, EditParameterApplyEvent(data=self.parameter))
         except Exception as e:

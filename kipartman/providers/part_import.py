@@ -4,7 +4,7 @@ import api.data.parameter
 import api.data.parameter_alias
 from helper.exception import print_stack
 import wx
-
+import helper.unit
 
 def provider_part_to_model_part(parent_frame, provider_part, model_part):
     model_part.name = provider_part.name
@@ -67,7 +67,53 @@ def _import_parameters(parent_frame, provider_part, model_part):
         if parameter is not None:
             print("+++", parameter)
 
+            part_parameter = next((part_parameter for part_parameter in model_part.parameters.all() if part_parameter.parameter.id==parameter.id), None)
+            part_parameter = next((part_parameter for part_parameter in model_part.parameters.pendings() if part_parameter.parameter.id==parameter.id), part_parameter)
+            if part_parameter is None:
+                part_parameter = api.data.part_parameter.create(part=model_part, parameter=parameter)
+            
+            error = False
+            if parameter.value_type==api.models.ParameterType.TEXT:
+                part_parameter.text_value = provider_parameter.value
+                part_parameter.value = None
+                part_parameter.prefix = None
+            else:
+                num, prefix, unit = helper.unit.cut_unit_value(provider_parameter.value)
+                if (unit!="" and parameter.unit is None) or (unit=="" and parameter.unit is not None) or (unit!="" and parameter.unit is not None and parameter.unit.symbol!=unit):
+                    wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, unit mismatch", 'Error', wx.OK | wx.ICON_ERROR)
+                    error = True
+                if prefix!="" and parameter.unit is not None and parameter.unit.prefixable==False:
+                    wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, unit cannot be prefixed", 'Error', wx.OK | wx.ICON_ERROR)
+                    error = True
+                
+                prefix_power = 1.
+                if prefix is not None:
+                    found_prefix = api.data.unit_prefix.find([api.data.unit_prefix.FilterSymbol(prefix)])
+                    if len(found_prefix)==0:
+                        wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, invalid prefix '{prefix}'", 'Error saving parameter', wx.OK | wx.ICON_ERROR)
+                        error = True
+                    else:
+                        prefix_power = float(found_prefix[0].power)
+                        part_parameter.prefix = found_prefix[0]
 
+                if parameter.value_type==api.models.ParameterType.INTEGER:
+                    try:
+                        part_parameter.value = int(float(num)*prefix_power)
+                    except Exception as e:
+                        print_stack()
+                        wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, invalid integer value '{num}'", 'Error saving parameter', wx.OK | wx.ICON_ERROR)
+                        error = True
+                else:
+                    try:
+                        part_parameter.value = float(num)*prefix_power
+                    except Exception as e:
+                        print_stack()
+                        wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, invalid float value '{num}'", 'Error saving parameter', wx.OK | wx.ICON_ERROR)
+                        error = True
+                
+        
+            if error==False:
+                model_part.parameters.add_pending(part_parameter)
 #     def addReferenceFromOctopart(self, octopart):
 #         octopart_extractor = OctopartExtractor(octopart)
 # 
