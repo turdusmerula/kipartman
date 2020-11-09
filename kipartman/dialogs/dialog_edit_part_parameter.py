@@ -86,8 +86,18 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 		fgSizer1.Add( self.static_text_value, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
+		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
+
+		choice_operator_text_valueChoices = [ u"=", u"!=" ]
+		self.choice_operator_text_value = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_operator_text_valueChoices, 0 )
+		self.choice_operator_text_value.SetSelection( 0 )
+		bSizer4.Add( self.choice_operator_text_value, 0, wx.ALL, 5 )
+
 		self.edit_text_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		fgSizer1.Add( self.edit_text_value, 1, wx.ALL|wx.EXPAND, 5 )
+		bSizer4.Add( self.edit_text_value, 1, wx.ALL|wx.EXPAND, 5 )
+
+
+		fgSizer1.Add( bSizer4, 1, wx.EXPAND, 5 )
 
 		self.static_numeric_value = wx.StaticText( self, wx.ID_ANY, u"Value", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.static_numeric_value.Wrap( -1 )
@@ -96,12 +106,10 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 		bSizer71 = wx.BoxSizer( wx.HORIZONTAL )
 
-		choice_operator_valueChoices = [ u"=", u"<", u"<=", u">", u">=", u"!=", u"<" ]
-		self.choice_operator_value = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_operator_valueChoices, 0 )
-		self.choice_operator_value.SetSelection( 0 )
-		self.choice_operator_value.Hide()
-
-		bSizer71.Add( self.choice_operator_value, 0, wx.ALL, 5 )
+		choice_operator_numeric_valueChoices = [ u"=", u"<", u"<=", u">", u">=", u"!=" ]
+		self.choice_operator_numeric_value = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, choice_operator_numeric_valueChoices, 0 )
+		self.choice_operator_numeric_value.SetSelection( 0 )
+		bSizer71.Add( self.choice_operator_numeric_value, 0, wx.ALL, 5 )
 
 		self.edit_numeric_value = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer71.Add( self.edit_numeric_value, 1, wx.ALL, 5 )
@@ -142,8 +150,9 @@ class DialogEditPartParameter ( wx.Dialog ):
 		self.radio_choice_parameter_integer.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
 		self.radio_choice_parameter_float.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
 		self.radio_choice_parameter_text.Bind( wx.EVT_RADIOBUTTON, self.onRadioValueType )
+		self.choice_operator_text_value.Bind( wx.EVT_CHOICE, self.onOperatorTextValueChoice )
 		self.edit_text_value.Bind( wx.EVT_TEXT, self.onTextValueChanged )
-		self.choice_operator_value.Bind( wx.EVT_CHOICE, self.onOperatorValueChoice )
+		self.choice_operator_numeric_value.Bind( wx.EVT_CHOICE, self.onOperatorNumericValueChoice )
 		self.edit_numeric_value.Bind( wx.EVT_TEXT, self.onNumericValueChanged )
 		self.choice_numeric_value_prefix.Bind( wx.EVT_CHOICE, self.onNumericValueChanged )
 		self.button_part_editApply.Bind( wx.EVT_BUTTON, self.onButtonPartParameterEditApply )
@@ -164,10 +173,13 @@ class DialogEditPartParameter ( wx.Dialog ):
 
 
 
+	def onOperatorTextValueChoice( self, event ):
+		event.Skip()
+
 	def onTextValueChanged( self, event ):
 		event.Skip()
 
-	def onOperatorValueChoice( self, event ):
+	def onOperatorNumericValueChoice( self, event ):
 		event.Skip()
 
 	def onNumericValueChanged( self, event ):

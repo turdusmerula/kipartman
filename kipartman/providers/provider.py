@@ -3,7 +3,8 @@ class Provider(object):
     providers = []
     
     name = None
-
+    description = None
+    
     # capabilities
     has_search_part = False
     
@@ -15,9 +16,9 @@ class Provider(object):
         Provider.providers.append(cls)
     
     @classmethod
-    def get_provider(cls, name):
+    def get_provider(cls, name=None, description=None):
         for provider in cls.providers:
-            if provider.name==name:
+            if ( name is not None and provider.name==name ) or ( description is not None and provider.description==description ):
                 return provider
         return None
     
@@ -49,6 +50,14 @@ class Part(object):
     
     @property
     def offers(self):
+        return None
+    
+    @property
+    def uid(self):
+        return None
+    
+    @property
+    def provider(self):
         return None
     
 class Parameter(object):

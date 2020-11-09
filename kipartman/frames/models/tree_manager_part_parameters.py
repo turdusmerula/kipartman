@@ -26,11 +26,14 @@ class PartParameter(helper.tree.TreeContainerItem):
                 return self.part_parameter.text_value
         else:
             if col==1:
+                operator = ""
+                if self.part_parameter.operator is not None:
+                    operator = self.part_parameter.operator
                 if self.part_parameter.value is not None:
                     prefix = None
                     if self.part_parameter.prefix is not None:
                         prefix = self.part_parameter.prefix.symbol
-                    return format_unit_prefix(self.part_parameter.value, unit_symbol, prefix)
+                    return operator+format_unit_prefix(self.part_parameter.value, unit_symbol, prefix)
             
         return "-"
 
@@ -83,6 +86,7 @@ class TreeManagerPartParameter(helper.tree.TreeManager):
     
     def SetPart(self, part):
         self.part = part
+
         self.Clear()
         self.Load()
         

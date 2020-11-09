@@ -732,7 +732,7 @@ class TreeManager(object):
         column.Reorderable = True
         return column
         
-    def RemoveColumns(self, start_index, end_index=-1):
+    def RemoveColumns(self, start_index=0, end_index=-1):
         to_remove = []
         for column in self.tree_view.GetColumns():
             if column.GetModelColumn()>=start_index and end_index==-1:

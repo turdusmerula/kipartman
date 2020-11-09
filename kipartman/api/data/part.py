@@ -117,6 +117,45 @@ class FilterUnit(Filter):
     def apply(self, request):
         return request.filter(parameters__parameter__unit__id=self.unit.id)
 
+class FilterMetapart(Filter):
+    def __init__(self, metapart):
+        self.metapart = metapart
+        super(FilterMetapart, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(metapart=self.metapart)
+
+class FilterMetaParameter(Filter):
+    def __init__(self, parameter):
+        self.parameter = parameter
+        super(FilterMetaParameter, self).__init__()
+    
+    def apply(self, request):
+        operator = "="
+        if self.parameter.operator is not None:
+            operator = self.parameter.operator
+        
+        if self.parameter.parameter.value_type==api.models.ParameterType.TEXT:
+            if operator=="=":
+                return request.filter(parameters__text_value=self.parameter.text_value)
+            elif operator=="!=":
+                return request.filter(parameters__text_value__ne=self.parameter.text_value)
+        else:
+            if operator=="=":
+                return request.filter(parameters__value=self.parameter.value)
+            elif operator=="<":
+                return request.filter(parameters__value__lt=self.parameter.value)
+            elif operator=="<=":
+                return request.filter(parameters__value__lte=self.parameter.value)
+            elif operator==">":
+                return request.filter(parameters__value__gt=self.parameter.value)
+            elif operator==">=":
+                return request.filter(parameters__value__gte=self.parameter.value)
+            elif operator=="!=":
+                return request.filter(parameters__value__ne=self.parameter.value)
+
+        return request
+
 def _add_default_annotations(request):
     # add the field child_count in request result 
     request = request.select_related('category', 'footprint', 'symbol') # preload for performance
@@ -132,6 +171,14 @@ def find(filters=[]):
         request = filter.apply(request)
     
     return request.order_by('id').all()
+
+def find_metapart_childs(part):
+    filters = [FilterMetapart(False)]
+    
+    for parameter in part.parameters.all():
+        filters.append(FilterMetaParameter(parameter))
+        
+    return find(filters)
 
 def expanded_value(part):
     parameters = {}
@@ -157,6 +204,9 @@ def expanded_value(part):
     
 def save(part):
     
+    if part.pk is None:
+        part.save()
+        
     # build list of childs
     childs = {}
     for child in part.childs.add_pendings():
@@ -175,8 +225,8 @@ def save(part):
     part.save()
     
     
-def create():
-    part = Part()
+def create(**kwargs):
+    part = Part(**kwargs)
     
     return part
 

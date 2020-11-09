@@ -81,6 +81,14 @@ class PartListFrame(PanelPartList):
         self.panel_up.Enabled = value
 
 
+    def AddPart(self, category):
+        self.panel_edit_part.AddPart(category)
+        self._enable(True)
+
+    def AddMetaPart(self, category):
+        self.panel_edit_part.AddMetaPart(category)
+        self._enable(True)
+
     def SetPart(self, part):
         self.panel_edit_part.SetPart(part)
         self._enable(True)
@@ -145,6 +153,24 @@ class PartListFrame(PanelPartList):
                 category = self.Filters.get_filters_group('category')[0].category
 
         self.AddPart(category)
+        event.Skip()
+
+    def onMenuPartAddMetaPart( self, event ):
+        item = self.tree_parts.GetSelection()
+        category = None
+        if item.IsOk():
+            obj = self.tree_parts_manager.ItemToObject(item)
+            if isinstance(obj, PartCategory):
+                category = obj.category
+            elif isinstance(obj, Part):
+                category = obj.part.category
+        else:
+            # add category from filter
+            category = None
+            if len(self.Filters.get_filters_group('category'))==1:
+                category = self.Filters.get_filters_group('category')[0].category
+
+        self.AddMetaPart(category)
         event.Skip()
 
     def onMenuPartEditPart( self, event ):

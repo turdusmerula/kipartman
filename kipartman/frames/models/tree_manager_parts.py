@@ -49,16 +49,28 @@ class Part(helper.tree.TreeContainerLazyItem):
         return ""
 
     def Load(self, manager):
-        for child in api.data.part.find([api.data.part.FilterChilds(self.part)]):
-            partobj = self.FindPartChild(child.id)
-            if partobj is None:
-                manager.Append(self, Part(child))
-            else:
-                partobj.part = child
-                manager.Update(partobj)
+        if self.part.metapart==True:
+            for child in api.data.part.find_metapart_childs(self.part):
+                partobj = self.FindPartChild(child.id)
+                if partobj is None:
+                    manager.Append(self, Part(child))
+                else:
+                    partobj.part = child
+                    manager.Update(partobj)
+                
+#         for child in api.data.part.find([api.data.part.FilterChilds(self.part)]):
+#             partobj = self.FindPartChild(child.id)
+#             if partobj is None:
+#                 manager.Append(self, Part(child))
+#             else:
+#                 partobj.part = child
+#                 manager.Update(partobj)
+        pass
     
     def HasChilds(self):
-        if self.part.child_count>0:
+#         if self.part.child_count>0:
+#             return True
+        if self.part.metapart==True:
             return True
         return False
     

@@ -349,7 +349,8 @@ query_part = f"""{{
 
 
 class OctopartProvider(Provider):
-    name = "Octopart api"
+    name = "octopart_api"
+    description = "Octopart api"
     
     baseurl = "https://octopart.com/api/v4/endpoint"
     

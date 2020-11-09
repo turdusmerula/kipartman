@@ -68,13 +68,14 @@ class EditPartFrame(PanelEditPart):
         self._init_providers()
         
     def SetPart(self, part):
-        self._category = None
         if part is None:
             self._footprint = None
             self._symbol = None
+            self._category = None
         else:
             self._footprint = part.footprint
             self._symbol = part.symbol
+            self._category = part.category
         self.part = part
         self._show_part(part)
         self.edit_part_parameters.SetPart(part)
@@ -88,13 +89,14 @@ class EditPartFrame(PanelEditPart):
         
 
     def EditPart(self, part):
-        self._category = None
         if part is None:
             self._footprint = None
             self._symbol = None
+            self._category = None
         else:
             self._footprint = part.footprint
             self._symbol = part.symbol
+            self._category = part.category
         self.part = part
         self._show_part(part)
         self.edit_part_parameters.EditPart(part)
@@ -111,22 +113,39 @@ class EditPartFrame(PanelEditPart):
         self._category = category
         self._footprint = None
         self._symbol = None
-        self.part = None
-        self._show_part(None)
-        self.edit_part_parameters.EditPart(None)
-        self.edit_part_distributors.EditPart(None)
-        self.edit_part_manufacturers.EditPart(None)
-        self.edit_part_storages.EditPart(None)
-#         self.edit_part_attachements.EditPart(None)
-#         self.edit_part_preview_data.EditPart(None)
-        self.edit_part_references.EditPart(None)
+        self.part = api.data.part.create(category=category)
+        self._show_part(self.part)
+        self.edit_part_parameters.EditPart(self.part)
+        self.edit_part_distributors.EditPart(self.part)
+        self.edit_part_manufacturers.EditPart(self.part)
+        self.edit_part_storages.EditPart(self.part)
+#         self.edit_part_attachements.EditPart(self.part)
+#         self.edit_part_preview_data.EditPart(self.part)
+        self.edit_part_references.EditPart(self.part)
+        self._enable(True)
+        self._check()
+
+    def AddMetaPart(self, category):
+        self._category = category
+        self._footprint = None
+        self._symbol = None
+        self._metapart = True
+        self.part = api.data.part.create(category=category, metapart=True)
+        self._show_part(self.part)
+        self.edit_part_parameters.EditPart(self.part)
+        self.edit_part_distributors.EditPart(self.part)
+        self.edit_part_manufacturers.EditPart(self.part)
+        self.edit_part_storages.EditPart(self.part)
+#         self.edit_part_attachements.EditPart(self.part)
+#         self.edit_part_preview_data.EditPart(self.part)
+        self.edit_part_references.EditPart(self.part)
         self._enable(True)
         self._check()
 
     def _init_providers(self):
         for provider in Provider.providers:
             if provider.has_search_part:
-                menu_item = wx.MenuItem( self.menu_search, wx.ID_ANY, provider.name, wx.EmptyString, wx.ITEM_NORMAL )
+                menu_item = wx.MenuItem( self.menu_search, wx.ID_ANY, provider.description, wx.EmptyString, wx.ITEM_NORMAL )
                 self.menu_search.Append( menu_item )
 #                 self.Bind( wx.EVT_MENU, self.onMenuSelection, id = self.m_menuItem1.GetId() )
         
@@ -224,6 +243,8 @@ class EditPartFrame(PanelEditPart):
             self.part.symbol = self._symbol
             self.part.comment = self.edit_part_comment.Value
 
+            self.part.category = self._category
+
             self.edit_part_parameters.Save(self.part)
 #             self.edit_part_distributors.Save(self.part)
             self.edit_part_manufacturers.Save(self.part)
@@ -296,7 +317,7 @@ class EditPartFrame(PanelEditPart):
         id = DropdownMenu(self.button_search, self.menu_search).Dropdown()
         menu = self.menu_search.FindItemById(id)
         if menu is not None:
-            provider = Provider.get_provider(menu.ItemLabel)
+            provider = Provider.get_provider(description=menu.ItemLabel)
             self.select_part_dialog = SelectProviderPartDialog(self, provider, self.edit_part_name.Value)
             self.select_part_dialog.Bind( EVT_SELECT_PART_OK_EVENT, self.onSelectProviderPartFrameOk )
             self.select_part_dialog.ShowModal() 

@@ -29,8 +29,8 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.choice_numeric_value_prefix.SetItems(choices)
     
     def AddPartParameter(self, part):
-        self.part = part        
-        self.part_parameter = api.data.part_parameter.create(self.part)
+        self.part = part
+        self.part_parameter = api.data.part_parameter.create(part=self.part)
         self._parameter = None
         self._unit = None
         
@@ -40,6 +40,8 @@ class EditPartParameterFrame(DialogEditPartParameter):
         self.button_parameter_description.Label = ""
         self.button_parameter_unit.Label = ""
         self.choice_numeric_value_prefix.SetSelection(0)
+        self.choice_operator_numeric_value.SetSelection(0)
+        self.choice_operator_text_value.SetSelection(0)
         
         self._show_parameter()
         self._check()
@@ -64,7 +66,7 @@ class EditPartParameterFrame(DialogEditPartParameter):
                     
         if part_parameter.text_value is not None:
             self.edit_text_value.Value = part_parameter.text_value
-
+            
         if part_parameter.value is not None and self.part_parameter.parameter.value_type==api.models.ParameterType.FLOAT:
             self.edit_numeric_value.Value = str(part_parameter.value) 
         elif part_parameter.value is not None and self.part_parameter.parameter.value_type==api.models.ParameterType.INTEGER:
@@ -74,7 +76,13 @@ class EditPartParameterFrame(DialogEditPartParameter):
             self.choice_numeric_value_prefix.SetSelection(part_parameter.prefix.id)
         else:
             self.choice_numeric_value_prefix.SetSelection(0)
-            
+
+        if part.metapart==True and part_parameter.operator is not None:
+            if self.part_parameter.parameter.value_type==api.models.ParameterType.TEXT:
+                self.choice_operator_text_value.SetSelection(self.choice_operator_text_value.FindString(part_parameter.operator))
+            else:
+                self.choice_operator_numeric_value.SetSelection(self.choice_operator_numeric_value.FindString(part_parameter.operator))
+                
         self._show_parameter()
         self._check()
         
@@ -120,16 +128,36 @@ class EditPartParameterFrame(DialogEditPartParameter):
                 self.choice_numeric_value_prefix.Hide()
                 self.show_numeric_value.Hide()
                 self.radio_choice_parameter_text.SetValue(True)
+            
+            if self.part.metapart==True and self._parameter.value_type==api.models.ParameterType.TEXT:
+                self.choice_operator_numeric_value.Hide()
+                self.choice_operator_text_value.Show()
+            elif self.part.metapart==True:
+                self.choice_operator_numeric_value.Show()
+                self.choice_operator_text_value.Hide()
+            else:
+                self.choice_operator_numeric_value.Hide()
+                self.choice_operator_text_value.Hide()
+               
+                
         else:
             self.static_text_value.Show()
             self.edit_text_value.Show()
             
+            if self.part.metapart==True:
+                self.choice_operator_numeric_value.Hide()
+                self.choice_operator_text_value.Show()
+            else:
+                self.choice_operator_numeric_value.Hide()
+                self.choice_operator_text_value.Hide()
+                
             self.static_numeric_value.Hide()
             self.edit_numeric_value.Hide()
             self.choice_numeric_value_prefix.Hide()
             self.show_numeric_value.Hide()
             self.radio_choice_parameter_text.SetValue(True)
-            
+
+
         self.Layout()
     
     def _check(self):
@@ -140,14 +168,20 @@ class EditPartParameterFrame(DialogEditPartParameter):
             error = True
         else:
             self.button_search_parameter.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-            
-        try:
-            if self.edit_numeric_value.Value!="":
-                float(self.edit_numeric_value.Value) 
-            self.edit_numeric_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
-        except:
-            error = True
-            self.edit_numeric_value.SetBackgroundColour( colors.RED_ERROR )
+        
+        if self.radio_choice_parameter_text.Value==False:
+            try:
+                num, prefix, unit = helper.unit.cut_unit_value(self.edit_numeric_value.Value)
+    
+                if self._parameter.value_type==api.models.ParameterType.FLOAT:
+                    v = helper.unit.expand_prefix(float(num), prefix)
+                elif self._parameter.value_type==api.models.ParameterType.INTEGER:
+                    v = int(num)
+    
+                self.edit_numeric_value.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
+            except:
+                error = True
+                self.edit_numeric_value.SetBackgroundColour( colors.RED_ERROR )
 
         if error:
             self.button_part_editApply.Enabled = False
@@ -190,7 +224,11 @@ class EditPartParameterFrame(DialogEditPartParameter):
                         self.part_parameter.prefix = api.data.unit_prefix.find_by_id(self.choice_numeric_value_prefix.GetSelection())
                 else:
                     self.part_parameter.prefix = None
-                    
+                
+                if self.part.metapart==True:
+                    self.part_parameter.metaparameter = True
+                    self.part_parameter.operator = self.choice_operator_numeric_value.GetString(self.choice_operator_numeric_value.GetSelection())
+                
                 num, prefix, unit = helper.unit.cut_unit_value(self.edit_numeric_value.Value)
                 v = helper.unit.expand_prefix(float(num), prefix)
                 self.part_parameter.value = v
@@ -198,6 +236,10 @@ class EditPartParameterFrame(DialogEditPartParameter):
                 self.part_parameter.text_value = self.edit_text_value.Value
                 self.part_parameter.value = None
                 self.part_parameter.prefix = None
+
+                if self.part.metapart==True:
+                    self.part_parameter.metaparameter = True
+                    self.part_parameter.operator = self.choice_operator_text_value.GetString(self.choice_operator_text_value.GetSelection())
 
             self._parameter.unit = self._unit            
             self.part_parameter.parameter = self._parameter
@@ -234,5 +276,12 @@ class EditPartParameterFrame(DialogEditPartParameter):
         event.Skip()
 
     def onNumericValueChanged( self, event ):
+        self._check()
         self._show_numeric_value()
+        event.Skip()
+
+    def onOperatorNumericValueChoice( self, event ):
+        event.Skip()
+
+    def onOperatorTextValueChoice( self, event ):
         event.Skip()

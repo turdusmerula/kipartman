@@ -42,8 +42,8 @@ def find(filters=[]):
     
     return request.order_by('id').all()
 
-def create():
-    return api.models.Distributor()
+def create(**kwargs):
+    return api.models.Distributor(**kwargs)
 
 def save(distributor):
     distributor.save()

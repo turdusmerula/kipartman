@@ -15,8 +15,9 @@ def convert_int(value):
     return int(value)
 
 class OctopartProvider(Provider):
-    name = "Octopart scrapper (experimental)"
-        
+    name = "octopart_scrapper"
+    description = "Octopart scrapper (experimental)"
+    
     # capabilities
     has_search_part = True
     
@@ -74,9 +75,9 @@ class OctopartPart(Part):
             return
         dom_middle = self._data.find("div", {"class": re.compile(".* middle")})
         dom_url = dom_middle.find("a")
-        url = dom_url.attrs["href"]
+        self._url = dom_url.attrs["href"]
         
-        req = f"{baseurl}{url}"
+        req = f"{baseurl}{self._url}"
         content = scraper.get(req).content
         self._part_data = BeautifulSoup(content)
         
@@ -149,6 +150,15 @@ class OctopartPart(Part):
                     offers.append(offer)
         
         return offers
+
+    @property
+    def uid(self):
+        self._load_part_offers()
+        return self._url
+        
+    @property
+    def provider(self):
+        return OctopartProvider
 
 class OctopartParameter(Parameter):
     def __init__(self, _data):
