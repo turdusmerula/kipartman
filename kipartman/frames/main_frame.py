@@ -25,14 +25,6 @@ class MainFrame(DialogMain):
 
         self.pages = []
 
-#         self.manufacturersframe = ManufacturersFrame(self.notebook)
-#         self.storageframe = StoragesFrame(self.notebook)
- 
-#         self.pages.append(self.manufacturersframe)
-#         self.notebook.AddPage(self.manufacturersframe, "Manufacturers", False)
-#         self.pages.append(self.storageframe)
-#         self.notebook.AddPage(self.storageframe, "Storage locations", False)
-
     def onMenuViewConfigurationSelection( self, event ):
         ConfigurationFrame(self).ShowModal()
 
@@ -44,37 +36,37 @@ class MainFrame(DialogMain):
     def onMenuViewSymbolsSelection( self, event ):
         symbols_frame = SymbolsFrame(self.notebook)
         self.pages.append(symbols_frame)
-        self.notebook.AddPage(symbols_frame, "symbols", True)
+        self.notebook.AddPage(symbols_frame, "Symbols", True)
 
     def onMenuViewFootprintsSelection( self, event ):
         footprints_frame = FootprintsFrame(self.notebook)
         self.pages.append(footprints_frame)
-        self.notebook.AddPage(footprints_frame, "footprints", True)
+        self.notebook.AddPage(footprints_frame, "Footprints", True)
         
     def onMenuViewParametersSelection( self, event ):
         parameters_frame = ParametersFrame(self.notebook)
         self.pages.append(parameters_frame)
-        self.notebook.AddPage(parameters_frame, "parameters", True)
+        self.notebook.AddPage(parameters_frame, "Parameters", True)
 
     def onMenuViewDistributorsSelection( self, event ):
         distributors_frame = DistributorsFrame(self.notebook)
         self.pages.append(distributors_frame)
-        self.notebook.AddPage(distributors_frame, "distributors", True)
+        self.notebook.AddPage(distributors_frame, "Distributors", True)
 
     def onMenuViewManufacturersSelection( self, event ):
         manufacturers_frame = ManufacturersFrame(self.notebook)
         self.pages.append(manufacturers_frame)
-        self.notebook.AddPage(manufacturers_frame, "manufacturers", True)
+        self.notebook.AddPage(manufacturers_frame, "Manufacturers", True)
 
     def onMenuViewStoragesSelection( self, event ):
         storages_frame = StoragesFrame(self.notebook)
         self.pages.append(storages_frame)
-        self.notebook.AddPage(storages_frame, "storages", True)
+        self.notebook.AddPage(storages_frame, "Storages", True)
 
     def onMenuViewUnitsSelection( self, event ):
         units_frame = UnitsFrame(self.notebook)
         self.pages.append(units_frame)
-        self.notebook.AddPage(units_frame, "units", True)
+        self.notebook.AddPage(units_frame, "Units", True)
 
     def onNotebookPageChanged( self, event ):
         if self.menus is None:

@@ -9,37 +9,18 @@ class PartParameter(helper.tree.TreeContainerItem):
         self.part_parameter = parameter
     
     def GetValue(self, col):
-        unit_symbol = ''
-        if self.part_parameter.parameter.unit is not None:
-            unit_symbol = self.part_parameter.parameter.unit.symbol
-        
         if col==0:
             return self.part_parameter.parameter.name
+        elif col==1:
+            value = api.data.part_parameter.expanded_parameter_value(self.part_parameter, with_operator=True)
+            if value is not None:
+                return value
         elif col==2:
             if self.part_parameter.parameter.unit:
                 return self.part_parameter.parameter.unit.name
         elif col==3:
             return self.part_parameter.parameter.description
         
-        if self.part_parameter.parameter.value_type==api.models.ParameterType.TEXT:
-            if col==1:
-                return self.part_parameter.text_value
-        else:
-            if col==1:
-                operator = ""
-                if self.part_parameter.operator is not None:
-                    operator = self.part_parameter.operator
-                    
-                if self.part_parameter.value is not None:
-                    if self.part_parameter.parameter.value_type==api.models.ParameterType.INTEGER:
-                        return operator+str(int(self.part_parameter.value))+unit_symbol
-                    if self.part_parameter.parameter is not None and self.part_parameter.parameter.unit is not None:
-                        if self.part_parameter.parameter.unit.prefixable==True:
-                            prefix = None
-                            if self.part_parameter.prefix is not None:
-                                prefix = self.part_parameter.prefix.symbol
-                            return operator+format_unit_prefix(self.part_parameter.value, unit_symbol, prefix)
-                    return operator+format_float(self.part_parameter.value, 3)+unit_symbol
         return "-"
 
     def GetAttr(self, col, attr):

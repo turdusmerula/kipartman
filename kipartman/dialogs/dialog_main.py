@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep  2 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -26,6 +26,9 @@ class DialogMain ( wx.Frame ):
 		self.menu_file = wx.Menu()
 		self.menu_file_project = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Open project", wx.EmptyString, wx.ITEM_NORMAL )
 		self.menu_file.Append( self.menu_file_project )
+
+		self.menu_file_open_schematic = wx.MenuItem( self.menu_file, wx.ID_ANY, u"Open Kicad schematic file", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_file.Append( self.menu_file_open_schematic )
 
 		self.menu_file.AppendSeparator()
 
@@ -95,6 +98,7 @@ class DialogMain ( wx.Frame ):
 		# Connect Events
 		self.Bind( wx.EVT_KILL_FOCUS, self.onKillFocus )
 		self.Bind( wx.EVT_MENU, self.onMenuFileProjetSelection, id = self.menu_file_project.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuFileOpenSchematicSelection, id = self.menu_file_open_schematic.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuBuyPartsSelection, id = self.menu_buy_parts.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewConfigurationSelection, id = self.menu_view_configuration.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuViewPartsSelection, id = self.menu_view_parts.GetId() )
@@ -120,6 +124,9 @@ class DialogMain ( wx.Frame ):
 		event.Skip()
 
 	def onMenuFileProjetSelection( self, event ):
+		event.Skip()
+
+	def onMenuFileOpenSchematicSelection( self, event ):
 		event.Skip()
 
 	def onMenuBuyPartsSelection( self, event ):

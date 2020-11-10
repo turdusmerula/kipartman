@@ -24,6 +24,7 @@ from helper.exception import print_stack
 import pytz
 from helper.log import log
 from helper import colors
+import json
 
 EditPartApplyEvent, EVT_EDIT_PART_APPLY_EVENT = wx.lib.newevent.NewEvent()
 EditPartCancelEvent, EVT_EDIT_PART_CANCEL_EVENT = wx.lib.newevent.NewEvent()
@@ -154,8 +155,15 @@ class EditPartFrame(PanelEditPart):
             self.edit_part_name.Value = NoneValue(part.name, "")
             self.edit_part_description.Value = NoneValue(part.description, "")
             self.edit_part_comment.Value = NoneValue(part.comment, '')
-            self.edit_part_value.Value = part.value
-#             self.show_part_value.value = part.value_content
+            
+            try:
+                json_value = json.loads(part.value)
+            except:
+                json_value = json.loads("{}")
+                json_value["pattern"] = part.value
+            self.edit_part_value.Value = json_value["pattern"]
+            self.show_part_value.Value = api.data.part.expanded_value(part, json_value["pattern"])
+            
             if part.footprint is not None:
                 self.button_part_footprint.Label = part.footprint.name
             else:
@@ -207,29 +215,6 @@ class EditPartFrame(PanelEditPart):
         else:
             self.button_part_editApply.Enabled = True
 
-    def _get_expanded_value(self, value):
-#         parameters = {}
-#         for parameter in api.data.part_parameter.find([api.data.part_parameter.FilterPart(part)]).all():
-#             parameters[parameter.parameter.name] = parameter
-#         
-#         res = ""
-#         token = None
-#         for c in part.value:
-#             if c=="{":
-#                 token = ""
-#             elif c=="}":
-#                 if token=="name":
-#                     res += part.name
-#                 if token in parameters:
-#                     res += ""
-#                 token = None
-#             else:
-#                 if token is None:
-#                     res += c
-#                 else:
-#                     token += c
-        return ""
-
     def onButtonPartEditApply( self, event ):
         
         try:
@@ -277,7 +262,7 @@ class EditPartFrame(PanelEditPart):
     
     def onTextEditPartValueText( self, event ):
         self._check()
-        self.show_part_value.Value = self._get_expanded_value(self.edit_part_value.Value)
+        self.show_part_value.Value = api.data.part.expanded_value(self.part, self.edit_part_value.Value)
         event.Skip()
 
     def onButtonPartFootprintClick( self, event ):

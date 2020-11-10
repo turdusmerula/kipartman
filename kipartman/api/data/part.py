@@ -171,28 +171,6 @@ def find_metapart_childs(part):
         
     return find(filters)
 
-def expanded_value(part):
-    parameters = {}
-    for parameter in api.data.part_parameter.find([api.data.part_parameter.FilterPart(part)]).all():
-        parameters[parameter.parameter.name] = parameter
-    
-    res = ""
-    token = None
-    for c in part.value:
-        if c=="{":
-            token = ""
-        elif c=="}":
-            if token=="name":
-                res += part.name
-            if token in parameters:
-                res += ""
-            token = None
-        else:
-            if token is None:
-                res += c
-            else:
-                token += c
-    
 def save(part):
     
     if part.pk is None:
@@ -203,7 +181,10 @@ def save(part):
     
     part.save()
     
-    
+
+def compute_value():
+    return ""
+
 def create(**kwargs):
     part = Part(**kwargs)
     
@@ -228,3 +209,36 @@ def duplicate(part):
 #     
 #     print("***", res.parameters)
     return newpart
+
+
+def expanded_value(part, pattern):
+    parameters = {}
+#     for parameter in api.data.part_parameter.find([api.data.part_parameter.FilterPart(part)]).all():
+#         parameters[parameter.parameter.name] = parameter
+    for parameter in part.parameters.all():
+        parameters[parameter.parameter.name] = parameter
+    for parameter in part.parameters.pendings():
+        parameters[parameter.parameter.name] = parameter
+        
+    res = ""
+    token = None
+    for c in pattern:
+        if token is None:
+            if c=="{":
+                token = ""
+            else:
+                res += c
+        else:
+            if c=="}":
+                if token=="name":
+                    res += part.name
+                if token in parameters:
+                    parameter = parameters[token]
+                    parameter_value = api.data.part_parameter.expanded_parameter_value(parameter, with_operator=False)
+                    if parameter_value is not None:
+                        res += parameter_value
+                token = None
+            else:
+                token += c
+    
+    return res

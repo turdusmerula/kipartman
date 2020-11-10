@@ -8,7 +8,7 @@ import copy
 from django.utils.translation import gettext_lazy as _
 import helper.django
 from enum import Enum
-
+import json
 
 class PartValueField(models.TextField):
     description = _("Value field for parts")
@@ -16,14 +16,25 @@ class PartValueField(models.TextField):
     def get_internal_type(self):
         return "TextField"
 
-    def to_python(self, value):
-        return value
-    
-#     def pre_save(self, model_instance, add):
-#         value = "{"+f"'pattern': '{model_instance.value}', 'value': '{value}'+
-#         print("---", model_instance.value, add)
-#         setattr(model_instance, self.attname, value)
+#     def to_python(self, value):
+#         try:
+#             json_value = json.loads(value)
+#             return json_value['pattern']
+#         except:
+#             pass
 #         return value
+    
+    def pre_save(self, model_instance, add):
+        try:
+            json_value = json.loads(model_instance.value)
+        except:
+            json_value = json.loads("{}")
+            json_value['pattern'] = model_instance.value
+
+        from api.data.part import expanded_value
+        json_value['value'] = expanded_value(model_instance, json_value['pattern'])
+        
+        return json.dumps(json_value)
 
 
 class PartCategory(MPTTModel):
