@@ -192,7 +192,10 @@ class OctopartOffer(Offer):
     @property
     def stock(self):
         dom_stock = self._data.find("td", {"class": "col-avail"})
-        return convert_int(dom_stock.text.strip())
+        try:
+            return convert_int(dom_stock.text.strip())
+        except Exception as e:
+            return None
 
     @property
     def currency(self):

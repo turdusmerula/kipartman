@@ -1,5 +1,6 @@
 from curses.ascii import isalnum
 import re
+import api.data.unit
 
 class UnitException(Exception):
     def __init__(self, error):
@@ -40,6 +41,7 @@ def cut_unit_value(value):
     # remove whitespaces
     value = re.sub(r"\s+", '', value)
     
+    
     # extract number part from value
     num = ""
     s = ""
@@ -55,15 +57,37 @@ def cut_unit_value(value):
         raise UnitException(f"Invalid number {value}")
     
     value = re.sub(f'^{num}', '', value)
-    # extract prefix part
-    prefix = ""
-    s = ""
-    for c in value:
-        s += c
-        if s in symbol_power:
-            prefix = s
+
+    # extract unit part
+    units = api.data.unit.find()
     
-    unit = re.sub(f'^{prefix}', '', value)
+    unit = value
+    prefix = ""
+    
+    error = False
+    if unit!="":
+        found_unit = False
+        while found_unit==False and error==False:
+            for _unit in units:
+                if unit==_unit.symbol:
+                    found_unit = True
+                    break
+            if found_unit==False:
+                prefix += unit[0]
+                if len(unit)==1:
+                    error = True
+                else:
+                    unit = unit[1:]
+            else:
+                if prefix!="" and prefix not in symbol_power:
+                    prefix += value[0]
+                    if len(unit)==1:
+                        error = True
+                    else:
+                        unit = unit[1:]
+
+    if error==True:
+        raise UnitException(f"Unknown unit {value}")
 
     return (num, prefix, unit)
 

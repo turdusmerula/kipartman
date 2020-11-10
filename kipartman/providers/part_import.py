@@ -80,14 +80,19 @@ def _import_parameters(parent_frame, provider_part, model_part):
                 part_parameter.value = None
                 part_parameter.prefix = None
             else:
-                num, prefix, unit = helper.unit.cut_unit_value(provider_parameter.value)
-                if (unit!="" and parameter.unit is None) or (unit=="" and parameter.unit is not None) or (unit!="" and parameter.unit is not None and parameter.unit.symbol!=unit):
-                    wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, unit mismatch", 'Error', wx.OK | wx.ICON_ERROR)
+                try:
+                    num, prefix, unit = helper.unit.cut_unit_value(provider_parameter.value)
+                    if (unit!="" and parameter.unit is None) or (unit=="" and parameter.unit is not None) or (unit!="" and parameter.unit is not None and parameter.unit.symbol!=unit):
+                        wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, unit mismatch", 'Error', wx.OK | wx.ICON_ERROR)
+                        error = True
+                    if prefix!="" and parameter.unit is not None and parameter.unit.prefixable==False:
+                        wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, unit cannot be prefixed", 'Error', wx.OK | wx.ICON_ERROR)
+                        error = True
+                except Exception as e:
+                    print_stack()
+                    wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, {e}", 'Error', wx.OK | wx.ICON_ERROR)
                     error = True
-                if prefix!="" and parameter.unit is not None and parameter.unit.prefixable==False:
-                    wx.MessageBox(f"Import '{provider_parameter.name}' with value '{provider_parameter.value}' failed, unit cannot be prefixed", 'Error', wx.OK | wx.ICON_ERROR)
-                    error = True
-                
+                    
                 prefix_power = 1.
                 if prefix is not None:
                     found_prefix = api.data.unit_prefix.find([api.data.unit_prefix.FilterSymbol(prefix)])

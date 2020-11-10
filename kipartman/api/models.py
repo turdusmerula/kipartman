@@ -58,7 +58,6 @@ class Part(models.Model):
     category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('KicadFootprint', related_name='new_footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     symbol = models.ForeignKey('KicadSymbol', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    childs = models.ManyToManyField('Part', blank=True)
     #parameters is defined inside PartParameter by ForeignKey part
     #offers is defined inside PartOffer by ForeignKey part
     #manufacturers is defined inside PartManufacturer by ForeignKey part

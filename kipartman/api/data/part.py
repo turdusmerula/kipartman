@@ -3,6 +3,7 @@ from django.db.models import Count
 from helper.filter import Filter
 from django.db.models import Q
 import api.data.part_parameter
+import math
 
 class PartException(Exception):
     def __init__(self, error):
@@ -15,18 +16,6 @@ class FilterPart(Filter):
     
     def apply(self, request):
         return request.filter(id=self.part.id)
-
-# filter to request part childs
-class FilterChilds(Filter):
-    def __init__(self, part):
-        self.part = part
-        super(FilterChilds, self).__init__()
-    
-    def apply(self, request):
-        childs_id = []
-        for child in self.part.childs.all():
-            childs_id.append(child.pk)
-        return request.filter(pk__in=childs_id)
         
 class FilterCategory(Filter):
     def __init__(self, category):
@@ -137,29 +126,31 @@ class FilterMetaParameter(Filter):
         
         if self.parameter.parameter.value_type==api.models.ParameterType.TEXT:
             if operator=="=":
-                return request.filter(parameters__text_value=self.parameter.text_value)
+                return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__text_value=self.parameter.text_value))
             elif operator=="!=":
-                return request.filter(parameters__text_value__ne=self.parameter.text_value)
+                return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__text_value__ne=self.parameter.text_value))
         else:
+            # we compute an epsilon at 2^-19 for equality comparison
+            m, e = math.frexp(self.parameter.value)
+            epsilon = math.ldexp(1, e-19)
             if operator=="=":
-                return request.filter(parameters__value=self.parameter.value)
+                return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__value__gt=self.parameter.value-epsilon) & Q(parameters__value__lt=self.parameter.value+epsilon))
             elif operator=="<":
-                return request.filter(parameters__value__lt=self.parameter.value)
+                return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__value__lt=self.parameter.value-epsilon))
             elif operator=="<=":
-                return request.filter(parameters__value__lte=self.parameter.value)
+                return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__value__lte=self.parameter.value+epsilon))
             elif operator==">":
-                return request.filter(parameters__value__gt=self.parameter.value)
+                return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__value__gt=self.parameter.value+epsilon))
             elif operator==">=":
-                return request.filter(parameters__value__gte=self.parameter.value)
+                return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__value__gte=self.parameter.value-epsilon))
             elif operator=="!=":
-                return request.filter(parameters__value__ne=self.parameter.value)
+                return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & (Q(parameters__value__lt=self.parameter.value-epsilon) | Q(parameters__value__gt=self.parameter.value+epsilon))) 
 
         return request
 
 def _add_default_annotations(request):
     # add the field child_count in request result 
     request = request.select_related('category', 'footprint', 'symbol') # preload for performance
-    request = request.annotate(child_count=Count('childs'))
     return request
 
 def find(filters=[]):
@@ -207,18 +198,6 @@ def save(part):
     if part.pk is None:
         part.save()
         
-    # build list of childs
-    childs = {}
-    for child in part.childs.add_pendings():
-        childs[child.id] = child
-    for childid in childs:
-        for childchild in childs[childid].childs.all():
-            if childchild.id not in childs:
-                childs[childchild.id] = childchild
-
-    if part.id in childs:
-        raise PartException("Recursive equivalence detected, a part can not contain itself as an equivalent part")
-
     # build value
     # TODO
     
