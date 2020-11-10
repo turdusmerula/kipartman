@@ -96,7 +96,7 @@ def expand_prefix(value, prefix):
         raise UnitException(f"Invalid prefix {prefix}")
     return value*symbol_power[prefix]
 
-def format_float(v, digits=3):
+def format_float(v, digits=3, trailing_zeros=False):
     epsilon = 1e-5  
 
     if v<0:
@@ -111,13 +111,15 @@ def format_float(v, digits=3):
         return str(dec*sign) ;
     else:
         s = str(int(round(v, 0)))
-        if len(s)<digits:
-            format = f"{{:.{digits-len(s)}f}}"
-            return format.format(v*sign)
-        else:
-            return s
+        if digits is not None:
+            if len(s)<digits:
+                s = f"{{:.{digits-len(s)}f}}".format(v*sign)
+        if trailing_zeros==False and '.' in s:
+            while(s[-1]=='0'):
+                s = s[:-1]
+        return s
    
-def format_unit_prefix(v, unit='', prefix=None):
+def format_unit_prefix(v, unit='', prefix=None, digits=3, trailing_zeros=False):
     """
     Format a number with unit
     If prefix is None the prefix is chosen automaticaly depending on v
@@ -138,7 +140,7 @@ def format_unit_prefix(v, unit='', prefix=None):
             p = False
             for si in dprefix:
                 if v<1000:
-                    res = format_float(v*sign)+si
+                    res = format_float(v*sign, digits=digits, trailing_zeros=trailing_zeros)+si
                     p = True ;
                     break ;
                 else:
@@ -149,7 +151,7 @@ def format_unit_prefix(v, unit='', prefix=None):
             p = False 
             for si in fprefix:
                 if v>0.9:
-                    res = format_float(v*sign)+si
+                    res = format_float(v*sign, digits=digits, trailing_zeros=trailing_zeros)+si
                     p = True 
                     break
                 else:

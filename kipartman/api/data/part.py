@@ -215,10 +215,11 @@ def expanded_value(part, pattern):
     parameters = {}
 #     for parameter in api.data.part_parameter.find([api.data.part_parameter.FilterPart(part)]).all():
 #         parameters[parameter.parameter.name] = parameter
-    for parameter in part.parameters.all():
-        parameters[parameter.parameter.name] = parameter
-    for parameter in part.parameters.pendings():
-        parameters[parameter.parameter.name] = parameter
+    if part is not None:
+        for parameter in part.parameters.all():
+            parameters[parameter.parameter.name] = parameter
+        for parameter in part.parameters.pendings():
+            parameters[parameter.parameter.name] = parameter
         
     res = ""
     token = None
