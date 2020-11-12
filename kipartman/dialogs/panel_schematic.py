@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Aug 22 2019)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -31,18 +31,18 @@ class PanelSchematic ( wx.Panel ):
 		bSizer8 = wx.BoxSizer( wx.HORIZONTAL )
 
 		self.toolbar = wx.ToolBar( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
-		self.tool_export_bom = self.toolbar.AddLabelTool( wx.ID_ANY, u"export", wx.Bitmap( u"resources/export.gif", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Export bom from schematic", wx.EmptyString, None )
+		self.tool_export_bom = self.toolbar.AddTool( wx.ID_ANY, u"export", wx.Bitmap( u"resources/export.gif", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Export bom from schematic", wx.EmptyString, None )
 
 		self.toolbar.AddSeparator()
 
-		self.tool_show_all = self.toolbar.AddLabelTool( wx.ID_ANY, u"Show all parts", wx.Bitmap( u"resources/hide.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, u"Export BOM", wx.EmptyString, None )
+		self.tool_show_all = self.toolbar.AddTool( wx.ID_ANY, u"Show all parts", wx.Bitmap( u"resources/hide.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, u"Export BOM", wx.EmptyString, None )
 
 		self.toolbar.Realize()
 
 		bSizer8.Add( self.toolbar, 1, wx.EXPAND, 5 )
 
 		self.m_toolBar2 = wx.ToolBar( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
-		self.tool_refresh_schematic = self.m_toolBar2.AddLabelTool( wx.ID_ANY, u"Refresh", wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh schematic file", wx.EmptyString, None )
+		self.tool_refresh_schematic = self.m_toolBar2.AddTool( wx.ID_ANY, u"Refresh", wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh schematic file", wx.EmptyString, None )
 
 		self.m_toolBar2.Realize()
 
@@ -64,11 +64,16 @@ class PanelSchematic ( wx.Panel ):
 		self.m_panel1.Layout()
 		bSizer4.Fit( self.m_panel1 )
 		self.menu_parts = wx.Menu()
-		self.menu_parts_link = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Set kicad part", u"Link schematic part to a kipartman part", wx.ITEM_NORMAL )
+		self.menu_parts_link = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Link to kicad part", u"Link schematic part to a kipartman part", wx.ITEM_NORMAL )
 		self.menu_parts.Append( self.menu_parts_link )
 
-		self.menu_parts_unlink = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Remove kicad part", u"Unlink kipartman part", wx.ITEM_NORMAL )
+		self.menu_parts_unlink = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Unlink kicad part", u"Unlink kipartman part", wx.ITEM_NORMAL )
 		self.menu_parts.Append( self.menu_parts_unlink )
+
+		self.menu_parts.AppendSeparator()
+
+		self.menu_parts_remove_instance = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Remove instance", wx.EmptyString, wx.ITEM_NORMAL )
+		self.menu_parts.Append( self.menu_parts_remove_instance )
 
 		self.menu_parts.AppendSeparator()
 
@@ -78,11 +83,6 @@ class PanelSchematic ( wx.Panel ):
 		self.menu_parts_show = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Show", u"Show part", wx.ITEM_NORMAL )
 		self.menu_parts.Append( self.menu_parts_show )
 
-		self.menu_parts.AppendSeparator()
-
-		self.menu_parts_remove_instance = wx.MenuItem( self.menu_parts, wx.ID_ANY, u"Remove instance", wx.EmptyString, wx.ITEM_NORMAL )
-		self.menu_parts.Append( self.menu_parts_remove_instance )
-
 		self.m_panel1.Bind( wx.EVT_RIGHT_DOWN, self.m_panel1OnContextMenu )
 
 		self.m_panel5 = wx.Panel( self.splitter_part, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
@@ -90,9 +90,9 @@ class PanelSchematic ( wx.Panel ):
 
 		self.m_notebook1 = wx.Notebook( self.m_panel5, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.panel_preview = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.m_notebook1.AddPage( self.panel_preview, u"Preview", False )
+		self.m_notebook1.AddPage( self.panel_preview, u"Preview", True )
 		self.panel_stock = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.m_notebook1.AddPage( self.panel_stock, u"Stock", True )
+		self.m_notebook1.AddPage( self.panel_stock, u"Stock", False )
 
 		bSizer5.Add( self.m_notebook1, 1, wx.EXPAND |wx.ALL, 5 )
 
@@ -113,9 +113,9 @@ class PanelSchematic ( wx.Panel ):
 		self.Bind( wx.EVT_TOOL, self.onToolRefreshSchematic, id = self.tool_refresh_schematic.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartsLinkSelection, id = self.menu_parts_link.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartsUnlinkSelection, id = self.menu_parts_unlink.GetId() )
+		self.Bind( wx.EVT_MENU, self.onMenuPartsRemoveInstance, id = self.menu_parts_remove_instance.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartsHideSelection, id = self.menu_parts_hide.GetId() )
 		self.Bind( wx.EVT_MENU, self.onMenuPartsShowSelection, id = self.menu_parts_show.GetId() )
-		self.Bind( wx.EVT_MENU, self.onMenuPartsRemoveInstance, id = self.menu_parts_remove_instance.GetId() )
 
 	def __del__( self ):
 		pass
@@ -137,13 +137,13 @@ class PanelSchematic ( wx.Panel ):
 	def onMenuPartsUnlinkSelection( self, event ):
 		event.Skip()
 
+	def onMenuPartsRemoveInstance( self, event ):
+		event.Skip()
+
 	def onMenuPartsHideSelection( self, event ):
 		event.Skip()
 
 	def onMenuPartsShowSelection( self, event ):
-		event.Skip()
-
-	def onMenuPartsRemoveInstance( self, event ):
 		event.Skip()
 
 	def splitter_partOnIdle( self, event ):

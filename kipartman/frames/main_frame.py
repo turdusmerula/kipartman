@@ -9,6 +9,7 @@ from frames.distributors_frame import DistributorsFrame
 from frames.manufacturers_frame import ManufacturersFrame
 from frames.storages_frame import StoragesFrame
 from frames.units_frame import UnitsFrame
+from frames.schematic_frame import SchematicFrame
 # from frames.project_frame import ProjectFrame
 from helper.exception import print_stack
 import os
@@ -67,6 +68,32 @@ class MainFrame(DialogMain):
         units_frame = UnitsFrame(self.notebook)
         self.pages.append(units_frame)
         self.notebook.AddPage(units_frame, "Units", True)
+
+    def onMenuFileOpenSchematicSelection( self, event ):
+        dlg = wx.FileDialog(
+            self, message="Choose a kicad schematic file",
+            defaultDir=configuration.project_path,
+            defaultFile="",
+            wildcard="Kicad schematic (*.sch)|*.sch",
+                style=wx.FD_OPEN |
+                wx.FD_FILE_MUST_EXIST |
+                wx.FD_PREVIEW |
+                wx.FD_CHANGE_DIR
+        )
+        dlg.SetFilterIndex(0)
+
+        # Show the dialog and retrieve the user response. If it is the OK response,
+        # process the data.
+        if dlg.ShowModal() == wx.ID_OK:
+            os.chdir(self.cwd)
+            configuration.project_path = os.path.dirname(os.path.abspath(dlg.GetPath()))
+            configuration.Save()
+
+            schematic_frame = SchematicFrame(self.notebook, os.path.abspath(dlg.GetPath()))
+            self.pages.append(schematic_frame)
+            self.notebook.AddPage(schematic_frame, "Schematic", True)
+        event.Skip()
+
 
     def onNotebookPageChanged( self, event ):
         if self.menus is None:

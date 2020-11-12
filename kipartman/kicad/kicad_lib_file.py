@@ -192,7 +192,7 @@ class KicadLibObject(KicadObject):
     
 class KicadDEF(KicadLibObject):
     def __init__(self):
-        super(KicadDEF, self).__init__('DEF', True)
+        super(KicadDEF, self).__init__('^DEF$', True)
         KicadObject._register(self.header, KicadDEF)
 
 class KicadF(KicadLibObject):
@@ -218,12 +218,12 @@ class KicadF(KicadLibObject):
 
 class KicadDRAW(KicadLibObject):
     def __init__(self):
-        super(KicadDRAW, self).__init__('DRAW', True)
+        super(KicadDRAW, self).__init__('^DRAW$', True)
         KicadObject._register(self.header, KicadDRAW)
 
 class KicadC(KicadLibObject):
     def __init__(self):
-        super(KicadC, self).__init__('C')
+        super(KicadC, self).__init__('^C$')
         KicadObject._register(self.header, KicadC)
 
     def Render(self, canvas, obj):
@@ -240,13 +240,13 @@ class KicadC(KicadLibObject):
 
 class KicadA(KicadLibObject):
     def __init__(self):
-        super(KicadA, self).__init__('A')
+        super(KicadA, self).__init__('^A$')
         KicadObject._register(self.header, KicadA)
 
 
 class KicadT(KicadLibObject):
     def __init__(self):
-        super(KicadT, self).__init__('T')
+        super(KicadT, self).__init__('^T$')
         KicadObject._register(self.header, KicadT)
 
     def Render(self, canvas, obj):
@@ -266,7 +266,7 @@ class KicadT(KicadLibObject):
 
 class KicadP(KicadLibObject):
     def __init__(self):
-        super(KicadP, self).__init__('P')
+        super(KicadP, self).__init__('^P$')
         KicadObject._register(self.header, KicadP)
 
     def Render(self, canvas, obj):
@@ -290,7 +290,7 @@ class KicadP(KicadLibObject):
 
 class KicadX(KicadLibObject):
     def __init__(self):
-        super(KicadX, self).__init__('X')
+        super(KicadX, self).__init__('^X$')
         KicadObject._register(self.header, KicadX)
 
     def Render(self, canvas, obj):
@@ -338,7 +338,7 @@ class KicadX(KicadLibObject):
 
 class KicadS(KicadLibObject):
     def __init__(self):
-        super(KicadS, self).__init__('S')
+        super(KicadS, self).__init__('^S$')
         KicadObject._register(self.header, KicadS)
 
     def Render(self, canvas, obj):

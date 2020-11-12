@@ -398,7 +398,7 @@
                                         <property name="help">Link schematic part to a kipartman part</property>
                                         <property name="id">wxID_ANY</property>
                                         <property name="kind">wxITEM_NORMAL</property>
-                                        <property name="label">Set kicad part</property>
+                                        <property name="label">Link to kicad part</property>
                                         <property name="name">menu_parts_link</property>
                                         <property name="permission">none</property>
                                         <property name="shortcut"></property>
@@ -412,15 +412,33 @@
                                         <property name="help">Unlink kipartman part</property>
                                         <property name="id">wxID_ANY</property>
                                         <property name="kind">wxITEM_NORMAL</property>
-                                        <property name="label">Remove kicad part</property>
+                                        <property name="label">Unlink kicad part</property>
                                         <property name="name">menu_parts_unlink</property>
                                         <property name="permission">none</property>
                                         <property name="shortcut"></property>
                                         <property name="unchecked_bitmap"></property>
                                         <event name="OnMenuSelection">onMenuPartsUnlinkSelection</event>
                                     </object>
-                                    <object class="separator" expanded="0">
-                                        <property name="name">m_separator2</property>
+                                    <object class="separator" expanded="1">
+                                        <property name="name">m_separator22</property>
+                                        <property name="permission">none</property>
+                                    </object>
+                                    <object class="wxMenuItem" expanded="1">
+                                        <property name="bitmap"></property>
+                                        <property name="checked">0</property>
+                                        <property name="enabled">1</property>
+                                        <property name="help"></property>
+                                        <property name="id">wxID_ANY</property>
+                                        <property name="kind">wxITEM_NORMAL</property>
+                                        <property name="label">Remove instance</property>
+                                        <property name="name">menu_parts_remove_instance</property>
+                                        <property name="permission">none</property>
+                                        <property name="shortcut"></property>
+                                        <property name="unchecked_bitmap"></property>
+                                        <event name="OnMenuSelection">onMenuPartsRemoveInstance</event>
+                                    </object>
+                                    <object class="separator" expanded="1">
+                                        <property name="name">m_separator21</property>
                                         <property name="permission">none</property>
                                     </object>
                                     <object class="wxMenuItem" expanded="0">
@@ -450,24 +468,6 @@
                                         <property name="shortcut"></property>
                                         <property name="unchecked_bitmap"></property>
                                         <event name="OnMenuSelection">onMenuPartsShowSelection</event>
-                                    </object>
-                                    <object class="separator" expanded="1">
-                                        <property name="name">m_separator21</property>
-                                        <property name="permission">none</property>
-                                    </object>
-                                    <object class="wxMenuItem" expanded="1">
-                                        <property name="bitmap"></property>
-                                        <property name="checked">0</property>
-                                        <property name="enabled">1</property>
-                                        <property name="help"></property>
-                                        <property name="id">wxID_ANY</property>
-                                        <property name="kind">wxITEM_NORMAL</property>
-                                        <property name="label">Remove instance</property>
-                                        <property name="name">menu_parts_remove_instance</property>
-                                        <property name="permission">none</property>
-                                        <property name="shortcut"></property>
-                                        <property name="unchecked_bitmap"></property>
-                                        <event name="OnMenuSelection">onMenuPartsRemoveInstance</event>
                                     </object>
                                 </object>
                             </object>
@@ -589,7 +589,7 @@
                                             <object class="notebookpage" expanded="0">
                                                 <property name="bitmap"></property>
                                                 <property name="label">Preview</property>
-                                                <property name="select">0</property>
+                                                <property name="select">1</property>
                                                 <object class="wxPanel" expanded="0">
                                                     <property name="BottomDockable">1</property>
                                                     <property name="LeftDockable">1</property>
@@ -646,7 +646,7 @@
                                             <object class="notebookpage" expanded="0">
                                                 <property name="bitmap"></property>
                                                 <property name="label">Stock</property>
-                                                <property name="select">1</property>
+                                                <property name="select">0</property>
                                                 <object class="wxPanel" expanded="0">
                                                     <property name="BottomDockable">1</property>
                                                     <property name="LeftDockable">1</property>

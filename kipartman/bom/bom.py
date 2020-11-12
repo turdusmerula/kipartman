@@ -1,9 +1,8 @@
 import json
 import os
-import rest
 from kicad.kicad_schematic_file import KicadSchematicFile
 from helper.exception import print_stack
-from helper.parts_cache import PartsCache
+# from helper.parts_cache import PartsCache
 from helper.log import log
 
 class BomException(BaseException):
@@ -11,7 +10,7 @@ class BomException(BaseException):
         self.error = error
         
 class Bom(object):
-    def __init__(self, parts_cache=PartsCache()):
+    def __init__(self):
         self.filename = None
         self.parts = []
         self.part_components = {}
