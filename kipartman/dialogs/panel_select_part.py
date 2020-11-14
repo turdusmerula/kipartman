@@ -45,7 +45,7 @@ class PanelSelectPart ( wx.Panel ):
 		bSizer61.Add( self.button_refresh_parts, 0, wx.ALL|wx.EXPAND, 5 )
 
 
-		bSizer4.Add( bSizer61, 0, wx.ALIGN_RIGHT|wx.EXPAND, 5 )
+		bSizer4.Add( bSizer61, 0, wx.EXPAND, 5 )
 
 		self.tree_parts = wx.dataview.DataViewCtrl( self.m_panel1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer4.Add( self.tree_parts, 1, wx.ALL|wx.EXPAND, 5 )

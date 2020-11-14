@@ -2,67 +2,116 @@
     "components": {
         "51": [
             {
-                "reference": "U5",
+                "reference": "U1",
+                "timestamp": "5E67E75F",
+                "value": "LIS3DHTR"
+            },
+            {
+                "reference": "U3",
                 "timestamp": "/5E6781CF/5E67B4BC",
                 "value": "LIS3DH"
             },
             {
-                "reference": "U6",
+                "reference": "U8",
                 "timestamp": "/5E678707/5E67B4BC",
                 "value": "LIS3DH"
+            },
+            {
+                "reference": "U13",
+                "timestamp": "/5E6EC0CC/5E67B4BC",
+                "value": "LIS3DH"
+            }
+        ],
+        "131": [
+            {
+                "reference": "U2",
+                "timestamp": "5E67EAF2",
+                "value": "AD7793"
             }
         ],
         "139": [
             {
-                "reference": "U9",
+                "reference": "U?",
                 "timestamp": "/5E6781CF/5E67F299/5E67F437",
                 "value": "MMA865x"
             },
             {
-                "reference": "U10",
-                "timestamp": "/5E678707/5E67F299/5E67F437",
+                "reference": "U77",
+                "timestamp": "/5E6781CF/5E67F299/5E6EA712/5E67F437",
+                "value": "MMA865x"
+            },
+            {
+                "reference": "U6",
+                "timestamp": "/5E6781CF/5E67F299/5E6EC240",
                 "value": "MMA865x"
             }
         ],
         "143": [
             {
-                "reference": "U1",
+                "reference": "U4",
                 "timestamp": "/5E6781CF/5E678220",
                 "value": "7WB3306DTR2G"
             },
             {
-                "reference": "U3",
+                "reference": "U9",
                 "timestamp": "/5E678707/5E678220",
                 "value": "7WB3306DTR2G"
             },
             {
-                "reference": "U2",
+                "reference": "U14",
+                "timestamp": "/5E6EC0CC/5E678220",
+                "value": "7WB3306DTR2G"
+            },
+            {
+                "reference": "U5",
                 "timestamp": "/5E6781CF/5E6783CA",
                 "value": "7WB3306DTR2G"
             },
             {
-                "reference": "U4",
+                "reference": "U10",
                 "timestamp": "/5E678707/5E6783CA",
                 "value": "7WB3306DTR2G"
+            },
+            {
+                "reference": "U15",
+                "timestamp": "/5E6EC0CC/5E6783CA",
+                "value": "7WB3306DTR2G"
+            }
+        ],
+        "184": [
+            {
+                "reference": "Y1",
+                "timestamp": "/5E6EBAF2/5E6EBD19",
+                "value": "Antenna"
             }
         ]
     },
     "parts": [
-        {
-            "description": "Bus Switch 2-Element 2-IN 8-Pin UDFN T/R",
-            "id": 143,
-            "name": "7WB3306"
-        },
         {
             "description": "LIS3DH Series 3 Axis ±2/±4/±8/±16 g Ultra Low Power \"Nano\" Accelerometer LGA-16",
             "id": 51,
             "name": "LIS3DHTR"
         },
         {
+            "description": "Triple Channel Single ADC Delta-Sigma 470sps 24-bit Serial 16-Pin TSSOP T/R",
+            "id": 131,
+            "name": "AD7793"
+        },
+        {
             "description": "MMA845x Series ±2/±4/±8 g 3-Axis 12-bit/8-bit Digital Accelerometer - QFN-16",
             "id": 139,
             "name": "MMA845x"
+        },
+        {
+            "description": "Bus Switch 2-Element 2-IN 8-Pin UDFN T/R",
+            "id": 143,
+            "name": "7WB3306"
+        },
+        {
+            "description": "Patch Antenna Right Hand Circular 1564MHz/1578MHz/1607MHz 4.5dBi 50Ohm Adhesive Box",
+            "id": 184,
+            "name": "206640-0001"
         }
     ],
-    "schematic": "/home/seb/git/kipartman/test/test_board/test_board1/test_board.sch"
+    "schematic": "/home/seb/git/kipartman-v2/test/test_board/test_board1/test_board.sch"
 }

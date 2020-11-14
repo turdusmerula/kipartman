@@ -179,13 +179,23 @@ class KicadLibObject(KicadObject):
         self.category = category
 
     @staticmethod
+    def _register(header, obj):
+        """
+        Register a new object type
+        """
+        KicadObject._register("KicadLibObject", header, obj)
+        
+    @staticmethod
     def Instance(header):
         """
         Create an instance of object type if type registered, or KicadObject if not
         """
-        for key in KicadObject.mapping:
+        if "KicadLibObject" not in KicadObject.mapping:
+            KicadObject.mapping["KicadLibObject"] = {}
+            
+        for key in KicadObject.mapping["KicadLibObject"]:
             if re.compile(key).match(header):
-                obj = KicadObject.mapping[key]()
+                obj = KicadObject.mapping["KicadLibObject"][key]()
                 obj.header = header
                 return obj
         return KicadLibObject(header)
@@ -193,12 +203,12 @@ class KicadLibObject(KicadObject):
 class KicadDEF(KicadLibObject):
     def __init__(self):
         super(KicadDEF, self).__init__('^DEF$', True)
-        KicadObject._register(self.header, KicadDEF)
+        KicadLibObject._register(self.header, KicadDEF)
 
 class KicadF(KicadLibObject):
     def __init__(self):
         super(KicadF, self).__init__('^F[0-9]*$')
-        KicadObject._register(self.header, KicadF)
+        KicadLibObject._register(self.header, KicadF)
 
     def Render(self, canvas, obj):
         if len(self.attributes)<5:
@@ -219,12 +229,12 @@ class KicadF(KicadLibObject):
 class KicadDRAW(KicadLibObject):
     def __init__(self):
         super(KicadDRAW, self).__init__('^DRAW$', True)
-        KicadObject._register(self.header, KicadDRAW)
+        KicadLibObject._register(self.header, KicadDRAW)
 
 class KicadC(KicadLibObject):
     def __init__(self):
         super(KicadC, self).__init__('^C$')
-        KicadObject._register(self.header, KicadC)
+        KicadLibObject._register(self.header, KicadC)
 
     def Render(self, canvas, obj):
         if len(self.attributes)<3:
@@ -241,13 +251,13 @@ class KicadC(KicadLibObject):
 class KicadA(KicadLibObject):
     def __init__(self):
         super(KicadA, self).__init__('^A$')
-        KicadObject._register(self.header, KicadA)
+        KicadLibObject._register(self.header, KicadA)
 
 
 class KicadT(KicadLibObject):
     def __init__(self):
         super(KicadT, self).__init__('^T$')
-        KicadObject._register(self.header, KicadT)
+        KicadLibObject._register(self.header, KicadT)
 
     def Render(self, canvas, obj):
         if len(self.attributes)<4:
@@ -267,7 +277,7 @@ class KicadT(KicadLibObject):
 class KicadP(KicadLibObject):
     def __init__(self):
         super(KicadP, self).__init__('^P$')
-        KicadObject._register(self.header, KicadP)
+        KicadLibObject._register(self.header, KicadP)
 
     def Render(self, canvas, obj):
         if len(self.attributes)<4:
@@ -291,7 +301,7 @@ class KicadP(KicadLibObject):
 class KicadX(KicadLibObject):
     def __init__(self):
         super(KicadX, self).__init__('^X$')
-        KicadObject._register(self.header, KicadX)
+        KicadLibObject._register(self.header, KicadX)
 
     def Render(self, canvas, obj):
         if len(self.attributes)<6:
@@ -339,7 +349,7 @@ class KicadX(KicadLibObject):
 class KicadS(KicadLibObject):
     def __init__(self):
         super(KicadS, self).__init__('^S$')
-        KicadObject._register(self.header, KicadS)
+        KicadLibObject._register(self.header, KicadS)
 
     def Render(self, canvas, obj):
         if len(self.attributes)<4:

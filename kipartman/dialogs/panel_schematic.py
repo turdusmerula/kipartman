@@ -35,7 +35,7 @@ class PanelSchematic ( wx.Panel ):
 
 		self.toolbar.AddSeparator()
 
-		self.tool_show_all = self.toolbar.AddTool( wx.ID_ANY, u"Show all parts", wx.Bitmap( u"resources/hide.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, u"Export BOM", wx.EmptyString, None )
+		self.tool_show_all = self.toolbar.AddTool( wx.ID_ANY, u"Show all parts", wx.Bitmap( u"resources/hide.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, u"Show all parts", wx.EmptyString, None )
 
 		self.toolbar.Realize()
 

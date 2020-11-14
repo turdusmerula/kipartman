@@ -1,9 +1,10 @@
 import json
 import os
-from kicad.kicad_schematic_file import KicadSchematicFile
+from kicad.kicad_schematic_file import KicadSchematicFile, KicadComp, KicadAR
 from helper.exception import print_stack
 # from helper.parts_cache import PartsCache
 from helper.log import log
+import api.data.part
 
 class BomException(BaseException):
     def __init__(self, error):
@@ -17,7 +18,6 @@ class Bom(object):
         self.component_part = {}
         self.schematic = None
         self.saved = True
-        self.parts_cache = parts_cache
         
     def LoadFile(self, filename):
         log.info(f"Load BOM {filename}")
@@ -139,17 +139,54 @@ class Bom(object):
         self.schematic = KicadSchematicFile()
         self.schematic.LoadFile(file)
 
-        for component, ar in self.schematic.Components():
-            if component.kipart_id:
-                # this is an instance of component
-                part = None
-                try:
-                    part = self.parts_cache.Find(component.kipart_id)
-                    self.AddPart(part)
-                    self.AddPartComponent(part, component, ar)
-                except Exception as e:
-                    print_stack()
-                    log.error(format(e))
+        if self.schematic is not None and self.schematic.objects is not None:
+            self._load_nodes(self.schematic.parent.nodes)
+            
+            for sheet in self.schematic.objects.sheets:
+                if sheet.schematic is not None:
+                    self._load_nodes(sheet.schematic.parent.nodes)
+
+    def _load_nodes(self, nodes):
+        sheet_timestamps = self.schematic.SheetTimetamps()
+        
+        for obj in nodes:
+            if isinstance(obj, KicadComp):
+                if obj.kipart_id:
+                    try:
+                        parts = api.data.part.find([api.data.part.FilterPartId(int(obj.kipart_id))])
+                        if len(parts)>0:
+                            part = parts[0]
+                            self.AddPart(part)
+                        
+                            instances = 0
+                            for instobj in obj.nodes:
+                                if isinstance(instobj, KicadAR):
+                                    sheet_timestamp = "/".join(instobj.timestamp.split('/')[:-1])
+                                    if sheet_timestamp in sheet_timestamps:
+                                        instances += 1
+                                        self.AddPartComponent(part, obj, instobj)
+                                    else:
+                                        print(f"Ignored {instobj.timestamp}")
+                            if instances==0:
+                                self.AddPartComponent(part, obj, None)
+                                
+                        else:
+                            print(f"part id {obj.kipart_id} not found")
+                    except Exception as e:
+                        print_stack()
+                        print(e)
+                        
+#         for component, ar in self.schematic.Components():
+#             if component.kipart_id:
+#                 # this is an instance of component
+#                 part = None
+#                 try:
+#                     part = self.parts_cache.Find(component.kipart_id)
+#                     self.AddPart(part)
+#                     self.AddPartComponent(part, component, ar)
+#                 except Exception as e:
+#                     print_stack()
+#                     log.error(format(e))
         
     def AddPart(self, part):
         if part not in self.parts:

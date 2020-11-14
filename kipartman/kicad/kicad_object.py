@@ -22,20 +22,23 @@ class KicadObject(object):
         self.nodes = []
     
     @staticmethod
-    def _register(header, obj):
+    def _register(category, header, obj):
         """
         Register a new object type
         """
-        if not header in KicadObject.mapping:
-            KicadObject.mapping[header] = obj
+        if category not in KicadObject.mapping:
+            KicadObject.mapping[category] = {}
+            
+        if not header in KicadObject.mapping[category]:
+            KicadObject.mapping[category][header] = obj
 
     @staticmethod
-    def Instance(header):
+    def Instance(category, header):
         """
         Create an instance of object type if type registered, or KicadObject if not
         """
-        if header in KicadObject.mapping:
-            return  KicadObject.mapping[header]()
+        if header in KicadObject.mapping[category]:
+            return  KicadObject.mapping[category][header]()
         return KicadObject(header)
     
     def AddNode(self, node):

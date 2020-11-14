@@ -83,7 +83,7 @@ class KicadFileManager(wx.EvtHandler):
         for ipath in KicadFileManager.path:
             top_level = True
             for jpath in KicadFileManager.path:
-                if ipath!=jpath and jpath.startswith(ipath):
+                if ipath!=jpath and ipath.startswith(jpath):
                     top_level = False
             if top_level==True:
                 path_to_watch.append(ipath)
@@ -136,3 +136,8 @@ class KicadFileManager(wx.EvtHandler):
         if ex is not None:
             raise ex
         return res
+
+    @property
+    def Path(self):
+        return self._path
+    

@@ -352,15 +352,22 @@ class KicadSchematicObject(KicadObject):
     def __init__(self, header, category=False):
         super(KicadSchematicObject, self).__init__(header)
         self.category = category
+
+    @staticmethod
+    def _register(header, obj):
+        KicadObject._register("KicadSchematicObject", header, obj)
         
     @staticmethod
     def Instance(header):
         """
         Create an instance of object type if type registered, or KicadSchematicObject if not
         """
-        for key in KicadObject.mapping:
+        if "KicadSchematicObject" not in KicadObject.mapping:
+            KicadObject.mapping["KicadSchematicObject"] = {}
+
+        for key in KicadObject.mapping["KicadSchematicObject"]:
             if re.compile(key).match(header):
-                obj = KicadObject.mapping[key]()
+                obj = KicadObject.mapping["KicadSchematicObject"][key]()
                 obj.header = header
                 return obj
         return KicadSchematicObject(header)
@@ -368,13 +375,13 @@ class KicadSchematicObject(KicadObject):
 class KicadDescr(KicadSchematicObject):
     def __init__(self):
         super(KicadDescr, self).__init__('^\$Descr$', True)
-        KicadObject._register(self.header, KicadDescr)
+        KicadSchematicObject._register(self.header, KicadDescr)
 
 
 class KicadComp(KicadSchematicObject):
     def __init__(self):
         super(KicadComp, self).__init__('^\$Comp$', True)
-        KicadObject._register(self.header, KicadComp)
+        KicadSchematicObject._register(self.header, KicadComp)
 
     def getL(self):
         for node in self.nodes:
@@ -462,6 +469,7 @@ class KicadComp(KicadSchematicObject):
             f = KicadF(parent=self)
             f.add_attributes()
             f.SetAttribute(9, 'kipart_id', 'string')    
+            f.header = "F"
         f.SetAttribute(1, value, 'string')    
 
 
@@ -476,7 +484,8 @@ class KicadComp(KicadSchematicObject):
         if not f:
             f = KicadF(parent=self)
             f.add_attributes()
-            f.SetAttribute(9, 'kipart_sku', 'string')    
+            f.SetAttribute(9, 'kipart_sku', 'string')
+            f.header = "F"
         f.SetAttribute(1, value, 'string')    
 
     def fget_kipart_status(self):
@@ -491,6 +500,7 @@ class KicadComp(KicadSchematicObject):
             f = KicadF(parent=self)
             f.add_attributes()
             f.SetAttribute(9, 'kipart_status', 'string')    
+            f.header = "F"
         f.SetAttribute(1, value, 'string')    
 
     def fget_timestamp(self):
@@ -512,7 +522,7 @@ class KicadComp(KicadSchematicObject):
 class KicadF(KicadSchematicObject):
     def __init__(self, parent=None):
         super(KicadF, self).__init__('^F$')
-        KicadObject._register(self.header, KicadF)
+        KicadSchematicObject._register(self.header, KicadF)
         self.parent = parent
         
         if parent:
@@ -545,17 +555,17 @@ class KicadF(KicadSchematicObject):
 class KicadL(KicadSchematicObject):
     def __init__(self):
         super(KicadL, self).__init__('^L$')
-        KicadObject._register(self.header, KicadL)
+        KicadSchematicObject._register(self.header, KicadL)
         
 class KicadU(KicadSchematicObject):
     def __init__(self):
         super(KicadU, self).__init__('^U$')
-        KicadObject._register(self.header, KicadU)
+        KicadSchematicObject._register(self.header, KicadU)
 
 class KicadAR(KicadSchematicObject):
     def __init__(self, parent=None):
         super(KicadAR, self).__init__('^AR$')
-        KicadObject._register(self.header, KicadAR)
+        KicadSchematicObject._register(self.header, KicadAR)
 
     def fget_timestamp(self):
         return self.NamedAttribute('Path')
@@ -569,7 +579,7 @@ class KicadAR(KicadSchematicObject):
 class KicadSheet(KicadSchematicObject):
     def __init__(self):
         super(KicadSheet, self).__init__('^\$Sheet$', True)
-        KicadObject._register(self.header, KicadSheet)
+        KicadSchematicObject._register(self.header, KicadSheet)
         
         self.schematic = None
         

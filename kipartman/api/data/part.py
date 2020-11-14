@@ -17,6 +17,14 @@ class FilterPart(Filter):
     def apply(self, request):
         return request.filter(id=self.part.id)
         
+class FilterPartId(Filter):
+    def __init__(self, id):
+        self.id = id
+        super(FilterPartId, self).__init__()
+    
+    def apply(self, request):
+        return request.filter(id=self.id)
+
 class FilterCategory(Filter):
     def __init__(self, category):
         self.category = category
@@ -211,7 +219,10 @@ def duplicate(part):
     return newpart
 
 
-def expanded_value(part, pattern):
+def expanded_value(part, pattern=None):
+    if pattern is None:
+        pattern = part.value
+        
     parameters = {}
 #     for parameter in api.data.part_parameter.find([api.data.part_parameter.FilterPart(part)]).all():
 #         parameters[parameter.parameter.name] = parameter

@@ -1,4 +1,7 @@
 eclipse.preferences.version=1
+encoding//env/lib/python3.6/site-packages/watchdog/observers/inotify.py=utf-8
+encoding//env/lib/python3.6/site-packages/watchdog/observers/inotify_buffer.py=utf-8
+encoding//env/lib/python3.6/site-packages/watchdog/observers/inotify_c.py=utf-8
 encoding//kipartman/api/config/urls.py=utf-8
 encoding//kipartman/api/migrations3/0001_initial.py=utf-8
 encoding//kipartman/api/migrations3/0002_initial_data.py=utf-8

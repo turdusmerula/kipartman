@@ -169,25 +169,25 @@
                                 <property name="window_extra_style"></property>
                                 <property name="window_name"></property>
                                 <property name="window_style">wxTAB_TRAVERSAL</property>
-                                <object class="wxBoxSizer" expanded="0">
+                                <object class="wxBoxSizer" expanded="1">
                                     <property name="minimum_size"></property>
                                     <property name="name">bSizer4</property>
                                     <property name="orient">wxVERTICAL</property>
                                     <property name="permission">none</property>
-                                    <object class="sizeritem" expanded="0">
+                                    <object class="sizeritem" expanded="1">
                                         <property name="border">5</property>
                                         <property name="flag">wxEXPAND</property>
                                         <property name="proportion">0</property>
-                                        <object class="wxBoxSizer" expanded="0">
+                                        <object class="wxBoxSizer" expanded="1">
                                             <property name="minimum_size"></property>
                                             <property name="name">bSizer8</property>
                                             <property name="orient">wxHORIZONTAL</property>
                                             <property name="permission">none</property>
-                                            <object class="sizeritem" expanded="0">
+                                            <object class="sizeritem" expanded="1">
                                                 <property name="border">5</property>
                                                 <property name="flag">wxEXPAND</property>
                                                 <property name="proportion">1</property>
-                                                <object class="wxToolBar" expanded="0">
+                                                <object class="wxToolBar" expanded="1">
                                                     <property name="BottomDockable">1</property>
                                                     <property name="LeftDockable">1</property>
                                                     <property name="RightDockable">1</property>
@@ -267,7 +267,7 @@
                                                         <property name="name">tool_show_all</property>
                                                         <property name="permission">protected</property>
                                                         <property name="statusbar"></property>
-                                                        <property name="tooltip">Export BOM</property>
+                                                        <property name="tooltip">Show all parts</property>
                                                         <event name="OnToolClicked">onToolShowAllClicked</event>
                                                     </object>
                                                 </object>
@@ -348,11 +348,11 @@
                                             </object>
                                         </object>
                                     </object>
-                                    <object class="sizeritem" expanded="0">
+                                    <object class="sizeritem" expanded="1">
                                         <property name="border">5</property>
                                         <property name="flag">wxEXPAND</property>
                                         <property name="proportion">1</property>
-                                        <object class="wxBoxSizer" expanded="0">
+                                        <object class="wxBoxSizer" expanded="1">
                                             <property name="minimum_size"></property>
                                             <property name="name">bSizer42</property>
                                             <property name="orient">wxHORIZONTAL</property>
@@ -387,7 +387,7 @@
                                         </object>
                                     </object>
                                 </object>
-                                <object class="wxMenu" expanded="1">
+                                <object class="wxMenu" expanded="0">
                                     <property name="label">MyMenu</property>
                                     <property name="name">menu_parts</property>
                                     <property name="permission">protected</property>
@@ -419,11 +419,11 @@
                                         <property name="unchecked_bitmap"></property>
                                         <event name="OnMenuSelection">onMenuPartsUnlinkSelection</event>
                                     </object>
-                                    <object class="separator" expanded="1">
+                                    <object class="separator" expanded="0">
                                         <property name="name">m_separator22</property>
                                         <property name="permission">none</property>
                                     </object>
-                                    <object class="wxMenuItem" expanded="1">
+                                    <object class="wxMenuItem" expanded="0">
                                         <property name="bitmap"></property>
                                         <property name="checked">0</property>
                                         <property name="enabled">1</property>
@@ -437,7 +437,7 @@
                                         <property name="unchecked_bitmap"></property>
                                         <event name="OnMenuSelection">onMenuPartsRemoveInstance</event>
                                     </object>
-                                    <object class="separator" expanded="1">
+                                    <object class="separator" expanded="0">
                                         <property name="name">m_separator21</property>
                                         <property name="permission">none</property>
                                     </object>
@@ -473,7 +473,7 @@
                             </object>
                         </object>
                         <object class="splitteritem" expanded="1">
-                            <object class="wxPanel" expanded="0">
+                            <object class="wxPanel" expanded="1">
                                 <property name="BottomDockable">1</property>
                                 <property name="LeftDockable">1</property>
                                 <property name="RightDockable">1</property>
