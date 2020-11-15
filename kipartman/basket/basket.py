@@ -1,7 +1,6 @@
 import json
 import os
 import wx
-import rest
 from bom.bom import Bom
 from helper.log import log
 

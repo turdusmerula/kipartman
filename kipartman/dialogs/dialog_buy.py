@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Aug 22 2019)
+## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -58,10 +58,10 @@ class DialogBuy ( wx.Frame ):
 		bSizer17.Add( self.m_staticText3111, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.spin_quantity = wx.SpinCtrl( self.m_panel311, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 1, 9999999, 1 )
-		bSizer17.Add( self.spin_quantity, 0, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		bSizer17.Add( self.spin_quantity, 0, wx.ALL|wx.EXPAND, 5 )
 
 		self.toolbar_boms = wx.ToolBar( self.m_panel311, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
-		self.toolbar_boms_refresh = self.toolbar_boms.AddLabelTool( wx.ID_ANY, u"Refresh", wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh boms", wx.EmptyString, None )
+		self.toolbar_boms_refresh = self.toolbar_boms.AddTool( wx.ID_ANY, u"Refresh", wx.Bitmap( u"resources/refresh.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Refresh boms", wx.EmptyString, None )
 
 		self.toolbar_boms.Realize()
 
@@ -136,13 +136,13 @@ class DialogBuy ( wx.Frame ):
 		bSizer14 = wx.BoxSizer( wx.HORIZONTAL )
 
 		self.m_toolBar2 = wx.ToolBar( self.m_panel3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
-		self.tool_distributors_view_all_prices = self.m_toolBar2.AddLabelTool( wx.ID_ANY, u"view all prices", wx.Bitmap( u"resources/hide.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, u"View all prices", wx.EmptyString, None )
+		self.tool_distributors_view_all_prices = self.m_toolBar2.AddTool( wx.ID_ANY, u"view all prices", wx.Bitmap( u"resources/hide.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_CHECK, u"View all prices", wx.EmptyString, None )
 
 		self.m_toolBar2.AddSeparator()
 
-		self.tool_distributors_collapse_all = self.m_toolBar2.AddLabelTool( wx.ID_ANY, u"Collapse all", wx.Bitmap( u"resources/collapseall.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Collapse all", wx.EmptyString, None )
+		self.tool_distributors_collapse_all = self.m_toolBar2.AddTool( wx.ID_ANY, u"Collapse all", wx.Bitmap( u"resources/collapseall.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Collapse all", wx.EmptyString, None )
 
-		self.tool_distributors_expand_all = self.m_toolBar2.AddLabelTool( wx.ID_ANY, u"Expand all", wx.Bitmap( u"resources/expandall.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Expand all", wx.EmptyString, None )
+		self.tool_distributors_expand_all = self.m_toolBar2.AddTool( wx.ID_ANY, u"Expand all", wx.Bitmap( u"resources/expandall.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Expand all", wx.EmptyString, None )
 
 		self.m_toolBar2.Realize()
 
@@ -167,7 +167,7 @@ class DialogBuy ( wx.Frame ):
 		self.panel_wish = wx.Panel( self.pager_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer16 = wx.BoxSizer( wx.VERTICAL )
 
-		self.tree_wish_parts = wx.dataview.DataViewCtrl( self.panel_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_MULTIPLE|wx.dataview.DV_VARIABLE_LINE_HEIGHT )
+		self.tree_wish_parts = wx.dataview.DataViewCtrl( self.panel_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.dataview.DV_VARIABLE_LINE_HEIGHT )
 		bSizer16.Add( self.tree_wish_parts, 1, wx.ALL|wx.EXPAND, 5 )
 
 		bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
@@ -186,9 +186,9 @@ class DialogBuy ( wx.Frame ):
 		bSizer11.Add( self.static_total_price, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 
 		self.m_toolBar21 = wx.ToolBar( self.panel_wish, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
-		self.tool_export_csv = self.m_toolBar21.AddLabelTool( wx.ID_ANY, u"Export to csv", wx.Bitmap( u"resources/export-csv.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Export to csv file", wx.EmptyString, None )
+		self.tool_export_csv = self.m_toolBar21.AddTool( wx.ID_ANY, u"Export to csv", wx.Bitmap( u"resources/export-csv.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Export to csv file", wx.EmptyString, None )
 
-		self.tool_place_order = self.m_toolBar21.AddLabelTool( wx.ID_ANY, u"Place orders", wx.Bitmap( u"resources/buy.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Place orders", wx.EmptyString, None )
+		self.tool_place_order = self.m_toolBar21.AddTool( wx.ID_ANY, u"Place orders", wx.Bitmap( u"resources/buy.png", wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, u"Place orders", wx.EmptyString, None )
 
 		self.m_toolBar21.Realize()
 

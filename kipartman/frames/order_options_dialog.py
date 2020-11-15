@@ -2,7 +2,6 @@ from dialogs.dialog_order_options import DialogOrderOptions
 
 import wx
 import helper.tree
-import rest
 
 class DataModelDistributor(helper.tree.TreeItem):
     def __init__(self, distributor):

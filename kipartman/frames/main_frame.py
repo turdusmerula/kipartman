@@ -1,6 +1,6 @@
 from dialogs.dialog_main import DialogMain
 from frames.configuration_frame import ConfigurationFrame
-# from frames.buy_frame import BuyFrame
+from frames.buy_frame import BuyFrame
 from frames.parts_frame import PartsFrame
 from frames.symbols_frame import SymbolsFrame
 from frames.footprints_frame import FootprintsFrame

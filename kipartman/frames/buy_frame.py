@@ -3,27 +3,20 @@ from frames.order_options_dialog import OrderOptionsDialog
 from frames.edit_wish_frame import EditWishFrame
 from currency.currency import Currency
 from configuration import configuration
-import rest
 from basket.basket import Basket
 import os
 import wx
 from bom.bom import Bom
-from octopart.queries import PartsQuery
-from octopart.extractor import OctopartExtractor
 import pytz
 import datetime
 import helper.tree
 from helper.exception import print_stack
-from helper.part_updater import PartReferenceUpdater
-from helper.parts_cache import PartsCache
 from helper.log import log
 
 currency = Currency()
 
 view_all = True
 wish_parts = []
-        
-parts_cache = PartsCache()
 
 class DataModelBomProduct(helper.tree.TreeItem):
     def __init__(self, bom, quantity):
