@@ -22,7 +22,7 @@ def read(*names, **kwargs):
 
 setup(
     name='kipartman',
-    version='2.0.0-a',
+    version='2.0.0',
     description='Kicad part manager',
 #     long_description='%s\n%s' %
 #     (re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub(
@@ -62,9 +62,13 @@ setup(
          'watchdog',    # watch for file change
          'numpy',
          'setuptools',
-         'profiling',
+#          'profiling',
          'cfscrape',        # web scrapper
-         'beautifulsoup4'   # html parser
+         'beautifulsoup4',   # html parser
+         
+         'asgiref',
+         'pytz',
+         'sqlparse'
     ],
 )
 

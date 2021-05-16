@@ -1,0 +1,28 @@
+#!/bin/bash
+
+sudo apt-get install libgtk-3-dev libpython3.9-dev
+
+pip uninstall wxPython
+pip install --force-reinstall --no-clean --no-cache-dir -vvv wxPython
+
+wxpython_build_path=$(find /tmp -name "wxpython*")
+if [ "_${wxpython_build_path}" == "_" ]
+then
+	echo "wxPython not found in /tmp"
+	exit 1
+fi
+wxpython_install_path=$(python patch/wxPython_path.py)
+if [ "_${wxpython_install_path}" == "_" ]
+then
+	echo "wxPython not installed"
+	exit 1
+fi
+
+patch $wxpython_build_path/ext/wxWidgets/src/gtk/dataview.cpp patch/dataview.c.patch
+
+cd $wxpython_build_path
+python build.py build
+cp -f ./wx/libwx_gtk3u_core-3.1.so.5.0.0 ${wxpython_install_path}/
+
+rm -rf $wxpython_build_path
+

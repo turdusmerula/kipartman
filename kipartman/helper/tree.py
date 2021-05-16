@@ -26,14 +26,25 @@ class TreeItem(object):
         self.parent = None
         
         self.values = {}
+        self.raw_values = {}
 
     def _get_value(self, col):
         if col not in self.values:
             self.values[col] = self.GetValue(col)
         return self.values[col]
-            
+    
+    def _get_raw_value(self, col):
+        if col not in self.raw_values:
+            self.raw_values[col] = self.GetRawValue(col)
+        return self.raw_values[col]
+
+    # returns the value to be displayed
     def GetValue(self, col):
         return ''
+
+    # return the value used to compare
+    def GetRawValue(self, col):
+        return self.GetValue(col)
 
     def HasValue(self, col):
         return True
@@ -219,13 +230,17 @@ class TreeModel(wx.dataview.PyDataViewModel):
         if item.IsOk()==False:
             return ''
         obj = self.ItemToObject(item)
-        return obj._get_value(col)
+        return obj._get_raw_value(col)
 
     def GetValue(self, item, col):
+        if item.IsOk()==False:
+            return ''
+        obj = self.ItemToObject(item)
+    
         if self.columns_type[col]==ColumnType.BOOL or self.columns_type[col]==ColumnType.BITMAP:# or self.columns_type[col]==ColumnType.INTEGER or self.columns_type[col]==ColumnType.FLOAT:
-            return self.GetRawValue(item, col)
+            return obj._get_value(col)
         else:
-            return str(self.GetRawValue(item, col))
+            return str(obj._get_value(col))
 
     # override this to provide attributes
     def GetAttr(self, item, col, attr):
@@ -255,8 +270,10 @@ class TreeModel(wx.dataview.PyDataViewModel):
     def Compare(self, item1, item2, column, ascending):
         val1 = self.GetRawValue(item1, column)
         val2 = self.GetRawValue(item2, column)
-
-        if val1==val2:
+        
+#         wx.Trap()
+        
+        if val1==val2 or val1 is None or val2 is None:
             return 1 if ascending == (item1.__hash__() > item2.__hash__()) else -1
         else:
             return 1 if ascending == (val1>val2) else -1
@@ -516,7 +533,7 @@ class TreeManager(object):
         if self.OnItemBeforeContextMenu:
             self.OnItemBeforeContextMenu(event)
         if self.context_menu:
-            self.context_menu_pos = self.tree_view.ScreenToClient(wx.GetMousePosition())
+#             self.context_menu_pos = self.tree_view.ScreenToClient(wx.GetMousePosition())
             if event.GetItem():
                 self.context_menu_data = self.model.ItemToObject(event.GetItem())
             else:

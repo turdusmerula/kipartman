@@ -8,7 +8,6 @@ import api.data.storage
 import api.data.part_storage
 import helper.filter
 from helper.log import log
-from helper.profiler import Trace
 import wx
 from helper.exception import print_stack
 

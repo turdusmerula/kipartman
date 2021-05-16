@@ -6,7 +6,6 @@ from frames.models.tree_manager_parts import PartCategory, Part, TreeManagerPart
 import api.data.part
 import helper.filter
 from helper.log import log
-from helper.profiler import Trace
 import wx
 from helper.exception import print_stack
 
