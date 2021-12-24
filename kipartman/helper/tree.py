@@ -449,36 +449,42 @@ class TreeManager(object):
         log.debug("Copy", data, index)
 
     def _onColumnHeaderClick( self, event ):
+        log.debug(f"OnColumnHeaderClick {event.__dict__}")
         event.manager = self
         if self.OnColumnHeaderClick:
             return self.OnColumnHeaderClick(event)
         event.Skip()
     
     def _onColumnHeaderRightClick( self, event ):
+        log.debug(f"OnColumnHeaderRightClick {event.__dict__}")
         event.manager = self
         if self.OnColumnHeaderRightClick:
             return self.OnColumnHeaderRightClick(event)
         event.Skip()
     
     def _onColumnReordered( self, event ):
+        log.debug(f"OnColumnReordered {event.__dict__}")
         event.manager = self
         if self.OnColumnReordered:
             return self.OnColumnReordered(event)
         event.Skip()
     
     def _onColumnSorted( self, event ):
+        log.debug(f"OnColumnSorted {event.__dict__}")
         event.manager = self
         if self.OnColumnSorted:
             return self.OnColumnSorted(event)
         event.Skip()
     
     def _onItemActivated( self, event ):
+        log.debug(f"OnItemActivated {event.__dict__}")
         event.manager = self
         if self.OnItemActivated:
             return self.OnItemActivated(event)
         event.Skip()
     
     def _onItemBeginDrag( self, event ):
+        log.debug(f"OnItemBeginDrag {event.__dict__}")
         event.manager = self
         '''
         @TODO: Confirm SetDragFlags under Linux
@@ -516,18 +522,21 @@ class TreeManager(object):
 
     
     def _onItemCollapsed( self, event ):
+        # log.debug(f"OnItemCollapsed {event.__dict__}")
         event.manager = self
         if self.OnItemCollapsed:
             return self.OnItemCollapsed(event)
         event.Skip()
     
     def _onItemCollapsing( self, event ):
+        # log.debug(f"OnItemCollapsing {event.__dict__}")
         event.manager = self
         if self.OnItemCollapsing:
             return self.OnItemCollapsing(event)
         event.Skip()
     
     def _onItemContextMenu( self, event ):
+        log.debug(f"OnItemContextMenu {event.__dict__}")
         event.manager = self
         
         if self.OnItemBeforeContextMenu:
@@ -556,6 +565,7 @@ class TreeManager(object):
         event.Skip()
     
     def _onItemDrop( self, event ):
+        log.debug(f"OnItemDrop {event.__dict__}")
         event.manager = self
         if 'logging' in globals():logging.debug("{:%H:%M:%S.%f}  TreeManager:onItemDrop self:{} event:{} {}".format(datetime.datetime.now(),
                                     self,
@@ -603,6 +613,7 @@ class TreeManager(object):
         return True
     
     def _onItemDropPossible( self, event ):
+        log.debug(f"OnItemDropPossible {event.__dict__}")
         event.manager = self
         if self.OnItemDropPossible:
             return self.OnItemDropPossible(event) 
@@ -649,24 +660,28 @@ class TreeManager(object):
         return wx.Drag_DefaultMove
     
     def _onItemEditingDone( self, event ):
+        log.debug(f"OnItemEditingDone {event.__dict__}")
         event.manager = self
         if self.OnItemEditingDone:
             return self.OnItemEditingDone(event)
         event.Skip()
     
     def _onItemEditingStarted( self, event ):
+        log.debug(f"OnItemEditingStarted {event.__dict__}")
         event.manager = self
         if self.OnItemEditingStarted:
             return self.OnItemEditingStarted(event)
         event.Skip()
     
     def _onItemExpanded( self, event ):
+        # log.debug(f"OnItemExpanded {event.__dict__}")
         event.manager = self
         if self.OnItemExpanded:
             return self.OnItemExpanded(event)
         event.Skip()
     
     def _onItemExpanding( self, event ):
+        # log.debug(f"OnItemExpanding {event.__dict__}")
         event.manager = self
         item = event.GetItem()
         
@@ -680,6 +695,7 @@ class TreeManager(object):
         event.Skip()
     
     def _onItemStartEditing( self, event ):
+        log.debug(f"OnItemStartEditing {event.__dict__}")
         event.manager = self
         if self.OnItemStartEditing:
             return self.OnItemStartEditing(event)
@@ -687,12 +703,14 @@ class TreeManager(object):
         
     
     def _onItemValueChanged( self, event ):
+        # log.debug(f"OnItemValueChanged {event.__dict__}")
         event.manager = self
         if self.OnItemValueChanged:
             return self.OnItemValueChanged(event)
         event.Skip()
     
     def _onSelectionChanged( self, event ):
+        log.debug(f"OnSelectionChanged {event.__dict__}")
         event.manager = self
         if self.OnSelectionChanged:
             return self.OnSelectionChanged(event)

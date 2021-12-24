@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version 3.9.0 Sep 24 2020)
+## Python code generated with wxFormBuilder (version 3.10.1-34-g2d20e717)
 ## http://www.wxformbuilder.org/
 ##
 ## PLEASE DO *NOT* EDIT THIS FILE!
@@ -91,7 +91,7 @@ class DialogEditAttachement ( wx.Dialog ):
 		pass
 
 
-	# Virtual event handlers, overide them in your derived class
+	# Virtual event handlers, override them in your derived class
 	def onButtonOpenFileClick( self, event ):
 		event.Skip()
 

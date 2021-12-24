@@ -1,4 +1,5 @@
 from providers.provider import Provider, Part, Parameter, Offer, Price
+from helper.log import log
 import urllib.request
 import urllib.parse
 import json
@@ -29,6 +30,8 @@ class OctopartProvider(Provider):
     
     def SearchPart(self, text):
         req = f"{baseurl}/search?q={text}&currency=EUR&specs=1"
+        log.debug(f"request: {req}")
+        scraper = cfscrape.create_scraper()
         content = scraper.get(req).content
         soup = BeautifulSoup(content)
 
@@ -42,25 +45,25 @@ class OctopartProvider(Provider):
             part = OctopartPart(dom_part)
             parts.append(part)
         
-        print(parts)
+        log.debug(parts)
         for part in parts:
-            print("---")
-            print("name:", part.name)
-            print("description:", part.description)
-            print("manufacturer:", part.manufacturer)
-            print("parameters:")
+            log.debug("---")
+            log.debug(f"name: {part.name}")
+            log.debug(f"description: {part.description}")
+            log.debug(f"manufacturer: {part.manufacturer}")
+            log.debug("parameters:")
             for parameter in part.parameters:
-                print(f"\t{parameter.name}:", parameter.value)
-            print("offers:")
+                log.debug(f"\t{parameter.name}: {parameter.value}")
+            log.debug("offers:")
             for offer in part.offers:
-                print(f"\t{offer.distributor}:")
-                print(f"\t\tsku:", offer.sku)
-                print(f"\t\tstock:", offer.stock)
-                print(f"\t\tcurrency:", offer.currency)
-                print(f"\t\tprices:")
+                log.debug(f"\t{offer.distributor}:")
+                log.debug(f"\t\tsku: {offer.sku}")
+                log.debug(f"\t\tstock: {offer.stock}")
+                log.debug(f"\t\tcurrency: {offer.currency}")
+                log.debug(f"\t\tprices:")
                 for price in offer.prices:
-                    print(f"\t\t\tquantity:", price.quantity)
-                    print(f"\t\t\tprice_per_item:", price.price_per_item)
+                    log.debug(f"\t\t\tquantity: {price.quantity}")
+                    log.debug(f"\t\t\tprice_per_item: {price.price_per_item}")
                     
         return parts
 
@@ -118,11 +121,12 @@ class OctopartPart(Part):
         
         parameters = []
         dom_pdp = self._part_data.find("div", {"class": re.compile(".* pdp-section$")})
-        dom_params = dom_pdp.findAll("tr")
-        for dom_param in dom_params:
-            dom_cols = dom_param.findAll("td")
-            if len(dom_cols)==2:
-                parameters.append(OctopartParameter(dom_param))
+        if dom_pdp is not None:
+            dom_params = dom_pdp.findAll("tr")
+            for dom_param in dom_params:
+                dom_cols = dom_param.findAll("td")
+                if len(dom_cols)==2:
+                    parameters.append(OctopartParameter(dom_param))
         
         return parameters
 
@@ -133,14 +137,14 @@ class OctopartPart(Part):
         offers = []
         dom_offers_table = self._part_offers.find("table", {"class": re.compile("pdp-all-breaks-table$")})
         if dom_offers_table is not None:
-#         print(dom_offers_table.prettify())
+#         log.debug(dom_offers_table.prettify())
             quantities = []
             dom_offers_table_thead = dom_offers_table.find("thead")
             dom_offers_table_thead_quantities = dom_offers_table_thead.findAll("th", {"class": ["pdp-sort"]})
             for dom_offers_table_thead_quantity in dom_offers_table_thead_quantities:
                 if len(dom_offers_table_thead_quantity.attrs['class'])==1:
                     quantities.append(convert_int(dom_offers_table_thead_quantity.text.strip()))
-    #         print(dom_offers_table.prettify())
+    #         log.debug(dom_offers_table.prettify())
     
             dom_offers_table_tbody = dom_offers_table.find("tbody")
             dom_offers_table_tbody_offers = dom_offers_table_tbody.findAll("tr")
@@ -208,7 +212,7 @@ class OctopartOffer(Offer):
         dom_prices = self._data.findAll("td")
         quantity_index = 0
         for dom_price in dom_prices:
-#             print(dom_price.prettify())
+#             log.debug(dom_price.prettify())
             if 'class' not in dom_price.attrs:
                 quantity_index += 1
             elif 'pdp-all-breaks-price-cell' in dom_price.attrs['class']:

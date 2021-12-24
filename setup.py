@@ -37,7 +37,6 @@ setup(
     package_dir={'': '.'},
     package_data={
         'kipartman.resources': ['*.png'], 
-        'kipartbase.swagger_server.swagger': ['*.yaml'],
         },
 #    data_files=[('kipartman.resources' , glob('kipartman/resources/*.png')),],
 #    data_files=[('images' , glob('kipartman/resources/*.png')),],
@@ -51,13 +50,15 @@ setup(
     },
 
     install_requires=[
-         'wxPython',
+         # 'wxPython',
+         'pyqt6',
 #          'docutils',
 #          'asyncio',
          'pathlib2',
          'pycairo',     # to draw components
          'conan',
          'python_dateutil',
+         'Django',
          'django-mptt', # tree management for django
          'watchdog',    # watch for file change
          'numpy',

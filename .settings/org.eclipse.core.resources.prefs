@@ -1,4 +1,8 @@
 eclipse.preferences.version=1
+encoding//kipartman-qt/database/apps.py=utf-8
+encoding//kipartman-qt/database/migrations/0002_initial_data.py=utf-8
+encoding//kipartman-qt/database/models.py=utf-8
+encoding//kipartman-qt/database/tests.py=utf-8
 encoding//kipartman/api/config/urls.py=utf-8
 encoding//kipartman/api/migrations3/0001_initial.py=utf-8
 encoding//kipartman/api/migrations3/0002_initial_data.py=utf-8

@@ -18,11 +18,19 @@ then
 	exit 1
 fi
 
+echo "build path:   $wxpython_build_path"
+echo "install path: $wxpython_install_path"
+
+echo "patch file $wxpython_build_path/ext/wxWidgets/src/gtk/dataview.cpp"
+# cat patch/dataview.cpp.74e1c44 > $wxpython_build_path/ext/wxWidgets/src/gtk/dataview.cpp
+# cat patch/dataview.h.74e1c44 > $wxpython_build_path/ext/wxWidgets/include/wx/dataview.h
 patch $wxpython_build_path/ext/wxWidgets/src/gtk/dataview.cpp patch/dataview.c.patch
 
+echo "rebuild $wxpython_build_path"
 cd $wxpython_build_path
 python build.py build
-cp -f ./wx/libwx_gtk3u_core-3.1.so.5.0.0 ${wxpython_install_path}/
+cp -vf ./wx/libwx_gtk3u_core-3.1.so.5.0.0 ${wxpython_install_path}/
 
-rm -rf $wxpython_build_path
+echo cleanup
+#rm -rf $wxpython_build_path
 

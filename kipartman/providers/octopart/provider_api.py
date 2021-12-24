@@ -5,6 +5,21 @@ import json
 
 # see: https://octopart.com/api/v4/getting-started
 
+
+# TODO: build request from this result
+# {
+#   __schema {
+#     types {
+#       name
+#       fields {
+#         name
+#         description
+#       }
+#     }
+#   }
+# }
+
+
 # type AppliedFilter {
 #   shortname: String!
 #   name: String!

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+sudo apt-get install libgtk-3-dev libpython3.9-dev
+
+pip uninstall wxPython
+pip install --force-reinstall --no-clean --no-cache-dir -vvv wxPython
+
+wxpython_build_path=$(find /tmp -name "wxpython*")
+if [ "_${wxpython_build_path}" == "_" ]
+then
+	echo "wxPython not found in /tmp"
+	exit 1
+fi
+
+mv $wxpython_build_path wxPython
+
+#/tmp/pip-install-rv7wswf5/wxpython_49d953d71ce245939809db853c2d030b/build/wxbld/gtk3/bk-deps g++ -c -o wxscintilla_KeyMap.o -I/tmp/pip-install-rv7wswf5/wxpython_49d953d71ce245939809db853c2d030b/build/wxbld/gtk3/lib/wx/include/gtk3-unicode-3.1 -I/tmp/pip-install-rv7wswf5/wxpython_49d953d71ce245939809db853c2d030b/ext/wxWidgets/include -D_FILE_OFFSET_BITS=64 -pthread -I/usr/include/gtk-3.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/gio-unix-2.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/fribidi -I/usr/include/harfbuzz -I/usr/include/atk-1.0 -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include  -DNDEBUG -I/tmp/pip-install-rv7wswf5/wxpython_49d953d71ce245939809db853c2d030b/ext/wxWidgets/src/stc/scintilla/include -I/tmp/pip-install-rv7wswf5/wxpython_49d953d71ce245939809db853c2d030b/ext/wxWidgets/src/stc/scintilla/lexlib -I/tmp/pip-install-rv7wswf5/wxpython_49d953d71ce245939809db853c2d030b/ext/wxWidgets/src/stc/scintilla/src -D__WX__ -DSCI_LEXER -DNO_CXX11_REGEX -DLINK_LEXERS -DWXUSINGDLL -D__WXGTK__   -pthread -Wall -Wundef -Wunused-parameter -Wno-ctor-dtor-privacy -Woverloaded-virtual -Wno-deprecated-declarations -O2 -I/usr/include/pango-1.0 -I/usr/include/fribidi -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gtk-3.0/unix-print -I/usr/include/gtk-3.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/gio-unix-2.0 -I/usr/include/atk-1.0 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/webkitgtk-3.0 -I/usr/include/libsoup-2.4 -I/usr/include/libxml2  -fvisibility=hidden -fvisibility-inlines-hidden -fPIC -DPIC   /tmp/pip-install-rv7wswf5/wxpython_49d953d71ce245939809db853c2d030b/ext/wxWidgets/src/stc/scintilla/src/KeyMap.cxx
