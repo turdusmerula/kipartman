@@ -84,8 +84,9 @@ class PartCategory(MPTTModel):
     
     class MPTTMeta:
         order_insertion_by = ['name']
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
+
+    def __repr__(self):
+        return f"{self.id}: {self.name}"
 
 
 class Part(models.Model):
@@ -109,7 +110,7 @@ class Part(models.Model):
     metapart = models.BooleanField(null=False, default=False)
     updated = models.DateTimeField(auto_now=True)
     
-    def __unicode__(self):
+    def __repr__(self):
         return '%d: %s' % (self.id, self.name)
 
 class PartReference(models.Model):

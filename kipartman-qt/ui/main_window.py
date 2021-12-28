@@ -19,8 +19,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.actionViewParts.triggered.connect(self.OnActionViewPartsTriggered)
 
-        commands.on_undo.connect(self.OnCommandUndoTriggered)
-        commands.on_redo.connect(self.OnCommandRedoTriggered)
+        commands.on_do.connect(self.update_menus)
+        commands.on_undo.connect(self.update_menus)
+        commands.on_redo.connect(self.update_menus)
+        commands.on_flush.connect(self.update_menus)
         
         self.update_menus()
 
@@ -28,11 +30,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionSchematicOpen.setEnabled(False)
         self.actionSchematicSave.setEnabled(False)
         
-        self.actionDatabaseSave.setEnabled(commands.HasUndo())
+        self.actionDatabaseSave.setEnabled(commands.HasUndo)
         
-        self.actionEditUndo.setEnabled(commands.HasUndo())
-        self.actionEditRedo.setEnabled(commands.HasRedo())
+        if commands.HasUndo:
+            self.actionEditUndo.setEnabled(True)
+            self.actionEditUndo.setText(f"Undo {commands.LastUndo.description}")
+        else:
+            self.actionEditUndo.setEnabled(False)
+            self.actionEditUndo.setText(f"Undo")
+            
+        if commands.HasRedo:
+            self.actionEditRedo.setEnabled(True)
+            self.actionEditRedo.setText(f"Redo {commands.LastRedo.description}")
+        else:
+            self.actionEditRedo.setEnabled(False)
+            self.actionEditRedo.setText(f"Redo")
 
+    def refresh_childs(self):
+        for child in self.mdiArea.subWindowList():
+            print(child)
+            child.widget().update()
+            
     def AddWindow(self, widget_class, title):
         window = QMdiSubWindow(self.mdiArea)
         window.setWidget(widget_class(self.mdiArea))
@@ -44,23 +62,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def OnActionDatabaseSaveTriggered(self):
-        # TODO commit transaction
         commands.Flush()
 
 
     def OnActionEditUndoTriggered(self):
         commands.Undo()
-
+        self.refresh_childs()
+        
     def OnActionEditRedoTriggered(self):
         commands.Redo()
+        self.refresh_childs()
 
 
     def OnActionViewPartsTriggered(self, value):
         self.AddWindow(PartsWidget, "parts")
-
-
-    def OnCommandUndoTriggered(self):
-        self.update_menus()
-
-    def OnCommandRedoTriggered(self):
-        self.update_menus()

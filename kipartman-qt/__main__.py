@@ -69,6 +69,7 @@ def main(args=None):
     # set django configuration
     migrate()
 
+    from PyQt6.QtCore import QDir
     from PyQt6.QtWidgets import QApplication
     from ui.main_window import MainWindow
     
@@ -87,7 +88,7 @@ def main(args=None):
     global dialog_main
     dialog_main = MainWindow()    
     dialog_main.show()
-
+    
     app.exec() 
 
 if __name__ == "__main__":

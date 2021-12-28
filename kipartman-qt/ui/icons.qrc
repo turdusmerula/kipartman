@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="24px">
+    <file>icons/icons8-save-24.png</file>
+  </qresource>
+</RCC>

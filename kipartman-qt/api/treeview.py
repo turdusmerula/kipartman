@@ -4,56 +4,6 @@ from PyQt6.QtCore import QAbstractItemModel, QModelIndex
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
 from PyQt6 import Qt6
 
-class TreeDataSignal(QObject):
-    signal = pyqtSignal(object, object)
-
-class TreeLoader(QObject):
-    def __init__(self):
-        super().__init__()
-
-class TreeAsyncLoader(QRunnable):
-    def __init__(self):
-        super(TreeAsyncLoader, self).__init__()
-        self.on_data = TreeDataSignal()
-
-
-class TreeItem(object):
-    pass
-
-class TreeModel(QStandardItemModel):
-    def __init__(self, loader=None, *args, **kwargs):
-        super(TreeModel, self).__init__(*args, **kwargs)
-
-        self.loader = loader
-        self.loaded = False
-
-    def Load(self, reload=False, *args, **kwargs):
-        if issubclass(self.loader, TreeLoader):
-            self.sync_load(self.loader, reload, *args, **kwargs)
-        elif issubclass(self.loader, TreeAsyncLoader):
-            self.async_load(self.loader, reload, *args, **kwargs)
-
-    def sync_load(self, Loader, reload, *args, **kwargs):
-        if reload:
-            self.loaded = False
-        if self.loaded==False:
-            loader = Loader(*args, **kwargs)
-            loader.run()
-        self.loaded = True
-    
-    def async_load(self, AsyncLoader, reload, *args, **kwargs):
-        if reload:
-            self.loaded = False
-        if self.loaded==False:
-            loader = AsyncLoader()
-            loader.on_data.signal.connect(self.OnData)
-            QThreadPool.globalInstance().start(loader)
-        self.loaded = True
-
-    def OnData(self, parent, items):
-        """ Override to provide custom load behavior """
-        pass
-
 class TreeManager(QObject):
     def __init__(self, tree_view, model=None, context_menu=None):
         super(TreeManager, self).__init__()
@@ -67,14 +17,33 @@ class TreeManager(QObject):
         else:
             self.model = model
         self.tree_view.setModel(self.model)
+        
+        # self.sort_order = []
+        # self.tree_view.header().sortIndicatorChanged.connect(self.onSortIndicatorChanged)
+        # self.tree_view.header().setStyleSheet("QHeaderView::down-arrow { image: url(:/shared/empty); }"
+        #                                 "QHeaderView::up-arrow { image: url(:/shared/empty); } ")
 
+
+    def onSortIndicatorChanged(self, n, order):
+        # self.tree_view.header().setSortIndicator(0, Qt.SortOrder.AscendingOrder)
+        # self.tree_view.header().setSortIndicator(1, Qt.SortOrder.AscendingOrder)
+        # print("onSortIndicatorChanged",  n, order)
+        # self.tree_view.header().setSortIndicatorShown(False) 
+        # try:
+        #     self.sort_order.remove(n)
+        # except ValueError:
+        #     pass
+        # self.sort_order.insert(0, n)
+        # self.tree_view.sortByColumn(n, order)
+        pass
+    
 # https://www.riverbankcomputing.com/pipermail/pyqt/2009-April/022729.html
 
-class BaseColumn(object):
+class Column(object):
     def __init__(self, header=None, type=str):
         self.header = header
     
-class BaseNode(object):
+class Node(object):
     def __init__(self, parent=None):
         self.children = []
         
@@ -128,12 +97,9 @@ class BaseNode(object):
     def __len__(self):
         return len(self.children)
 
-class BaseTreeModel(QAbstractItemModel):
-    def __init__(self, parent=None, loader=None, *args, **kwargs):
-        super(BaseTreeModel, self).__init__(parent, *args, **kwargs)
-
-        self.loader = loader
-        self.loaded = False
+class TreeModel(QAbstractItemModel):
+    def __init__(self, parent=None, *args, **kwargs):
+        super(TreeModel, self).__init__(parent, *args, **kwargs)
 
         self.treeView = parent
         
@@ -145,47 +111,20 @@ class BaseTreeModel(QAbstractItemModel):
         self.node_to_id = {}
 
         # Create root item
-        self.rootNode = BaseNode(parent=None)
+        self.rootNode = Node(parent=None)
         self.id_to_node[QModelIndex().internalId()] = self.rootNode
         self.node_to_id[self.rootNode] = QModelIndex().internalId()
-        
-    def Load(self, reload=False, *args, **kwargs): 
-        if issubclass(self.loader, TreeLoader):
-            self.sync_load(self.loader, reload, *args, **kwargs)
-        elif issubclass(self.loader, TreeAsyncLoader):
-            self.async_load(self.loader, reload, *args, **kwargs)
-
-    def sync_load(self, Loader, reload, *args, **kwargs):
-        if reload:
-            self.loaded = False
-        if self.loaded==False:
-            loader = Loader(*args, **kwargs)
-            loader.run()
-        self.loaded = True
-    
-    def async_load(self, AsyncLoader, reload, *args, **kwargs):
-        if reload:
-            self.loaded = False
-        if self.loaded==False:
-            loader = AsyncLoader()
-            loader.on_data.signal.connect(self.OnData)
-            QThreadPool.globalInstance().start(loader)
-        self.loaded = True
-
-    def OnData(self, parent, items):
-        """ Override to provide custom load behavior """
-        pass
-
 
     # https://coderedirect.com/questions/402089/qtreeview-qabstractitemmodel-insertrow
 
     ### Overloaded from QAbstractItemModel ###
-    
+
     # def buddy (index)
-    #
+
     # def canDropMimeData (data, action, row, column, parent)
-    #
-    # def canFetchMore (parent)
+
+    def canFetchMore(self, parent):
+        return self.CanFetchMore(self.node_from_id(parent.internalId()))
     #
     # def clearItemData (index)
     #
@@ -209,28 +148,35 @@ class BaseTreeModel(QAbstractItemModel):
         
         if role==Qt.ItemDataRole.DisplayRole:
             return QVariant(self.GetValue(node, index.column()))
-        
-        #return super(BaseTreeModel, self).data(index, role)
+        if role==Qt.ItemDataRole.EditRole:
+            # when in edition then fill the edit zone with the cell content
+            return QVariant(self.GetValue(node, index.column()))
+            
+        #return super(TreeModel, self).data(index, role)
         return QVariant()
 
     # def dropMimeData (data, action, row, column, parent)
-    #
-    # def fetchMore (parent)
-    #
+
+    def fetchMore(self, parent):
+        self.Fetch(self.node_from_id(parent.internalId()))
+        
     def flags(self, index):
         defaultFlags = QAbstractItemModel.flags(self, index)
        
         if index.isValid():
-            return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
+            node = self.id_to_node[index.internalId()]
+            flags = Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
+            return self.GetFlags(node, index.column(), flags)
         else:
             return Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
     #
-    # def hasChildren ([parent=QModelIndex()])
+    def hasChildren(self, parent=QModelIndex()):
+        return self.HasChildren(self.node_from_id(parent.internalId()))
     #
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
         if orientation==Qt.Orientation.Horizontal and role==Qt.ItemDataRole.DisplayRole:
             return self.columns[section].header
-        return super(BaseTreeModel, self).headerData(section, orientation, role)
+        return super(TreeModel, self).headerData(section, orientation, role)
 
     def index(self, row, column, parent=QModelIndex()):
         if parent.isValid():
@@ -244,36 +190,22 @@ class BaseTreeModel(QAbstractItemModel):
         node = parentNode.child_from_row(row)
         return self.createIndex(row, column, self.node_to_id[node]);
         
-    # def insertColumns (column, count[, parent=QModelIndex()])
-    #
+    # def insertColumns (column, count[, parent=QModelIndex()]) 
+
     # def insertRows(self, row, count, parent=QModelIndex()):
-    #     if parent.isValid():
-    #         parentNode = self.id_to_node[parent.internalId()]
-    #     else:
-    #         parentNode = self.rootNode
-    #
-    #     self.beginInsertRows(parent, row, row+count)
-    #
-    #     node = BaseNode(parentNode)
-    #
-    #     parentNode.appendChild(BaseNode(None), row)
-    #
-    #     self.endInsertRows()
-    #
-    #     return True
 
     # def itemData (index)
-    #
+
     # def match (start, role, value[, hits=1[, flags=Qt.MatchFlags(Qt.MatchStartsWith|Qt.MatchWrap)]])
-    #
+
     # def mimeData (indexes)
-    #
+
     # def mimeTypes ()
-    #
+
     # def moveColumns (sourceParent, sourceColumn, count, destinationParent, destinationChild)
-    #
+
     # def moveRows (sourceParent, sourceRow, count, destinationParent, destinationChild)
-    #
+
     def parent(self, child):
         if child.isValid()==False:
             return QModelIndex()
@@ -284,15 +216,15 @@ class BaseTreeModel(QAbstractItemModel):
         return QModelIndex()
 
     # def removeColumns (column, count[, parent=QModelIndex()])
-    #
+
     # def removeRows (row, count[, parent=QModelIndex()])
-    #
+
     # def resetInternalData ()
-    #
+
     # def revert ()
-    #
+
     # def roleNames ()
-    #
+
     def rowCount(self, parent=QModelIndex()):
         if parent.isValid():
             node = self.id_to_node[parent.internalId()]
@@ -300,22 +232,32 @@ class BaseTreeModel(QAbstractItemModel):
         else:
             return len(self.rootNode)
         
-    # def setData (index, value[, role=Qt.EditRole])
-    #
+    def setData(self, index, value, role=Qt.ItemDataRole.EditRole):
+        print("setData", index.row(), index.column(), value, role)
+        if index.isValid() and role==Qt.ItemDataRole.EditRole:
+            node = self.id_to_node[index.internalId()]
+            if self.SetValue(node, index.column(), value):
+                self.dataChanged.emit(index, index, [role])
+                return True
+            return False
+        return False
+
     # def setHeaderData (section, orientation, value[, role=Qt.EditRole])
-    #
+
     # def setItemData (index, roles)
-    #
+
     # def sibling (row, column, idx)
-    #
-    # def sort (column[, order=Qt.AscendingOrder])
-    #
+
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder):
+        print("sort", column, order)
+    #     return self.Sort(self.node_from_id(parent.internalId()), order)
+
     # def span (index)
-    #
+
     # def submit ()
-    #
+
     # def supportedDragActions ()
-    #
+
     # def supportedDropActions ()
 
     ### Private functions ###
@@ -327,14 +269,16 @@ class BaseTreeModel(QAbstractItemModel):
             return self.node_to_id[node]
     
     def node_from_id(self, id):
-        return self.node_from_id(id)
+        return self.id_to_node[id]
 
     def node_to_index(self, node):
         if node is self.rootNode or node is None:
             return QModelIndex()
         row = node.parent.row_from_child(node)
-        parent_id = self.id_from_node(node.parent)
-        self.createIndex(row, 0, parent_id)
+        id = self.id_from_node(node)
+        return self.createIndex(row, 0, node)
+        # parent_id = self.id_from_node(node.parent)
+        # return self.createIndex(row, 0, parent_id)
         
     ### Overloadable functions ###
     
@@ -364,12 +308,36 @@ class BaseTreeModel(QAbstractItemModel):
         self.InsertNodes([node], pos, parent)
 
     def InsertColumn(self, column, pos=None):
+        # self.beginInsertColumns(parent, first, last)
         if pos is None:
             self.columns.append(column)
         else:
             self.columns.insert(pos, column)
         # self.layoutChanged(parents, hint)
     
+    def CanFetchMore(self, parent):
+        """ Called each time user scrolls out of tree, overload to indicate if there is more data"""
+        return False
+
+    def Fetch(self, parent):
+        """ Called each time user scrolls out of tree, overload to provide nodes """
+        pass
+    
     def GetValue(self, node, column):
+        """ Overload to provide values """
         return None
     
+    def SetValue(self, node, column, value):
+        return False
+    
+    def GetFlags(self, node, column, flags):
+        return flags
+    
+    def HasChildren(self, parent):
+        if len(parent.children)>0:
+            return True
+        return False
+
+    def Update(self):
+        self.layoutChanged.emit()
+

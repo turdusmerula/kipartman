@@ -3,11 +3,11 @@ import os
 import sys
 
 #os.chdir(os.path.dirname(os.path.join(os.path.dirname(os.path.abspath(__file__)), "kipartman")))
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "kipartman"))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "kipartman-qt"))
 #print(os.path.join(os.path.dirname(os.path.abspath(__file__)), "kipartman"))
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "api.config.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "database.config.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError:

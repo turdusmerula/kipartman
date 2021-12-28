@@ -16,7 +16,7 @@ class PartListWidget(QtWidgets.QWidget):
         self.load()
 
     def load(self):
-        self.manager.model.Load()
+        pass
 
     def update_menus(self):
         pass

@@ -1,6 +1,6 @@
 from database.models import Part
 from django.db.models import Count
-# from helper.filter import Filter
+from api.filter import DataFilter
 from django.db.models import Q
 import database.data.part_parameter
 import math
@@ -8,6 +8,14 @@ import math
 class PartException(Exception):
     def __init__(self, error):
         super(PartException, self).__init__(error)
+
+# class FilterRange(FilterData):
+#     def __init__(self, start, end):
+#         self.start = start
+#         self.end = end
+#
+#     def apply(self, request):
+#         request.filter()
 
 # class FilterPart(Filter):
 #     def __init__(self, part):

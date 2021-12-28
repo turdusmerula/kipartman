@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Kipartman</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>icons/integrated-circuit-48.png</normaloff>icons/integrated-circuit-48.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="leftMargin">
@@ -102,6 +106,10 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionDatabaseSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionEditUndo"/>
+   <addaction name="actionEditRedo"/>
   </widget>
   <action name="actionSchematicOpen">
    <property name="text">
@@ -129,21 +137,38 @@
    </property>
   </action>
   <action name="actionDatabaseSave">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/save-48.png</normaloff>icons/save-48.png</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
   </action>
   <action name="actionEditUndo">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/undo-48.png</normaloff>icons/undo-48.png</iconset>
+   </property>
    <property name="text">
     <string>Undo</string>
    </property>
   </action>
   <action name="actionEditRedo">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/redo-48.png</normaloff>icons/redo-48.png</iconset>
+   </property>
    <property name="text">
     <string>Redo</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
