@@ -19,8 +19,6 @@ import argparse
 from configuration import configuration
 import sys, time
 
-dialog_main = None
-
 def configure(value):
     pass
 
@@ -85,9 +83,10 @@ def main(args=None):
     # import providers.octopart.provider_api
     # providers.octopart.provider_api.OctopartProvider.register()
     
-    global dialog_main
-    dialog_main = MainWindow()    
-    dialog_main.show()
+    import ui.main_window
+    
+    ui.main_window.main_window = MainWindow()    
+    ui.main_window.main_window.show()
     
     app.exec() 
 

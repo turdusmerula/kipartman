@@ -2,7 +2,7 @@ from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
 
 from api.treeview import TreeManager
-from api.data.part import part_model
+from api.data.part import PartModel
 
 class PartListWidget(QtWidgets.QWidget):
 
@@ -10,14 +10,20 @@ class PartListWidget(QtWidgets.QWidget):
         super(PartListWidget, self).__init__(parent)
         uic.loadUi('ui/part_list_widget.ui', self)
 
-        self.manager = TreeManager(tree_view=self.treeView, model=part_model, context_menu=None)
+        self.model = PartModel()
+        self.manager = TreeManager(tree_view=self.treeView, model=self.model, context_menu=None)
         
         self.update_menus()
-        self.load()
 
-    def load(self):
-        pass
+    def update(self):
+        # update treeview
+        self.model.Update()
+        super(PartListWidget, self).update()
 
     def update_menus(self):
-        pass
-
+        #update menus
+        from ui.main_window import main_window
+        main_window.actionPartAddPart.setEnabled(True)
+        main_window.actionPartAddMetapart.setEnabled(True)
+        main_window.actionPartImportOctopart.setEnabled(True)
+        main_window.actionPartRemovePart.setEnabled(True)

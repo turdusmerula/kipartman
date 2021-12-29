@@ -3,6 +3,7 @@ from PyQt6 import QtWidgets, uic
 from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit
 
 from ui.parts_widget import PartsWidget
+from ui.symbols_widget import SymbolsWidget
 
 from api.command import commands
 
@@ -13,11 +14,12 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi('ui/main_window.ui', self)
 
         self.actionDatabaseSave.triggered.connect(self.OnActionDatabaseSaveTriggered)
-
         self.actionEditUndo.triggered.connect(self.OnActionEditUndoTriggered)
         self.actionEditRedo.triggered.connect(self.OnActionEditRedoTriggered)
-
         self.actionViewParts.triggered.connect(self.OnActionViewPartsTriggered)
+        self.actionViewSymbols.triggered.connect(self.OnActionViewSymbolsTriggered)
+
+        self.mdiArea.subWindowActivated.connect(self.OnMdiAreaSubWindowActivated)
 
         commands.on_do.connect(self.update_menus)
         commands.on_undo.connect(self.update_menus)
@@ -46,10 +48,20 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionEditRedo.setEnabled(False)
             self.actionEditRedo.setText(f"Redo")
 
-    def refresh_childs(self):
+        self.actionPartAddPart.setEnabled(False)
+        self.actionPartAddMetapart.setEnabled(False)
+        self.actionPartImportOctopart.setEnabled(False)
+        self.actionPartRemovePart.setEnabled(False)
+        
+        self.actionCategoryAdd.setEnabled(False)
+        self.actionCategoryDelete.setEnabled(False)
+
+
+    def update(self):
         for child in self.mdiArea.subWindowList():
             print(child)
             child.widget().update()
+        super(MainWindow, self).update()
             
     def AddWindow(self, widget_class, title):
         window = QMdiSubWindow(self.mdiArea)
@@ -67,12 +79,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def OnActionEditUndoTriggered(self):
         commands.Undo()
-        self.refresh_childs()
+        self.update()
         
     def OnActionEditRedoTriggered(self):
         commands.Redo()
-        self.refresh_childs()
+        self.update()
 
 
     def OnActionViewPartsTriggered(self, value):
         self.AddWindow(PartsWidget, "parts")
+
+    def OnActionViewSymbolsTriggered(self, value):
+        self.AddWindow(SymbolsWidget, "symbols")
+
+
+    def OnMdiAreaSubWindowActivated(self, window):        
+        self.update_menus()
+        if window is not None:
+            window.widget().update_menus()
+
+main_window = None

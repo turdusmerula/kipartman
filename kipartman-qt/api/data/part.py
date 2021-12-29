@@ -3,8 +3,17 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import Qt
 
 from api.treeview import TreeModel, Node, Column
+from api.command import Command, CommandUpdateDatabaseField, commands
+from api.events import events
 import database.data.part
-from time import sleep
+from database.models import Part
+
+
+class CommandUpatePart(CommandUpdateDatabaseField):
+    def __init__(self, part, field, value):
+        super(CommandUpatePart, self).__init__(object=part, field=field, value=value,
+                                            description=f"change part {field} to '{value}'")
+
 
 class PartNode(Node):
     def __init__(self, part, parent=None):
@@ -24,7 +33,6 @@ class PartModel(TreeModel):
         self.InsertColumn(Column("Name"))
         self.InsertColumn(Column("Description"))
 
-        self.id_to_category = {}
         self.id_to_part = {}
         self.loaded = {
             self.rootNode: False
@@ -34,6 +42,8 @@ class PartModel(TreeModel):
         }
 
         self.request = None
+        
+        events.on_object_update.connect(self.on_object_update)
         
     def CanFetchMore(self, parent):
         return not self.loaded[parent]
@@ -77,4 +87,21 @@ class PartModel(TreeModel):
             return flags & ~Qt.ItemFlag.ItemIsEditable
         return flags
 
-part_model = PartModel()
+    def SetValue(self, node, column, value):
+        field = {
+            1: "name",
+            2: "description"
+        }
+        if column in field and getattr(node.part, field[column])!=value:
+            commands.Do(CommandUpatePart, part=node.part, field=field[column], value=value)
+            return True
+
+        return False
+
+    def on_object_update(self, object):
+        if isinstance(object, Part)==False:
+            return 
+        part = object
+        if part.id in self.id_to_part:
+            self.id_to_part[part.id].part.refresh_from_db()
+            self.layoutChanged.emit()

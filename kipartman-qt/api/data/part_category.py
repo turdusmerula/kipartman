@@ -3,24 +3,20 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import Qt
 
 from api.treeview import TreeModel, Node, Column
+from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, commands
+from api.events import events
 import database.data.part_category
-from api.command import Command, CommandUpdateDatabaseField, commands
+from database.models import PartCategory
 
 class CommandUpatePartCategory(CommandUpdateDatabaseField):
-    def __init__(self, part_category, field, value, model=None):
-        CommandUpdateDatabaseField.__init__(self, object=part_category, field=field, value=value,
+    def __init__(self, part_category, field, value):
+        super(CommandUpatePartCategory, self).__init__(object=part_category, field=field, value=value,
                                             description=f"change part category {field} to '{value}'")
-        
-        self.model = model
 
-    def Do(self):
-        CommandUpdateDatabaseField.Do(self)
-
-        # update model
-    
-    def Undo(self):
-        CommandUpdateDatabaseField.Undo(self)
-
+class CommandAddPartCategory(CommandAddDatabaseObject):
+    def __init__(self, part_category):
+        super(CommandAddPartCategory, self).__init__(object=part_category,
+                                            description=f"add new part category")
 
 class PartCategoryNode(Node):
     def __init__(self, part_category):
@@ -41,6 +37,8 @@ class PartCategoryModel(TreeModel):
         self.has_child = {
             self.rootNode: True
         }
+        
+        events.on_object_update.connect(self.on_object_update)
 
     def CanFetchMore(self, parent):
         return not self.loaded[parent]
@@ -92,11 +90,37 @@ class PartCategoryModel(TreeModel):
             1: "description"
         }
         if column in field and getattr(node.part_category, field[column])!=value:
-            commands.Do(CommandUpatePartCategory, part_category=node.part_category, field=field[column], value=value, model=self)
+            commands.Do(CommandUpatePartCategory, part_category=node.part_category, field=field[column], value=value)
             return True
 
         return False
 
+    # def AddPartCategory(self, part_category):
+    #     parent_node = None
+    #     if part_category.parent is not None:
+    #         parent_node = self.id_to_part_category[part_category.parent.id]
+    #
+    #     node = PartCategoryNode(part_category)
+    #     self.loaded[node] = True
+    #     self.has_child[node] = False
+    #
+    #     self.InsertNode(node)
+
+        
+    def on_object_update(self, object):
+        if isinstance(object, PartCategory)==False:
+            return 
+        part_category = object
+        if part_category.id in self.id_to_part_category:
+            self.id_to_part_category[part_category.id].part_category.refresh_from_db()
+            self.layoutChanged.emit()
+
+    def on_object_add(self, object):
+        pass
+    
+    def on_object_delete(self, object):
+        pass
+    
 # class PartCategoryModel(TreeModel):
 #     def __init__(self):
 #         super(PartCategoryModel, self).__init__()
@@ -163,5 +187,3 @@ class PartCategoryModel(TreeModel):
 #             return node.category[0]
 #         elif column==1:
 #             return node.category[1]
-        
-# part_category_model = PartCategoryModel()

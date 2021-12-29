@@ -3,7 +3,9 @@ from PyQt6 import QtWidgets, uic
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
 
 from api.treeview import TreeManager
-from api.data.part_category import PartCategoryModel
+from api.command import commands
+from api.data.part_category import PartCategoryModel, PartCategoryNode, CommandAddPartCategory
+from database.models import PartCategory
 
 class PartCategoryListWidget(QtWidgets.QWidget):
 
@@ -15,18 +17,31 @@ class PartCategoryListWidget(QtWidgets.QWidget):
         self.manager = TreeManager(tree_view=self.treeView, model=self.model, context_menu=None)
         
         self.update_menus()
-        self.load()
-
-    def load(self):
-        pass
+        
+    def update(self):
+        # update treeview
+        self.model.Update()
+        super(PartCategoryListWidget, self).update()
 
     def update_menus(self):
-        # if self.menu is None:
-        #     self.menu = QtGui.QMenu(self)
-        #     self.menu.addAction('Activate', lambda: self.changeStatus('table', 'Active'))
-        #     self.menu.addAction('Ommit', lambda: self.changeStatus('table', 'Omitted'))
-        #     self.menu.addAction('Delete', lambda: self.changeStatus('table', 'Delete'))
-        pass
+        #update menus
+        from ui.main_window import main_window
+        main_window.actionCategoryAdd.setEnabled(True)
+        main_window.actionCategoryDelete.setEnabled(True)
 
-    def update(self):
-        self.model.Update()
+        try: main_window.actionCategoryAdd.triggered.disconnect()
+        except: pass
+        main_window.actionCategoryAdd.triggered.connect(self.OnActionCategoryAddTriggered)
+        
+        try: main_window.actionCategoryDelete.triggered.disconnect()
+        except: pass
+        main_window.actionCategoryDelete.triggered.connect(self.OnActionCategoryDeleteTriggered)
+        
+    def OnActionCategoryAddTriggered(self):
+        # commands.Do(CommandAddPartCategory, )
+        part_category = PartCategory()
+        node = self.manager.InsertEditNode()
+        
+
+    def OnActionCategoryDeleteTriggered(self):
+        pass

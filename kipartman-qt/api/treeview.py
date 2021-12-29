@@ -1,42 +1,10 @@
-from PyQt6.QtCore import Qt, QObject, pyqtSignal, QSize, QVariant
+from PyQt6.QtCore import Qt, QObject, pyqtSignal, QSize, QVariant, pyqtSignal
 from PyQt6.QtCore import QRunnable, QThreadPool
-from PyQt6.QtCore import QAbstractItemModel, QModelIndex
+from PyQt6.QtCore import QAbstractItemModel, QModelIndex, QItemSelectionModel
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
+from PyQt6.QtWidgets import QAbstractItemView, QAbstractItemDelegate
 from PyQt6 import Qt6
 
-class TreeManager(QObject):
-    def __init__(self, tree_view, model=None, context_menu=None):
-        super(TreeManager, self).__init__()
-        
-        self.tree_view = tree_view
-        self.model = model
-        self.context_menu = context_menu
-
-        if model==None:
-            self.model = TreeModel()
-        else:
-            self.model = model
-        self.tree_view.setModel(self.model)
-        
-        # self.sort_order = []
-        # self.tree_view.header().sortIndicatorChanged.connect(self.onSortIndicatorChanged)
-        # self.tree_view.header().setStyleSheet("QHeaderView::down-arrow { image: url(:/shared/empty); }"
-        #                                 "QHeaderView::up-arrow { image: url(:/shared/empty); } ")
-
-
-    def onSortIndicatorChanged(self, n, order):
-        # self.tree_view.header().setSortIndicator(0, Qt.SortOrder.AscendingOrder)
-        # self.tree_view.header().setSortIndicator(1, Qt.SortOrder.AscendingOrder)
-        # print("onSortIndicatorChanged",  n, order)
-        # self.tree_view.header().setSortIndicatorShown(False) 
-        # try:
-        #     self.sort_order.remove(n)
-        # except ValueError:
-        #     pass
-        # self.sort_order.insert(0, n)
-        # self.tree_view.sortByColumn(n, order)
-        pass
-    
 # https://www.riverbankcomputing.com/pipermail/pyqt/2009-April/022729.html
 
 class Column(object):
@@ -44,11 +12,13 @@ class Column(object):
         self.header = header
     
 class Node(object):
+    """ Base class for nodes, handles childs management """
+
     def __init__(self, parent=None):
         self.children = []
         
-        # this list is maintained when children is modified to speed up search from node
-        # append at end of children list is at no costs, inserts necessitate a recompute
+        # This list is maintained when children is modified to speed up search from node.
+        # Append at end of children list is at no costs, inserts necessitate a recompute.
         self.child_to_row = {} 
        
         self.set_parent(parent)
@@ -97,7 +67,19 @@ class Node(object):
     def __len__(self):
         return len(self.children)
 
+class EditNode(Node):
+    """ Editable node used to perform manual insert from user """
+    
+    def __init__(self, parent=None, edit_column=0, init_value=""):
+        super(EditNode, self).__init__(parent)
+        self.edit_column = edit_column
+        self.value = init_value
+
+    
 class TreeModel(QAbstractItemModel):
+    submitted = pyqtSignal()
+    reverted = pyqtSignal()
+        
     def __init__(self, parent=None, *args, **kwargs):
         super(TreeModel, self).__init__(parent, *args, **kwargs)
 
@@ -146,11 +128,16 @@ class TreeModel(QAbstractItemModel):
         else:
             node = self.rootNode
         
-        if role==Qt.ItemDataRole.DisplayRole:
-            return QVariant(self.GetValue(node, index.column()))
-        if role==Qt.ItemDataRole.EditRole:
-            # when in edition then fill the edit zone with the cell content
-            return QVariant(self.GetValue(node, index.column()))
+        if isinstance(node, EditNode):
+            if role==Qt.ItemDataRole.DisplayRole or role==Qt.ItemDataRole.EditRole:
+                if index.column()==node.edit_column:
+                    return QVariant(node.value)
+                else:
+                    return QVariant("")
+        else:
+            if role==Qt.ItemDataRole.DisplayRole or role==Qt.ItemDataRole.EditRole:
+                # when in edition then prefill the edit zone with the cell content
+                return QVariant(self.GetValue(node, index.column()))
             
         #return super(TreeModel, self).data(index, role)
         return QVariant()
@@ -165,13 +152,19 @@ class TreeModel(QAbstractItemModel):
        
         if index.isValid():
             node = self.id_to_node[index.internalId()]
-            flags = Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
-            return self.GetFlags(node, index.column(), flags)
+            if isinstance(node, EditNode):
+                return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
+            else:
+                flags = Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
+                return self.GetFlags(node, index.column(), flags)
         else:
             return Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
     #
     def hasChildren(self, parent=QModelIndex()):
-        return self.HasChildren(self.node_from_id(parent.internalId()))
+        node = self.node_from_id(parent.internalId())
+        if isinstance(node, EditNode):
+            return False
+        return self.HasChildren(node)
     #
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
         if orientation==Qt.Orientation.Horizontal and role==Qt.ItemDataRole.DisplayRole:
@@ -221,7 +214,9 @@ class TreeModel(QAbstractItemModel):
 
     # def resetInternalData ()
 
-    # def revert ()
+    def revert(self):
+        self.reverted.emit()
+        return super(TreeModel, self).revert()
 
     # def roleNames ()
 
@@ -236,16 +231,23 @@ class TreeModel(QAbstractItemModel):
         print("setData", index.row(), index.column(), value, role)
         if index.isValid() and role==Qt.ItemDataRole.EditRole:
             node = self.id_to_node[index.internalId()]
-            if self.SetValue(node, index.column(), value):
-                self.dataChanged.emit(index, index, [role])
-                return True
+            if isinstance(node, EditNode):
+                if index.column()==node.edit_column:
+                    node.value = value
+                    return True
+            else:
+                if self.SetValue(node, index.column(), value):
+                    self.dataChanged.emit(index, index, [role])
+                    return True
             return False
         return False
 
     # def setHeaderData (section, orientation, value[, role=Qt.EditRole])
 
-    # def setItemData (index, roles)
-
+    def setItemData(self, index, roles):
+        print("setItemData", index.row(), roles)
+        return super(TreeModel, self).setItemData(index, roles)
+        
     # def sibling (row, column, idx)
 
     def sort(self, column, order=Qt.SortOrder.AscendingOrder):
@@ -254,7 +256,9 @@ class TreeModel(QAbstractItemModel):
 
     # def span (index)
 
-    # def submit ()
+    def submit(self):
+        self.submitted.emit()
+        return super(TreeModel, self).submit()
 
     # def supportedDragActions ()
 
@@ -271,12 +275,12 @@ class TreeModel(QAbstractItemModel):
     def node_from_id(self, id):
         return self.id_to_node[id]
 
-    def node_to_index(self, node):
+    def node_to_index(self, node, column=0):
         if node is self.rootNode or node is None:
             return QModelIndex()
         row = node.parent.row_from_child(node)
         id = self.id_from_node(node)
-        return self.createIndex(row, 0, node)
+        return self.createIndex(row, column, node)
         # parent_id = self.id_from_node(node.parent)
         # return self.createIndex(row, 0, parent_id)
         
@@ -293,14 +297,19 @@ class TreeModel(QAbstractItemModel):
         parentIndex = self.node_to_index(parent)
         self.beginInsertRows(parentIndex, pos, pos+len(nodes))
         
-        row = len(parent.children)
+        row = pos #len(parent.children)
         for node in nodes:
             node_index = self.createIndex(row, 0, node)
             self.id_to_node[node_index.internalId()] = node
             self.node_to_id[node] = node_index.internalId()
             row += 1
-        parent.insert_childs(nodes)
+        parent.insert_childs(nodes, pos)
         
+        # if pos is not None:
+        #     for child in parent.children:
+        #         index = self.node_to_index(child)
+        #         print("**", index.row())
+            
         self.endInsertRows()
         self.layoutChanged.emit()
 
@@ -328,16 +337,155 @@ class TreeModel(QAbstractItemModel):
         return None
     
     def SetValue(self, node, column, value):
+        """ Overload to set value """
         return False
     
     def GetFlags(self, node, column, flags):
+        """ Overload to provide custom flags """
         return flags
     
     def HasChildren(self, parent):
+        """ Overload to provide custom children flag """
         if len(parent.children)>0:
             return True
         return False
 
     def Update(self):
         self.layoutChanged.emit()
+
+
+
+class TreeManager(QObject):
+    def __init__(self, tree_view, model=None, context_menu=None):
+        super(TreeManager, self).__init__()
+        
+        self.tree_view = tree_view
+        self.model = model
+        self.context_menu = context_menu
+
+        if model==None:
+            self.model = TreeModel()
+        else:
+            self.model = model
+        self.tree_view.setModel(self.model)
+        
+        # self.sort_order = []
+        # self.tree_view.header().sortIndicatorChanged.connect(self.onSortIndicatorChanged)
+        # self.tree_view.header().setStyleSheet("QHeaderView::down-arrow { image: url(:/shared/empty); }"
+        #                                 "QHeaderView::up-arrow { image: url(:/shared/empty); } ")
+        ### From TreeModel ###
+        self.model.submitted.connect(self.onSubmitted)
+        self.model.reverted.connect(self.onReverted)
+        
+        # ### From QAbstractItemView ###
+        # self.tree_view.activated.connect(self.onActivated)
+        # self.tree_view.clicked.connect(self.onClicked)
+        # self.tree_view.doubleClicked.connect(self.onDoubleClicked)
+        # self.tree_view.entered.connect(self.onEntered)
+        # self.tree_view.iconSizeChanged.connect(self.onIconSizeChanged)
+        # self.tree_view.pressed.connect(self.onPressed)
+        # self.tree_view.viewportEntered.connect(self.onViewportEntered)
+        #
+        # ### From QTreeView ###
+        # self.tree_view.collapsed.connect(self.onCollapsed)
+        # self.tree_view.expanded.connect(self.onExpanded)
+
+
+    def CloseEditor(self):
+        index = self.tree_view.currentIndex()
+        editor = self.tree_view.indexWidget(index)
+        if editor:
+            self.tree_view.commitData(editor)
+            self.tree_view.closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint)
+        
+    def InsertEditNode(self, edit_column=0, init_value="", parent=None):
+        self.CloseEditor()
+
+        if parent is None:
+            parent = self.model.rootNode
+        node = EditNode(edit_column=edit_column, init_value=init_value)
+        self.model.InsertNode(node, pos=0, parent=parent)
+        index = self.model.node_to_index(node, edit_column)
+        
+        
+        self.tree_view.selectionModel().select(index, 
+            QItemSelectionModel.SelectionFlag.ClearAndSelect | 
+            QItemSelectionModel.SelectionFlag.Rows)
+        self.tree_view.setCurrentIndex(index)
+        self.tree_view.edit(index)
+        
+        return node
+    
+    ### From TreeModel ###
+    
+    def onSubmitted(self):
+        index = self.tree_view.currentIndex()
+        print("onSubmitted", index.data())
+        if isinstance(index.data(), EditNode):
+            print("++++")
+    
+    def onReverted(self):
+        index = self.tree_view.currentIndex()
+        print("onReverted", index.data())
+        if isinstance(index.data(), EditNode):
+            print("-----")
+        
+    
+    # ### From QAbstractItemView ###
+    #
+    # def onActivated(self, index):
+    #     print("onActivated", index)
+    #     pass
+    #
+    # def onClicked(self, index):
+    #     print("onClicked", index)
+    #     pass
+    #
+    # def onDoubleClicked(self, index):
+    #     print("onDoubleClicked", index)
+    #     pass
+    #
+    # def onEntered(self, index):
+    #     print("onEntered", index)
+    #     pass
+    #
+    # def onIconSizeChanged(self, size):
+    #     print("onIconSizeChanged", index)
+    #     pass
+    #
+    # def onPressed(self, index):
+    #     print("onPressed", index)
+    #     pass
+    #
+    # def onViewportEntered(self):
+    #     print("onViewportEntered", index)
+    #     pass
+    #
+    # ### From QTreeView ###
+    #
+    # def onCollapsed(self, index):
+    #     print("onCollapsed", index)
+    #     pass
+    #
+    # def onExpanded(self, index):
+    #     print("onExpanded", index)
+    #     pass
+
+    
+    ### From QHeaderView ###
+        
+    def onSortIndicatorChanged(self, n, order):
+        # self.tree_view.header().setSortIndicator(0, Qt.SortOrder.AscendingOrder)
+        # self.tree_view.header().setSortIndicator(1, Qt.SortOrder.AscendingOrder)
+        # print("onSortIndicatorChanged",  n, order)
+        # self.tree_view.header().setSortIndicatorShown(False) 
+        # try:
+        #     self.sort_order.remove(n)
+        # except ValueError:
+        #     pass
+        # self.sort_order.insert(0, n)
+        # self.tree_view.sortByColumn(n, order)
+        pass
+
+    
 

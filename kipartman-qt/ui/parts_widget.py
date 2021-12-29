@@ -17,9 +17,13 @@ class PartsWidget(QtWidgets.QWidget):
         self.part_list = PartListWidget(self)
         self.splitter.addWidget(self.part_list)
 
+        self.update_menus()
+
     def update(self):
         self.part_category_list.update()
         self.part_list.update()
-
-    # def update(self):
-    #     self.model.Update()
+        super(PartsWidget, self).update()
+        
+    def update_menus(self):
+        self.part_category_list.update_menus()
+        self.part_list.update_menus()

@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from django.db import transaction
-from click.decorators import command
+from api.events import events
 
 class Command(QObject):
     def __init__(self, description=""):
@@ -96,12 +96,31 @@ class CommandUpdateDatabaseField(Command):
 
         setattr(self.object, self.field, self.value)
         self.object.save(update_fields=[self.field])
-        self.object.refresh_from_db()
+        # self.object.refresh_from_db()
+        events.on_object_update.emit(self.object)
         
     def Undo(self):
         transaction.savepoint_rollback(self.sid)
-        self.object.refresh_from_db()
+        # self.object.refresh_from_db()
+        events.on_object_update.emit(self.object)
 
+class CommandAddDatabaseObject(Command):
+    def __init__(self, description, object):
+        super(CommandUpdateDatabaseField, self).__init__(description)
+        self.object = object
+
+    def Do(self):
+        self.sid = transaction.savepoint()
+
+        self.object.id = None
+        self.object.save()
+
+        events.on_object_add.emit(self.object)
+        
+    def Undo(self):
+        transaction.savepoint_rollback(self.sid)
+        # self.object.refresh_from_db()
+        events.on_object_delete.emit(self.object)
 
 # class CommandAdd(Command):
 #     def __init__(self, *args, **kwargs):

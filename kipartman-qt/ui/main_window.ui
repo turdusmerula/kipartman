@@ -69,6 +69,8 @@
     <addaction name="actionConfiguration"/>
     <addaction name="separator"/>
     <addaction name="actionViewParts"/>
+    <addaction name="actionViewSymbols"/>
+    <addaction name="actionFootprints"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -89,10 +91,38 @@
     <addaction name="actionEditUndo"/>
     <addaction name="actionEditRedo"/>
    </widget>
+   <widget class="QMenu" name="menuCategory">
+    <property name="title">
+     <string>Category</string>
+    </property>
+    <addaction name="actionCategoryAdd"/>
+    <addaction name="actionCategoryDelete"/>
+   </widget>
+   <widget class="QMenu" name="menuPart">
+    <property name="title">
+     <string>Part</string>
+    </property>
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
+      <string>Import from ...</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>icons/part-add-48.png</normaloff>icons/part-add-48.png</iconset>
+     </property>
+     <addaction name="actionPartImportOctopart"/>
+    </widget>
+    <addaction name="actionPartAddPart"/>
+    <addaction name="menuImport"/>
+    <addaction name="actionPartAddMetapart"/>
+    <addaction name="actionPartRemovePart"/>
+   </widget>
    <addaction name="menuDatabase"/>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
+   <addaction name="menuCategory"/>
+   <addaction name="menuPart"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -110,6 +140,18 @@
    <addaction name="separator"/>
    <addaction name="actionEditUndo"/>
    <addaction name="actionEditRedo"/>
+   <addaction name="separator"/>
+   <addaction name="actionViewParts"/>
+   <addaction name="actionViewSymbols"/>
+   <addaction name="actionFootprints"/>
+   <addaction name="separator"/>
+   <addaction name="actionCategoryAdd"/>
+   <addaction name="actionCategoryDelete"/>
+   <addaction name="separator"/>
+   <addaction name="actionPartAddPart"/>
+   <addaction name="actionPartAddMetapart"/>
+   <addaction name="actionPartImportOctopart"/>
+   <addaction name="actionPartRemovePart"/>
   </widget>
   <action name="actionSchematicOpen">
    <property name="text">
@@ -117,16 +159,28 @@
    </property>
   </action>
   <action name="actionHelpAbout">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/about-48.png</normaloff>icons/about-48.png</iconset>
+   </property>
    <property name="text">
     <string>About</string>
    </property>
   </action>
   <action name="actionConfiguration">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/configuration-48.png</normaloff>icons/configuration-48.png</iconset>
+   </property>
    <property name="text">
     <string>Configuration</string>
    </property>
   </action>
   <action name="actionViewParts">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/part-48.png</normaloff>icons/part-48.png</iconset>
+   </property>
    <property name="text">
     <string>Parts</string>
    </property>
@@ -164,6 +218,78 @@
    </property>
    <property name="text">
     <string>Redo</string>
+   </property>
+  </action>
+  <action name="actionCategoryAdd">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/category-add-48.png</normaloff>icons/category-add-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add category</string>
+   </property>
+  </action>
+  <action name="actionCategoryDelete">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/category-delete-48.png</normaloff>icons/category-delete-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove category</string>
+   </property>
+  </action>
+  <action name="actionPartAddPart">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/part-add-48.png</normaloff>icons/part-add-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add part</string>
+   </property>
+  </action>
+  <action name="actionPartAddMetapart">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/metapart-add-48.png</normaloff>icons/metapart-add-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add metapart</string>
+   </property>
+  </action>
+  <action name="actionPartImportOctopart">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/octopart-add-48.png</normaloff>icons/octopart-add-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Octopart</string>
+   </property>
+  </action>
+  <action name="actionPartRemovePart">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/part-delete-48.png</normaloff>icons/part-delete-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove part</string>
+   </property>
+  </action>
+  <action name="actionViewSymbols">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/symbol-48.png</normaloff>icons/symbol-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Symbols</string>
+   </property>
+  </action>
+  <action name="actionFootprints">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/footprint-48.png</normaloff>icons/footprint-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Footprints</string>
    </property>
   </action>
  </widget>
