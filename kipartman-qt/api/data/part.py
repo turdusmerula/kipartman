@@ -2,7 +2,7 @@ from PyQt6.QtCore import QRunnable, QThreadPool
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import Qt
 
-from api.treeview import TreeModel, Node, Column
+from api.treeview import TreeModel, Node, Column, TreeManager
 from api.command import Command, CommandUpdateDatabaseField, commands
 from api.events import events
 import database.data.part
@@ -42,8 +42,6 @@ class PartModel(TreeModel):
         }
 
         self.request = None
-        
-        events.on_object_update.connect(self.on_object_update)
         
     def CanFetchMore(self, parent):
         return not self.loaded[parent]
@@ -98,10 +96,17 @@ class PartModel(TreeModel):
 
         return False
 
-    def on_object_update(self, object):
-        if isinstance(object, Part)==False:
-            return 
-        part = object
-        if part.id in self.id_to_part:
-            self.id_to_part[part.id].part.refresh_from_db()
-            self.layoutChanged.emit()
+class PartManager(TreeManager):
+    def __init__(self, tree_view, model=None, context_menu=None):
+        super(PartManager, self).__init__(tree_view, model, context_menu)
+
+        events.object_updated.connect(self.onObjectUpdate)
+
+    def onObjectUpdate(self, object):
+        pass
+
+    def on_object_add(self, object):
+        pass
+    
+    def on_object_delete(self, object):
+        pass

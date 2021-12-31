@@ -3,7 +3,12 @@ from django.db import transaction
 from api.events import events
 
 class Command(QObject):
+    done = pyqtSignal()
+    undone = pyqtSignal()
+
     def __init__(self, description=""):
+        super(Command, self).__init__()
+        
         self.description = description
 
     def Do(self, *args, **kwargs):
@@ -36,12 +41,14 @@ class CommandStack(QObject):
         command.Do()
         self.undo.append(command)
         self.redo = []
+        command.done.emit()
         self.on_do.emit()
         
     def Undo(self):
         command = self.undo.pop()
         command.Undo()
         self.redo.append(command)
+        command.undone.emit()
         self.on_undo.emit()
         return command
 
@@ -49,6 +56,7 @@ class CommandStack(QObject):
         command = self.redo.pop()
         command.Do()
         self.undo.append(command)
+        command.done.emit()
         self.on_redo.emit()
 
     def Flush(self):
@@ -97,30 +105,30 @@ class CommandUpdateDatabaseField(Command):
         setattr(self.object, self.field, self.value)
         self.object.save(update_fields=[self.field])
         # self.object.refresh_from_db()
-        events.on_object_update.emit(self.object)
+        events.object_updated.emit(self.object)
         
     def Undo(self):
         transaction.savepoint_rollback(self.sid)
         # self.object.refresh_from_db()
-        events.on_object_update.emit(self.object)
+        events.object_updated.emit(self.object)
 
 class CommandAddDatabaseObject(Command):
     def __init__(self, description, object):
-        super(CommandUpdateDatabaseField, self).__init__(description)
+        super(CommandAddDatabaseObject, self).__init__(description)
         self.object = object
 
     def Do(self):
+        print("+++ Do")
         self.sid = transaction.savepoint()
 
-        self.object.id = None
         self.object.save()
-
-        events.on_object_add.emit(self.object)
+        events.object_added.emit(self.object)
+        print("+++ Done")
         
     def Undo(self):
         transaction.savepoint_rollback(self.sid)
-        # self.object.refresh_from_db()
-        events.on_object_delete.emit(self.object)
+        events.object_deleted.emit(self.object)
+        self.object.id = None
 
 # class CommandAdd(Command):
 #     def __init__(self, *args, **kwargs):

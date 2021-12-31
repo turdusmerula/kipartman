@@ -4,7 +4,7 @@ from PyQt6.QtGui import QStandardItem, QStandardItemModel
 
 from api.treeview import TreeManager
 from api.command import commands
-from api.data.part_category import PartCategoryModel, PartCategoryNode, CommandAddPartCategory
+from api.data.part_category import PartCategoryModel, PartCategoryNode, PartCategoryManager, CommandAddPartCategory
 from database.models import PartCategory
 
 class PartCategoryListWidget(QtWidgets.QWidget):
@@ -14,7 +14,7 @@ class PartCategoryListWidget(QtWidgets.QWidget):
         uic.loadUi('ui/part_category_list_widget.ui', self)
 
         self.model = PartCategoryModel()
-        self.manager = TreeManager(tree_view=self.treeView, model=self.model, context_menu=None)
+        self.manager = PartCategoryManager(tree_view=self.treeView, model=self.model, context_menu=None)
         
         self.update_menus()
         
@@ -38,10 +38,8 @@ class PartCategoryListWidget(QtWidgets.QWidget):
         main_window.actionCategoryDelete.triggered.connect(self.OnActionCategoryDeleteTriggered)
         
     def OnActionCategoryAddTriggered(self):
-        # commands.Do(CommandAddPartCategory, )
-        part_category = PartCategory()
+        # add a new element in edit mode
         node = self.manager.InsertEditNode()
-        
 
     def OnActionCategoryDeleteTriggered(self):
         pass

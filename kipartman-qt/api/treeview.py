@@ -59,7 +59,7 @@ class Node(object):
         row = self.row_from_child(child)
         del self.child_to_row[child]
         if row<len(self.children)-1:
-            for child in self.children[row:]:
+            for child in self.children[row+1:]:
                 self.child_to_row[child] -= 1
         self.children.pop(row) 
         return True
@@ -76,22 +76,22 @@ class Node(object):
     def __len__(self):
         return len(self.children)
 
-class EditNode(Node):
-    """ Editable node used to perform manual insert from user """
-    
-    def __init__(self, parent=None, edit_column=0, values=[]):
-        super(EditNode, self).__init__(parent)
-        self.edit_column = edit_column
-        self.values = values
-
-    def get_value(self, column):
-        if column<len(self.values):
-            return self.values[column]
-        return ""
-
-    def set_value(self, columns, value):
-        while column>=len(self.values):
-            self.values.append("")
+# class EditNode(Node):
+#     """ Editable node used to perform manual insert from user """
+#
+#     def __init__(self, parent=None, edit_column=0, values=[]):
+#         super(EditNode, self).__init__(parent)
+#         self.edit_column = edit_column
+#         self.values = values
+#
+#     def get_value(self, column):
+#         if column<len(self.values):
+#             return self.values[column]
+#         return ""
+#
+#     def set_value(self, columns, value):
+#         while column>=len(self.values):
+#             self.values.append("")
 
 class TreeModel(QAbstractItemModel):
     submitted = pyqtSignal()
@@ -145,13 +145,9 @@ class TreeModel(QAbstractItemModel):
         else:
             node = self.rootNode
         
-        if isinstance(node, EditNode):
-            if role==Qt.ItemDataRole.DisplayRole or role==Qt.ItemDataRole.EditRole:
-                return QVariant(node.get_value(index.column()))
-        else:
-            if role==Qt.ItemDataRole.DisplayRole or role==Qt.ItemDataRole.EditRole:
-                # when in edition then prefill the edit zone with the cell content
-                return QVariant(self.GetValue(node, index.column()))
+        if role==Qt.ItemDataRole.DisplayRole or role==Qt.ItemDataRole.EditRole:
+            # when in edition then prefill the edit zone with the cell content
+            return QVariant(self.GetValue(node, index.column()))
             
         #return super(TreeModel, self).data(index, role)
         return QVariant()
@@ -166,18 +162,13 @@ class TreeModel(QAbstractItemModel):
        
         if index.isValid():
             node = self.id_to_node[index.internalId()]
-            if isinstance(node, EditNode):
-                return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
-            else:
-                flags = Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
-                return self.GetFlags(node, index.column(), flags)
+            flags = Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
+            return self.GetFlags(node, index.column(), flags)
         else:
             return Qt.ItemFlag.ItemIsDropEnabled | defaultFlags
     #
     def hasChildren(self, parent=QModelIndex()):
         node = self.node_from_id(parent.internalId())
-        if isinstance(node, EditNode):
-            return False
         return self.HasChildren(node)
     #
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
@@ -219,7 +210,7 @@ class TreeModel(QAbstractItemModel):
         
         if child.internalId() in self.id_to_node:
             node = self.id_to_node[child.internalId()]
-            return self.node_to_index(node.parent)
+            return self.index_from_node(node.parent)
         return QModelIndex()
 
     # def removeColumns (column, count[, parent=QModelIndex()])
@@ -257,12 +248,9 @@ class TreeModel(QAbstractItemModel):
         print("setData", index.row(), index.column(), value, role)
         if index.isValid() and role==Qt.ItemDataRole.EditRole:
             node = self.id_to_node[index.internalId()]
-            if isinstance(node, EditNode):
-                node.set_value
-            else:
-                if self.SetValue(node, index.column(), value):
-                    self.dataChanged.emit(index, index, [role])
-                    return True
+            if self.SetValue(node, index.column(), value):
+                self.dataChanged.emit(index, index, [role])
+                return True
             return False
         return False
 
@@ -299,7 +287,7 @@ class TreeModel(QAbstractItemModel):
     def node_from_id(self, id):
         return self.id_to_node[id]
 
-    def node_to_index(self, node, column=0):
+    def index_from_node(self, node, column=0):
         if node is self.rootNode or node is None:
             return QModelIndex()
         row = node.parent.row_from_child(node)
@@ -318,7 +306,7 @@ class TreeModel(QAbstractItemModel):
         
         self.layoutAboutToBeChanged.emit()
 
-        parentIndex = self.node_to_index(parent)
+        parentIndex = self.index_from_node(parent)
         self.beginInsertRows(parentIndex, pos, pos+len(nodes))
         
         row = pos #len(parent.children)
@@ -331,7 +319,7 @@ class TreeModel(QAbstractItemModel):
 
         # if pos is not None:
         #     for child in parent.children:
-        #         index = self.node_to_index(child)
+        #         index = self.index_from_node(child)
         #         print("**", index.row())
 
         self.endInsertRows()
@@ -343,8 +331,10 @@ class TreeModel(QAbstractItemModel):
     def RemoveNodes(self, nodes):
         for node in nodes:
             parent = node.parent
-
-            self.beginRemoveRows(parent, first, last)
+            row = parent.row_from_child(node)
+            index = self.createIndex(row, 0, node)
+            
+            self.beginRemoveRows(index, row, row)
             parent.remove_child(node)
             self.endRemoveRows()
 
@@ -412,8 +402,8 @@ class TreeManager(QObject):
         # self.tree_view.header().setStyleSheet("QHeaderView::down-arrow { image: url(:/shared/empty); }"
         #                                 "QHeaderView::up-arrow { image: url(:/shared/empty); } ")
         ### From TreeModel ###
-        self.model.submitted.connect(self.onSubmitted)
-        self.model.reverted.connect(self.onReverted)
+        self.model.submitted.connect(self.OnSubmitted)
+        self.model.reverted.connect(self.OnReverted)
         
         # ### From QAbstractItemView ###
         # self.tree_view.activated.connect(self.onActivated)
@@ -437,16 +427,22 @@ class TreeManager(QObject):
             self.tree_view.commitData(editor)
             self.tree_view.closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint)
         
-    def InsertEditNode(self, edit_column=0, init_value="", parent=None):
+    def InsertEditNode(self, parent=None, edit_column=0):
+        """ Add a new element in edit mode on the first line of parent """
         self.CloseEditor()
 
         if parent is None:
             parent = self.model.rootNode
-        node = EditNode(edit_column=edit_column, init_value=init_value)
+
+        node = self.GetEditNode(parent)
+        if node is None:
+            return 
+        
+        # insert node at first parent position
         self.model.InsertNode(node, pos=0, parent=parent)
-        insert_index = self.model.node_to_index(node, edit_column)
+        insert_index = self.model.index_from_node(node, edit_column)
         
-        
+        # edit node 
         self.tree_view.selectionModel().select(insert_index, 
             QItemSelectionModel.SelectionFlag.ClearAndSelect | 
             QItemSelectionModel.SelectionFlag.Rows)
@@ -454,46 +450,38 @@ class TreeManager(QObject):
         self.tree_view.edit(insert_index)
         
         self.insert_index = insert_index
+        self.insert_edit_column = edit_column
         return node
-    
-    def EndEditNode(self, values):
-        """ Overload to provide behavior on insertion end """
-        pass
+
+    def GetEditNode(self, parent):
+        """ Overload to provide a node for InsertEditNode """
+        return None
+
+    def EndInsertEditNode(self, node):
+        """ Overload to provide behavior when item is inserted """
     
     ### From TreeModel ###
     
-    def onSubmitted(self):
-        print("onSubmitted", self.insert_index)
+    def OnSubmitted(self):
+        print("OnSubmitted")
         if self.tree_view.state()!=QAbstractItemView.State.EditingState and self.insert_index is not None:
+            # event comes from an element inserted by InsertEditNode
             node = self.model.node_from_id(self.insert_index.internalId())
-            if node.value=="":
-                print("+ delete")
+            self.insert_index = None
+            if self.model.GetValue(node, self.insert_edit_column)=="":
+                # node was submitted empty, cancel it
+                self.model.RemoveNode(node)
             else:
-                self.EndEditNode(node.values)
-                pass
-            #     pass
-            # self.model.RemoveNode(node)
-            # self.insert_index = None
-
-        # index = self.tree_view.currentIndex()
-        # node = self.model.node_from_id(index.internalId())
-        # if isinstance(node, EditNode):
-        #     print("++++")
+                self.model.RemoveNode(node)
+                self.EndInsertEditNode(node)
     
-    def onReverted(self):
-        print("onReverted", self.insert_index)
+    def OnReverted(self):
         if self.tree_view.state()!=QAbstractItemView.State.EditingState and self.insert_index is not None:
-            print("- delete")
-            
-        # if self.insert_index is not None:
-        #     node = self.model.node_from_id(self.insert_index.internalPointer())
-        #     self.model.RemoveNode(node)
-        #     self.insert_index = None
-           
-        # index = self.tree_view.currentIndex()
-        # node = self.model.node_from_id(index.internalId())
-        # if isinstance(node, EditNode):
-        #     print("-----")
+            # event comes from a element inserted by InsertEditNode
+            node = self.model.node_from_id(self.insert_index.internalId())
+            self.insert_index = None
+            # node was canceled
+            self.model.RemoveNode(node)
         
     
     # ### From QAbstractItemView ###
