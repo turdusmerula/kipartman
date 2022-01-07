@@ -153,6 +153,7 @@
    <addaction name="separator"/>
    <addaction name="actionSelectAll"/>
    <addaction name="actionSelectNone"/>
+   <addaction name="actionSelectChildMode"/>
   </widget>
   <widget class="QDockWidget" name="dockPartCategoryWidget">
    <property name="windowTitle">
@@ -200,6 +201,9 @@
    <addaction name="actionPartRemovePart"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="windowTitle">
     <string>Units</string>
    </property>
@@ -378,6 +382,20 @@
    </property>
    <property name="text">
     <string>Select all</string>
+   </property>
+  </action>
+  <action name="actionSelectChildMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <selectedoff>icons/select-parent-48.png</selectedoff>
+     <selectedon>icons/select-childs-48.png</selectedon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Select child mode</string>
    </property>
   </action>
  </widget>

@@ -68,5 +68,9 @@ class PartsWindow(QChildWindow):
         main_window.ChangeDockFilterWidget(None)
 
     def OnPartCategorySelectionChanged(self, part_categories):
-        self.category_filter_group.Append(FilterPartCategories(part_categories))
+        if len(part_categories)>0:
+            self.category_filter_group.Append(FilterPartCategories(part_categories))
+        else:
+            self.category_filter_group.Clear()
+
     

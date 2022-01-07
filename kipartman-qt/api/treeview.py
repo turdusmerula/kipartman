@@ -72,7 +72,11 @@ class Node(object):
         del self.childs[row:row+count-1]
         for child in childs:
             del self.child_to_row[child]
-
+    
+    def clear(self):
+        self.childs.clear()
+        self.child_to_row.clear() 
+        
     def GetValue(self, column):
         """ Overload to provide values """
         return None
@@ -167,6 +171,9 @@ class TreeModel(QAbstractItemModel):
         self.id_to_node[QModelIndex().internalId()] = self.rootNode
         self.node_to_id[self.rootNode] = QModelIndex().internalId()
 
+        # fetch can be called during remove phase but it's not okay as id maps are not yet consistents
+        self._prevent_fetch = False
+
     # https://coderedirect.com/questions/402089/qtreeview-qabstractitemmodel-insertrow
 
     ### Overloaded from QAbstractItemModel ###
@@ -189,6 +196,10 @@ class TreeModel(QAbstractItemModel):
  
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if index.isValid():
+            if index.internalId() not in self.id_to_node:
+                # There is a problem that should never happen
+                print("Error in data model", self, index, index.internalId(), role)
+                return QVariant()
             node = self.id_to_node[index.internalId()]
         else:
             node = self.rootNode
@@ -226,12 +237,12 @@ class TreeModel(QAbstractItemModel):
         # CheckStateRole
         
         # TODO
-        # StatusTipRole = ... # type: Qt.ItemDataRole
-        # WhatsThisRole = ... # type: Qt.ItemDataRole
-        # AccessibleTextRole = ... # type: Qt.ItemDataRole
-        # AccessibleDescriptionRole = ... # type: Qt.ItemDataRole
-        # InitialSortOrderRole = ... # type: Qt.ItemDataRole
-        # UserRole = ... # type: Qt.ItemDataRole
+        # StatusTipRole
+        # WhatsThisRole
+        # AccessibleTextRole
+        # AccessibleDescriptionRole
+        # InitialSortOrderRole
+        # UserRole
         
         #return super(TreeModel, self).data(index, role)
         return QVariant()
@@ -239,6 +250,8 @@ class TreeModel(QAbstractItemModel):
     # def dropMimeData (data, action, row, column, parent)
 
     def fetchMore(self, parent):
+        if self._prevent_fetch:
+            return 
         self.Fetch(self.node_from_id(parent.internalId()))
         
     def flags(self, index):
@@ -411,21 +424,64 @@ class TreeModel(QAbstractItemModel):
         self.InsertNodes([node], pos, parent)
 
     def RemoveNodes(self, nodes):
-        for node in nodes:
+        self._prevent_fetch = True
+        self.layoutAboutToBeChanged.emit() #parents=[self.index_from_node(parent)])
+
+        def is_leaf_node(node):
+            return len(node.childs)==0
+        
+        def has_leaf_nodes(node):
+            if is_leaf_node(node):
+                return False
+            for child in node.childs:
+                if is_leaf_node(child)==False:
+                    return False
+            return True
+        
+        def remove_childs(node):
+            nonlocal nodes
+            # exclude childs we're going to remove from input and remove it from internal indexes 
+            for child in node.childs:
+                if child in nodes:
+                    nodes.remove(child)
+                    index = self.index_from_node(child)
+                    del self.id_to_node[index.internalId()]
+                    del self.node_to_id[child]
+            
+            index = self.index_from_node(node)
+            self.beginRemoveRows(index, 0, len(node.childs)-1)
+            node.clear()
+            self.endRemoveRows()
+        
+        def remove_node(node):
             parent = node.parent
+            parent_index = self.index_from_node(parent)
             row = parent.row_from_child(node)
-            index = self.createIndex(row, 0, node)
+            index = self.index_from_node(node) #self.createIndex(row, 0, node)
             
-            self.layoutAboutToBeChanged.emit() #parents=[self.index_from_node(parent)])
-            self.beginRemoveRows(index, row, row)
-            
+            self.beginRemoveRows(parent_index, row, row)
             parent.remove_child(node)
             del self.id_to_node[index.internalId()]
             del self.node_to_id[node]
-
             self.endRemoveRows()
-            self.layoutChanged.emit()
 
+        while len(nodes)>0:
+            node = nodes.pop(0)
+            if has_leaf_nodes(node):
+                remove_childs(node)
+                nodes.append(node)
+            else:
+                if is_leaf_node(node):
+                    remove_node(node)
+                else:
+                    for child in node.childs:
+                        if is_leaf_node(child)==False:
+                            nodes.insert(child, 0)
+                    nodes.append(node)
+
+        self._prevent_fetch = False
+        
+        self.layoutChanged.emit()
 
     def RemoveNode(self, node):
         self.RemoveNodes([node])

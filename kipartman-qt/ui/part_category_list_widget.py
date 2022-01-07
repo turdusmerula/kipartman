@@ -98,6 +98,14 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
         else:
             ShowWarningDialog("Remove failed", "No part category to remove")
 
+        # nodes = []
+        # for index in self.treeView.selectionModel().selectedRows():
+        #     node = self.treeView.model().node_from_id(index.internalId())
+        #     nodes.append(node)
+        # self.treeView.model().RemoveNodes(nodes)
+        # return 
+
+
         # def print_index(name, index):
         #     try:
         #         print(name, index, index.row(), index.column(), index.data())
