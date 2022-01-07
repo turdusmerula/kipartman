@@ -1,6 +1,6 @@
 from database.models import Part
 from django.db.models import Count
-from api.filter import DataFilter
+from api.filter import Filter
 from django.db.models import Q
 import database.data.part_parameter
 import math
@@ -33,19 +33,24 @@ class PartException(Exception):
 #     def apply(self, request):
 #         return request.filter(id=self.id)
 #
-# class FilterCategory(Filter):
-#     def __init__(self, category):
-#         self.category = category
-#         super(FilterCategory, self).__init__()
-#
-#     def apply(self, request):
-#         categories = self.category.get_descendants(include_self=True)
-#         category_ids = [category.id for category in categories]        
-#
-#         return request.filter(category__in=category_ids)
-#
-#     def __str__(self):
-#         return f"category: {self.category.name}"
+class FilterPartCategories(Filter):
+    def __init__(self, part_category_list):
+        if len(part_category_list)==1:
+            super(FilterPartCategories, self).__init__(name="Part category", description=part_category_list[0].name)
+        else:
+            super(FilterPartCategories, self).__init__(name="Part categories", description=f"{len(part_category_list)} categories selected")
+            
+        self.part_category_list = part_category_list
+
+    def apply(self, request):
+        part_category_ids = []
+        for part_category in self.part_category_list:
+            sub_part_categories = part_category.get_descendants(include_self=True)
+            if sub_part_categories.id not in part_category_ids:
+                part_category_ids.append(sub_part_categories.id)
+
+        return request.filter(category__in=category_ids)
+
 #
 # class FilterSymbols(Filter):
 #     def __init__(self, symbols):

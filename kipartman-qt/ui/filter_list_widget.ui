@@ -27,7 +27,13 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QPartCategoryTreeView" name="treeView">
+    <widget class="QFilterTreeView" name="treeView">
+     <property name="editTriggers">
+      <set>QAbstractItemView::AllEditTriggers</set>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
@@ -43,9 +49,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QPartCategoryTreeView</class>
+   <class>QFilterTreeView</class>
    <extends>QTreeView</extends>
-   <header>api.data.part_category</header>
+   <header>api.data.filter</header>
   </customwidget>
  </customwidgets>
  <resources/>

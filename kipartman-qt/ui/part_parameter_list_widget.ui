@@ -27,7 +27,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QPartCategoryTreeView" name="treeView">
+    <widget class="QPartParameterTreeView" name="treeView">
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
@@ -43,9 +43,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QPartCategoryTreeView</class>
+   <class>QPartParameterTreeView</class>
    <extends>QTreeView</extends>
-   <header>api.data.part_category</header>
+   <header>api.data.part_parameter</header>
   </customwidget>
  </customwidgets>
  <resources/>

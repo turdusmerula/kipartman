@@ -85,6 +85,7 @@ def main(args=None):
     
     import ui.main_window
     
+    ui.main_window.app = app
     ui.main_window.main_window = MainWindow()    
     ui.main_window.main_window.show()
     

@@ -1,11 +1,12 @@
-from PyQt6 import Qt6
-from PyQt6 import QtWidgets, uic
-from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit
+from PyQt6 import Qt6, QtWidgets, uic
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit, QMainWindow
 
-from ui.parts_widget import PartsWidget
+from ui.parts_window import PartsWindow
 from ui.symbols_widget import SymbolsWidget
 
 from api.command import commands
+from api.event import events
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -19,15 +20,24 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionViewParts.triggered.connect(self.OnActionViewPartsTriggered)
         self.actionViewSymbols.triggered.connect(self.OnActionViewSymbolsTriggered)
 
+        self.activeWindow = None 
         self.mdiArea.subWindowActivated.connect(self.OnMdiAreaSubWindowActivated)
-
-        commands.on_do.connect(self.update_menus)
-        commands.on_undo.connect(self.update_menus)
-        commands.on_redo.connect(self.update_menus)
-        commands.on_flush.connect(self.update_menus)
         
-        self.update_menus()
+        commands.done.connect(self.update_menus)
+        commands.undone.connect(self.update_menus)
+        commands.redone.connect(self.update_menus)
+        commands.flushed.connect(self.update_menus)
 
+        # TODO geometry
+        # QSettings settings("MyCompany", "MyApp");
+        # restoreGeometry(settings.value("myWidget/geometry").toByteArray()); restoreState(settings.value("myWidget/windowState").toByteArray());
+
+        self.update_menus()
+        self.update_dock_widgets()
+
+        self.defaultDockPartCategoryWidget = self.dockPartCategoryWidget.widget()
+        self.defaultDockFilterWidget = self.dockFilterWidget.widget()
+        
     def update_menus(self):
         self.actionSchematicOpen.setEnabled(False)
         self.actionSchematicSave.setEnabled(False)
@@ -56,6 +66,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionCategoryAdd.setEnabled(False)
         self.actionCategoryDelete.setEnabled(False)
 
+    def update_dock_widgets(self):
+        self.dockPartCategoryWidget.setVisible(False)
+        self.dockPartParameterWidget.setVisible(False)
 
     def update(self):
         for child in self.mdiArea.subWindowList():
@@ -64,10 +77,14 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).update()
             
     def AddWindow(self, widget_class, title):
-        window = QMdiSubWindow(self.mdiArea)
-        window.setWidget(widget_class(self.mdiArea))
+        window = widget_class(self.mdiArea)
         window.setWindowTitle(title)
-        # subWindow1.setAttribute(Qt6.WA_DeleteOnClose)
+        window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+
+        # window = QMdiSubWindow(self.mdiArea)
+        # window.setWidget(widget_class(self.mdiArea))
+        # window.setWindowTitle(title)
+
         self.mdiArea.addSubWindow(window)
         window.show()
         return window
@@ -87,15 +104,36 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def OnActionViewPartsTriggered(self, value):
-        self.AddWindow(PartsWidget, "parts")
+        self.AddWindow(PartsWindow, "parts")
 
     def OnActionViewSymbolsTriggered(self, value):
         self.AddWindow(SymbolsWidget, "symbols")
 
 
-    def OnMdiAreaSubWindowActivated(self, window):        
+    def OnMdiAreaSubWindowActivated(self, window):
         self.update_menus()
+        if self.activeWindow is not None:
+            self.activeWindow.widget().deactivated()
         if window is not None:
-            window.widget().update_menus()
+            window.widget().activated()
+        self.activeWindow = window
+
+
+    def ChangeDockPartCategoryWidget(self, widget=None):
+        if widget is None:
+            self.dockPartCategoryWidget.setWidget(self.defaultDockPartCategoryWidget)
+            self.dockPartCategoryWidget.setVisible(False)
+        else:
+            self.dockPartCategoryWidget.setWidget(widget)
+            self.dockPartCategoryWidget.setVisible(True)
+
+    def ChangeDockFilterWidget(self, widget=None):
+        if widget is None:
+            self.dockFilterWidget.setWidget(self.defaultDockFilterWidget)
+            self.dockFilterWidget.setVisible(False)
+        else:
+            self.dockFilterWidget.setWidget(widget)
+            self.dockFilterWidget.setVisible(True)
 
 main_window = None
+app = None

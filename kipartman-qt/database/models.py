@@ -6,6 +6,10 @@ from enum import Enum
 import json
 from mptt.models import MPTTModel, TreeForeignKey
 
+class ModelException(Exception):
+    def __init__(self, error):
+        super(ModelException, self).__init__(error)
+
 class PartValueField(models.TextField):
     description = _("Value field for parts")
 
@@ -81,7 +85,26 @@ class PartCategory(MPTTModel):
             res = parent.name+"/"+res
             parent = parent.parent
         return "/"+res
-    
+
+    def save(self, *args, **kwargs):
+        if self.parent is not None:
+            # check that instance will not be child of itself
+            parent = self.parent
+            while parent is not None:
+                if parent.pk==self.pk:
+                    raise ModelException('Category recursion forbidden')
+                parent = parent.parent
+        
+        # PartCategory._tree_manager.rebuild()
+        return super(PartCategory, self).save(*args, **kwargs)
+
+    def has_dependencies(self):
+        if self.is_leaf_node()==False:
+            return True
+        if self.parts.count()>0:
+            return True
+        return False
+
     class MPTTMeta:
         order_insertion_by = ['name']
 
@@ -97,7 +120,7 @@ class Part(models.Model):
     name = models.TextField()
     description = models.TextField(blank=True, default='')
     comment = models.TextField(blank=True, default='')
-    category = models.ForeignKey('PartCategory', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    category = models.ForeignKey('PartCategory', related_name='parts', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     footprint = models.ForeignKey('KicadFootprint', related_name='new_footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     symbol = models.ForeignKey('KicadSymbol', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     #parameters is defined inside PartParameter by ForeignKey part
@@ -109,7 +132,7 @@ class Part(models.Model):
     value = PartValueField(blank=True, default="{name}")
     metapart = models.BooleanField(null=False, default=False)
     updated = models.DateTimeField(auto_now=True)
-    
+
     def __repr__(self):
         return '%d: %s' % (self.id, self.name)
 

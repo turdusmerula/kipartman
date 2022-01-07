@@ -1,10 +1,9 @@
-from PyQt6.QtCore import QRunnable, QThreadPool
-from PyQt6.QtCore import QObject, pyqtSignal
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QObject, pyqtSignal
+from PyQt6.QtWidgets import QTreeView, QHeaderView
 
-from api.treeview import TreeModel, Node, Column, TreeManager
+from api.treeview import TreeModel, Node, Column, QTreeViewData
 from api.command import Command, CommandUpdateDatabaseField, commands
-from api.events import events
+from api.event import events
 import database.data.part
 from database.models import Part
 
@@ -96,17 +95,12 @@ class PartModel(TreeModel):
 
         return False
 
-class PartManager(TreeManager):
-    def __init__(self, tree_view, model=None, context_menu=None):
-        super(PartManager, self).__init__(tree_view, model, context_menu)
 
-        events.object_updated.connect(self.onObjectUpdate)
+class QPartTreeView(QTreeViewData):
+    def __init__(self, *args, **kwargs):
+        super(QPartTreeView, self).__init__(*args, **kwargs)
 
-    def onObjectUpdate(self, object):
-        pass
-
-    def on_object_add(self, object):
-        pass
-    
-    def on_object_delete(self, object):
-        pass
+    def setModel(self, model):
+        super(QPartTreeView, self).setModel(model)
+        
+        self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)        
