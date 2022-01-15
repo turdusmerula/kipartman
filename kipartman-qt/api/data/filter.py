@@ -73,7 +73,6 @@ class FilterModel(TreeModel):
         # create a state
         nodes = self.node_to_id.copy()
         del nodes[self.rootNode] # remove root node
-        print("===", nodes)
         
         for group in self.filter.groups:
             if len(group.filters)>0:

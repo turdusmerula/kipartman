@@ -35,7 +35,10 @@ class PartsWindow(QChildWindow):
 
         self.filters = self.filterList.filters
         self.category_filter_group = FilterGroupPartCategory()
+        self.category_filter_group.filterChanged.connect(self.OnFilterChanged)
         self.filters.Append(self.category_filter_group)
+        
+        self.partList.SetFilters(self.filters)
         
         self.update_menus()
         self.activated()
@@ -68,9 +71,17 @@ class PartsWindow(QChildWindow):
         main_window.ChangeDockFilterWidget(None)
 
     def OnPartCategorySelectionChanged(self, part_categories):
+        from ui.main_window import main_window
+        if main_window is None:
+            return
+
         if len(part_categories)>0:
-            self.category_filter_group.Append(FilterPartCategories(part_categories))
+            self.category_filter_group.Append(FilterPartCategories(part_categories, main_window.actionSelectChildMode.isChecked()))
         else:
             self.category_filter_group.Clear()
 
-    
+    def OnFilterChanged(self):
+        if self.category_filter_group.IsEmpty():
+            self.partCategoryList.UnselectAll()
+        
+        self.partList.update()

@@ -32,6 +32,8 @@ class PartModel(TreeModel):
         self.InsertColumn(Column("Name"))
         self.InsertColumn(Column("Description"))
 
+        self.filters = None
+
         self.id_to_part = {}
         self.loaded = {
             self.rootNode: False
@@ -41,13 +43,16 @@ class PartModel(TreeModel):
         }
 
         self.request = None
-        
+    
+    def SetFilters(self, filters):
+        self.filters = filters 
+    
     def CanFetchMore(self, parent):
         return not self.loaded[parent]
 
     def Fetch(self, parent):
         if self.request is None:
-            self.request = database.data.part.find().iterator()
+            self.request = database.data.part.find(self.filters).iterator()
         
         nodes = []
         try:
@@ -94,6 +99,20 @@ class PartModel(TreeModel):
             return True
 
         return False
+
+    def Clear(self):
+        self.id_to_part.clear()
+        self.loaded.clear()
+        self.has_child.clear()
+        self.request = None
+        
+        super(PartModel, self).Clear()
+
+        self.loaded[self.rootNode] = False
+        self.has_child[self.rootNode] = True
+
+    def Update(self):
+        self.Clear()
 
 
 class QPartTreeView(QTreeViewData):

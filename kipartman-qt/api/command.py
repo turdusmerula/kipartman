@@ -26,7 +26,7 @@ class CommandStack(QObject):
     undone = pyqtSignal(Command)
     beforeRedo = pyqtSignal(Command)
     redone = pyqtSignal(Command)
-    flushed = pyqtSignal(Command)
+    flushed = pyqtSignal()
 
     def __init__(self):
         super(CommandStack, self).__init__()

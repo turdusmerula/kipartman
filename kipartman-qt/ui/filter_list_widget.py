@@ -1,12 +1,12 @@
 from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
-from PyQt6.QtCore import QEvent, pyqtSignal, QRect
+from PyQt6.QtCore import QEvent, pyqtSignal, QRect, QModelIndex
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
 # from PyQt6.QtWidgets import qApp
 
 from api.command import commands
 from api.event import events
-from api.data.filter import FilterModel
+from api.data.filter import FilterModel, GroupNode, FilterNode
 from api.filter import FilterSet, Filter
 from helper.dialog import ShowErrorDialog
 
@@ -17,16 +17,18 @@ from PyQt6.QtWidgets import QItemDelegate, QPushButton, QHBoxLayout, QSpacerItem
 
 
 class ButtonCloseDelegate(QItemDelegate):
+    buttonCloseClicked = pyqtSignal(QModelIndex)
+
     def __init__(self, parent):
         super(ButtonCloseDelegate, self).__init__(parent)
 
         self.icon = QIcon()
         self.icon.addFile(u"ui/icons/close-48.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         
-        # self.index = None
+        self.index = None
         
     def createEditor(self, parent, option, index):
-        # self.index = index
+        self.index = index
         
         frame = QFrame(parent)
         horizontalLayout = QHBoxLayout(frame)
@@ -46,10 +48,9 @@ class ButtonCloseDelegate(QItemDelegate):
         return frame
 
     def OnCloseButtonClicked(self):
-        pass
-        # if self.index is None:
-        #     return
-        # print("---", self.index.data())
+        if self.index is None or self.index.isValid()==False:
+            return
+        self.buttonCloseClicked.emit(self.index)
 
 class IndentationDelegate(QStyledItemDelegate):
     def __init__(self, parent):
@@ -91,12 +92,9 @@ class QFilterListWidget(QtWidgets.QWidget):
 
         from ui.main_window import app
         app.focusChanged.connect(self.update_menus)
-
-        # self.model.AddSection("category", "Category filter")
-        # self.model.AddFilter(Filter("test"), "category")
-        # self.model.AddFilter(Filter("test2"), "category")
         
         self.filters.filterChanged.connect(self.OnFilterListChanged)
+        self.buttonDelegate.buttonCloseClicked.connect(self.OnButtonCloseFilterClicked)
         
         self.update_menus()
         
@@ -116,4 +114,11 @@ class QFilterListWidget(QtWidgets.QWidget):
         # self.model.Clear()
         self.model.Update()
 
-        
+    def OnButtonCloseFilterClicked(self, index):
+        node = self.model.node_from_index(index)
+        if isinstance(node, GroupNode):
+            node.group.Clear()
+        elif isinstance(node, FilterNode):
+            node.parent.group.Remove(node.filter)
+
+    

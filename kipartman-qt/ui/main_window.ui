@@ -200,17 +200,17 @@
    <addaction name="actionPartImportOctopart"/>
    <addaction name="actionPartRemovePart"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget">
+  <widget class="QDockWidget" name="dockParameterWidget">
    <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="windowTitle">
-    <string>Units</string>
+    <string>Parameters</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2"/>
+   <widget class="QParameterListWidget" name="dockParameterListWidget"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_2">
    <attribute name="dockWidgetArea">
@@ -226,6 +226,20 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_7"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_3">
+   <property name="windowTitle">
+    <string>toolBar_3</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionParameterAdd"/>
+   <addaction name="actionMetaParameterAdd"/>
+   <addaction name="actionParameterDelete"/>
   </widget>
   <action name="actionSchematicOpen">
    <property name="text">
@@ -398,6 +412,33 @@
     <string>Select child mode</string>
    </property>
   </action>
+  <action name="actionParameterAdd">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/parameter-add-48.png</normaloff>icons/parameter-add-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add parameter</string>
+   </property>
+  </action>
+  <action name="actionParameterDelete">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/parameter-delete-48.png</normaloff>icons/parameter-delete-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove parameter</string>
+   </property>
+  </action>
+  <action name="actionMetaParameterAdd">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/metaparameter-add-48.png</normaloff>icons/metaparameter-add-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add meta parameter</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -416,6 +457,12 @@
    <class>QFilterListWidget</class>
    <extends>QWidget</extends>
    <header>ui.filter_list_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QParameterListWidget</class>
+   <extends>QWidget</extends>
+   <header>ui.parameter_list_widget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

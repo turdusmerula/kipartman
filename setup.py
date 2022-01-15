@@ -66,10 +66,12 @@ setup(
 #          'profiling',
          'cfscrape',        # web scrapper
          'beautifulsoup4',   # html parser
+         'pint',    # unit and physical quantities
          
          'asgiref',
          'pytz',
-         'sqlparse'
+         'sqlparse',
+         
     ],
 )
 

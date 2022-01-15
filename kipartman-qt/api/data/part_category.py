@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import QModelIndex
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QTreeView, QHeaderView
+from PyQt6.QtWidgets import QTreeView, QHeaderView, QAbstractItemView
 
 from api.treeview import TreeModel, Node, Column, QTreeViewData
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObjects, commands
@@ -208,6 +208,8 @@ class QPartCategoryTreeView(QTreeViewData):
     def __init__(self, *args, **kwargs):
         super(QPartCategoryTreeView, self).__init__(*args, **kwargs)
     
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        
         self.endInsertEditNode.connect(self.OnEndInsertEditNode)
 
         events.objectUpdated.connect(self.OnObjectUpdated)

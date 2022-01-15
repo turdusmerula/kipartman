@@ -1,8 +1,7 @@
+from api.filter import Filter, FilterRequest
 from database.models import Part
-from django.db.models import Count
-from api.filter import Filter
-from django.db.models import Q
 import database.data.part_parameter
+from django.db.models import Q, Count
 import math
 
 class PartException(Exception):
@@ -33,23 +32,30 @@ class PartException(Exception):
 #     def apply(self, request):
 #         return request.filter(id=self.id)
 #
-class FilterPartCategories(Filter):
-    def __init__(self, part_category_list):
+class FilterPartCategories(FilterRequest):
+    def __init__(self, part_category_list, recursive):
         if len(part_category_list)==1:
             super(FilterPartCategories, self).__init__(name="Part category", description=part_category_list[0].name)
         else:
             super(FilterPartCategories, self).__init__(name="Part categories", description=f"{len(part_category_list)} categories selected")
             
         self.part_category_list = part_category_list
-
-    def apply(self, request):
+        self.recursive = recursive
+        
+    def Apply(self, request):
         part_category_ids = []
-        for part_category in self.part_category_list:
-            sub_part_categories = part_category.get_descendants(include_self=True)
-            if sub_part_categories.id not in part_category_ids:
-                part_category_ids.append(sub_part_categories.id)
+        
+        if self.recursive==True:
+            for part_category in self.part_category_list:
+                sub_part_categories = part_category.get_descendants(include_self=True)
+                for sub_part_category in sub_part_categories:
+                    if sub_part_category.id not in part_category_ids:
+                        part_category_ids.append(sub_part_category.id)
+        else:
+            for part_category in self.part_category_list:
+                part_category_ids.append(part_category.id)
 
-        return request.filter(category__in=category_ids)
+        return request.filter(category__in=part_category_ids)
 
 #
 # class FilterSymbols(Filter):
@@ -174,13 +180,14 @@ def _add_default_annotations(request):
     request = request.select_related('category', 'footprint', 'symbol') # preload for performance
     return request
 
-def find(filters=[]):
+def find(filters=None):
     request = Part.objects
     
     request = _add_default_annotations(request)
     
-    for filter in filters:
-        request = filter.apply(request)
+    # apply filters
+    if filters is not None:
+        request = filters.Apply(request, filter=FilterRequest)
     
     return request.order_by('id').all()
 
@@ -192,42 +199,42 @@ def find_metapart_childs(part):
         
     return find(filters)
 
-def save(part):
-    
-    if part.pk is None:
-        part.save()
-        
-    # build value
-    # TODO
-    
-    part.save()
-    
-
-def compute_value():
-    return ""
-
-def create(**kwargs):
-    part = Part(**kwargs)
-    
-    return part
-
-def delete(part):
-    part.delete()
-    
-def duplicate(part):
-    request = Part.objects
-    
-    request = _add_default_annotations(request)
-    
-    newpart = request.get(pk=part.id)
-    newpart.pk = None
-#     parameters = []
-#     for param in res.parameters.all():
-#         param.pk = None
-#         parameters.append(param)
-#     print("***", res.parameters)
-#     res.pk = None
-#     
-#     print("***", res.parameters)
-    return newpart
+# def save(part):
+#
+#     if part.pk is None:
+#         part.save()
+#
+#     # build value
+#     # TODO
+#
+#     part.save()
+#
+#
+# def compute_value():
+#     return ""
+#
+# def create(**kwargs):
+#     part = Part(**kwargs)
+#
+#     return part
+#
+# def delete(part):
+#     part.delete()
+#
+# def duplicate(part):
+#     request = Part.objects
+#
+#     request = _add_default_annotations(request)
+#
+#     newpart = request.get(pk=part.id)
+#     newpart.pk = None
+# #     parameters = []
+# #     for param in res.parameters.all():
+# #         param.pk = None
+# #         parameters.append(param)
+# #     print("***", res.parameters)
+# #     res.pk = None
+# #     
+# #     print("***", res.parameters)
+#     return newpart
 

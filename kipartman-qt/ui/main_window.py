@@ -66,6 +66,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionCategoryAdd.setEnabled(False)
         self.actionCategoryDelete.setEnabled(False)
 
+        self.actionSelectNone.setEnabled(False)
+        self.actionSelectAll.setEnabled(False)
+        self.actionSelectChildMode.setEnabled(False)
+
+        self.actionParameterAdd.setEnabled(False)
+        self.actionMetaParameterAdd.setEnabled(False)
+        self.actionParameterDelete.setEnabled(False)
+
     def update_dock_widgets(self):
         self.dockPartCategoryWidget.setVisible(False)
         self.dockPartParameterWidget.setVisible(False)

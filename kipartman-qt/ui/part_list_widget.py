@@ -41,3 +41,6 @@ class QPartListWidget(QtWidgets.QWidget):
         main_window.actionPartAddMetapart.setEnabled(True)
         main_window.actionPartImportOctopart.setEnabled(True)
         main_window.actionPartRemovePart.setEnabled(True)
+
+    def SetFilters(self, filters):
+        self.model.SetFilters(filters)

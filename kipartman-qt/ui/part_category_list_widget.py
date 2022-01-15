@@ -2,14 +2,14 @@ from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
 from PyQt6.QtCore import QEvent, pyqtSignal
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
+from PyQt6.QtWidgets import QAbstractItemView
 
-from api.command import commands
+from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObject, commands
 from api.event import events
 from api.data.part_category import PartCategoryModel, PartCategoryNode, CommandDeletePartCategories, CommandAddPartCategory
 from api.filter import FilterSet, FilterGroup
 from database.models import PartCategory
 from helper.dialog import ShowErrorDialog
-from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObject, commands
 
 
 
@@ -24,11 +24,6 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
         self.treeView.setModel(self.model)
         self.treeView.selectionModel().selectionChanged.connect(self.OnSelectionChanged)
 
-        commands.beforeDo.connect(self.OnCommandBeforeDo)
-        commands.done.connect(self.OnCommandDone)
-        commands.beforeUndo.connect(self.OnCommandBeforeUndo)
-        commands.undone.connect(self.OnCommandUndone)
-        
         from ui.main_window import app
         app.focusChanged.connect(self.update_menus)
 
@@ -46,7 +41,11 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
         
         main_window.actionCategoryAdd.setEnabled(False)
         main_window.actionCategoryDelete.setEnabled(False)
-        
+
+        main_window.actionSelectNone.setEnabled(False)
+        main_window.actionSelectAll.setEnabled(False)
+        main_window.actionSelectChildMode.setEnabled(False)
+
         if self.treeView.hasFocus()==False:
             return
 
@@ -62,7 +61,28 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
         except: pass
         main_window.actionCategoryDelete.triggered.connect(self.OnActionCategoryDeleteTriggered)
 
+        
+        main_window.actionSelectNone.setEnabled(True)
+        try: main_window.actionSelectNone.triggered.disconnect()
+        except: pass
+        main_window.actionSelectNone.triggered.connect(self.UnselectAll)
+
+        main_window.actionSelectAll.setEnabled(True)
+        try: main_window.actionSelectAll.triggered.disconnect()
+        except: pass
+        main_window.actionSelectAll.triggered.connect(self.SelectAll)
+
+        main_window.actionSelectChildMode.setEnabled(True)
+        try: main_window.actionSelectChildMode.triggered.disconnect()
+        except: pass
+        main_window.actionSelectChildMode.triggered.connect(self.OnSelectChildModeTriggered)
+
+    def UnselectAll(self):
+        self.treeView.clearSelection()
     
+    def SelectAll(self):
+        self.treeView.selectAll(selectChilds=True)
+
     def OnActionCategoryAddTriggered(self):
         # add a new element in edit mode
         self.treeView.editNew()
@@ -127,34 +147,7 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
         
         self.update_menus()
 
-
-    def OnCommandBeforeDo(self, command):
-        # if isinstance(command, CommandDeletePartCategories) or isinstance(command, CommandDeletePartCategories):
-        #     # revert previous state
-        #     command.undone.connect(
-        #         lambda treeView=self.treeView, state=self.treeView.saveState(): 
-        #             treeView.loadState(state)
-        #     )
-        pass
-    
-    def OnCommandDone(self, command):
-        pass
-    
-    def OnCommandBeforeUndo(self, command):
-        # if isinstance(command, CommandAddPartCategory) or isinstance(command, CommandDeletePartCategories):
-        #     # revert previous state
-        #     command.undone.connect(
-        #         lambda treeView=self.treeView, state=self.treeView.saveState(): 
-        #             treeView.loadState(state)
-        #     )
-        pass
-
-    def OnCommandUndone(self, command):
-        # if isinstance(command, CommandDeletePartCategories) or isinstance(command, CommandDeletePartCategories):
-        #     # revert previous state
-        #     command.undone.connect(
-        #         lambda treeView=self.treeView, state=self.treeView.saveState(): 
-        #             treeView.loadState(state)
-        #     )
-        pass
+    def OnSelectChildModeTriggered(self, checked):
+        self.treeView.setSelectChildMode(checked)
+        self.OnSelectionChanged(None, None)
     
