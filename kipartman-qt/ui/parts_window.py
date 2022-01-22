@@ -1,14 +1,16 @@
 from PyQt6 import Qt6, QtWidgets, uic
-from PyQt6.QtGui import QWindowStateChangeEvent
 from PyQt6.QtCore import pyqtSignal, QEvent
+from PyQt6.QtGui import QWindowStateChangeEvent
 from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit
 
 from api.data.part_category import PartCategoryModel
 from api.filter import FilterSet, FilterGroup
 from database.data.part import FilterPartCategories
 from ui.child_window import QChildWindow
-from ui.part_category_list_widget import QPartCategoryListWidget
 from ui.filter_list_widget import QFilterListWidget
+from ui.part_category_list_widget import QPartCategoryListWidget
+from ui.part_parameter_list_widget import QPartParameterListWidget
+
 
 class FilterGroupPartCategory(FilterGroup):
     def __init__(self):
@@ -27,9 +29,9 @@ class PartsWindow(QChildWindow):
         super(PartsWindow, self).__init__(parent)
         uic.loadUi('ui/parts_window.ui', self)
 
-        self.filterList = QFilterListWidget()
-        self.partCategoryList = QPartCategoryListWidget()
-        # self.part_parameter_list = 
+        self.filterList = QFilterListWidget(self)
+        self.partCategoryList = QPartCategoryListWidget(self)
+        self.partParameterList = QPartParameterListWidget(self)
         
         self.partCategoryList.selectionChanged.connect(self.OnPartCategorySelectionChanged)
 
@@ -61,6 +63,7 @@ class PartsWindow(QChildWindow):
         
         main_window.ChangeDockPartCategoryWidget(self.partCategoryList)
         main_window.ChangeDockFilterWidget(self.filterList)
+        main_window.ChangeDockPartParameterWidget(self.partParameterList)
     
     def deactivated(self):
         from ui.main_window import main_window

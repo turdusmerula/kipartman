@@ -21,3 +21,4 @@ def ShowErrorDialog(title, text, informative_text="", detailed_text=""):
 
 def ShowWarningDialog(title, text, informative_text="", detailed_text=""):
     return ShowDialog(title=title, text=text, informative_text=informative_text, detailed_text=detailed_text, icon=QMessageBox.Icon.Warning, buttons=QMessageBox.StandardButton.Ok)
+

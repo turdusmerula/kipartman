@@ -1,6 +1,6 @@
 from PyQt6 import Qt6, QtWidgets, uic
-from PyQt6.QtGui import QWindowStateChangeEvent
 from PyQt6.QtCore import pyqtSignal, QEvent
+from PyQt6.QtGui import QWindowStateChangeEvent
 from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit
 
 

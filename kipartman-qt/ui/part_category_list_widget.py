@@ -5,12 +5,11 @@ from PyQt6.QtGui import QStandardItem, QStandardItemModel
 from PyQt6.QtWidgets import QAbstractItemView
 
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObject, commands
-from api.event import events
 from api.data.part_category import PartCategoryModel, PartCategoryNode, CommandDeletePartCategories, CommandAddPartCategory
+from api.event import events
 from api.filter import FilterSet, FilterGroup
 from database.models import PartCategory
 from helper.dialog import ShowErrorDialog
-
 
 
 class QPartCategoryListWidget(QtWidgets.QWidget):

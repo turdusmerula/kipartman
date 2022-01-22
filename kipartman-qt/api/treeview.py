@@ -86,8 +86,12 @@ class Node(object):
         self.child_to_row.clear() 
         
     def GetValue(self, column):
-        """ Overload to provide values """
+        """ Overload to provide view values """
         return None
+
+    def GetEditValue(self, column):
+        """ Overload to provide edit values """
+        return self.GetValue(column)
 
     def GetDecoration(self, column):
         """ Overload to provide custom decoration """
@@ -200,7 +204,8 @@ class TreeModel(QAbstractItemModel):
             return super(TreeModel, self).buddy(index)
         return res
 
-    # def canDropMimeData (data, action, row, column, parent)
+    def canDropMimeData(self, data, action, row, column, parent):
+        print("canDropMimeData", data, action, row, column, parent)
 
     def canFetchMore(self, parent):
         return self.CanFetchMore(self.node_from_id(parent.internalId()))
@@ -222,31 +227,32 @@ class TreeModel(QAbstractItemModel):
             node = self.rootNode
         
         if role==Qt.ItemDataRole.DisplayRole:
-            return QVariant(self.GetValue(node, index.column()))
+            return self.GetValue(node, index.column())
         elif role==Qt.ItemDataRole.EditRole:
             # when in edition then prefill the edit zone with the cell content
             if self._edit_index is not None and self._edit_index.internalId()==index.internalId() and self._edit_index.column()==index.column():
-                print("++", self._edit_index.row(), self._edit_index.column(), self._edit_value)
-                res = QVariant(self._edit_value)
+                print("data reedit", self._edit_index.row(), self._edit_index.column(), self._edit_value)
+                # res = QVariant(self._edit_value)
+                res = self._edit_value
                 return res
             else:
-                return QVariant(self.GetValue(node, index.column()))
+                return self.GetEditValue(node, index.column())
         elif role==Qt.ItemDataRole.DecorationRole:
-            return QVariant(self.GetDecoration(node, index.column()))
+            return self.GetDecoration(node, index.column())
         elif role==Qt.ItemDataRole.TextAlignmentRole:
-            return QVariant(self.GetTextAlignment(node, index.column()))
+            return self.GetTextAlignment(node, index.column())
         elif role==Qt.ItemDataRole.BackgroundRole:
-            return QVariant(self.GetBackground(node, index.column()))
+            return self.GetBackground(node, index.column())
         elif role==Qt.ItemDataRole.ForegroundRole:
-            return QVariant(self.GetForeground(node, index.column()))
+            return self.GetForeground(node, index.column())
         elif role==Qt.ItemDataRole.FontRole:
-            return QVariant(self.GetFont(node, index.column()))
+            return self.GetFont(node, index.column())
         elif role==Qt.ItemDataRole.CheckStateRole:
-            return QVariant(self.GetCheckState(node, index.column()))
+            return self.GetCheckState(node, index.column())
         elif role==Qt.ItemDataRole.ToolTipRole:
-            return QVariant(self.GetToolTip(node, index.column()))
+            return self.GetToolTip(node, index.column())
         elif role==Qt.ItemDataRole.SizeHintRole:
-            return QVariant(self.GetSizeHint(node, index.column()))
+            return self.GetSizeHint(node, index.column())
 
         # DONE
         # DisplayRole
@@ -374,6 +380,7 @@ class TreeModel(QAbstractItemModel):
             node = self.id_to_node[index.internalId()]
             valid = self.Validate(node, index.column(), value)
             if valid is not None:
+                # invalid value, put it in cache and notify error
                 self._edit_index = index
                 self._edit_value = value
                 self.dataError.emit(valid)
@@ -546,6 +553,10 @@ class TreeModel(QAbstractItemModel):
         """ Overload here or inside Node to provide values """
         return node.GetValue(column)
     
+    def GetEditValue(self, node, column):
+        """ Overload here or inside Node to provide values """
+        return node.GetEditValue(column)
+
     def GetDecoration(self, node, column):
         """ Overload here or inside Node to provide custom decoration """
         """ The decoration is the item at the left of text (icon, checkbox ...) """
@@ -827,14 +838,7 @@ class QTreeViewData(QTreeView):
 
 
     def focusOutEvent(self, event):
-        print("focusOutEvent", event)
-
-        # if self.edition_error is not None:
-        #     # if item
-        #     self.edition_error = None
-        #     self.reedit()
-        #     return
-
+        # print("focusOutEvent", event)
         return super(QTreeViewData, self).focusOutEvent(event)
 
     def closeEditor(self, editor, hint):
@@ -865,7 +869,12 @@ class QTreeViewData(QTreeView):
                         # edition ends ok
                         self.model().RemoveNode(node)
                         self.endInsertEditNode.emit(node)
+                    self.model().ClearEditCache()
                     self.action_state = QTreeViewData.ActionState.Default
+                    self.setFocus()
+            else:
+                self.model().ClearEditCache()
+                return super(QTreeViewData, self).closeEditor(editor, hint)
         else:
             self.edition_error = None
             self.model().ClearEditCache()
@@ -879,9 +888,4 @@ class QTreeViewData(QTreeView):
                 self.action_state = QTreeViewData.ActionState.Default
                 self.setFocus()
             return super(QTreeViewData, self).closeEditor(editor, hint)
-
-    def edit(self, index, trigger, event):
-        res = super(QTreeViewData, self).edit(index, trigger, event)
-        print("edit", res)
-        return res
  

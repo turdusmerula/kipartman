@@ -2,9 +2,9 @@ from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
 from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit
 
+
 # from ui.part_category_list_widget import PartCategoryListWidget
 # from ui.part_list_widget import PartListWidget
-
 class SymbolsWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):

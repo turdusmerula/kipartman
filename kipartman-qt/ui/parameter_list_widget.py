@@ -5,11 +5,13 @@ from PyQt6.QtGui import QStandardItem, QStandardItemModel
 from PyQt6.QtWidgets import QAbstractItemView
 
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObject, commands
-from api.event import events
 from api.data.parameter import ParameterModel, ParameterNode, CommandDeleteParameters, CommandAddParameter
+from api.event import events
 from database.models import Parameter
 from helper.dialog import ShowErrorDialog
-
+from ui.combobox_alias_delegate import ComboboxAliasDelegate
+from ui.unit_delegate import QUnitDelegate
+from ui.combobox_delegate import QComboboxDelegate
 
 
 class QParameterListWidget(QtWidgets.QWidget):
@@ -21,7 +23,16 @@ class QParameterListWidget(QtWidgets.QWidget):
 
         self.model = ParameterModel()
         self.treeView.setModel(self.model)
-        self.treeView.selectionModel().selectionChanged.connect(self.OnSelectionChanged)
+        self.treeView.selectionModel().selectionChanged.connect(self.update_menus)
+
+        self.nameAliasDelegate = ComboboxAliasDelegate(self.model)
+        self.treeView.setItemDelegateForColumn(0, self.nameAliasDelegate) 
+
+        self.unitDelegate = QUnitDelegate(self.model)
+        self.treeView.setItemDelegateForColumn(1, self.unitDelegate) 
+
+        self.valueTypeDelegate = QComboboxDelegate(self.model, ["float", "integer", "text"])
+        self.treeView.setItemDelegateForColumn(2, self.valueTypeDelegate) 
 
         from ui.main_window import app
         app.focusChanged.connect(self.update_menus)
@@ -39,12 +50,10 @@ class QParameterListWidget(QtWidgets.QWidget):
             return
         
         main_window.actionParameterAdd.setEnabled(False)
-        main_window.actionMetaParameterAdd.setEnabled(False)
         main_window.actionParameterDelete.setEnabled(False)
 
         main_window.actionSelectNone.setEnabled(False)
         main_window.actionSelectAll.setEnabled(False)
-        main_window.actionSelectChildMode.setEnabled(False)
 
         if self.treeView.hasFocus()==False:
             return
@@ -55,12 +64,7 @@ class QParameterListWidget(QtWidgets.QWidget):
         except: pass
         main_window.actionParameterAdd.triggered.connect(self.OnActionParameterAddTriggered)
         
-        main_window.actionMetaParameterAdd.setEnabled(True)
-        try: main_window.actionMetaParameterAdd.triggered.disconnect()
-        except: pass
-        main_window.actionMetaParameterAdd.triggered.connect(self.OnActionMetaParameterAddTriggered)
-
-        if self.treeView.isSelectedRoot()==False:
+        if len(self.treeView.selectedIndexes())>0:
             main_window.actionParameterDelete.setEnabled(True)
         try: main_window.actionParameterDelete.triggered.disconnect()
         except: pass
@@ -76,11 +80,6 @@ class QParameterListWidget(QtWidgets.QWidget):
         try: main_window.actionSelectAll.triggered.disconnect()
         except: pass
         main_window.actionSelectAll.triggered.connect(self.SelectAll)
-
-        main_window.actionSelectChildMode.setEnabled(True)
-        try: main_window.actionSelectChildMode.triggered.disconnect()
-        except: pass
-        main_window.actionSelectChildMode.triggered.connect(self.OnSelectChildModeTriggered)
 
     def UnselectAll(self):
         self.treeView.clearSelection()
@@ -103,16 +102,23 @@ class QParameterListWidget(QtWidgets.QWidget):
         # # self.manager.tree_view.rowsAboutToBeRemoved(self.manager.model.index_from_node(self.model.rootNode), 1, 1)
         # self.model.RemoveParameter(parameter)
         
-    def OnActionMetaParameterAddTriggered(self):
-        pass
-        
     def OnActionParameterDeleteTriggered(self):
+        # nodes = []
+        # for index in self.treeView.selectionModel().selectedRows():
+        #     node = self.treeView.model().node_from_id(index.internalId())
+        #     if isinstance(node, PartCategoryNode) and node.part_category is not None:
+        #         if node.part_category.has_dependencies()==True:
+        #             ShowErrorDialog("Remove failed", f"Part category '{node.part_category.name}' not empy")
+        #             return
+        #         if node not in nodes:
+        #             nodes.append(node.part_category)
+        # if len(nodes)>0:
+        #     commands.Do(CommandDeletePartCategories, part_categories=nodes)
+        #     self.treeView.selectionModel().clearSelection()
+        #     commands.LastUndo.done.connect(
+        #         lambda treeView=self.treeView: 
+        #             treeView.selectionModel().clearSelection()
+        #     )
+        # else:
+        #     ShowWarningDialog("Remove failed", "No part category to remove")
         pass
-        
-    def OnSelectionChanged(self, selected, deselected):
-        pass
-
-    def OnSelectChildModeTriggered(self, checked):
-        self.treeView.setSelectChildMode(checked)
-        self.OnSelectionChanged(None, None)
-    

@@ -2,11 +2,11 @@ from PyQt6 import Qt6, QtWidgets, uic
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit, QMainWindow
 
+from api.command import commands
+from api.event import events
 from ui.parts_window import PartsWindow
 from ui.symbols_widget import SymbolsWidget
 
-from api.command import commands
-from api.event import events
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -37,6 +37,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.defaultDockPartCategoryWidget = self.dockPartCategoryWidget.widget()
         self.defaultDockFilterWidget = self.dockFilterWidget.widget()
+        self.defaultDockPartParameterWidget = self.dockPartParameterWidget.widget()
         
     def update_menus(self):
         self.actionSchematicOpen.setEnabled(False)
@@ -142,6 +143,14 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.dockFilterWidget.setWidget(widget)
             self.dockFilterWidget.setVisible(True)
+
+    def ChangeDockPartParameterWidget(self, widget=None):
+        if widget is None:
+            self.dockPartParameterWidget.setWidget(self.defaultDockPartParameterWidget)
+            self.dockPartParameterWidget.setVisible(False)
+        else:
+            self.dockPartParameterWidget.setWidget(widget)
+            self.dockPartParameterWidget.setVisible(True)
 
 main_window = None
 app = None

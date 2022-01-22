@@ -165,8 +165,14 @@
    <widget class="QPartCategoryListWidget" name="dockPartCategoryListWidget"/>
   </widget>
   <widget class="QDockWidget" name="dockPartParameterWidget">
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
    <property name="windowTitle">
-    <string>Parameters editor</string>
+    <string>Part Parameters</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>

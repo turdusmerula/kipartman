@@ -136,6 +136,45 @@ class Part(models.Model):
     def __repr__(self):
         return '%d: %s' % (self.id, self.name)
 
+class ParameterType(models.TextChoices):
+    INTEGER = "integer"
+    FLOAT = "float"
+    TEXT = "text"
+    
+class Parameter(models.Model):
+    name = models.JSONField()
+    description = models.TextField(blank=True)
+    unit = models.TextField(null=True)
+    value_type = models.TextField(choices=ParameterType.choices, default=ParameterType.FLOAT)
+    updated = models.DateTimeField(auto_now=True)
+
+class ParameterOperator(models.TextChoices):
+    EQ = "="
+    NE = "!="
+    GT = ">"
+    GE = ">="
+    MT = "<"
+    ME = "<="
+    FUNC = "f="
+
+class PartParameter(models.Model):
+    part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)
+    parameter = models.ForeignKey('Parameter', related_name='parameter', on_delete=models.DO_NOTHING, null=False, blank=False)
+    text_value = models.TextField(null=True, blank=True)
+    value = models.FloatField(null=True)
+    unit = models.TextField(null=True)
+
+    metaparameter = models.BooleanField(null=False, default=False)
+    operator = models.TextField(null=True, choices=ParameterOperator.choices, default=ParameterOperator.EQ)
+    
+    updated = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        if self.id:
+            return '%d: %s' % (self.id, self.name)
+        else:
+            return '<None>: %s' % (self.name)
+
 class PartReference(models.Model):
     part = models.ForeignKey('Part', related_name='references', null=False, blank=False, default=None, on_delete=models.CASCADE)
     type = models.TextField(null=False, blank=False)
@@ -148,46 +187,6 @@ class PartReference(models.Model):
     def __unicode__(self):
         return '%d: %s' % (self.id, self.type, self.name, self.uid)
     
-class PartParameter(models.Model):
-    part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)
-    parameter = models.ForeignKey('Parameter', related_name='parameter', on_delete=models.DO_NOTHING, null=False, blank=False)
-    text_value = models.TextField(null=True, blank=True)
-    value = models.FloatField(null=True)
-    unit = models.TextField(null=True, blank=True)
-    metaparameter = models.BooleanField(null=False, default=False)
-    operator = models.TextField(null=True, default=None)
-    updated = models.DateTimeField(auto_now=True)
-
-    def __unicode__(self):
-        if self.id:
-            return '%d: %s' % (self.id, self.name)
-        else:
-            return '<None>: %s' % (self.name)
-            
-    # def expanded_parameter_value(self, with_operator=False):
-    #     operator = ""
-    #     if with_operator==True and self.operator is not None:
-    #         operator = self.operator
-    #
-    #     if self.parameter.value_type==database.models.ParameterType.TEXT:
-    #         return operator+self.text_value
-    #     else:
-    #         if self.value is not None:
-    #             unit_symbol = ''
-    #             if self.parameter.unit is not None:
-    #                 unit_symbol = self.parameter.unit.symbol
-    #
-    #             if self.parameter.value_type==database.models.ParameterType.INTEGER:
-    #                 return operator+str(int(self.value))+unit_symbol
-    #             if self.parameter is not None and self.parameter.unit is not None:
-    #                 if self.parameter.unit.prefixable==True:
-    #                     prefix = None
-    #                     if self.prefix is not None:
-    #                         prefix = self.prefix.symbol
-    #                     return operator+format_unit_prefix(self.value, unit_symbol, prefix)
-    #             return operator+format_float(self.value, 3)+unit_symbol
-    #     return None
-
 
 class PartManufacturer(models.Model):
     part = models.ForeignKey('Part', related_name='manufacturers', null=False, blank=False, default=None, on_delete=models.CASCADE)
@@ -233,19 +232,6 @@ class PartAttachement(models.Model):
 
     def __unicode__(self):
         return '%d: %d %s' % (self.part.pk, self.file.pk, self.description)
-
-
-class ParameterType():
-    INTEGER = "integer"
-    FLOAT = "float"
-    TEXT = "text"
-    
-class Parameter(models.Model):
-    name = models.JSONField()
-    description = models.TextField(blank=True)
-    unit = models.TextField(null=True)
-    value_type = models.TextField()
-    updated = models.DateTimeField(auto_now=True)
 
 
 class Manufacturer(models.Model):

@@ -4,6 +4,7 @@ from PyQt6.QtCore import pyqtSignal
 
 from api.data.part import PartModel
 
+
 class QPartListWidget(QtWidgets.QWidget):
     selectionChanged = pyqtSignal(list)
 

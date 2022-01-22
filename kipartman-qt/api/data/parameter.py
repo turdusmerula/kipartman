@@ -6,9 +6,9 @@ from PyQt6.QtWidgets import QTreeView, QHeaderView, QAbstractItemView
 from api.treeview import TreeModel, Node, Column, ValidationError, QTreeViewData
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObjects, commands
 from api.event import events
+from api.unit import ureg
 import database.data.parameter
 from database.models import Parameter
-import database.data.parameter
 
 class CommandUpateParameter(CommandUpdateDatabaseField):
     def __init__(self, parameter, field, value):
@@ -42,7 +42,9 @@ class ParameterNode(Node):
 
     def GetValue(self, column):
         if column==0:
-            return self.parameter.name
+            if self.parameter.name is not None:
+                return self.parameter.name[0]
+            return ""
         elif column==1:
             return self.parameter.unit
         elif column==2:
@@ -50,6 +52,13 @@ class ParameterNode(Node):
         elif column==3:
             return self.parameter.description
         return None
+
+    def GetEditValue(self, column):
+        if column==0:
+            if self.parameter.name is None:
+                return []
+            return self.parameter.name
+        return self.GetValue(column)
 
     def SetValue(self, column, value):
         field = {
@@ -67,14 +76,22 @@ class ParameterNode(Node):
                 commands.Do(CommandAddParameter, parameter=self.parameter)
             return True
         else:
+            print(getattr(self.parameter, field[column]), value, getattr(self.parameter, field[column])!=value)
             if column in field and getattr(self.parameter, field[column])!=value:
                 commands.Do(CommandUpateParameter, parameter=self.parameter, field=field[column], value=value)
                 return True
         return False
 
     def Validate(self, column, value):
-        if column==1:
-            return ValidationError(f"{column} {value}")
+        if column==0:
+            if len(value)==0:
+                return ValidationError("Name missing")
+            # TODO check duplicates in database
+        elif column==1:
+            try:
+                ureg.parse_expression(value)
+            except Exception as e:
+                return ValidationError(f"{e}")
         return None
 
 class ParameterModel(TreeModel):
@@ -143,7 +160,7 @@ class ParameterModel(TreeModel):
         self.RemoveNode(node)
 
     def CreateEditNode(self, parent):
-        return ParameterNode(Parameter())
+        return ParameterNode(Parameter(value_type='float'))
 
 class QParameterTreeView(QTreeViewData):
     def __init__(self, *args, **kwargs):
