@@ -90,17 +90,6 @@ class QParameterListWidget(QtWidgets.QWidget):
     def OnActionParameterAddTriggered(self):
         # add a new element in edit mode
         self.treeView.editNew(parent=self.treeView.rootIndex())
-        # node = self.manager.InsertEditNode()
-        
-        # # self.manager.CloseEditor()
-        # self.i = 1000
-        # from database.models import Parameter
-        # parameter = Parameter(id=self.i, name="a")
-        # self.i += 1
-        # self.model.AddParameter(parameter, pos=1)
-        # self.manager.tree_view.setCurrentIndex(self.model.index_from_parameter(parameter))
-        # # self.manager.tree_view.rowsAboutToBeRemoved(self.manager.model.index_from_node(self.model.rootNode), 1, 1)
-        # self.model.RemoveParameter(parameter)
         
     def OnActionParameterDeleteTriggered(self):
         # nodes = []

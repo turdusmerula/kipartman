@@ -109,51 +109,51 @@ class QUnitDelegate(QStyledItemDelegate):
                 (["boltzmann_constant", "k", "k_B"], "1.380649e-23*J*K^-1"),
                 (["standard_gravity", "g_0", "g0", "g_n", "gravity"], "9.80665*m/s^2"),
                 (["standard_atmosphere", "atm", "atmosphere"], "1.01325e5*Pa"),
-                # conventional_josephson_constant = 4.835979e14 Hz / V = K_J90  # since Jan 1990
-                # conventional_von_klitzing_constant = 2.5812807e4 ohm = R_K90  # since Jan 1990
-                # zeta = c / (cm/s) = ζ
-                # dirac_constant = h / (2 * π) = ħ = hbar = atomic_unit_of_action = a_u_action
-                # avogadro_constant = avogadro_number * mol^-1 = N_A
-                # molar_gas_constant = k * N_A = R
-                # faraday_constant = e * N_A
-                # conductance_quantum = 2 * e ** 2 / h = G_0
-                # magnetic_flux_quantum = h / (2 * e) = Φ_0 = Phi_0
-                # josephson_constant = 2 * e / h = K_J
-                # von_klitzing_constant = h / e ** 2 = R_K
-                # stefan_boltzmann_constant = 2 / 15 * π ** 5 * k ** 4 / (h ** 3 * c ** 2) = σ = sigma
-                # first_radiation_constant = 2 * π * h * c ** 2 = c_1
-                # second_radiation_constant = h * c / k = c_2
-                # wien_wavelength_displacement_law_constant = h * c / (k * wien_x)
-                # wien_frequency_displacement_law_constant = wien_u * k / h
-                # newtonian_constant_of_gravitation = 6.67430e-11 m^3/(kg s^2) = _ = gravitational_constant  # (15)
-                # rydberg_constant = 1.0973731568160e7 * m^-1 = R_∞ = R_inf                                  # (21)
-                # electron_g_factor = -2.00231930436256 = g_e                                                # (35)
-                # atomic_mass_constant = 1.66053906660e-27 kg = m_u                                          # (50)
-                # electron_mass = 9.1093837015e-31 kg = m_e = atomic_unit_of_mass = a_u_mass                 # (28)
-                # proton_mass = 1.67262192369e-27 kg = m_p                                                   # (51)
-                # neutron_mass = 1.67492749804e-27 kg = m_n                                                  # (95)
-                # lattice_spacing_of_Si = 1.920155716e-10 m = d_220                                          # (32)
-                # K_alpha_Cu_d_220 = 0.80232719                                                              # (22)
-                # K_alpha_Mo_d_220 = 0.36940604                                                              # (19)
-                # K_alpha_W_d_220 = 0.108852175                                                              # (98)
-                # fine_structure_constant = (2 * h * R_inf / (m_e * c)) ** 0.5 = α = alpha
-                # vacuum_permeability = 2 * α * h / (e ** 2 * c) = µ_0 = mu_0 = mu0 = magnetic_constant
-                # vacuum_permittivity = e ** 2 / (2 * α * h * c) = ε_0 = epsilon_0 = eps_0 = eps0 = electric_constant
-                # impedance_of_free_space = 2 * α * h / e ** 2 = Z_0 = characteristic_impedance_of_vacuum
-                # coulomb_constant = α * hbar * c / e ** 2 = k_C
-                # classical_electron_radius = α * hbar / (m_e * c) = r_e
-                # thomson_cross_section = 8 / 3 * π * r_e ** 2 = σ_e = sigma_e
+                (["conventional_josephson_constant", "K_J90"], "4.835979e14*Hz/V"),
+                (["conventional_von_klitzing_constant", "R_K90"], "2.5812807e4*ohm"),
+                (["zeta", "ζ"], "c/(cm/s)"), 
+                (["dirac_constant", "ħ", "hbar", "atomic_unit_of_action", "a_u_action"], "h/(2*π)"), 
+                (["avogadro_constant", "N_A"], "avogadro_number*mol^-1"), 
+                (["molar_gas_constant", "R"], "k*N_A"),
+                (["faraday_constant"], "e*N_A"),
+                (["conductance_quantum", "G_0"], "2*e**2/h"),
+                (["magnetic_flux_quantum", "Φ_0", "Phi_0"], "h/(2*e)"),
+                (["josephson_constant", "K_J"], "2*e/h"),
+                (["von_klitzing_constant", "R_K"], "h/e**2"),
+                (["stefan_boltzmann_constant", "σ", "sigma"], "2/15*π**5*k**4/(h**3*c**2)"), 
+                (["first_radiation_constant", "c_1"], "2*π*h*c**2"), 
+                (["second_radiation_constant", "c_2"], "h*c/k"),
+                (["wien_wavelength_displacement_law_constant"], "h*c/(k*wien_x)"),
+                (["wien_frequency_displacement_law_constant"], "wien_u*k/h"),
+                (["newtonian_constant_of_gravitation", "gravitational_constant"], "6.67430e-11m^3/(kg*s^2)"),
+                (["rydberg_constant", "R_∞", "R_inf"], "1.0973731568160e7*m^-1"),
+                (["electron_g_factor", "g_e"], "-2.00231930436256"),
+                (["atomic_mass_constant", "m_u"], "1.66053906660e-27*kg"),
+                (["electron_mass", "m_e", "atomic_unit_of_mass", "a_u_mass"], "9.1093837015e-31*kg"),
+                (["proton_mass", "m_p"], "1.67262192369e-27*kg"),
+                (["neutron_mass", "m_n"], "1.67492749804e-27*kg"),
+                (["lattice_spacing_of_Si", "d_220"], "1.920155716e-10*m"),
+                (["K_alpha_Cu_d_220"], "0.80232719"),
+                (["K_alpha_Mo_d_220"], "0.36940604"),
+                (["K_alpha_W_d_220"], "0.108852175"),
+                (["fine_structure_constant", "α", "alpha"], "(2*h*R_inf/(m_e*c))**0.5"), 
+                (["vacuum_permeability", "µ_0", "mu_0", "mu0", "magnetic_constant"], "2*α*h/(e**2*c)"), 
+                (["vacuum_permittivity", "ε_0", "epsilon_0", "eps_0", "eps0", "electric_constant"], "e**2/(2*α*h*c)"), 
+                (["impedance_of_free_space", "Z_0", "characteristic_impedance_of_vacuum"], "2*α*h/e**2"), 
+                (["coulomb_constant", "k_C"], "α*hbar*c/e**2"), 
+                (["classical_electron_radius", "r_e"], "α*hbar/(m_e*c)"), 
+                (["thomson_cross_section", "σ_e", "sigma_e"], "8/3*π*r_e**2"), 
             "Count",
                 ("count",),
             "Current",
                 (["A", "ampere", "amp"],),
                 (["biot", "Bi"], "10*ampere"), 
                 (["abampere", "abA", "biot", "abA"],),
-                # atomic_unit_of_current = e / atomic_unit_of_time = a_u_current
-                # mean_international_ampere = mean_international_volt / mean_international_ohm = A_it
-                # US_international_ampere = US_international_volt / US_international_ohm = A_US
-                # conventional_ampere_90 = K_J90 * R_K90 / (K_J * R_K) * ampere = A_90
-                # planck_current = (c ** 6 / gravitational_constant / k_C) ** 0.5
+                (["atomic_unit_of_current", "a_u_current"], "e/atomic_unit_of_time"), 
+                (["mean_international_ampere", "A_it"], "mean_international_volt/mean_international_ohm"),
+                (["US_international_ampere", "A_US"], "US_international_volt/US_international_ohm"), 
+                (["conventional_ampere_90", "A_90"], "K_J90*R_K90/(K_J*R_K)*ampere"),
+                (["planck_current"], "(c**6/gravitational_constant/k_C)**0.5"),
             "Density (as auxiliary for pressure)",
                 # [density] = [mass] / [volume]
                 # mercury = 13.5951 * kilogram / liter = Hg = Hg_0C = Hg_32F = conventional_mercury
@@ -392,7 +392,6 @@ class QUnitDelegate(QStyledItemDelegate):
                 # [torque] = [force] * [length]
                 # foot_pound = foot * force_pound = ft_lb = footpound
             "Velocity",
-                # [velocity] = [length] / [time] = [speed]
                 # knot = nautical_mile / hour = kt = knot_international = international_knot
                 # mile_per_hour = mile / hour = mph = MPH
                 # kilometer_per_hour = kilometer / hour = kph = KPH
@@ -400,18 +399,15 @@ class QUnitDelegate(QStyledItemDelegate):
                 # meter_per_second = meter / second = mps
                 # foot_per_second = foot / second = fps
             "Viscosity",
-                # [viscosity] = [pressure] * [time]
-                # poise = 0.1 * Pa * second = P
-                # reyn = psi * second
+                (["poise", "P"], "0.1*Pa*second"),
+                ("reyn", "psi*second"),
             "Volume",
-                # [volume] = [length] ** 3
-                # liter = decimeter ** 3 = l = L = litre
-                # cubic_centimeter = centimeter ** 3 = cc
-                # lambda = microliter = λ
-                # stere = meter ** 3
+                (["liter", "l", "L", "litre"], "decimeter**3"), 
+                (["cubic_centimeter", "cc"], "centimeter**3"),
+                (["lambda", "λ"], "microliter"), 
+                ("stere", "meter**3"),
             "Wavenumber",
-                # [wavenumber] = 1 / [length]
-                # reciprocal_centimeter = 1 / cm = cm_1 = kayser
+                (["reciprocal_centimeter", "cm_1", "kayser"], "1/cm"), 
         ]
 
 # #### UNIT GROUPS ####
