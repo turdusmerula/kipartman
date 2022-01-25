@@ -1,12 +1,12 @@
 from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QItemSelectionModel
 
 from api.data.part import PartModel
 
 
 class QPartListWidget(QtWidgets.QWidget):
-    selectionChanged = pyqtSignal(list)
+    selectionChanged = pyqtSignal(QItemSelectionModel)
 
     def __init__(self, parent):
         super(QPartListWidget, self).__init__(parent)
@@ -14,6 +14,7 @@ class QPartListWidget(QtWidgets.QWidget):
 
         self.model = PartModel()
         self.treeView.setModel(self.model)
+        self.treeView.selectionModel().selectionChanged.connect(self.treeViewSelectionChanged)
         
         from ui.main_window import app
         app.focusChanged.connect(self.update_menus)
@@ -45,3 +46,8 @@ class QPartListWidget(QtWidgets.QWidget):
 
     def SetFilters(self, filters):
         self.model.SetFilters(filters)
+
+    def treeViewSelectionChanged(self):
+        self.update_menus()
+        self.selectionChanged.emit(self.treeView.selectionModel())
+    

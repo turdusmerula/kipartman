@@ -40,7 +40,8 @@ class ParameterModel(TreeModel):
         self.InsertColumn(Column("Description"))
 
         self.loaded = False
-
+        self.filter = None
+        
     def CanFetchMore(self, parent):
         return not self.loaded
 
@@ -52,7 +53,8 @@ class ParameterModel(TreeModel):
         for parameter in database.data.parameter.find():
             parameter_node = self.FindParameter(parameter)
             if parameter_node is None:
-                parameter_node = self.AddParameter(parameter)
+                if self.MatchFilter(parameter)==True:
+                    parameter_node = self.AddParameter(parameter)
             else:
                 del nodes[parameter_node]
         
@@ -60,6 +62,16 @@ class ParameterModel(TreeModel):
         self.RemoveNodes(list(nodes.keys()))
         self.loaded = True
 
+    def MatchFilter(self, parameter):
+        if self.filter is None:
+            return True
+        for name in parameter.name:
+            if self.filter.casefold() in name.casefold():
+                return True
+        if self.filter.casefold() in parameter.description.casefold():
+            return True
+        return False
+    
     def FindParameter(self, parameter):
         for node in self.node_to_id:
             if isinstance(node, ParameterNode) and node.parameter is parameter:
@@ -74,6 +86,10 @@ class ParameterModel(TreeModel):
         node = self.parameter_node_from_id(parameter.id)
         self.RemoveNode(node)
 
+    def SetFilter(self, filter):
+        self.filter = filter
+        self.loaded = False
+        
 class QParameterTreeView(QTreeViewData):
     def __init__(self, *args, **kwargs):
         super(QParameterTreeView, self).__init__(*args, **kwargs)

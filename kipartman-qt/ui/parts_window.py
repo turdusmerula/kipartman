@@ -41,6 +41,7 @@ class PartsWindow(QChildWindow):
         self.filters.Append(self.category_filter_group)
         
         self.partList.SetFilters(self.filters)
+        self.partList.selectionChanged.connect(self.partListSelectionChanged)
         
         self.update_menus()
         self.activated()
@@ -88,3 +89,12 @@ class PartsWindow(QChildWindow):
             self.partCategoryList.UnselectAll()
         
         self.partList.update()
+
+    def partListSelectionChanged(self, selectionModel):
+        if len(selectionModel.selectedRows())==1:
+            self.partParameterList.SetPart(selectionModel.model().node_from_index(selectionModel.selectedRows()[0]).part)
+        else:
+            self.partParameterList.SetPart(None)
+            # node = self.treeView.model().node_from_index(self.treeView.selectionModel().selectedRows()[0])
+            # self.validated.emit(node.parameter)
+        

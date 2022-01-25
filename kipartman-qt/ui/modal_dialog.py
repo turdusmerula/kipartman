@@ -19,7 +19,8 @@ class QModalDialog(QDialog):
         self.result = None
 
         self.buttonBox.clicked.connect(self.buttonBoxClicked)
-        
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
+
     def setWidget(self, widget):
         self.layout().replaceWidget(self.widget, widget)
         widget.currentResult.connect(self.widgetCurrentResult)

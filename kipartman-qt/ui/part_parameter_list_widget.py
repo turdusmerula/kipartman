@@ -17,7 +17,6 @@ class QPartParameterListWidget(QtWidgets.QWidget):
         self.parameterSelectDelegate = QParameterSelectDelegate(self.model)
         self.treeView.setItemDelegateForColumn(0, self.parameterSelectDelegate) 
 
-
         from ui.main_window import app
         app.focusChanged.connect(self.update_menus)
 
@@ -65,6 +64,10 @@ class QPartParameterListWidget(QtWidgets.QWidget):
         except: pass
         main_window.actionSelectAll.triggered.connect(self.SelectAll)
 
+    def SetPart(self, part):
+        self.model.SetPart(part)
+        self.model.Clear()
+
     def UnselectAll(self):
         self.treeView.clearSelection()
     
@@ -76,3 +79,5 @@ class QPartParameterListWidget(QtWidgets.QWidget):
         
     def OnActionParameterDeleteTriggered(self):
         pass
+
+    

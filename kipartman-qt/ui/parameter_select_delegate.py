@@ -34,6 +34,10 @@ class QParameterSelectDelegate(QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         value = index.model().data(index, Qt.ItemDataRole.EditRole)
+        if value=="":
+            self.widget.lineEdit.setText("<None>")
+        else:
+            self.widget.lineEdit.setText(value)
         
     def setModelData(self, editor, model, index):
         model.setData(index, self.parameter, Qt.ItemDataRole.EditRole)
@@ -53,3 +57,5 @@ class QParameterSelectDelegate(QStyledItemDelegate):
     
     def dialogValidated(self, object):
         self.parameter = object
+        self.widget.lineEdit.setText(self.parameter.name[0])
+        

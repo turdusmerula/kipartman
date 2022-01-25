@@ -7,7 +7,7 @@ from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, Co
 from api.event import events
 from api.unit import ureg
 import database.data.part_parameter
-from database.models import PartParameter
+from database.models import PartParameter, ParameterType
 
 class CommandUpatePartParameter(CommandUpdateDatabaseField):
     def __init__(self, part_parameter, field, value):
@@ -51,41 +51,93 @@ class PartParameterNode(Node):
             if hasattr(self.part_parameter, 'parameter'):
                 return self.part_parameter.parameter.name[0]
             return ""
+        elif column==1:
+            if hasattr(self.part_parameter, 'parameter'):
+                if self.part_parameter.parameter.value_type==ParameterType.INTEGER:
+                    field = 'int_value'
+                elif self.part_parameter.parameter.value_type==ParameterType.FLOAT:
+                    field = 'float_value'
+                elif self.part_parameter.parameter.value_type==ParameterType.TEXT:
+                    field = 'text_value'
+                else:
+                    return ""
+                return getattr(self.part_parameter, field)
+                # if value is None:
+                #     return ""
+                # return str(value)
+        elif column==2:
+            return self.part_parameter.unit
+        elif column==3:
+            if hasattr(self.part_parameter, 'parameter'):
+                return self.part_parameter.parameter.description
+            return ""
         return None
 
     def SetValue(self, column, value):
         field = {
-            0: "name",
-            # 1: "unit",
-            # 2: "value_type",
-            # 3: "description"
+            0: "parameter",
+            1: "value",
+            2: "unit",
         }
-        if self.parameter.id is None:
+
+        if column>0 and hasattr(self.part_parameter, 'parameter')==False:
+            # can not set any value until parameter is set
+            return False
+        
+        if column>0:
+            if self.part_parameter.parameter.value_type==ParameterType.INTEGER:
+                field[2] = 'int_value'
+            elif self.part_parameter.parameter.value_type==ParameterType.FLOAT:
+                field[2] = 'float_value'
+            elif self.part_parameter.parameter.value_type==ParameterType.TEXT:
+                field[2] = 'text_value'
+            
+        if self.part_parameter.id is None:
             # item has not yet be commited at this point and have no id
             # set edited field value
             setattr(self.part_parameter, field[column], value)
-            if self.parameter.name!="":
+            if hasattr(self.part_parameter, 'parameter'):
                 # save object in database
                 commands.Do(CommandAddPartParameter, part_parameter=self.part_parameter)
             return True
         else:
-            print(getattr(self.part_parameter, field[column]), value, getattr(self.part_parameter, field[column])!=value)
             if column in field and getattr(self.part_parameter, field[column])!=value:
-                commands.Do(CommandUpatePartParameter, part_parameter=self.part_parameter, field=field[column], value=value)
+                if column==0:
+                    # in case parameter is set we reinit all other fields to None
+                    commands.Do(CommandUpatePartParameter, part_parameter=self.part_parameter, 
+                        field=field[column], value=value,
+                        other_fields={
+                            'int_value': None,
+                            'float_value': None,
+                            'text_value': None,
+                            'unit': None
+                        }
+                    )
+                else:
+                    commands.Do(CommandUpatePartParameter, part_parameter=self.part_parameter, field=field[column], value=value)
                 return True
         return False
 
     def Validate(self, column, value):
         if column==0:
-            if len(value)==0:
-                return ValidationError("Name missing")
+            if value is None:
+                return ValidationError("No parameter set")
             # TODO check duplicates in database
         elif column==1:
             try:
+                # check unit consistency
                 ureg.parse_expression(value)
             except Exception as e:
                 return ValidationError(f"{e}")
         return None
+
+    def GetFlags(self, column, flags):
+        if hasattr(self.part_parameter, 'parameter')==False and column>0:
+            # when parameter is not set we prevent edition of other fields 
+            return flags & ~Qt.ItemFlag.ItemIsEditable
+        if column==3:
+            return flags & ~Qt.ItemFlag.ItemIsEditable            
+        return flags
 
 class PartMetaParameterNode(Node):
     def __init__(self, part_parameter, parent=None):
@@ -104,6 +156,10 @@ class PartParameterModel(TreeModel):
         self.loaded = False
         self.id_to_part_parameter_node = {}
         
+        self.part = None
+    
+    def SetPart(self, part):
+        self.part = part
 
     def index_from_part_parameter(self, part_parameter):
         if part_parameter.id not in self.id_to_part_parameter_node:
@@ -122,12 +178,13 @@ class PartParameterModel(TreeModel):
         nodes = self.node_to_id.copy()
         del nodes[self.rootNode] # remove root node
         
-        for part_parameter in database.data.part_parameter.find():
-            part_parameter_node = self.FindPartParameter(part_parameter)
-            if part_parameter_node is None:
-                part_parameter_node = self.AddPartParameter(part_parameter)
-            else:
-                del nodes[part_parameter_node]
+        if self.part is not None:
+            for part_parameter in self.part.parameters.all():
+                part_parameter_node = self.FindPartParameter(part_parameter)
+                if part_parameter_node is None:
+                    part_parameter_node = self.AddPartParameter(part_parameter)
+                else:
+                    del nodes[part_parameter_node]
         
         # remove remaining nodes
         self.RemoveNodes(list(nodes.keys()))
@@ -159,9 +216,13 @@ class PartParameterModel(TreeModel):
         self.RemoveNode(node)
 
     def CreateEditNode(self, parent):
-        return PartParameterNode(PartParameter())
+        return PartParameterNode(PartParameter(part=self.part))
 
-
+    def Clear(self):
+        self.id_to_part_parameter_node = {}
+        self.loaded = False
+        super(PartParameterModel, self).Clear()
+        
 class QPartParameterTreeView(QTreeViewData):
     def __init__(self, *args, **kwargs):
         super(QPartParameterTreeView, self).__init__(*args, **kwargs)

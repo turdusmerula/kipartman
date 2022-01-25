@@ -160,9 +160,11 @@ class ParameterOperator(models.TextChoices):
 class PartParameter(models.Model):
     part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)
     parameter = models.ForeignKey('Parameter', related_name='parameter', on_delete=models.DO_NOTHING, null=False, blank=False)
-    text_value = models.TextField(null=True, blank=True)
-    value = models.FloatField(null=True)
     unit = models.TextField(null=True)
+
+    int_value = models.IntegerField(null=True)
+    float_value = models.FloatField(null=True)
+    text_value = models.TextField(null=True, blank=True)
 
     metaparameter = models.BooleanField(null=False, default=False)
     operator = models.TextField(null=True, choices=ParameterOperator.choices, default=ParameterOperator.EQ)

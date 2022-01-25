@@ -23,6 +23,8 @@ class QParameterSelectWidget(QActionFrame):
         self.treeView.selectionModel().selectionChanged.connect(self.treeViewSelectionChanged)
         self.treeView.doubleClicked.connect(self.treeViewDoubleClicked)
 
+        self.lineEdit.textChanged.connect(self.lineEditTextChanged)
+        
     def treeViewSelectionChanged(self, selected, deselected):
         if len(self.treeView.selectionModel().selectedRows())>0:
             node = self.treeView.model().node_from_index(self.treeView.selectionModel().selectedRows()[0])
@@ -34,3 +36,7 @@ class QParameterSelectWidget(QActionFrame):
         if len(self.treeView.selectionModel().selectedRows())>0:
             node = self.treeView.model().node_from_index(self.treeView.selectionModel().selectedRows()[0])
             self.validated.emit(node.parameter)
+
+    def lineEditTextChanged(self, text):
+        self.model.SetFilter(self.lineEdit.text())
+        self.model.Update()
