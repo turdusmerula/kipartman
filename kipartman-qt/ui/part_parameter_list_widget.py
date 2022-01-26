@@ -62,7 +62,7 @@ class QPartParameterListWidget(QtWidgets.QWidget):
         main_window.actionSelectAll.triggered.connect(self.SelectAll)
 
     def SetPart(self, part):
-        self.model.SetPart(part)
+        self.treeView.SetPart(part)
         self.model.Clear()
 
     def UnselectAll(self):

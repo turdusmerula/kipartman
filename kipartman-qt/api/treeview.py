@@ -15,7 +15,7 @@ class ValidationError(object):
         self.message = message
     
     
-class Column(object):
+class TreeColumn(object):
     def __init__(self, header=None, type=str):
         self.header = header
     
@@ -612,7 +612,7 @@ class TreeModel(QAbstractItemModel):
     def Update(self):
         self.layoutChanged.emit()
 
-    def CreateEditNode(self, parent):
+    def CreateEditNode(self, parent, data):
         """ Overload to provide a node for editNew """
         return None
 
@@ -651,7 +651,10 @@ class TreeModel(QAbstractItemModel):
         print("rootNode:")
         self.rootNode.debug(level=1)
 
-
+class TreeColumns(object):
+    def __init__(self, columns={}):
+        self.columns = columns
+    
 class TreeState(object):
     def __init__(self):
         self.selected = []
@@ -712,7 +715,7 @@ class QTreeViewData(QTreeView):
         else:
             parent_node = self.model().rootNode
         
-        node = self.model().CreateEditNode(parent_node)
+        node = self.model().CreateEditNode(parent_node, data)
         if node is None:
             return 
         

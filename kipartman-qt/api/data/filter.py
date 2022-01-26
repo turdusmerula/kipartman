@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QColor
 from PyQt6.QtWidgets import QTreeView, QHeaderView
 
-from api.treeview import TreeModel, Node, Column, QTreeViewData
+from api.treeview import TreeModel, Node, TreeColumn, QTreeViewData
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObjects, commands
 from api.event import events
 from api.filter import Filter
@@ -60,8 +60,8 @@ class FilterModel(TreeModel):
         super(FilterModel, self).__init__()
         self.filter = filter
 
-        self.InsertColumn(Column("Filter"))
-        self.InsertColumn(Column("Content"))
+        self.InsertColumn(TreeColumn("Filter"))
+        self.InsertColumn(TreeColumn("Content"))
 
         self.group_to_node = {}
         self.loaded = False

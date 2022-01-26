@@ -3,7 +3,7 @@ from PyQt6.QtCore import QModelIndex
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QTreeView, QHeaderView, QAbstractItemView
 
-from api.treeview import TreeModel, Node, Column, ValidationError, QTreeViewData
+from api.treeview import TreeModel, Node, TreeColumn, ValidationError, QTreeViewData
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObjects, commands
 from api.event import events
 from api.unit import ureg
@@ -34,10 +34,10 @@ class ParameterModel(TreeModel):
     def __init__(self):
         super(ParameterModel, self).__init__()
 
-        self.InsertColumn(Column("Name"))
-        self.InsertColumn(Column("Unit"))
-        self.InsertColumn(Column("Value type"))
-        self.InsertColumn(Column("Description"))
+        self.InsertColumn(TreeColumn("Name"))
+        self.InsertColumn(TreeColumn("Unit"))
+        self.InsertColumn(TreeColumn("Value type"))
+        self.InsertColumn(TreeColumn("Description"))
 
         self.loaded = False
         self.filter = None

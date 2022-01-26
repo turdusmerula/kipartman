@@ -1,23 +1,70 @@
 from PyQt6.QtCore import Qt, QObject, pyqtSignal
 from PyQt6.QtWidgets import QTreeView, QHeaderView
 
-from api.treeview import TreeModel, Node, Column, QTreeViewData
-from api.command import Command, CommandUpdateDatabaseField, commands
+from api.treeview import TreeModel, Node, TreeColumn, QTreeViewData
+from api.command import Command, CommandUpdateDatabaseField, commands, CommandAddDatabaseObject, CommandDeleteDatabaseObjects
 from api.event import events
 import database.data.part
 from database.models import Part
 
-
 class CommandUpatePart(CommandUpdateDatabaseField):
-    def __init__(self, part, field, value):
-        super(CommandUpatePart, self).__init__(object=part, field=field, value=value,
-                                            description=f"change part {field} to '{value}'")
+    def __init__(self, part, field, value, other_fields):
+        super(CommandUpatePart, self).__init__(object=part, field=field, value=value, other_fields=other_fields,
+                                            description=f"change part parameter {field} to '{value}'")
+
+class CommandAddPart(CommandAddDatabaseObject):
+    def __init__(self, part):
+        super(CommandAddPart, self).__init__(object=part,
+                                            description=f"add new part parameter")
+
+class CommandDeleteParts(CommandDeleteDatabaseObjects):
+    def __init__(self, parts):
+        if isinstance(parts, list) and len(parts)>1:
+            objects = parts
+            description = f"delete {len(parts)} parts"
+        elif isinstance(parts, list) and len(parts)==1:
+            objects = parts
+            description = f"delete part '{parts[0].name}'"
+        else:
+            objects = [parts]
+            description = f"delete part '{parts.name}'"
+        
+        super(CommandDeleteParts, self).__init__(objects=objects,
+                                            description=description)
 
 
 class PartNode(Node):
     def __init__(self, part, parent=None):
         super(PartNode, self).__init__(parent)
         self.part = part
+
+    def GetValue(self, column):
+        if column==0:
+            return self.part.id
+        elif column==1:
+            return self.part.name
+        elif column==2:
+            return self.part.description
+
+    def GetFlags(self, column, flags):
+        if column==0:
+            return flags & ~Qt.ItemFlag.ItemIsEditable
+        return flags
+
+    def SetValue(self, column, value):
+        field = {
+            1: "name",
+            2: "description"
+        }
+        if column in field and getattr(self.part, field[column])!=value:
+            commands.Do(CommandUpatePart, part=self.part, field=field[column], value=value)
+            return True
+
+        return False
+
+    def HasChildren(self):
+        return self.part.metapart
+
 
 class PartCategoryNode(Node):
     def __init__(self, part, parent=None):
@@ -28,18 +75,15 @@ class PartModel(TreeModel):
     def __init__(self):
         super(PartModel, self).__init__()
         
-        self.InsertColumn(Column("ID"))
-        self.InsertColumn(Column("Name"))
-        self.InsertColumn(Column("Description"))
+        self.InsertColumn(TreeColumn("ID"))
+        self.InsertColumn(TreeColumn("Name"))
+        self.InsertColumn(TreeColumn("Description"))
 
         self.filters = None
 
         self.id_to_part = {}
         self.loaded = {
             self.rootNode: False
-        }
-        self.has_child = {
-            self.rootNode: True
         }
 
         self.request = None
@@ -63,42 +107,13 @@ class PartModel(TreeModel):
                 
                 if part.metapart==True:
                     self.loaded[node] = False
-                    self.has_child[node] = True
                 else:
                     self.loaded[node] = True
-                    self.has_child[node] = False
 
                 nodes.append(node)
         except StopIteration:
             self.loaded[parent] = True
         self.InsertNodes(nodes)
-
-    def HasChildren(self, parent):
-        return self.has_child[parent]
-
-    def GetValue(self, node, column):
-        if column==0:
-            return node.part.id
-        elif column==1:
-            return node.part.name
-        elif column==2:
-            return node.part.description
-
-    def GetFlags(self, node, column, flags):
-        if column==0:
-            return flags & ~Qt.ItemFlag.ItemIsEditable
-        return flags
-
-    def SetValue(self, node, column, value):
-        field = {
-            1: "name",
-            2: "description"
-        }
-        if column in field and getattr(node.part, field[column])!=value:
-            commands.Do(CommandUpatePart, part=node.part, field=field[column], value=value)
-            return True
-
-        return False
 
     def Clear(self):
         self.id_to_part.clear()
@@ -114,6 +129,12 @@ class PartModel(TreeModel):
     def Update(self):
         self.Clear()
 
+    def CreateEditNode(self, parent, data):
+        if data=='part':
+            return PartNode(Part())
+        elif data=='metapart':
+            return PartNode(Part(metapart=True))
+        return None
 
 class QPartTreeView(QTreeViewData):
     def __init__(self, *args, **kwargs):
@@ -123,3 +144,37 @@ class QPartTreeView(QTreeViewData):
         super(QPartTreeView, self).setModel(model)
         
         self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)        
+
+    def OnObjectUpdated(self, object):
+        if isinstance(object, Part)==False:
+            return 
+        part = object
+        if part.id in self.model().id_to_part_node:
+            self.model().id_to_part_node[part.id].part.refresh_from_db()
+            self.model().layoutChanged.emit()
+
+    def OnObjectAdded(self, object):
+        if isinstance(object, Part)==False:
+            return 
+        part = object
+        if part.id not in self.model().id_to_part_node:
+            self.model().AddPart(part)
+            
+    def OnObjectDeleted(self, object, id):
+        if isinstance(object, Part)==False:
+            return 
+        part = object
+        if id in self.model().id_to_part_node:
+            node = self.model().id_to_part_node[id]
+            self.model().RemovePartId(id)
+
+    def OnEndInsertEditNode(self, node):
+        part = node.part
+        self.setCurrentIndex(self.model().index_from_part(part))
+        
+        # add code to select item on redo in this current view only
+        commands.LastUndo.done.connect(
+            lambda treeView=self, part=part: 
+                self.setCurrentIndex(treeView.model().index_from_part(part))
+        )
+    

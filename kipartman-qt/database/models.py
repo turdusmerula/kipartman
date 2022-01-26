@@ -157,7 +157,7 @@ class ParameterOperator(models.TextChoices):
     GE = ">="
     MT = "<"
     ME = "<="
-    FUNC = "f="
+#    FUNC = "f="
 
 class PartParameter(models.Model):
     part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)

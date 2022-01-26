@@ -3,7 +3,7 @@ from PyQt6.QtCore import QModelIndex
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QTreeView, QHeaderView, QAbstractItemView
 
-from api.treeview import TreeModel, Node, Column, QTreeViewData
+from api.treeview import TreeModel, Node, TreeColumn, QTreeViewData
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObjects, commands
 from api.event import events
 import database.data.part_category
@@ -48,8 +48,8 @@ class PartCategoryModel(TreeModel):
     def __init__(self):
         super(PartCategoryModel, self).__init__()
 
-        self.InsertColumn(Column("Name"))
-        self.InsertColumn(Column("Description"))
+        self.InsertColumn(TreeColumn("Name"))
+        self.InsertColumn(TreeColumn("Description"))
 
         self.id_to_part_category_node = {}
         self.loaded = {
@@ -166,7 +166,7 @@ class PartCategoryModel(TreeModel):
         del self.id_to_part_category_node[part_category.id]
         self.RemoveNode(node)
 
-    def CreateEditNode(self, parent):
+    def CreateEditNode(self, parent, data):
         self.has_child[parent] = True
         if isinstance(parent, PartCategoryNode):
             part_category = PartCategory(parent=parent.part_category)
@@ -254,8 +254,8 @@ class QPartCategoryTreeView(QTreeViewData):
 #     def __init__(self):
 #         super(PartCategoryModel, self).__init__()
 #
-#         self.InsertColumn(Column("ID"))
-#         self.InsertColumn(Column("Name"))
+#         self.InsertColumn(TreeColumn("ID"))
+#         self.InsertColumn(TreeColumn("Name"))
 #
 #         self.data = [
 #                 [1, "a", []],

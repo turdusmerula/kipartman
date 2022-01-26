@@ -115,26 +115,35 @@ commands = CommandStack()
 
 
 class CommandUpdateDatabaseField(Command):
-    def __init__(self, description, object, field, value):
+    def __init__(self, description, object, field, value, other_fields={}):
         super(CommandUpdateDatabaseField, self).__init__(description)
         self.object = object
         self.field = field
         self.value = value
-
-        self.prev_value = getattr(self.object, self.field)
+        self.other_fields = other_fields
+        
+        self.prev_values = {
+            self.field: getattr(self.object, self.field)
+        }
+        for field in self.other_fields:
+            self.prev_values[field] = getattr(self.object, field)
 
     def Do(self):
         self.sid = transaction.savepoint()
 
         setattr(self.object, self.field, self.value)
-        self.object.save(update_fields=[self.field])
+        for field in self.other_fields:
+            setattr(self.object, field, self.other_fields[field])
+            
+        self.object.save(update_fields=[self.field]+list(self.other_fields.keys()))
         # self.object.refresh_from_db()
         events.objectUpdated.emit(self.object)
         
     def Undo(self):
         transaction.savepoint_rollback(self.sid)
         # self.object.refresh_from_db()
-        setattr(self.object, self.field, self.prev_value)
+        for field in self.prev_values:
+            setattr(self.object, field, self.prev_values[field])
         events.objectUpdated.emit(self.object)
 
 class CommandAddDatabaseObject(Command):

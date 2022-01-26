@@ -227,16 +227,16 @@
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents_5"/>
+   <widget class="QWidget" name="dockStorageListWidget"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_3">
+  <widget class="QDockWidget" name="dockPartStorageWidget">
    <property name="windowTitle">
-    <string>Manufacturers</string>
+    <string>Part storages</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents_7"/>
+   <widget class="QWidget" name="dockPartStorageListWidget"/>
   </widget>
   <widget class="QToolBar" name="toolBar_3">
    <property name="windowTitle">
@@ -251,12 +251,9 @@
    <addaction name="actionParameterAdd"/>
    <addaction name="actionMetaParameterAdd"/>
    <addaction name="actionParameterDelete"/>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget">
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_2"/>
+   <addaction name="separator"/>
+   <addaction name="actionStorageAdd"/>
+   <addaction name="actionStorageDelete"/>
   </widget>
   <action name="actionSchematicOpen">
    <property name="text">
@@ -457,6 +454,24 @@
    </property>
    <property name="text">
     <string>Add meta parameter</string>
+   </property>
+  </action>
+  <action name="actionStorageAdd">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/storage-add-48.png</normaloff>icons/storage-add-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add storage</string>
+   </property>
+  </action>
+  <action name="actionStorageDelete">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/storage-delete-48.png</normaloff>icons/storage-delete-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete storage</string>
    </property>
   </action>
  </widget>

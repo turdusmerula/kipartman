@@ -3,12 +3,13 @@ from PyQt6.QtCore import QModelIndex
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QTreeView, QHeaderView, QAbstractItemView
 
-from api.treeview import TreeModel, Node, Column, ValidationError, QTreeViewData
+from api.treeview import TreeModel, Node, TreeColumn, ValidationError, QTreeViewData
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObjects, commands
 from api.event import events
 from api.unit import ureg
 import database.data.parameter
 from database.models import Parameter
+from enum import Enum
 
 class CommandUpateParameter(CommandUpdateDatabaseField):
     def __init__(self, parameter, field, value):
@@ -35,6 +36,7 @@ class CommandDeleteParameters(CommandDeleteDatabaseObjects):
         super(CommandDeleteParameters, self).__init__(objects=objects,
                                             description=description)
 
+    
 class ParameterNode(Node):
     def __init__(self, parameter):
         super(ParameterNode, self).__init__()
@@ -55,6 +57,7 @@ class ParameterNode(Node):
 
     def GetEditValue(self, column):
         if column==0:
+            # when editing name field we send full alias list
             if self.parameter.name is None:
                 return []
             return self.parameter.name
@@ -97,13 +100,13 @@ class ParameterModel(TreeModel):
     def __init__(self):
         super(ParameterModel, self).__init__()
 
-        self.InsertColumn(Column("Name"))
-        self.InsertColumn(Column("Unit"))
-        self.InsertColumn(Column("Value type"))
+        self.InsertColumn(TreeColumn("Name"))
+        self.InsertColumn(TreeColumn("Unit"))
+        self.InsertColumn(TreeColumn("Value type"))
         # TODO implement list and boolean
         # TODO implement default value
-        # self.InsertColumn(Column("Default"))
-        self.InsertColumn(Column("Description"))
+        # self.InsertColumn(TreeColumn("Default"))
+        self.InsertColumn(TreeColumn("Description"))
 
         self.loaded = False
         self.id_to_parameter_node = {}
@@ -161,7 +164,7 @@ class ParameterModel(TreeModel):
         del self.id_to_parameter_node[parameter.id]
         self.RemoveNode(node)
 
-    def CreateEditNode(self, parent):
+    def CreateEditNode(self, parent, data):
         return ParameterNode(Parameter(value_type='float'))
 
 class QParameterTreeView(QTreeViewData):

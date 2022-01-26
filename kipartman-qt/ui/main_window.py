@@ -80,9 +80,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def update_dock_widgets(self):
         self.dockPartCategoryWidget.setVisible(False)
+        self.dockParameterWidget.setVisible(False)
         self.dockPartParameterWidget.setVisible(False)
+        self.dockStorageWidget.setVisible(False)
+        self.dockPartStorageWidget.setVisible(False)
         self.dockFilterWidget.setVisible(False)
-
+        
     def update(self):
         for child in self.mdiArea.subWindowList():
             child.widget().update()
