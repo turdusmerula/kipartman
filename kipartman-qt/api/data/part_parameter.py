@@ -8,6 +8,7 @@ from api.event import events
 from api.unit import ureg
 import database.data.part_parameter
 from database.models import PartParameter, ParameterType
+from PyQt6.QtWidgets import QAbstractItemView, QHeaderView
 
 class CommandUpatePartParameter(CommandUpdateDatabaseField):
     def __init__(self, part_parameter, field, value):
@@ -66,7 +67,11 @@ class PartParameterNode(Node):
                 #     return ""
                 # return str(value)
         elif column==2:
-            return self.part_parameter.unit
+            if self.part_parameter.unit is not None:
+                return self.part_parameter.unit
+            elif hasattr(self.part_parameter, 'parameter'):
+                return self.part_parameter.parameter.unit
+            return None
         elif column==3:
             if hasattr(self.part_parameter, 'parameter'):
                 return self.part_parameter.parameter.description
@@ -76,7 +81,6 @@ class PartParameterNode(Node):
     def SetValue(self, column, value):
         field = {
             0: "parameter",
-            1: "value",
             2: "unit",
         }
 
@@ -86,11 +90,11 @@ class PartParameterNode(Node):
         
         if column>0:
             if self.part_parameter.parameter.value_type==ParameterType.INTEGER:
-                field[2] = 'int_value'
+                field[1] = 'int_value'
             elif self.part_parameter.parameter.value_type==ParameterType.FLOAT:
-                field[2] = 'float_value'
+                field[1] = 'float_value'
             elif self.part_parameter.parameter.value_type==ParameterType.TEXT:
-                field[2] = 'text_value'
+                field[1] = 'text_value'
             
         if self.part_parameter.id is None:
             # item has not yet be commited at this point and have no id
@@ -223,6 +227,54 @@ class PartParameterModel(TreeModel):
         self.loaded = False
         super(PartParameterModel, self).Clear()
         
+
 class QPartParameterTreeView(QTreeViewData):
     def __init__(self, *args, **kwargs):
         super(QPartParameterTreeView, self).__init__(*args, **kwargs)
+    
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        
+        self.endInsertEditNode.connect(self.OnEndInsertEditNode)
+
+        events.objectUpdated.connect(self.OnObjectUpdated)
+        events.objectAdded.connect(self.OnObjectAdded)
+        events.objectDeleted.connect(self.OnObjectDeleted)
+
+    def setModel(self, model):
+        super(QPartParameterTreeView, self).setModel(model)
+        
+        self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)        
+
+    def OnObjectUpdated(self, object):
+        if isinstance(object, PartParameter)==False:
+            return 
+        part_parameter = object
+        if part_parameter.id in self.model().id_to_part_parameter_node:
+            self.model().id_to_part_parameter_node[part_parameter.id].part_parameter.refresh_from_db()
+            self.model().layoutChanged.emit()
+
+    def OnObjectAdded(self, object):
+        if isinstance(object, PartParameter)==False:
+            return 
+        part_parameter = object
+        if part_parameter.id not in self.model().id_to_part_parameter_node:
+            self.model().AddPartParameter(part_parameter)
+            
+    def OnObjectDeleted(self, object, id):
+        if isinstance(object, PartParameter)==False:
+            return 
+        part_parameter = object
+        if id in self.model().id_to_part_parameter_node:
+            node = self.model().id_to_part_parameter_node[id]
+            self.model().RemovePartParameterId(id)
+
+    def OnEndInsertEditNode(self, node):
+        part_parameter = node.part_parameter
+        self.setCurrentIndex(self.model().index_from_part_parameter(part_parameter))
+        
+        # add code to select item on redo in this current view only
+        commands.LastUndo.done.connect(
+            lambda treeView=self, part_parameter=part_parameter: 
+                self.setCurrentIndex(treeView.model().index_from_part_parameter(part_parameter))
+        )
+    

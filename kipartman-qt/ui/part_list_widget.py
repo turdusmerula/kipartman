@@ -3,6 +3,7 @@ from PyQt6 import QtWidgets, uic
 from PyQt6.QtCore import pyqtSignal, QItemSelectionModel
 
 from api.data.part import PartModel
+from api.event import events
 
 
 class QPartListWidget(QtWidgets.QWidget):
@@ -16,8 +17,7 @@ class QPartListWidget(QtWidgets.QWidget):
         self.treeView.setModel(self.model)
         self.treeView.selectionModel().selectionChanged.connect(self.treeViewSelectionChanged)
         
-        from ui.main_window import app
-        app.focusChanged.connect(self.update_menus)
+        events.focusChanged.connect(self.update_menus)
 
         self.update_menus()
 
@@ -30,11 +30,6 @@ class QPartListWidget(QtWidgets.QWidget):
         from ui.main_window import main_window
         if main_window is None:
             return 
-        
-        main_window.actionPartAddPart.setEnabled(False)
-        main_window.actionPartAddMetapart.setEnabled(False)
-        main_window.actionPartImportOctopart.setEnabled(False)
-        main_window.actionPartRemovePart.setEnabled(False)
 
         if self.treeView.hasFocus()==False:
             return
@@ -42,7 +37,9 @@ class QPartListWidget(QtWidgets.QWidget):
         main_window.actionPartAddPart.setEnabled(True)
         main_window.actionPartAddMetapart.setEnabled(True)
         main_window.actionPartImportOctopart.setEnabled(True)
-        main_window.actionPartRemovePart.setEnabled(True)
+        
+        if len(self.treeView.selectedIndexes())>0:
+            main_window.actionPartDelete.setEnabled(True)        
 
     def SetFilters(self, filters):
         self.model.SetFilters(filters)

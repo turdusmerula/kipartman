@@ -76,7 +76,6 @@ class ParameterNode(Node):
                 commands.Do(CommandAddParameter, parameter=self.parameter)
             return True
         else:
-            print(getattr(self.parameter, field[column]), value, getattr(self.parameter, field[column])!=value)
             if column in field and getattr(self.parameter, field[column])!=value:
                 commands.Do(CommandUpateParameter, parameter=self.parameter, field=field[column], value=value)
                 return True
@@ -101,6 +100,9 @@ class ParameterModel(TreeModel):
         self.InsertColumn(Column("Name"))
         self.InsertColumn(Column("Unit"))
         self.InsertColumn(Column("Value type"))
+        # TODO implement list and boolean
+        # TODO implement default value
+        # self.InsertColumn(Column("Default"))
         self.InsertColumn(Column("Description"))
 
         self.loaded = False

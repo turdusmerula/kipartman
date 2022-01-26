@@ -140,6 +140,8 @@ class ParameterType(models.TextChoices):
     INTEGER = "integer"
     FLOAT = "float"
     TEXT = "text"
+    BOOLEAN = "boolean"
+    LIST = "list"
     
 class Parameter(models.Model):
     name = models.JSONField()
@@ -165,6 +167,8 @@ class PartParameter(models.Model):
     int_value = models.IntegerField(null=True)
     float_value = models.FloatField(null=True)
     text_value = models.TextField(null=True, blank=True)
+    boolean_value = models.BooleanField(null=True)
+    list_value = models.JSONField(null=True)
 
     metaparameter = models.BooleanField(null=False, default=False)
     operator = models.TextField(null=True, choices=ParameterOperator.choices, default=ParameterOperator.EQ)
@@ -176,6 +180,7 @@ class PartParameter(models.Model):
             return '%d: %s' % (self.id, self.name)
         else:
             return '<None>: %s' % (self.name)
+
 
 class PartReference(models.Model):
     part = models.ForeignKey('Part', related_name='references', null=False, blank=False, default=None, on_delete=models.CASCADE)

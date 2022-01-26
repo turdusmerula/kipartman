@@ -2,7 +2,9 @@ from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
 
 from api.data.part_parameter import PartParameterModel
+from api.event import events
 from ui.parameter_select_delegate import QParameterSelectDelegate
+from ui.unit_delegate import QUnitDelegate
 
 class QPartParameterListWidget(QtWidgets.QWidget):
 
@@ -17,8 +19,10 @@ class QPartParameterListWidget(QtWidgets.QWidget):
         self.parameterSelectDelegate = QParameterSelectDelegate(self.model)
         self.treeView.setItemDelegateForColumn(0, self.parameterSelectDelegate) 
 
-        from ui.main_window import app
-        app.focusChanged.connect(self.update_menus)
+        self.unitDelegate = QUnitDelegate(self.model)
+        self.treeView.setItemDelegateForColumn(2, self.unitDelegate) 
+
+        events.focusChanged.connect(self.update_menus)
 
         self.update_menus()
 
@@ -32,26 +36,19 @@ class QPartParameterListWidget(QtWidgets.QWidget):
         if main_window is None:
             return
         
-        main_window.actionParameterAdd.setEnabled(False)
-        main_window.actionParameterDelete.setEnabled(False)
-
-        main_window.actionSelectNone.setEnabled(False)
-        main_window.actionSelectAll.setEnabled(False)
-
         if self.treeView.hasFocus()==False:
             return
-
             
         main_window.actionParameterAdd.setEnabled(True)
         try: main_window.actionParameterAdd.triggered.disconnect()
         except: pass
-        main_window.actionParameterAdd.triggered.connect(self.OnActionParameterAddTriggered)
+        main_window.actionParameterAdd.triggered.connect(self.actionParameterAddTriggered)
         
         if len(self.treeView.selectedIndexes())>0:
             main_window.actionParameterDelete.setEnabled(True)
         try: main_window.actionParameterDelete.triggered.disconnect()
         except: pass
-        main_window.actionParameterDelete.triggered.connect(self.OnActionParameterDeleteTriggered)
+        main_window.actionParameterDelete.triggered.connect(self.actionParameterDeleteTriggered)
 
         
         main_window.actionSelectNone.setEnabled(True)
@@ -74,10 +71,10 @@ class QPartParameterListWidget(QtWidgets.QWidget):
     def SelectAll(self):
         self.treeView.selectAll(selectChilds=True)
 
-    def OnActionParameterAddTriggered(self):
+    def actionParameterAddTriggered(self):
         self.treeView.editNew(parent=self.treeView.rootIndex())
         
-    def OnActionParameterDeleteTriggered(self):
+    def actionParameterDeleteTriggered(self):
         pass
 
     

@@ -14,6 +14,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         uic.loadUi('ui/main_window.ui', self)
 
+
         self.actionDatabaseSave.triggered.connect(self.OnActionDatabaseSaveTriggered)
         self.actionEditUndo.triggered.connect(self.OnActionEditUndoTriggered)
         self.actionEditRedo.triggered.connect(self.OnActionEditRedoTriggered)
@@ -27,6 +28,8 @@ class MainWindow(QtWidgets.QMainWindow):
         commands.undone.connect(self.update_menus)
         commands.redone.connect(self.update_menus)
         commands.flushed.connect(self.update_menus)
+
+        app.focusChanged.connect(self.globalFocusChanged)
 
         # TODO geometry
         # QSettings settings("MyCompany", "MyApp");
@@ -62,7 +65,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionPartAddPart.setEnabled(False)
         self.actionPartAddMetapart.setEnabled(False)
         self.actionPartImportOctopart.setEnabled(False)
-        self.actionPartRemovePart.setEnabled(False)
+        self.actionPartDelete.setEnabled(False)
         
         self.actionCategoryAdd.setEnabled(False)
         self.actionCategoryDelete.setEnabled(False)
@@ -78,13 +81,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_dock_widgets(self):
         self.dockPartCategoryWidget.setVisible(False)
         self.dockPartParameterWidget.setVisible(False)
+        self.dockFilterWidget.setVisible(False)
 
     def update(self):
         for child in self.mdiArea.subWindowList():
-            print(child)
             child.widget().update()
         super(MainWindow, self).update()
-            
+
+    def globalFocusChanged(self):
+        self.update_menus()
+        events.focusChanged.emit(None)
+
     def AddWindow(self, widget_class, title):
         window = widget_class(self.mdiArea)
         window.setWindowTitle(title)

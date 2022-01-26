@@ -65,6 +65,7 @@ class PartsWindow(QChildWindow):
         main_window.ChangeDockPartCategoryWidget(self.partCategoryList)
         main_window.ChangeDockFilterWidget(self.filterList)
         main_window.ChangeDockPartParameterWidget(self.partParameterList)
+        # main_window.ChangeDockPartStoragesWidget(self.partStorageList)
     
     def deactivated(self):
         from ui.main_window import main_window
@@ -73,6 +74,8 @@ class PartsWindow(QChildWindow):
         
         main_window.ChangeDockPartCategoryWidget(None)
         main_window.ChangeDockFilterWidget(None)
+        main_window.ChangeDockPartParameterWidget(self.partParameterList)
+        # main_window.ChangeDockPartStoragesWidget(self.partStorageList)
 
     def OnPartCategorySelectionChanged(self, part_categories):
         from ui.main_window import main_window

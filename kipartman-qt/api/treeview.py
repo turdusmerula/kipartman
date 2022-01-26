@@ -204,8 +204,8 @@ class TreeModel(QAbstractItemModel):
             return super(TreeModel, self).buddy(index)
         return res
 
-    def canDropMimeData(self, data, action, row, column, parent):
-        print("canDropMimeData", data, action, row, column, parent)
+    # def canDropMimeData(self, data, action, row, column, parent):
+        # print("canDropMimeData", data, action, row, column, parent)
 
     def canFetchMore(self, parent):
         return self.CanFetchMore(self.node_from_id(parent.internalId()))
@@ -375,7 +375,7 @@ class TreeModel(QAbstractItemModel):
             return len(self.rootNode)
         
     def setData(self, index, value, role=Qt.ItemDataRole.EditRole):
-        print("setData", index.row(), index.column(), value, role)
+        # print("setData", index.row(), index.column(), value, role)
         if index.isValid() and role==Qt.ItemDataRole.EditRole:
             node = self.id_to_node[index.internalId()]
             valid = self.Validate(node, index.column(), value)
@@ -394,7 +394,7 @@ class TreeModel(QAbstractItemModel):
     # def setHeaderData (section, orientation, value[, role=Qt.EditRole])
 
     def setItemData(self, index, roles):
-        print("setItemData", index.row(), roles)
+        # print("setItemData", index.row(), roles)
         return super(TreeModel, self).setItemData(index, roles)
         
     # def sibling (row, column, idx)
@@ -751,7 +751,6 @@ class QTreeViewData(QTreeView):
         """ return selection and collapse state of tree """
         state = TreeState()
         for index in self.selectionModel().selectedRows():
-            print("##", index.data())
             state.selected.append(index.internalId())
         
         return state
@@ -777,7 +776,6 @@ class QTreeViewData(QTreeView):
         for id in state.selected:
             index = index_from_id(id)
             if index is not None:
-                print("**", index.data())
                 selectionModel.select(index, flags)
 
     def setSelectChildMode(self, select):
@@ -787,7 +785,6 @@ class QTreeViewData(QTreeView):
     ### From TreeModel ###
             
     def dataError(self, error):
-        print("error:", error)
         self.edition_error = error
         # self.errorMessage(error)
         # self.reedit()
@@ -826,17 +823,6 @@ class QTreeViewData(QTreeView):
     def errorMessage(self, error):
         ShowErrorDialog("Invalid data", error.message)
     
-    def reedit(self):
-        print("reedit", self.edit_index)
-        index = self.edit_index
-        if self.edit_index is None:
-            index = self.currentIndex()
-
-        self.setFocus(Qt.FocusReason.OtherFocusReason)
-        res = self.edit(index, QAbstractItemView.EditTrigger.AllEditTriggers, None)
-        print("reedit failed", res)
-
-
     def focusOutEvent(self, event):
         # print("focusOutEvent", event)
         return super(QTreeViewData, self).focusOutEvent(event)

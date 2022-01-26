@@ -54,8 +54,7 @@ class QFilterListWidget(QtWidgets.QWidget):
         # self.treeView.setItemDelegateForColumn(0, self.indentDelegate) 
         self.treeView.setItemDelegateForColumn(1, self.buttonDelegate) 
 
-        from ui.main_window import app
-        app.focusChanged.connect(self.update_menus)
+        events.focusChanged.connect(self.update_menus)
         
         self.filters.filterChanged.connect(self.OnFilterListChanged)
         self.buttonDelegate.buttonCloseClicked.connect(self.OnButtonCloseFilterClicked)

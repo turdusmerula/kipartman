@@ -127,7 +127,6 @@ class CommandUpdateDatabaseField(Command):
         self.sid = transaction.savepoint()
 
         setattr(self.object, self.field, self.value)
-        print("&&", type(self.object), self.object)
         self.object.save(update_fields=[self.field])
         # self.object.refresh_from_db()
         events.objectUpdated.emit(self.object)

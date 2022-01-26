@@ -12,8 +12,8 @@ from api.data.filter import FilterModel, GroupNode, FilterNode
 from api.event import events
 from api.filter import FilterSet, Filter
 from helper.dialog import ShowErrorDialog
-from ui.parameter_select_widget import QParameterSelectWidget
 from ui.modal_dialog import QModalDialog
+from ui.parameter_select_widget import QParameterSelectWidget
 
 # from PyQt6.QtWidgets import qApp
 class QParameterSelectDelegate(QStyledItemDelegate):

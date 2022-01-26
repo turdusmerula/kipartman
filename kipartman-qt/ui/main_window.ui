@@ -121,7 +121,7 @@
     <addaction name="actionPartAddPart"/>
     <addaction name="menuImport"/>
     <addaction name="actionPartAddMetapart"/>
-    <addaction name="actionPartRemovePart"/>
+    <addaction name="actionPartDelete"/>
    </widget>
    <addaction name="menuDatabase"/>
    <addaction name="menuFile"/>
@@ -146,6 +146,8 @@
    <addaction name="separator"/>
    <addaction name="actionEditUndo"/>
    <addaction name="actionEditRedo"/>
+   <addaction name="separator"/>
+   <addaction name="actionConfiguration"/>
    <addaction name="separator"/>
    <addaction name="actionViewParts"/>
    <addaction name="actionViewSymbols"/>
@@ -204,7 +206,7 @@
    <addaction name="actionPartAddPart"/>
    <addaction name="actionPartAddMetapart"/>
    <addaction name="actionPartImportOctopart"/>
-   <addaction name="actionPartRemovePart"/>
+   <addaction name="actionPartDelete"/>
   </widget>
   <widget class="QDockWidget" name="dockParameterWidget">
    <property name="enabled">
@@ -218,7 +220,10 @@
    </attribute>
    <widget class="QParameterListWidget" name="dockParameterListWidget"/>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_2">
+  <widget class="QDockWidget" name="dockStorageWidget">
+   <property name="windowTitle">
+    <string>Storages</string>
+   </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
@@ -246,6 +251,12 @@
    <addaction name="actionParameterAdd"/>
    <addaction name="actionMetaParameterAdd"/>
    <addaction name="actionParameterDelete"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2"/>
   </widget>
   <action name="actionSchematicOpen">
    <property name="text">
@@ -359,13 +370,16 @@
     <string>Octopart</string>
    </property>
   </action>
-  <action name="actionPartRemovePart">
+  <action name="actionPartDelete">
    <property name="icon">
     <iconset>
      <normaloff>icons/part-delete-48.png</normaloff>icons/part-delete-48.png</iconset>
    </property>
    <property name="text">
-    <string>Remove part</string>
+    <string>Delete part</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete part</string>
    </property>
   </action>
   <action name="actionViewSymbols">
@@ -472,8 +486,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

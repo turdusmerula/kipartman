@@ -21,10 +21,9 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
 
         self.model = PartCategoryModel()
         self.treeView.setModel(self.model)
-        self.treeView.selectionModel().selectionChanged.connect(self.OnSelectionChanged)
+        self.treeView.selectionModel().selectionChanged.connect(self.treeViewSelectionChanged)
 
-        from ui.main_window import app
-        app.focusChanged.connect(self.update_menus)
+        events.focusChanged.connect(self.update_menus)
 
         self.update_menus()
         
@@ -54,11 +53,11 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
             
         try: main_window.actionCategoryAdd.triggered.disconnect()
         except: pass
-        main_window.actionCategoryAdd.triggered.connect(self.OnActionCategoryAddTriggered)
+        main_window.actionCategoryAdd.triggered.connect(self.actionCategoryAddTriggered)
         
         try: main_window.actionCategoryDelete.triggered.disconnect()
         except: pass
-        main_window.actionCategoryDelete.triggered.connect(self.OnActionCategoryDeleteTriggered)
+        main_window.actionCategoryDelete.triggered.connect(self.actionCategoryDeleteTriggered)
 
         
         main_window.actionSelectNone.setEnabled(True)
@@ -74,7 +73,7 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
         main_window.actionSelectChildMode.setEnabled(True)
         try: main_window.actionSelectChildMode.triggered.disconnect()
         except: pass
-        main_window.actionSelectChildMode.triggered.connect(self.OnSelectChildModeTriggered)
+        main_window.actionSelectChildMode.triggered.connect(self.actionSelectChildModeTriggered)
 
     def UnselectAll(self):
         self.treeView.clearSelection()
@@ -82,22 +81,11 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
     def SelectAll(self):
         self.treeView.selectAll(selectChilds=True)
 
-    def OnActionCategoryAddTriggered(self):
+    def actionCategoryAddTriggered(self):
         # add a new element in edit mode
         self.treeView.editNew()
-        # node = self.manager.InsertEditNode()
         
-        # # self.manager.CloseEditor()
-        # self.i = 1000
-        # from database.models import PartCategory
-        # part_category = PartCategory(id=self.i, name="a")
-        # self.i += 1
-        # self.model.AddPartCategory(part_category, pos=1)
-        # self.manager.tree_view.setCurrentIndex(self.model.index_from_part_category(part_category))
-        # # self.manager.tree_view.rowsAboutToBeRemoved(self.manager.model.index_from_node(self.model.rootNode), 1, 1)
-        # self.model.RemovePartCategory(part_category)
-        
-    def OnActionCategoryDeleteTriggered(self):
+    def actionCategoryDeleteTriggered(self):
         nodes = []
         for index in self.treeView.selectionModel().selectedRows():
             node = self.treeView.model().node_from_id(index.internalId())
@@ -116,27 +104,8 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
             )
         else:
             ShowWarningDialog("Remove failed", "No part category to remove")
-
-        # nodes = []
-        # for index in self.treeView.selectionModel().selectedRows():
-        #     node = self.treeView.model().node_from_id(index.internalId())
-        #     nodes.append(node)
-        # self.treeView.model().RemoveNodes(nodes)
-        # return 
-
-
-        # def print_index(name, index):
-        #     try:
-        #         print(name, index, index.row(), index.column(), index.data())
-        #     except Exception as e:
-        #         print(name, "error")
-        # print_index("currentIndex", self.treeView.selectionModel().currentIndex())
-        # i = 0
-        # for index in self.treeView.selectionModel().selectedIndexes():
-        #     print_index(f"index {i}", index)
-        #     i += 1
     
-    def OnSelectionChanged(self, selected, deselected):
+    def treeViewSelectionChanged(self, selected, deselected):
         selection = []
         for index in self.treeView.selectionModel().selectedRows():
             node = self.treeView.model().node_from_id(index.internalId())
@@ -146,7 +115,7 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
         
         self.update_menus()
 
-    def OnSelectChildModeTriggered(self, checked):
+    def actionSelectChildModeTriggered(self, checked):
         self.treeView.setSelectChildMode(checked)
-        self.OnSelectionChanged(None, None)
+        self.treeViewSelectionChanged(None, None)
     

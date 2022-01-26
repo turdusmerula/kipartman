@@ -214,7 +214,6 @@ class QUnitDelegate(QStyledItemDelegate):
                 # force_metric_ton = g_0 * metric_ton = tf = metric_ton_force = force_t = t_force
                 # atomic_unit_of_force = E_h / a_0 = a_u_force
             "Frequency",
-                # [frequency] = 1 / [time]
                 # hertz = 1 / second = Hz
                 # revolutions_per_minute = revolution / minute = rpm
                 # revolutions_per_second = revolution / second = rps
@@ -224,22 +223,18 @@ class QUnitDelegate(QStyledItemDelegate):
                 # peak_sun_hour = 1e3 * watt_hour / meter ** 2 = PSH
                 # langley = thermochemical_calorie / centimeter ** 2 = Ly
             "Illuminance",
-                # [illuminance] = [luminous_flux] / [area]
                 # lux = lumen / meter ** 2 = lx
             "Inductance",
-                # [inductance] = [magnetic_flux] / [current]
-                # henry = weber / ampere = H
-                # abhenry = 1e-9 * henry = abH
-                # conventional_henry_90 = R_K / R_K90 * henry = H_90
+                (["H", "henry"], "weber/ampere"),
+                (["abhenry", "abH"], "1e-9*henry"), 
+                (["conventional_henry_90", "H_90"], "R_K/R_K90*henry"),
             "Information",
                 ("bit",),
                 (["baud", "Bd", "bps"], "bit/second"), 
                 (["byte", "B", "octet"], "8*bit"),
             "Intensity",
-                # [intensity] = [power] / [area]
                 # atomic_unit_of_intensity = 0.5 * ε_0 * c * atomic_unit_of_electric_field ** 2 = a_u_intensity
             "Kinematic viscosity",
-                # [kinematic_viscosity] = [area] / [time]
                 # stokes = centimeter ** 2 / second = St
             "Length",
                 (["m", "meter", "metre"],),
@@ -344,14 +339,11 @@ class QUnitDelegate(QStyledItemDelegate):
                 # rem = 0.01 * sievert
                 # roentgen = 2.58e-4 * coulomb / kilogram = _ = röntgen  # approximate, depends on medium
             "Resistance",
-                # [resistance] = [electric_potential] / [current]
-                # ohm = volt / ampere = Ω
-                # abohm = 1e-9 * ohm = abΩ
-                # mean_international_ohm = 1.00049 * ohm = Ω_it = ohm_it  # approximate
-                # US_international_ohm = 1.000495 * ohm = Ω_US = ohm_US   # approximate
-                # conventional_ohm_90 = R_K / R_K90 * ohm = Ω_90 = ohm_90
-            "Resistivity",
-                # [resistivity] = [resistance] * [length]
+                (["Ω", "ohm"], "volt/ampere"),
+                (["abohm", "abΩ"], "1e-9*ohm"), 
+                (["mean_international_ohm", "Ω_it", "ohm_it"], "1.00049*ohm"),
+                (["US_international_ohm", "Ω_US", "ohm_US"], "1.000495*ohm"),
+                (["conventional_ohm_90", "Ω_90", "ohm_90"], "R_K/R_K90*ohm"),
             "Solid angle",
                 (["steradian", "sr"], "radian**2"),
                 (["square_degree", "sq_deg", "sqdeg"], "(π/180)**2*sr"), 
@@ -389,7 +381,6 @@ class QUnitDelegate(QStyledItemDelegate):
                 # synodic_month = 29.530589 * day = _ = lunar_month  # approximate
                 # planck_time = (hbar * gravitational_constant / c ** 5) ** 0.5
             "Torque",
-                # [torque] = [force] * [length]
                 # foot_pound = foot * force_pound = ft_lb = footpound
             "Velocity",
                 # knot = nautical_mile / hour = kt = knot_international = international_knot
@@ -808,7 +799,6 @@ class QUnitDelegate(QStyledItemDelegate):
         self.menuUnit = QMenu(self.widget)
         submenu = self.menuUnit
         for item in self.units:
-            print(item, type(item), len(item))
             if isinstance(item, str):
                 submenu = QMenu(item, self.widget)
                 self.menuUnit.addAction(submenu.menuAction())
@@ -839,7 +829,6 @@ class QUnitDelegate(QStyledItemDelegate):
         return self.widget
 
     def setEditorData(self, editor, index):
-        print("setEditorData", index.row(), index.column(), index.model().data(index, Qt.ItemDataRole.EditRole))
         value = index.model().data(index, Qt.ItemDataRole.EditRole)
         editor.lineEdit.setText(value)
         
@@ -848,7 +837,6 @@ class QUnitDelegate(QStyledItemDelegate):
         model.setData(index, editor.lineEdit.text(), Qt.ItemDataRole.EditRole)
 
     def updateEditorGeometry(self, editor, option, index):
-        print("updateEditorGeometry", self.widget.rect())
         rect = option.rect
         rect.setWidth(self.widget.rect().width())
         rect.setHeight(self.widget.rect().height())

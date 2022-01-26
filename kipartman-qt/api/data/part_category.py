@@ -70,15 +70,9 @@ class PartCategoryModel(TreeModel):
 
 
     def CanFetchMore(self, parent):
-        # print("CanFetchMore", parent, not self.loaded[parent])
         return not self.loaded[parent]
 
     def Fetch(self, parent):
-        # print("Fetch", parent)
-        # print("#####")
-        # self.debug()
-        # self.debug_nodes()
-        
         nodes = []
         if parent is self.rootNode:
             self.find_childs(parent=None)

@@ -34,8 +34,7 @@ class QParameterListWidget(QtWidgets.QWidget):
         self.valueTypeDelegate = QComboboxDelegate(self.model, ["float", "integer", "text"])
         self.treeView.setItemDelegateForColumn(2, self.valueTypeDelegate) 
 
-        from ui.main_window import app
-        app.focusChanged.connect(self.update_menus)
+        events.focusChanged.connect(self.update_menus)
 
         self.update_menus()
         
@@ -49,26 +48,19 @@ class QParameterListWidget(QtWidgets.QWidget):
         if main_window is None:
             return
         
-        main_window.actionParameterAdd.setEnabled(False)
-        main_window.actionParameterDelete.setEnabled(False)
-
-        main_window.actionSelectNone.setEnabled(False)
-        main_window.actionSelectAll.setEnabled(False)
-
         if self.treeView.hasFocus()==False:
             return
-
             
         main_window.actionParameterAdd.setEnabled(True)
         try: main_window.actionParameterAdd.triggered.disconnect()
         except: pass
-        main_window.actionParameterAdd.triggered.connect(self.OnActionParameterAddTriggered)
+        main_window.actionParameterAdd.triggered.connect(self.actionParameterAddTriggered)
         
         if len(self.treeView.selectedIndexes())>0:
             main_window.actionParameterDelete.setEnabled(True)
         try: main_window.actionParameterDelete.triggered.disconnect()
         except: pass
-        main_window.actionParameterDelete.triggered.connect(self.OnActionParameterDeleteTriggered)
+        main_window.actionParameterDelete.triggered.connect(self.actionParameterDeleteTriggered)
 
         
         main_window.actionSelectNone.setEnabled(True)
@@ -87,11 +79,11 @@ class QParameterListWidget(QtWidgets.QWidget):
     def SelectAll(self):
         self.treeView.selectAll(selectChilds=True)
 
-    def OnActionParameterAddTriggered(self):
+    def actionParameterAddTriggered(self):
         # add a new element in edit mode
         self.treeView.editNew(parent=self.treeView.rootIndex())
         
-    def OnActionParameterDeleteTriggered(self):
+    def actionParameterDeleteTriggered(self):
         # nodes = []
         # for index in self.treeView.selectionModel().selectedRows():
         #     node = self.treeView.model().node_from_id(index.internalId())
