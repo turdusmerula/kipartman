@@ -8,7 +8,7 @@ from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, Co
 from api.event import events
 from api.unit import ureg
 import database.data.part_parameter
-from database.models import PartParameter, ParameterType
+from database.models import PartParameter, ParameterType, PartInstance
 from enum import Enum
 
 class CommandUpatePartParameter(CommandUpdateDatabaseField):
@@ -252,7 +252,7 @@ class QPartParameterTreeView(QTreeViewData):
         self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)        
 
     def SetPart(self, part):
-        if part is None or part.metapart==False:
+        if part is None or part.instance!=PartInstance.METAPART:
             self.setColumnHidden(Column.OPERATOR, True)
         else:
             self.setColumnHidden(Column.OPERATOR, False)

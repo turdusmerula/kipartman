@@ -1,5 +1,5 @@
 from PyQt6 import Qt6, QtWidgets, uic
-from PyQt6.QtCore import pyqtSignal, QEvent
+from PyQt6.QtCore import pyqtSignal, QEvent, QSettings
 from PyQt6.QtGui import QWindowStateChangeEvent
 from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit
 
@@ -24,7 +24,7 @@ class FilterGroupPartCategory(FilterGroup):
 
 
 class PartsWindow(QChildWindow):
-
+    
     def __init__(self, parent):
         super(PartsWindow, self).__init__(parent)
         uic.loadUi('ui/parts_window.ui', self)
@@ -33,35 +33,29 @@ class PartsWindow(QChildWindow):
         self.partCategoryList = QPartCategoryListWidget(self)
         self.partParameterList = QPartParameterListWidget(self)
         
-        self.partCategoryList.selectionChanged.connect(self.OnPartCategorySelectionChanged)
+        self.partCategoryList.selectionChanged.connect(self.partCategorySelectionChanged)
 
         self.filters = self.filterList.filters
         self.category_filter_group = FilterGroupPartCategory()
-        self.category_filter_group.filterChanged.connect(self.OnFilterChanged)
+        self.category_filter_group.filterChanged.connect(self.filterChanged)
         self.filters.Append(self.category_filter_group)
         
         self.partList.SetFilters(self.filters)
         self.partList.selectionChanged.connect(self.partListSelectionChanged)
-        
+
         self.update_menus()
         self.activated()
 
     def update(self):
-        # self.partCategoryListWidget.update()
-        # self.partListWidget.update()
-        # super(PartsWindow, self).update()
         pass
         
     def update_menus(self):
-        # self.partCategoryListWidget.update_menus()
-        # self.partListWidget.update_menus()
         pass
 
     def activated(self):
+        print("PartsWindow.activated")
         from ui.main_window import main_window
-        if main_window is None:
-            return
-        
+
         main_window.ChangeDockPartCategoryWidget(self.partCategoryList)
         main_window.ChangeDockFilterWidget(self.filterList)
         main_window.ChangeDockPartParameterWidget(self.partParameterList)
@@ -69,39 +63,64 @@ class PartsWindow(QChildWindow):
         main_window.dockParameterWidget.setVisible(True)
         main_window.dockStorageWidget.setVisible(True)
     
+        #  restore geometry
+        main_window.loadWindowSettings("parts")
+
+        self.partCategorySelectionChanged(self.partCategoryList.SelectedCategories())
+        self.partListSelectionChanged(self.partList.SelectedParts())
+
     def deactivated(self):
+        print("PartsWindow.deactivated")
         from ui.main_window import main_window
-        if main_window is None:
-            return
         
+        main_window.saveWindowSettings("parts")
+
         main_window.ChangeDockPartCategoryWidget(None)
         main_window.ChangeDockFilterWidget(None)
         main_window.ChangeDockPartParameterWidget(None)
         # main_window.ChangeDockPartStoragesWidget(self.partStorageList)
         main_window.dockParameterWidget.setVisible(False)
         main_window.dockStorageWidget.setVisible(False)
-        
-    def OnPartCategorySelectionChanged(self, part_categories):
+
+        main_window.actionPartAddPart.setEnabled(False)
+        main_window.actionPartAddMetapart.setEnabled(False)
+        main_window.actionPartImportOctopart.setEnabled(False)
+        main_window.actionPartDelete.setEnabled(False)
+
+    def partCategorySelectionChanged(self, part_categories):
         from ui.main_window import main_window
-        if main_window is None:
-            return
 
         if len(part_categories)>0:
             self.category_filter_group.Append(FilterPartCategories(part_categories, main_window.actionSelectChildMode.isChecked()))
         else:
             self.category_filter_group.Clear()
-
-    def OnFilterChanged(self):
+        
+        if len(part_categories)>1:
+            main_window.actionPartAddPart.setEnabled(False)
+            main_window.actionPartAddMetapart.setEnabled(False)
+            main_window.actionPartImportOctopart.setEnabled(False)
+        else:
+            main_window.actionPartAddPart.setEnabled(True)
+            main_window.actionPartAddMetapart.setEnabled(True)
+            main_window.actionPartImportOctopart.setEnabled(True)
+            
+    def filterChanged(self):
         if self.category_filter_group.IsEmpty():
             self.partCategoryList.UnselectAll()
         
         self.partList.update()
 
-    def partListSelectionChanged(self, selectionModel):
-        if len(selectionModel.selectedRows())==1:
-            self.partParameterList.SetPart(selectionModel.model().node_from_index(selectionModel.selectedRows()[0]).part)
+    def partListSelectionChanged(self, parts):
+        if len(parts)==1:
+            self.partParameterList.SetPart(parts[0])
         else:
             self.partParameterList.SetPart(None)
             # node = self.treeView.model().node_from_index(self.treeView.selectionModel().selectedRows()[0])
             # self.validated.emit(node.parameter)
         
+        from ui.main_window import main_window
+        if len(parts)>0:
+            main_window.actionPartDelete.setEnabled(True)
+        else:
+            main_window.actionPartDelete.setEnabled(False)
+            

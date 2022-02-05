@@ -1,0 +1,28 @@
+kipartman:
+  currency: EUR
+  database: ~/.kipartman/parts.sqlite3
+  loglevel: DEBUG
+  debug: true
+
+kicad:
+  path: /usr/bin/kicad
+  3d_models_path:
+  - /usr/share/kicad/3dmodels 
+  - ~/.kipartman/3dmodels
+  footprints_path: 
+  - /usr/share/kicad/footprints 
+  - ~/.kipartman/footprints
+  symbols_path:
+  - /usr/share/kicad/symbols
+  - ~/.kipartman/symbols
+
+providers:
+  octopart:
+    api_key:
+    user:
+    password:
+  snapeda:
+    user:
+    password:
+
+#"mouser_api_key":

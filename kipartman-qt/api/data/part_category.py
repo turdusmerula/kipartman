@@ -166,7 +166,7 @@ class PartCategoryModel(TreeModel):
         del self.id_to_part_category_node[part_category.id]
         self.RemoveNode(node)
 
-    def CreateEditNode(self, parent, data):
+    def CreateEditNode(self, parent):
         self.has_child[parent] = True
         if isinstance(parent, PartCategoryNode):
             part_category = PartCategory(parent=parent.part_category)

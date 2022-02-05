@@ -81,6 +81,14 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
     def SelectAll(self):
         self.treeView.selectAll(selectChilds=True)
 
+    def SelectedCategories(self):
+        selection = []
+        for index in self.treeView.selectionModel().selectedRows():
+            node = self.treeView.model().node_from_id(index.internalId())
+            if isinstance(node, PartCategoryNode) and node.part_category is not None:
+                selection.append(node.part_category)
+        return selection
+
     def actionCategoryAddTriggered(self):
         # add a new element in edit mode
         self.treeView.editNew()
@@ -106,14 +114,9 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
             ShowWarningDialog("Remove failed", "No part category to remove")
     
     def treeViewSelectionChanged(self, selected, deselected):
-        selection = []
-        for index in self.treeView.selectionModel().selectedRows():
-            node = self.treeView.model().node_from_id(index.internalId())
-            if isinstance(node, PartCategoryNode) and node.part_category is not None:
-                selection.append(node.part_category)
-        self.selectionChanged.emit(selection)
-        
+        self.selectionChanged.emit(self.SelectedCategories())
         self.update_menus()
+        
 
     def actionSelectChildModeTriggered(self, checked):
         self.treeView.setSelectChildMode(checked)

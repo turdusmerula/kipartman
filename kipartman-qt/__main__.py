@@ -13,14 +13,11 @@ if not os.path.exists('resources'):
     # we are in an installed package, set new path
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# configure wxPython
-import sys
 import argparse
-from configuration import configuration
 import sys, time
 
-def configure(value):
-    pass
+from api.configuration import configuration
+from api.log import log
 
 def migrate():
     print(sys.path)
@@ -45,24 +42,22 @@ def migrate():
 #    execute_from_command_line(["manage.py", "migrate"])
 
 def main(args=None):
-    """The main routine."""
+    log.setLevel('DEBUG')
+    log.debug("configuration")
+    
     if args is None:
         args = sys.argv[1:]
 
-    # Do argument parsing here (eg. with argparse) and anything else
-    # you want your project to do.
-
     parser = argparse.ArgumentParser(description='Kipartman, the kicad part manager')
-    parser.add_argument('-c', '--config', help='configuration file to use (default: %s)'%configuration.filename)
-    
+    # parser.add_argument('-c', '--config', help='configuration file to use (default: %s)'%configuration.filename)
     args = parser.parse_args()
     
-    if args.config:
-        configuration.filename = args.config
-        if not configuration.Load():
-            return 
+    # if args.config:
+    #     configuration.filename = args.config
+    #     if not configuration.Load():
+    #         return 
     
-    print("Running kipartman")
+    log.info("Running kipartman")
 
     # set django configuration
     migrate()

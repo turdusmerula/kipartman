@@ -147,14 +147,12 @@ class ParameterModel(TreeModel):
 
     def AddParameter(self, parameter, pos=None):
         node = ParameterNode(parameter)
-        self.loaded = True
         self.id_to_parameter_node[parameter.id] = node
 
         self.InsertNode(node, pos=pos)
 
     def RemoveParameterId(self, id):
         node = self.parameter_node_from_id(id)
-        self.loaded = False
         del self.id_to_parameter_node[id]
         self.RemoveNode(node)
 

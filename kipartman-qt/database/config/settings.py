@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-from configuration import configuration
+from api.configuration import configuration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -104,7 +104,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': configuration.data_dir
+        'NAME': os.path.expanduser(configuration.kipartman.database)
     }
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -159,5 +159,5 @@ STATIC_URL = '/static/'
 #     '/var/www/static/',
 # ]
 
-MEDIA_ROOT = os.path.join(configuration.data_dir, 'files/')
-MEDIA_URL = 'files/'
+# MEDIA_ROOT = os.path.join(configuration.data_dir, 'files/')
+# MEDIA_URL = 'files/'

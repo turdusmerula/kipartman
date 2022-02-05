@@ -24,51 +24,51 @@ class PartValueField(models.TextField):
 #             pass
 #         return value
     
-    def expanded_value(self, pattern=None):
-        if pattern is None:
-            pattern = self.value
-            
-        parameters = {}
-    #     for parameter in api.data.part_parameter.find([api.data.part_parameter.FilterPart(part)]).all():
+    # def expanded_value(self, pattern=None):
+    #     if pattern is None:
+    #         pattern = self.value
+    #
+    #     parameters = {}
+    # #     for parameter in api.data.part_parameter.find([api.data.part_parameter.FilterPart(part)]).all():
+    # #         parameters[parameter.parameter.name] = parameter
+    #     for parameter in self.parameters.all():
     #         parameters[parameter.parameter.name] = parameter
-        for parameter in self.parameters.all():
-            parameters[parameter.parameter.name] = parameter
-        for parameter in self.parameters.pendings():
-            parameters[parameter.parameter.name] = parameter
-            
-        res = ""
-        token = None
-        for c in pattern:
-            if token is None:
-                if c=="{":
-                    token = ""
-                else:
-                    res += c
-            else:
-                if c=="}":
-                    if token=="name":
-                        res += self.name
-                    if token in parameters:
-                        parameter = parameters[token]
-                        parameter_value = parameter.expanded_parameter_value(with_operator=False)
-                        if parameter_value is not None:
-                            res += parameter_value
-                    token = None
-                else:
-                    token += c
-        
-        return res
-
-    def pre_save(self, model_instance, add):
-        try:
-            json_value = json.loads(model_instance.value)
-        except:
-            json_value = json.loads("{}")
-            json_value['pattern'] = model_instance.value
-
-        json_value['value'] = self.expanded_value(model_instance, json_value['pattern'])
-        
-        return json.dumps(json_value)
+    #     for parameter in self.parameters.pendings():
+    #         parameters[parameter.parameter.name] = parameter
+    #
+    #     res = ""
+    #     token = None
+    #     for c in pattern:
+    #         if token is None:
+    #             if c=="{":
+    #                 token = ""
+    #             else:
+    #                 res += c
+    #         else:
+    #             if c=="}":
+    #                 if token=="name":
+    #                     res += self.name
+    #                 if token in parameters:
+    #                     parameter = parameters[token]
+    #                     parameter_value = parameter.expanded_parameter_value(with_operator=False)
+    #                     if parameter_value is not None:
+    #                         res += parameter_value
+    #                 token = None
+    #             else:
+    #                 token += c
+    #
+    #     return res
+    #
+    # def pre_save(self, model_instance, add):
+    #     try:
+    #         json_value = json.loads(model_instance.value)
+    #     except:
+    #         json_value = json.loads("{}")
+    #         json_value['pattern'] = model_instance.value
+    #
+    #     json_value['value'] = self.expanded_value(model_instance, json_value['pattern'])
+    #
+    #     return json.dumps(json_value)
 
 
 class PartCategory(MPTTModel):
@@ -111,6 +111,10 @@ class PartCategory(MPTTModel):
     def __repr__(self):
         return f"{self.id}: {self.name}"
 
+class PartInstance(models.TextChoices):
+    PART = "part"
+    METAPART = "metapart"
+    OCTOPART = "octopart"
 
 class Part(models.Model):
     def __init__(self, *args, **kwargs):
@@ -121,16 +125,22 @@ class Part(models.Model):
     description = models.TextField(blank=True, default='')
     comment = models.TextField(blank=True, default='')
     category = models.ForeignKey('PartCategory', related_name='parts', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    footprint = models.ForeignKey('KicadFootprint', related_name='new_footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    symbol = models.ForeignKey('KicadSymbol', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    instance = models.TextField(null=True, choices=PartInstance.choices, default=PartInstance.PART)
     #parameters is defined inside PartParameter by ForeignKey part
     #offers is defined inside PartOffer by ForeignKey part
     #manufacturers is defined inside PartManufacturer by ForeignKey part
     #storages is defined inside PartStorage by ForeignKey part
     #attachements: is defined inside PartAttachement by ForeignKey part
     #references: is defined inside PartReference by ForeignKey part
+
+    # kicad fields
+    footprint = models.ForeignKey('KicadFootprint', related_name='new_footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    symbol = models.ForeignKey('KicadSymbol', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
     value = PartValueField(blank=True, default="{name}")
-    metapart = models.BooleanField(null=False, default=False)
+    
+    # provider fields
+    uid = models.TextField(blank=True, null=True)
+
     updated = models.DateTimeField(auto_now=True)
 
     def __repr__(self):

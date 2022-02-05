@@ -5,7 +5,7 @@ from api.treeview import TreeModel, Node, TreeColumn, QTreeViewData
 from api.command import Command, CommandUpdateDatabaseField, commands, CommandAddDatabaseObject, CommandDeleteDatabaseObjects
 from api.event import events
 import database.data.part
-from database.models import Part
+from database.models import Part, PartInstance
 
 class CommandUpatePart(CommandUpdateDatabaseField):
     def __init__(self, part, field, value, other_fields):
@@ -63,7 +63,7 @@ class PartNode(Node):
         return False
 
     def HasChildren(self):
-        return self.part.metapart
+        return self.part.instance==PartInstance.METAPART
 
 
 class PartCategoryNode(Node):
@@ -105,7 +105,7 @@ class PartModel(TreeModel):
                 node = PartNode(part)
                 self.id_to_part[part.id] = node
                 
-                if part.metapart==True:
+                if part.instance==PartInstance.METAPART:
                     self.loaded[node] = False
                 else:
                     self.loaded[node] = True
@@ -118,23 +118,17 @@ class PartModel(TreeModel):
     def Clear(self):
         self.id_to_part.clear()
         self.loaded.clear()
-        self.has_child.clear()
         self.request = None
         
         super(PartModel, self).Clear()
 
         self.loaded[self.rootNode] = False
-        self.has_child[self.rootNode] = True
 
     def Update(self):
         self.Clear()
 
-    def CreateEditNode(self, parent, data):
-        if data=='part':
-            return PartNode(Part())
-        elif data=='metapart':
-            return PartNode(Part(metapart=True))
-        return None
+    def CreateEditNode(self, parent, category, instance):
+        return PartNode(Part(category=category, instance=instance))
 
 class QPartTreeView(QTreeViewData):
     def __init__(self, *args, **kwargs):

@@ -2,12 +2,14 @@ from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
 from PyQt6.QtCore import pyqtSignal, QItemSelectionModel
 
-from api.data.part import PartModel
+from api.data.part import PartModel, PartNode
 from api.event import events
+from ui.modal_dialog import QModalDialog
+from ui.octopart_search_widget import QOctopartSearchWidget
 
 
 class QPartListWidget(QtWidgets.QWidget):
-    selectionChanged = pyqtSignal(QItemSelectionModel)
+    selectionChanged = pyqtSignal(list)
 
     def __init__(self, parent):
         super(QPartListWidget, self).__init__(parent)
@@ -16,6 +18,8 @@ class QPartListWidget(QtWidgets.QWidget):
         self.model = PartModel()
         self.treeView.setModel(self.model)
         self.treeView.selectionModel().selectionChanged.connect(self.treeViewSelectionChanged)
+        
+        self.owner_category = None
         
         events.focusChanged.connect(self.update_menus)
 
@@ -34,17 +38,59 @@ class QPartListWidget(QtWidgets.QWidget):
         if self.treeView.hasFocus()==False:
             return
         
-        main_window.actionPartAddPart.setEnabled(True)
-        main_window.actionPartAddMetapart.setEnabled(True)
-        main_window.actionPartImportOctopart.setEnabled(True)
-        
-        if len(self.treeView.selectedIndexes())>0:
-            main_window.actionPartDelete.setEnabled(True)        
+        try: main_window.actionPartAddPart.triggered.disconnect()
+        except: pass
+        main_window.actionPartAddPart.triggered.connect(self.actionPartAddPartTriggered)
+
+        try: main_window.actionPartAddMetapart.triggered.disconnect()
+        except: pass
+        main_window.actionPartAddMetapart.triggered.connect(self.actionPartAddMetapartTriggered)
+
+        try: main_window.actionPartImportOctopart.triggered.disconnect()
+        except: pass
+        main_window.actionPartImportOctopart.triggered.connect(self.actionPartImportOctopartTriggered)
+
+        try: main_window.actionPartDelete.triggered.disconnect()
+        except: pass
+        main_window.actionPartDelete.triggered.connect(self.actionPartDeleteTriggered)
 
     def SetFilters(self, filters):
         self.model.SetFilters(filters)
 
+    def SetOwnerCategory(self, category):
+        self.owner_category = category
+        
+    def SelectedParts(self):
+        selection = []
+        for index in self.treeView.selectionModel().selectedRows():
+            node = self.treeView.model().node_from_id(index.internalId())
+            if isinstance(node, PartNode) and node.part is not None:
+                selection.append(node.part)
+        return selection
+
     def treeViewSelectionChanged(self):
+        self.selectionChanged.emit(self.SelectedParts())
         self.update_menus()
-        self.selectionChanged.emit(self.treeView.selectionModel())
+
+
+    def actionPartAddPartTriggered(self, value):
+        # add a new element in edit mode
+        self.treeView.setFocus()
+        self.treeView.editNew(category=self.owner_category, instance='part', column=1)
+
+    def actionPartAddMetapartTriggered(self, value):
+        self.treeView.editNew(category=self.owner_category, instance='metapart', column=1)
     
+    def actionPartImportOctopartTriggered(self, value):
+        dialog = QModalDialog(self, title="Octopart search") 
+        widget = QOctopartSearchWidget(dialog)
+        dialog.setWidget(widget)
+        dialog.validated.connect(self.dialogOctopartSearchValidated)
+        dialog.show()
+
+    def dialogOctopartSearchValidated(self, object):
+        self.parameter = object
+        self.widget.lineEdit.setText(self.parameter.name[0])
+
+    def actionPartDeleteTriggered(self, value):
+        pass

@@ -50,28 +50,31 @@ setup(
     },
 
     install_requires=[
-         # 'wxPython',
-         'pyqt6',
-#          'docutils',
-#          'asyncio',
-         'pathlib2',
-         'pycairo',     # to draw components
-         'conan',
-         'python_dateutil',
-         'Django',
-         'django-mptt', # tree management for django
-         'watchdog',    # watch for file change
-         'numpy',
-         'setuptools',
-#          'profiling',
-         'cfscrape',        # web scrapper
-         'beautifulsoup4',   # html parser
-         'pint',    # unit and physical quantities
+        # 'wxPython',
+        'pyqt6',
+#         'docutils',
+#         'asyncio',
+        'pathlib2',
+        'pycairo',     # to draw components
+        # 'conan',
+        'python_dateutil',
+        'Django',
+        'django-mptt', # tree management for django
+        'watchdog',    # watch for file change
+        'numpy',
+        'setuptools',
+#         'profiling',
+        'cfscrape',        # web scrapper
+        'beautifulsoup4',   # html parser
+        'pint',    # unit and physical quantities
+        
+        'asgiref',
+        'pytz',
+        'sqlparse',
          
-         'asgiref',
-         'pytz',
-         'sqlparse',
-         
+        'pyyaml',
+        'munch',    # to use a dict with attribute like access
+        
     ],
 )
 

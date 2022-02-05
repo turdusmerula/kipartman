@@ -1,5 +1,5 @@
 from PyQt6 import Qt6, QtWidgets, uic
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSettings
 from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit, QMainWindow
 
 from api.command import commands
@@ -15,14 +15,15 @@ class MainWindow(QtWidgets.QMainWindow):
         uic.loadUi('ui/main_window.ui', self)
 
 
-        self.actionDatabaseSave.triggered.connect(self.OnActionDatabaseSaveTriggered)
-        self.actionEditUndo.triggered.connect(self.OnActionEditUndoTriggered)
-        self.actionEditRedo.triggered.connect(self.OnActionEditRedoTriggered)
-        self.actionViewParts.triggered.connect(self.OnActionViewPartsTriggered)
-        self.actionViewSymbols.triggered.connect(self.OnActionViewSymbolsTriggered)
+        self.actionDatabaseSave.triggered.connect(self.actionDatabaseSaveTriggered)
+        self.actionEditUndo.triggered.connect(self.actionEditUndoTriggered)
+        self.actionEditRedo.triggered.connect(self.actionEditRedoTriggered)
+        self.actionViewParts.triggered.connect(self.actionViewPartsTriggered)
+        self.actionViewSymbols.triggered.connect(self.actionViewSymbolsTriggered)
+        self.actionConfiguration.triggered.connect(self.actionConfigurationTriggered)
 
         self.activeWindow = None 
-        self.mdiArea.subWindowActivated.connect(self.OnMdiAreaSubWindowActivated)
+        self.mdiArea.subWindowActivated.connect(self.mdiAreaSubWindowActivated)
         
         commands.done.connect(self.update_menus)
         commands.undone.connect(self.update_menus)
@@ -31,8 +32,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         app.focusChanged.connect(self.globalFocusChanged)
 
-        # TODO geometry
-        # QSettings settings("MyCompany", "MyApp");
         # restoreGeometry(settings.value("myWidget/geometry").toByteArray()); restoreState(settings.value("myWidget/windowState").toByteArray());
 
         self.update_menus()
@@ -41,7 +40,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.defaultDockPartCategoryWidget = self.dockPartCategoryWidget.widget()
         self.defaultDockFilterWidget = self.dockFilterWidget.widget()
         self.defaultDockPartParameterWidget = self.dockPartParameterWidget.widget()
-        
+
+        self.actionPartAddPart.setEnabled(False)
+        self.actionPartAddMetapart.setEnabled(False)
+        self.actionPartImportOctopart.setEnabled(False)
+        self.actionPartDelete.setEnabled(False)
+
     def update_menus(self):
         self.actionSchematicOpen.setEnabled(False)
         self.actionSchematicSave.setEnabled(False)
@@ -61,11 +65,6 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.actionEditRedo.setEnabled(False)
             self.actionEditRedo.setText(f"Redo")
-
-        self.actionPartAddPart.setEnabled(False)
-        self.actionPartAddMetapart.setEnabled(False)
-        self.actionPartImportOctopart.setEnabled(False)
-        self.actionPartDelete.setEnabled(False)
         
         self.actionCategoryAdd.setEnabled(False)
         self.actionCategoryDelete.setEnabled(False)
@@ -95,10 +94,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_menus()
         events.focusChanged.emit(None)
 
+    def saveWindowSettings(self, name):
+        settings = QSettings("Kipartman", name)
+        settings.setValue("geometry", self.saveGeometry()) 
+        settings.setValue("windowState", self.saveState())
+        print(settings.fileName())
+    
+    def loadWindowSettings(self, name):
+        settings = QSettings("Kipartman", name)
+        if settings.value("geometry") is not None:
+            saved_geometry = settings.value("geometry")
+            self.restoreGeometry(saved_geometry)
+        if settings.value("windowState") is not None:
+            saved_state = settings.value("windowState")
+            self.restoreState(saved_state)
+    
+
     def AddWindow(self, widget_class, title):
         window = widget_class(self.mdiArea)
         window.setWindowTitle(title)
         window.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        window.setWindowState(Qt.WindowState.WindowMaximized);
 
         # window = QMdiSubWindow(self.mdiArea)
         # window.setWidget(widget_class(self.mdiArea))
@@ -109,27 +125,33 @@ class MainWindow(QtWidgets.QMainWindow):
         return window
 
 
-    def OnActionDatabaseSaveTriggered(self):
+    def actionDatabaseSaveTriggered(self):
         commands.Flush()
 
 
-    def OnActionEditUndoTriggered(self):
+    def actionEditUndoTriggered(self):
         commands.Undo()
         self.update()
         
-    def OnActionEditRedoTriggered(self):
+    def actionEditRedoTriggered(self):
         commands.Redo()
         self.update()
 
 
-    def OnActionViewPartsTriggered(self, value):
+    def actionViewPartsTriggered(self, value):
         self.AddWindow(PartsWindow, "parts")
 
-    def OnActionViewSymbolsTriggered(self, value):
+    def actionViewSymbolsTriggered(self, value):
         self.AddWindow(SymbolsWidget, "symbols")
 
 
-    def OnMdiAreaSubWindowActivated(self, window):
+    def actionConfigurationTriggered(self, value):
+        from api.octopart.queries import OctopartPartQuery
+        query = OctopartPartQuery()
+        query.search("ATSAMD21G18A-MU")
+
+    def mdiAreaSubWindowActivated(self, window):
+        print("++", self.activeWindow)
         self.update_menus()
         if self.activeWindow is not None:
             self.activeWindow.widget().deactivated()

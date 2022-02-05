@@ -2,9 +2,8 @@
 import os
 import sys
 
-#os.chdir(os.path.dirname(os.path.join(os.path.dirname(os.path.abspath(__file__)), "kipartman")))
+os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "kipartman-qt"))
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "kipartman-qt"))
-#print(os.path.join(os.path.dirname(os.path.abspath(__file__)), "kipartman"))
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "database.config.settings")

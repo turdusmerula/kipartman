@@ -14,7 +14,7 @@ class ValidationError(object):
     def __init__(self, message):
         self.message = message
     
-    
+
 class TreeColumn(object):
     def __init__(self, header=None, type=str):
         self.header = header
@@ -701,7 +701,7 @@ class QTreeViewData(QTreeView):
             return self.model().index_from_node(self.model().rootNode)
         return index
     
-    def editNew(self, parent: QModelIndex=None, data=None, column: int=0):
+    def editNew(self, parent: QModelIndex=None, column: int=0, *args, **kwargs):
         """ Add a new element in edit mode on the first line of parent """
         # cancel any previous action state
         self.cancel()
@@ -715,7 +715,7 @@ class QTreeViewData(QTreeView):
         else:
             parent_node = self.model().rootNode
         
-        node = self.model().CreateEditNode(parent_node, data)
+        node = self.model().CreateEditNode(parent_node, *args, **kwargs)
         if node is None:
             return 
         
