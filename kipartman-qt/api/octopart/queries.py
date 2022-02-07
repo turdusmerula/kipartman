@@ -373,7 +373,7 @@ class OctopartPartQuery(GraphQLClient):
         #     tab=tab)
         pass
         
-    def search(self, name):
+    def Search(self, name):
         query = """
             query PartSearch {
               search(q: "$name") {
@@ -395,4 +395,27 @@ class OctopartPartQuery(GraphQLClient):
         print(query)
         data = json.loads(self.send(query))
         print(yaml.dump(data))
-        
+
+    def SearchMpn(self, name, start=0, limit=1):
+        # filters: {resistance: 10000}
+        query = """
+            query PartSearch {
+              search_mpn(q: "$name", start: $start, limit: $limit) {
+                hits
+                results {
+                  _cache_id
+                  
+                  $Part
+            
+                  explain
+                  aka_mpn
+                  description
+                }
+              }
+            }        
+        """
+
+        query = Template(query).substitute(name=name, Part=self.Part_to_query(), start=start, limit=limit)
+        print(query)
+        data = json.loads(self.send(query))
+        print(yaml.dump(data))

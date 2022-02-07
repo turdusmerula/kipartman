@@ -36,6 +36,13 @@ class CommandDeleteParameters(CommandDeleteDatabaseObjects):
         super(CommandDeleteParameters, self).__init__(objects=objects,
                                             description=description)
 
+class ParameterColumn():
+    SHOW = 0
+    NAME = 1
+    UNIT = 2
+    VALUE_TYPE = 3
+    DESCRIPTION = 4
+
     
 class ParameterNode(Node):
     def __init__(self, parameter):
@@ -43,32 +50,41 @@ class ParameterNode(Node):
         self.parameter = parameter
 
     def GetValue(self, column):
-        if column==0:
-            if self.parameter.name is not None:
-                return self.parameter.name[0]
-            return ""
-        elif column==1:
+        # if column==ParameterColumn.SHOW:
+        #     return self.parameter.show
+        if column==ParameterColumn.NAME:
+            return self.parameter.name
+        elif column==ParameterColumn.UNIT:
             return self.parameter.unit
-        elif column==2:
+        elif column==ParameterColumn.VALUE_TYPE:
             return self.parameter.value_type
-        elif column==3:
+        elif column==ParameterColumn.NAME:
             return self.parameter.description
         return None
 
     def GetEditValue(self, column):
-        if column==0:
-            # when editing name field we send full alias list
-            if self.parameter.name is None:
-                return []
-            return self.parameter.name
         return self.GetValue(column)
+
+    def GetFlags(self, column, flags):
+        if column==ParameterColumn.SHOW:
+            return flags | Qt.ItemFlag.ItemIsUserCheckable
+        return flags
+
+    def GetCheckState(self, column):
+        if column==ParameterColumn.SHOW:
+            if self.parameter.show:
+                return Qt.CheckState.Checked
+            else:
+                return Qt.CheckState.Unchecked
+        return None
 
     def SetValue(self, column, value):
         field = {
-            0: "name",
-            1: "unit",
-            2: "value_type",
-            3: "description"
+            ParameterColumn.SHOW: "show",
+            ParameterColumn.NAME: "name",
+            ParameterColumn.UNIT: "unit",
+            ParameterColumn.VALUE_TYPE: "value_type",
+            ParameterColumn.DESCRIPTION: "description"
         }
         if self.parameter.id is None:
             # item has not yet be commited at this point and have no id
@@ -84,12 +100,23 @@ class ParameterNode(Node):
                 return True
         return False
 
+    def SetCheckState(self, column, value):
+        if column==ParameterColumn.SHOW:
+            if Qt.CheckState(value)==Qt.CheckState.Checked:
+                show = True
+            else:
+                show = False
+            if show!=self.parameter.show:
+                commands.Do(CommandUpateParameter, parameter=self.parameter, field='show', value=show)
+                return True                
+        return False
+
     def Validate(self, column, value):
-        if column==0:
-            if len(value)==0:
-                return ValidationError("Name missing")
-            # TODO check duplicates in database
-        elif column==1:
+        print("ParameterNode.Validate", column, value, self)
+        if column==ParameterColumn.NAME:
+            if value!=self.parameter.name and len(database.models.Parameter.objects.filter(name=value).all())>0:
+                return ValidationError(f"Parameter '{value}' already exists")
+        elif column==ParameterColumn.UNIT:
             try:
                 ureg.parse_expression(value)
             except Exception as e:
@@ -100,6 +127,7 @@ class ParameterModel(TreeModel):
     def __init__(self):
         super(ParameterModel, self).__init__()
 
+        self.InsertColumn(TreeColumn("Show"))
         self.InsertColumn(TreeColumn("Name"))
         self.InsertColumn(TreeColumn("Unit"))
         self.InsertColumn(TreeColumn("Value type"))
@@ -162,7 +190,7 @@ class ParameterModel(TreeModel):
         del self.id_to_parameter_node[parameter.id]
         self.RemoveNode(node)
 
-    def CreateEditNode(self, parent, data):
+    def CreateEditNode(self, parent):
         return ParameterNode(Parameter(value_type='float'))
 
 class QParameterTreeView(QTreeViewData):

@@ -61,7 +61,8 @@ def main(args=None):
 
     # set django configuration
     migrate()
-
+    
+    from PyQt6.QtWebEngineWidgets import QWebEngineView # unused here but must be imported before QtCore
     from PyQt6.QtCore import QDir
     from PyQt6.QtWidgets import QApplication
     from ui.main_window import MainWindow

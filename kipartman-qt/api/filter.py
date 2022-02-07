@@ -77,5 +77,5 @@ class FilterSet(QObject):
 class FilterRequest(Filter):
     """ Base class for filters that applies on django requests """
     
-    def __init__(self, name, description):
+    def __init__(self, name="", description=""):
         super(FilterRequest, self).__init__(name, description)

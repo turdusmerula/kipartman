@@ -136,6 +136,10 @@ class Node(object):
         """ Overload to set values """
         return False
 
+    def SetCheckState(self, column, value):
+        """ Overload to set check state """
+        return False
+
     def GetFlags(self, column, flags):
         """ Overload to provide custom flags """
         return flags
@@ -189,7 +193,10 @@ class TreeModel(QAbstractItemModel):
 
         # fetch can be called during remove phase but it's not okay as id maps are not yet consistents
         self._prevent_fetch = False
-
+        
+        # setData can be called by beginRemoveRows which is not okay as it breaks the workflow ow insertEditNode
+        self._prevent_setData = False
+        
         # value to pass when in reedition mode
         self._edit_index = None
         self._edit_value = None
@@ -375,19 +382,28 @@ class TreeModel(QAbstractItemModel):
             return len(self.rootNode)
         
     def setData(self, index, value, role=Qt.ItemDataRole.EditRole):
+        if self._prevent_setData==True:
+            return False
+        
         # print("setData", index.row(), index.column(), value, role)
-        if index.isValid() and role==Qt.ItemDataRole.EditRole:
+        if index.isValid():
             node = self.id_to_node[index.internalId()]
-            valid = self.Validate(node, index.column(), value)
-            if valid is not None:
-                # invalid value, put it in cache and notify error
-                self._edit_index = index
-                self._edit_value = value
-                self.dataError.emit(valid)
-                return False
-            elif self.SetValue(node, index.column(), value):
-                self.dataChanged.emit(index, index, [role])
-                return True
+            
+            if role==Qt.ItemDataRole.EditRole:
+                valid = self.Validate(node, index.column(), value)
+                if valid is not None:
+                    # invalid value, put it in cache and notify error
+                    self._edit_index = index
+                    self._edit_value = value
+                    self.dataError.emit(valid)
+                    return False
+                elif self.SetValue(node, index.column(), value):
+                    self.dataChanged.emit(index, index, [role])
+                    return True
+            elif role==Qt.ItemDataRole.CheckStateRole:
+                if self.SetCheckState(node, index.column(), value):
+                    self.dataChanged.emit(index, index, [role])
+                    return True
             return False
         return False
 
@@ -506,11 +522,14 @@ class TreeModel(QAbstractItemModel):
             row = parent.row_from_child(node)
             index = self.index_from_node(node) #self.createIndex(row, 0, node)
             
+            # we don't want setData to be called during remove
+            self._prevent_setData = True
             self.beginRemoveRows(parent_index, row, row)
             parent.remove_child(node)
             del self.id_to_node[index.internalId()]
             del self.node_to_id[node]
             self.endRemoveRows()
+            self._prevent_setData = False
 
         while len(nodes)>0:
             node = nodes.pop(0)
@@ -594,6 +613,10 @@ class TreeModel(QAbstractItemModel):
         """ Overload here or inside Node to set value """
         return node.SetValue(column, value)
     
+    def SetCheckState(self, node, column, value):
+        """ Overload here or inside Node to set check state """
+        return node.SetCheckState(column, value)
+
     def GetFlags(self, node, column, flags):
         """ Overload here or inside Node to provide custom flags """
         return node.GetFlags(column, flags)
@@ -864,9 +887,8 @@ class QTreeViewData(QTreeView):
             else:
                 self.model().ClearEditCache()
                 return super(QTreeViewData, self).closeEditor(editor, hint)
+        # elif hint==EndEditHint.RevertModelCache:
         else:
-            self.edition_error = None
-            self.model().ClearEditCache()
             if self.action_state==QTreeViewData.ActionState.EditNew:
                 # event comes from a element inserted by InsertEditNode
                 node = self.model().node_from_id(self.edit_index.internalId())
@@ -876,5 +898,7 @@ class QTreeViewData(QTreeView):
                 self.setCurrentIndex(self.rootIndex())
                 self.action_state = QTreeViewData.ActionState.Default
                 self.setFocus()
+            self.edition_error = None
+            self.model().ClearEditCache()
             return super(QTreeViewData, self).closeEditor(editor, hint)
  

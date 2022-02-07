@@ -82,6 +82,10 @@ class OctopartModel(TreeModel):
         self.loaded = False
         self.request = None
     
+    def SetRequest(self, request):
+        self.request = request
+        self.Clear()
+
     def CanFetchMore(self, parent):
         return self.loaded==False
 

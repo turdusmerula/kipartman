@@ -10,6 +10,9 @@ class ModelException(Exception):
     def __init__(self, error):
         super(ModelException, self).__init__(error)
 
+class Provider(models.TextChoices):
+    OCTOPART = "octopart"
+
 class PartValueField(models.TextField):
     description = _("Value field for parts")
 
@@ -131,7 +134,6 @@ class Part(models.Model):
     #manufacturers is defined inside PartManufacturer by ForeignKey part
     #storages is defined inside PartStorage by ForeignKey part
     #attachements: is defined inside PartAttachement by ForeignKey part
-    #references: is defined inside PartReference by ForeignKey part
 
     # kicad fields
     footprint = models.ForeignKey('KicadFootprint', related_name='new_footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
@@ -139,6 +141,7 @@ class Part(models.Model):
     value = PartValueField(blank=True, default="{name}")
     
     # provider fields
+    provider = models.TextField(null=True, choices=Provider.choices, default=None)
     uid = models.TextField(blank=True, null=True)
 
     updated = models.DateTimeField(auto_now=True)
@@ -152,14 +155,18 @@ class ParameterType(models.TextChoices):
     TEXT = "text"
     BOOLEAN = "boolean"
     LIST = "list"
-    
+
 class Parameter(models.Model):
-    name = models.JSONField()
+    name = models.TextField(unique=True, blank=False, null=False)
     description = models.TextField(blank=True)
     unit = models.TextField(null=True)
     value_type = models.TextField(choices=ParameterType.choices, default=ParameterType.FLOAT)
+    values = models.TextField(null=True)
+    show = models.BooleanField(null=False, default=False)
+
     updated = models.DateTimeField(auto_now=True)
 
+    
 class ParameterOperator(models.TextChoices):
     EQ = "="
     NE = "!="
@@ -167,11 +174,13 @@ class ParameterOperator(models.TextChoices):
     GE = ">="
     MT = "<"
     ME = "<="
+    RANGE = "x, y"
+    LIST = "x, y, z"
 #    FUNC = "f="
 
 class PartParameter(models.Model):
     part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)
-    parameter = models.ForeignKey('Parameter', related_name='parameter', on_delete=models.DO_NOTHING, null=False, blank=False)
+    parameter = models.ForeignKey('Parameter', related_name='part_parameters', on_delete=models.DO_NOTHING, null=False, blank=False)
     unit = models.TextField(null=True)
 
     int_value = models.IntegerField(null=True)
@@ -390,4 +399,14 @@ class Currency(models.Model):
 
     def __unicode__(self):
         return '%d: %s' % (self.id, self.name)
-    
+
+
+class RequestCache(models.Model):
+    name = models.TextField()
+    request = models.TextField()
+    result = models.TextField()
+
+    updated = models.DateTimeField(auto_now=True)
+
+    def __repr__(self):
+        return f"{self.id}: {self.name}"

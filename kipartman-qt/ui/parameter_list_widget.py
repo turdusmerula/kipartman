@@ -2,14 +2,13 @@ from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
 from PyQt6.QtCore import QEvent, pyqtSignal
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
-from PyQt6.QtWidgets import QAbstractItemView
+from PyQt6.QtWidgets import QAbstractItemView, QMessageBox
 
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObject, commands
-from api.data.parameter import ParameterModel, ParameterNode, CommandDeleteParameters, CommandAddParameter
+from api.data.parameter import ParameterColumn, ParameterModel, ParameterNode, CommandDeleteParameters, CommandAddParameter
 from api.event import events
 from database.models import Parameter
-from helper.dialog import ShowErrorDialog
-from ui.combobox_alias_delegate import ComboboxAliasDelegate
+from helper.dialog import ShowDialog
 from ui.unit_delegate import QUnitDelegate
 from ui.combobox_delegate import QComboboxDelegate
 
@@ -25,14 +24,11 @@ class QParameterListWidget(QtWidgets.QWidget):
         self.treeView.setModel(self.model)
         self.treeView.selectionModel().selectionChanged.connect(self.update_menus)
 
-        self.nameAliasDelegate = ComboboxAliasDelegate(self.model)
-        self.treeView.setItemDelegateForColumn(0, self.nameAliasDelegate) 
-
         self.unitDelegate = QUnitDelegate(self.model)
-        self.treeView.setItemDelegateForColumn(1, self.unitDelegate) 
+        self.treeView.setItemDelegateForColumn(ParameterColumn.UNIT, self.unitDelegate) 
 
         self.valueTypeDelegate = QComboboxDelegate(self.model, ["float", "integer", "text"])
-        self.treeView.setItemDelegateForColumn(2, self.valueTypeDelegate) 
+        self.treeView.setItemDelegateForColumn(ParameterColumn.VALUE_TYPE, self.valueTypeDelegate) 
 
         events.focusChanged.connect(self.update_menus)
 
@@ -81,25 +77,22 @@ class QParameterListWidget(QtWidgets.QWidget):
 
     def actionParameterAddTriggered(self):
         # add a new element in edit mode
-        self.treeView.editNew(parent=self.treeView.rootIndex())
+        self.treeView.editNew(parent=self.treeView.rootIndex(), column=ParameterColumn.NAME)
         
     def actionParameterDeleteTriggered(self):
-        # nodes = []
-        # for index in self.treeView.selectionModel().selectedRows():
-        #     node = self.treeView.model().node_from_id(index.internalId())
-        #     if isinstance(node, PartCategoryNode) and node.part_category is not None:
-        #         if node.part_category.has_dependencies()==True:
-        #             ShowErrorDialog("Remove failed", f"Part category '{node.part_category.name}' not empy")
-        #             return
-        #         if node not in nodes:
-        #             nodes.append(node.part_category)
-        # if len(nodes)>0:
-        #     commands.Do(CommandDeletePartCategories, part_categories=nodes)
-        #     self.treeView.selectionModel().clearSelection()
-        #     commands.LastUndo.done.connect(
-        #         lambda treeView=self.treeView: 
-        #             treeView.selectionModel().clearSelection()
-        #     )
-        # else:
-        #     ShowWarningDialog("Remove failed", "No part category to remove")
-        pass
+        nodes = []
+        for index in self.treeView.selectionModel().selectedRows():
+            node = self.treeView.model().node_from_id(index.internalId())
+            if isinstance(node, ParameterNode):
+                count = len(node.parameter.part_parameters.all())
+                if count>0:
+                    res = ShowDialog("Remove confirmation", f"Parameter {node.parameter.name} used by {count} part{'s' if count>1 else ''}, remove anyway?", icon=QMessageBox.Icon.Question, buttons=QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                    if res==QMessageBox.StandardButton.Yes:
+                        nodes.append(node.parameter)
+        if len(nodes)>0:
+            commands.Do(CommandDeleteParameters, parameters=nodes)
+            self.treeView.selectionModel().clearSelection()
+            commands.LastUndo.done.connect(
+                lambda treeView=self.treeView: 
+                    treeView.selectionModel().clearSelection()
+            )

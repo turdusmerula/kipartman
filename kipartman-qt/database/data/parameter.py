@@ -29,10 +29,10 @@ from django.db.models import Q
 #     def __str__(self):
 #         return f"search: {self.text}"
 #
-# class FilterName(Filter):
+# class FilterName(FilterRequest):
 #     def __init__(self, name):
-#         self.name = name
 #         super(FilterName, self).__init__()
+#         self.name = name
 #
 #     def apply(self, request):
 #         return request.filter(name=self.name)

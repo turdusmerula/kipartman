@@ -102,9 +102,9 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def loadWindowSettings(self, name):
         settings = QSettings("Kipartman", name)
-        if settings.value("geometry") is not None:
-            saved_geometry = settings.value("geometry")
-            self.restoreGeometry(saved_geometry)
+        # if settings.value("geometry") is not None:
+        #     saved_geometry = settings.value("geometry")
+        #     self.restoreGeometry(saved_geometry)
         if settings.value("windowState") is not None:
             saved_state = settings.value("windowState")
             self.restoreState(saved_state)

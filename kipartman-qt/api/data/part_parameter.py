@@ -225,7 +225,7 @@ class PartParameterModel(TreeModel):
         del self.id_to_part_parameter_node[part_parameter.id]
         self.RemoveNode(node)
 
-    def CreateEditNode(self, parent, data):
+    def CreateEditNode(self, parent):
         return PartParameterNode(PartParameter(part=self.part))
 
     def Clear(self):

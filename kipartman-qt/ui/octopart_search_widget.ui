@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>826</width>
-    <height>273</height>
+    <height>358</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,13 +70,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QLabel" name="labelQuota">
-           <property name="text">
-            <string>Quota: 1000</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
@@ -86,6 +79,16 @@
    <item>
     <widget class="QOctopartTreeView" name="treeView"/>
    </item>
+   <item>
+    <widget class="QWebEngineView" name="webEngineView" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>200</height>
+      </size>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -93,6 +96,12 @@
    <class>QOctopartTreeView</class>
    <extends>QTreeView</extends>
    <header>api.data.octopart</header>
+  </customwidget>
+  <customwidget>
+   <class>QWebEngineView</class>
+   <extends>QWidget</extends>
+   <header>ui.webview_widget.py</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

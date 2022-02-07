@@ -1,6 +1,6 @@
 from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
-from PyQt6.QtCore import QEvent, pyqtSignal
+from PyQt6.QtCore import QEvent, pyqtSignal, QUrl
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
 from PyQt6.QtWidgets import QAbstractItemView, QFrame
 
@@ -40,4 +40,5 @@ class QOctopartSearchWidget(QActionFrame):
     def toolButtonSearchClicked(self, action):
         print("search")
         
-    
+        self.webEngineView.load(QUrl("https://octopart.com/search?currency=EUR&q=resistor&specs=1&case_package=0603&tolerance=%28__0.1%29&sort=median_price_1000&sort-dir=asc&distributor_id=2401&distributor_id=459&distributor_id=819&resistance=%28100__100%29"))
+        

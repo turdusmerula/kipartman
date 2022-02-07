@@ -43,6 +43,9 @@ class PartsWindow(QChildWindow):
         self.partList.SetFilters(self.filters)
         self.partList.selectionChanged.connect(self.partListSelectionChanged)
 
+        self.parts = []
+        self.part_categories = []
+        
         self.update_menus()
         self.activated()
 
@@ -50,7 +53,21 @@ class PartsWindow(QChildWindow):
         pass
         
     def update_menus(self):
-        pass
+        from ui.main_window import main_window
+
+        if len(self.parts)>0:
+            main_window.actionPartDelete.setEnabled(True)
+        else:
+            main_window.actionPartDelete.setEnabled(False)
+
+        if len(self.part_categories)>1:
+            main_window.actionPartAddPart.setEnabled(False)
+            main_window.actionPartAddMetapart.setEnabled(False)
+            main_window.actionPartImportOctopart.setEnabled(False)
+        else:
+            main_window.actionPartAddPart.setEnabled(True)
+            main_window.actionPartAddMetapart.setEnabled(True)
+            main_window.actionPartImportOctopart.setEnabled(True)
 
     def activated(self):
         print("PartsWindow.activated")
@@ -66,8 +83,7 @@ class PartsWindow(QChildWindow):
         #  restore geometry
         main_window.loadWindowSettings("parts")
 
-        self.partCategorySelectionChanged(self.partCategoryList.SelectedCategories())
-        self.partListSelectionChanged(self.partList.SelectedParts())
+        self.update_menus()
 
     def deactivated(self):
         print("PartsWindow.deactivated")
@@ -89,20 +105,15 @@ class PartsWindow(QChildWindow):
 
     def partCategorySelectionChanged(self, part_categories):
         from ui.main_window import main_window
-
+        
+        self.part_categories = part_categories
+        
         if len(part_categories)>0:
             self.category_filter_group.Append(FilterPartCategories(part_categories, main_window.actionSelectChildMode.isChecked()))
         else:
             self.category_filter_group.Clear()
         
-        if len(part_categories)>1:
-            main_window.actionPartAddPart.setEnabled(False)
-            main_window.actionPartAddMetapart.setEnabled(False)
-            main_window.actionPartImportOctopart.setEnabled(False)
-        else:
-            main_window.actionPartAddPart.setEnabled(True)
-            main_window.actionPartAddMetapart.setEnabled(True)
-            main_window.actionPartImportOctopart.setEnabled(True)
+        self.update_menus()
             
     def filterChanged(self):
         if self.category_filter_group.IsEmpty():
@@ -111,16 +122,12 @@ class PartsWindow(QChildWindow):
         self.partList.update()
 
     def partListSelectionChanged(self, parts):
+        self.parts = parts
+
         if len(parts)==1:
             self.partParameterList.SetPart(parts[0])
         else:
             self.partParameterList.SetPart(None)
             # node = self.treeView.model().node_from_index(self.treeView.selectionModel().selectedRows()[0])
             # self.validated.emit(node.parameter)
-        
-        from ui.main_window import main_window
-        if len(parts)>0:
-            main_window.actionPartDelete.setEnabled(True)
-        else:
-            main_window.actionPartDelete.setEnabled(False)
-            
+                    
