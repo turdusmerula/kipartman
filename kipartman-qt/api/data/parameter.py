@@ -8,12 +8,12 @@ from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, Co
 from api.event import events
 from api.unit import ureg
 import database.data.parameter
-from database.models import Parameter
+from database.models import Parameter, ParameterType
 from enum import Enum
 
 class CommandUpateParameter(CommandUpdateDatabaseField):
-    def __init__(self, parameter, field, value):
-        super(CommandUpateParameter, self).__init__(object=parameter, field=field, value=value,
+    def __init__(self, parameter, field, value, other_fields):
+        super(CommandUpateParameter, self).__init__(object=parameter, field=field, value=value, other_fields=other_fields,
                                             description=f"change parameter {field} to '{value}'")
 
 class CommandAddParameter(CommandAddDatabaseObject):
@@ -50,8 +50,6 @@ class ParameterNode(Node):
         self.parameter = parameter
 
     def GetValue(self, column):
-        # if column==ParameterColumn.SHOW:
-        #     return self.parameter.show
         if column==ParameterColumn.NAME:
             return self.parameter.name
         elif column==ParameterColumn.UNIT:
@@ -68,6 +66,10 @@ class ParameterNode(Node):
     def GetFlags(self, column, flags):
         if column==ParameterColumn.SHOW:
             return flags | Qt.ItemFlag.ItemIsUserCheckable
+        elif column==ParameterColumn.UNIT:
+            if self.parameter.value_type not in [ParameterType.INTEGER, ParameterType.FLOAT]:
+                return flags & ~Qt.ItemFlag.ItemIsEditable
+
         return flags
 
     def GetCheckState(self, column):
@@ -86,6 +88,20 @@ class ParameterNode(Node):
             ParameterColumn.VALUE_TYPE: "value_type",
             ParameterColumn.DESCRIPTION: "description"
         }
+        
+        other_fields = {}
+        
+        if column==ParameterColumn.UNIT:
+            if value!="" and value is not None:
+                unit = ureg.Quantity(value)
+                if unit.dimensionless:
+                    value = None
+                else:
+                    value = unit.u
+        elif column==ParameterColumn.VALUE_TYPE:
+            if value not in [ParameterType.INTEGER, ParameterType.FLOAT]:
+                other_fields['unit'] = None
+        
         if self.parameter.id is None:
             # item has not yet be commited at this point and have no id
             # set edited field value
@@ -96,7 +112,7 @@ class ParameterNode(Node):
             return True
         else:
             if column in field and getattr(self.parameter, field[column])!=value:
-                commands.Do(CommandUpateParameter, parameter=self.parameter, field=field[column], value=value)
+                commands.Do(CommandUpateParameter, parameter=self.parameter, field=field[column], value=value, other_fields=other_fields)
                 return True
         return False
 
@@ -112,7 +128,6 @@ class ParameterNode(Node):
         return False
 
     def Validate(self, column, value):
-        print("ParameterNode.Validate", column, value, self)
         if column==ParameterColumn.NAME:
             if value!=self.parameter.name and len(database.models.Parameter.objects.filter(name=value).all())>0:
                 return ValidationError(f"Parameter '{value}' already exists")

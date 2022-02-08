@@ -177,7 +177,7 @@ class FilterPartCategories(FilterRequest):
 
 def _add_default_annotations(request):
     # add the field child_count in request result 
-    request = request.select_related('category', 'footprint', 'symbol') # preload for performance
+    request = request.select_related('category') # preload for performance
     return request
 
 def find(filters=None):

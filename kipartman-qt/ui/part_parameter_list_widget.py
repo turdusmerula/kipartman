@@ -1,10 +1,8 @@
 from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
 
-from api.data.part_parameter import PartParameterModel
+from api.data.part_parameter import PartParameterColumn, PartParameterModel
 from api.event import events
-from ui.parameter_select_delegate import QParameterSelectDelegate
-from ui.unit_delegate import QUnitDelegate
 
 class QPartParameterListWidget(QtWidgets.QWidget):
 
@@ -15,12 +13,6 @@ class QPartParameterListWidget(QtWidgets.QWidget):
         self.model = PartParameterModel()
         self.treeView.setModel(self.model)
         self.treeView.selectionModel().selectionChanged.connect(self.update_menus)
-
-        self.parameterSelectDelegate = QParameterSelectDelegate(self.model)
-        self.treeView.setItemDelegateForColumn(0, self.parameterSelectDelegate) 
-
-        self.unitDelegate = QUnitDelegate(self.model)
-        self.treeView.setItemDelegateForColumn(2, self.unitDelegate) 
 
         events.focusChanged.connect(self.update_menus)
 

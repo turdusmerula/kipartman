@@ -1,3 +1,5 @@
+from api.unit import ureg
+
 import copy
 from django.db import models
 import django.utils
@@ -9,6 +11,11 @@ from mptt.models import MPTTModel, TreeForeignKey
 class ModelException(Exception):
     def __init__(self, error):
         super(ModelException, self).__init__(error)
+
+class ValueException(Exception):
+    def __init__(self, error):
+        super(ValueException, self).__init__(error)
+
 
 class Provider(models.TextChoices):
     OCTOPART = "octopart"
@@ -136,8 +143,9 @@ class Part(models.Model):
     #attachements: is defined inside PartAttachement by ForeignKey part
 
     # kicad fields
-    footprint = models.ForeignKey('KicadFootprint', related_name='new_footprint', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
-    symbol = models.ForeignKey('KicadSymbol', related_name='symbol', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    footprint = models.TextField(null=True, blank=True)
+    symbol = models.TextField(null=True, blank=True)
+    model3d = models.TextField(null=True, blank=True)
     value = PartValueField(blank=True, default="{name}")
     
     # provider fields
@@ -163,7 +171,7 @@ class Parameter(models.Model):
     value_type = models.TextField(choices=ParameterType.choices, default=ParameterType.FLOAT)
     values = models.TextField(null=True)
     show = models.BooleanField(null=False, default=False)
-
+        
     updated = models.DateTimeField(auto_now=True)
 
     
@@ -180,7 +188,7 @@ class ParameterOperator(models.TextChoices):
 
 class PartParameter(models.Model):
     part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)
-    parameter = models.ForeignKey('Parameter', related_name='part_parameters', on_delete=models.DO_NOTHING, null=False, blank=False)
+    parameter = models.ForeignKey('Parameter', related_name='part_parameters', on_delete=models.CASCADE, null=False, blank=False)
     unit = models.TextField(null=True)
 
     int_value = models.IntegerField(null=True)
@@ -194,6 +202,39 @@ class PartParameter(models.Model):
     
     updated = models.DateTimeField(auto_now=True)
 
+    @property
+    def value_type_field(self):
+        field = {
+            ParameterType.INTEGER: 'int_value',
+            ParameterType.FLOAT: 'float_value',
+            ParameterType.TEXT: 'text_value',
+            ParameterType.BOOLEAN: 'boolean_value',
+            ParameterType.LIST: 'list_value',
+        }
+        if hasattr(self, 'parameter') and self.parameter.value_type in field:
+            return field[self.parameter.value_type]
+        return None
+    
+    @property
+    def display_value(self):
+        # TODO
+        return ""
+    
+    @property
+    def value(self):
+        # TODO
+        return None
+    
+    @value.setter
+    def value(self, value):
+        pass
+    
+    def validate(self, value):
+        if hasattr(self, 'parameter')==False:
+            raise ValueException("No parameter set")
+        if self.parameter in [ParameterType.INTEGER, ParameterType.FLOAT]:
+            pass
+    
     def __unicode__(self):
         if self.id:
             return '%d: %s' % (self.id, self.name)
@@ -288,44 +329,44 @@ class Distributor(models.Model):
         return '%d: %s' % (self.id, self.name)
 
 
-class KicadSymbolLibrary(models.Model):
-    path = models.TextField(blank=True, default='')
-    #symbols is defined inside PartParameter by ForeignKey part
-    mtime_lib = models.FloatField()
-    mtime_dcm = models.FloatField()
-    updated = models.DateTimeField(auto_now=True)
-    
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-
-class KicadSymbol(models.Model):
-    library = models.ForeignKey('KicadSymbolLibrary', related_name='symbols', null=False, blank=False, default=None, on_delete=models.CASCADE)
-    name = models.TextField()
-    content = models.TextField()
-    metadata = models.TextField()
-    updated = models.DateTimeField(auto_now=True)
-    
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-
-
-class KicadFootprintLibrary(models.Model):
-    path = models.TextField(blank=True, default='')
-    #footprints is defined inside PartParameter by ForeignKey part
-    updated = models.DateTimeField(auto_now=True)
-    
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-
-class KicadFootprint(models.Model):
-    library = models.ForeignKey('KicadFootprintLibrary', related_name='footprints', null=False, blank=False, default=None, on_delete=models.CASCADE)
-    name = models.TextField()
-    content = models.TextField()
-    mtime = models.FloatField()
-    updated = models.DateTimeField(auto_now=True)
-    
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
+# class KicadSymbolLibrary(models.Model):
+#     path = models.TextField(blank=True, default='')
+#     #symbols is defined inside PartParameter by ForeignKey part
+#     mtime_lib = models.FloatField()
+#     mtime_dcm = models.FloatField()
+#     updated = models.DateTimeField(auto_now=True)
+#
+#     def __unicode__(self):
+#         return '%d: %s' % (self.id, self.name)
+#
+# class KicadSymbol(models.Model):
+#     library = models.ForeignKey('KicadSymbolLibrary', related_name='symbols', null=False, blank=False, default=None, on_delete=models.CASCADE)
+#     name = models.TextField()
+#     content = models.TextField()
+#     metadata = models.TextField()
+#     updated = models.DateTimeField(auto_now=True)
+#
+#     def __unicode__(self):
+#         return '%d: %s' % (self.id, self.name)
+#
+#
+# class KicadFootprintLibrary(models.Model):
+#     path = models.TextField(blank=True, default='')
+#     #footprints is defined inside PartParameter by ForeignKey part
+#     updated = models.DateTimeField(auto_now=True)
+#
+#     def __unicode__(self):
+#         return '%d: %s' % (self.id, self.name)
+#
+# class KicadFootprint(models.Model):
+#     library = models.ForeignKey('KicadFootprintLibrary', related_name='footprints', null=False, blank=False, default=None, on_delete=models.CASCADE)
+#     name = models.TextField()
+#     content = models.TextField()
+#     mtime = models.FloatField()
+#     updated = models.DateTimeField(auto_now=True)
+#
+#     def __unicode__(self):
+#         return '%d: %s' % (self.id, self.name)
 
 
 class File(models.Model):

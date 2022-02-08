@@ -146,6 +146,33 @@ class CommandUpdateDatabaseField(Command):
             setattr(self.object, field, self.prev_values[field])
         events.objectUpdated.emit(self.object)
 
+class CommandUpdateDatabaseObject(Command):
+    def __init__(self, description, object, fields={}):
+        super(CommandUpdateDatabaseObject, self).__init__(description)
+        self.object = object
+        self.fields = fields
+        
+        self.prev_values = {}
+        for field in self.fields:
+            self.prev_values[field] = getattr(self.object, field)
+
+    def Do(self):
+        self.sid = transaction.savepoint()
+        
+        for field, value in self.fields.items():
+            setattr(self.object, field, value)
+            
+        self.object.save(update_fields=self.fields.keys())
+        events.objectUpdated.emit(self.object)
+        
+    def Undo(self):
+        transaction.savepoint_rollback(self.sid)
+
+        for field, value in self.prev_values.items():
+            setattr(self.object, field, value)
+            
+        events.objectUpdated.emit(self.object)
+
 class CommandAddDatabaseObject(Command):
     def __init__(self, description, object):
         super(CommandAddDatabaseObject, self).__init__(description)
