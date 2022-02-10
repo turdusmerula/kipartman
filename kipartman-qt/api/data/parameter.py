@@ -65,7 +65,7 @@ class ParameterNode(Node):
 
     def GetFlags(self, column, flags):
         if column==ParameterColumn.SHOW:
-            return flags | Qt.ItemFlag.ItemIsUserCheckable
+            return ( flags | Qt.ItemFlag.ItemIsUserCheckable ) & ~Qt.ItemFlag.ItemIsEditable
         elif column==ParameterColumn.UNIT:
             if self.parameter.value_type not in [ParameterType.INTEGER, ParameterType.FLOAT]:
                 return flags & ~Qt.ItemFlag.ItemIsEditable
@@ -123,7 +123,7 @@ class ParameterNode(Node):
             else:
                 show = False
             if show!=self.parameter.show:
-                commands.Do(CommandUpateParameter, parameter=self.parameter, field='show', value=show)
+                commands.Do(CommandUpateParameter, parameter=self.parameter, field='show', value=show, other_fields={})
                 return True                
         return False
 

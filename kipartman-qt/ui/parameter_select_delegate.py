@@ -33,20 +33,20 @@ class QParameterSelectDelegate(QStyledItemDelegate):
         return self.widget
 
     def setEditorData(self, editor, index):
-        value = index.model().data(index, Qt.ItemDataRole.EditRole)
-        if value=="":
-            self.widget.lineEdit.setText("<None>")
+        self.parameter = index.model().data(index, Qt.ItemDataRole.EditRole)
+        if self.parameter is None:
+            self.widget.label.setText("<None>")
         else:
-            self.widget.lineEdit.setText(value)
+            self.widget.label.setText(self.parameter.name)
         
     def setModelData(self, editor, model, index):
         model.setData(index, self.parameter, Qt.ItemDataRole.EditRole)
 
-    def updateEditorGeometry(self, editor, option, index):
-        rect = option.rect
-        rect.setWidth(self.widget.rect().width())
-        rect.setHeight(self.widget.rect().height())
-        editor.setGeometry(rect)
+    # def updateEditorGeometry(self, editor, option, index):
+    #     rect = option.rect
+    #     rect.setWidth(self.widget.rect().width())
+    #     rect.setHeight(self.widget.rect().height())
+    #     editor.setGeometry(rect)
 
     def toolButtonTriggered(self, value):
         dialog = QModalDialog(self.widget, title="Select parameter") 
@@ -57,5 +57,5 @@ class QParameterSelectDelegate(QStyledItemDelegate):
     
     def dialogValidated(self, object):
         self.parameter = object
-        self.widget.lineEdit.setText(self.parameter.name[0])
+        self.widget.label.setText(self.parameter.name)
         

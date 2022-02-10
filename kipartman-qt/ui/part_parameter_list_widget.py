@@ -1,7 +1,7 @@
 from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
 
-from api.data.part_parameter import PartParameterColumn, PartParameterModel
+from api.data.part_parameter import PartParameterColumn, PartParameterModel, PartParameterGroup
 from api.event import events
 
 class QPartParameterListWidget(QtWidgets.QWidget):
@@ -55,7 +55,7 @@ class QPartParameterListWidget(QtWidgets.QWidget):
 
     def SetPart(self, part):
         self.treeView.SetPart(part)
-        self.model.Clear()
+        self.model.Update()
 
     def UnselectAll(self):
         self.treeView.clearSelection()
@@ -64,7 +64,8 @@ class QPartParameterListWidget(QtWidgets.QWidget):
         self.treeView.selectAll(selectChilds=True)
 
     def actionParameterAddTriggered(self):
-        self.treeView.editNew(parent=self.treeView.rootIndex())
+        parent = self.treeView.model().FindPartParameterGroupNode(PartParameterGroup.PARAMETER)
+        self.treeView.editNew(parent=self.treeView.model().index_from_node(parent))
         
     def actionParameterDeleteTriggered(self):
         pass

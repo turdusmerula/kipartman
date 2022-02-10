@@ -836,11 +836,11 @@ class QUnitDelegate(QStyledItemDelegate):
     def setModelData(self, editor, model, index):
         model.setData(index, editor.lineEdit.text(), Qt.ItemDataRole.EditRole)
 
-    def updateEditorGeometry(self, editor, option, index):
-        rect = option.rect
-        rect.setWidth(self.widget.rect().width())
-        rect.setHeight(self.widget.rect().height())
-        editor.setGeometry(rect)
+    # def updateEditorGeometry(self, editor, option, index):
+    #     rect = option.rect
+    #     rect.setWidth(self.widget.rect().width())
+    #     rect.setHeight(self.widget.rect().height())
+    #     editor.setGeometry(rect)
         
     def toolButtonPrefixTriggered(self):
         rect = self.widget.toolButtonPrefix.rect()

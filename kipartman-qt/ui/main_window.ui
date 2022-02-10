@@ -249,7 +249,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionParameterAdd"/>
-   <addaction name="actionMetaParameterAdd"/>
    <addaction name="actionParameterDelete"/>
    <addaction name="separator"/>
    <addaction name="actionStorageAdd"/>

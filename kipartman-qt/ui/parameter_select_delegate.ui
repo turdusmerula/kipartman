@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>148</width>
-    <height>22</height>
+    <width>298</width>
+    <height>17</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,20 +30,38 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLineEdit" name="lineEdit">
-     <property name="readOnly">
+    <widget class="QLabel" name="label">
+     <property name="autoFillBackground">
       <bool>true</bool>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="buddy">
+      <cstring>toolButton</cstring>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QToolButton" name="toolButton">
      <property name="text">
-      <string/>
+      <string>...</string>
      </property>
      <property name="icon">
       <iconset>
        <normaloff>icons/search-48.png</normaloff>icons/search-48.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>10</width>
+       <height>10</height>
+      </size>
      </property>
     </widget>
    </item>

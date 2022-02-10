@@ -2,7 +2,8 @@ from PyQt6.QtCore import Qt, QObject, pyqtSignal, QSize, QVariant
 from PyQt6.QtCore import QRunnable, QThreadPool
 from PyQt6.QtCore import QAbstractItemModel, QModelIndex, QItemSelectionModel
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QColor, QIcon, QFont
-from PyQt6.QtWidgets import QAbstractItemView, QAbstractItemDelegate, QTreeView
+from PyQt6.QtWidgets import QAbstractItemView, QAbstractItemDelegate, QTreeView,\
+    QToolButton
 from PyQt6 import Qt6
 
 from enum import Enum
@@ -132,6 +133,10 @@ class Node(object):
         # return QSize
         return None
 
+    # def GetItemDelegate(self, column):
+    #     """ Overload here to provide an item delegate"""
+    #     return None
+
     def SetValue(self, column, value):
         """ Overload to set values """
         return False
@@ -192,7 +197,7 @@ class TreeModel(QAbstractItemModel):
         self.node_to_id[self.rootNode] = QModelIndex().internalId()
 
         # fetch can be called during remove phase but it's not okay as id maps are not yet consistents
-        self._prevent_fetch = False
+        self._prevent_fetch = 0
         
         # setData can be called by beginRemoveRows which is not okay as it breaks the workflow ow insertEditNode
         self._prevent_setData = False
@@ -201,6 +206,9 @@ class TreeModel(QAbstractItemModel):
         self._edit_index = None
         self._edit_value = None
         
+        # current state for PurgeState
+        self._state = None
+
     # https://coderedirect.com/questions/402089/qtreeview-qabstractitemmodel-insertrow
 
     ### Overloaded from QAbstractItemModel ###
@@ -287,7 +295,7 @@ class TreeModel(QAbstractItemModel):
     # def dropMimeData (data, action, row, column, parent)
 
     def fetchMore(self, parent):
-        if self._prevent_fetch:
+        if self._prevent_fetch>0:
             return 
         self.Fetch(self.node_from_id(parent.internalId()))
         
@@ -487,7 +495,7 @@ class TreeModel(QAbstractItemModel):
         self.InsertNodes([node], pos, parent)
 
     def RemoveNodes(self, nodes):
-        self._prevent_fetch = True
+        self._prevent_fetch += 1
         self.layoutAboutToBeChanged.emit() #parents=[self.index_from_node(parent)])
 
         def is_leaf_node(node):
@@ -510,7 +518,11 @@ class TreeModel(QAbstractItemModel):
                     index = self.index_from_node(child)
                     del self.id_to_node[index.internalId()]
                     del self.node_to_id[child]
-            
+                    
+                    # update internal PurgeState state
+                    if self._state is not None and child in self._state:
+                        self._state.remove(child)
+                        
             index = self.index_from_node(node)
             self.beginRemoveRows(index, 0, len(node.childs)-1)
             node.clear()
@@ -529,6 +541,9 @@ class TreeModel(QAbstractItemModel):
             del self.id_to_node[index.internalId()]
             del self.node_to_id[node]
             self.endRemoveRows()
+            # update internal PurgeState state
+            if self._state is not None and node in self._state:
+                self._state.remove(node)
             self._prevent_setData = False
 
         while len(nodes)>0:
@@ -545,7 +560,7 @@ class TreeModel(QAbstractItemModel):
                             nodes.insert(child, 0)
                     nodes.append(node)
 
-        self._prevent_fetch = False
+        self._prevent_fetch -= 1
         
         self.layoutChanged.emit()
 
@@ -560,6 +575,16 @@ class TreeModel(QAbstractItemModel):
             self.columns.insert(pos, column)
         # self.layoutChanged(parents, hint)
     
+    def UpdateNode(self, node):
+        self.UpdateNodes([node])
+    
+    def UpdateNodes(self, nodes):
+        for node in nodes:
+            self.dataChanged.emit(self.index_from_node(node, 0), self.index_from_node(node, len(self.columns)))
+            # update internal PurgeState state
+            if self._state is not None and node in self._state:
+                self._state.remove(node)
+            
     def CanFetchMore(self, parent):
         """ Called each time user scrolls out of tree, overload to indicate if there is more data"""
         return False
@@ -608,6 +633,10 @@ class TreeModel(QAbstractItemModel):
     def GetSizeHint(self, node, column):
         """ Overload here or inside Node to provide size hint"""
         return node.GetSizeHint(column)
+
+    # def GetItemDelegate(self, node, column):
+    #     """ Overload here or inside Node to provide a item delegate"""
+    #     return node.GetItemDelegate(column)
 
     def SetValue(self, node, column, value):
         """ Overload here or inside Node to set value """
@@ -661,7 +690,43 @@ class TreeModel(QAbstractItemModel):
     def ClearEditCache(self):
         self._edit_index = None
         self._edit_value = None
+    
+    def SaveState(self):
+        """ Backup objects state """
+        self._state = [node for node in self.node_to_id]
+        self._state.remove(self.rootNode)
+
+    def PurgeState(self, remove_empty_parent=True):
+        """ Remove from data every elements from state """
         
+        self._prevent_fetch += 1
+        
+        # split list in container and non container elements
+        non_container = []
+        container = []
+        for node in self._state:
+            if Node is not None:
+                if node.HasChildren():
+                    container.append(node)
+                else:
+                    non_container.append(node)
+        
+        # remove non container elements first to avoid removing parent before its childs
+        while len(non_container)>0:
+            node = non_container.pop()
+            self.RemoveNode(node)
+
+        while len(container)>0:
+            # only remove container with empty childs
+            # implement pseudo recursively to remove childs first
+            for node in container:
+                if node.HasChildren()==False:
+                    self.RemoveNode(node)
+                    container.remove(node)
+
+        self._state = None
+        self._prevent_fetch -= 1
+
     def debug(self):
         print("id_to_node:")
         for id in self.id_to_node:
@@ -718,6 +783,10 @@ class QTreeViewData(QTreeView):
         self.commitData(editor)
         self.closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint)
     
+    def currentChanged(self, current, previous):
+        print("QTreeViewData.currentChanged", current.row(), current.column(), type(self.indexWidget(current)))
+        pass
+    
     def currentIndex(self):
         index = super(QTreeViewData, self).currentIndex()
         if index.internalId() not in self.model().id_to_node:
@@ -726,15 +795,16 @@ class QTreeViewData(QTreeView):
     
     def editNew(self, parent: QModelIndex=None, column: int=0, *args, **kwargs):
         """ Add a new element in edit mode on the first line of parent """
+        """ *args and **kwarg are passed to CreateEditNode"""
+        
         # cancel any previous action state
         self.cancel()
-    
-        # self.closeEditors()
-        # self.submitted()  # nasty hack but it is called too late if sent from model
         
         if parent is None:
             parent_index = self.currentIndex()
             parent_node = self.model().node_from_id(parent_index.internalId())
+        elif parent is not None:
+            parent_node = self.model().node_from_id(parent.internalId())
         else:
             parent_node = self.model().rootNode
         
@@ -855,7 +925,7 @@ class QTreeViewData(QTreeView):
 
     def closeEditor(self, editor, hint):
         print("closeEditor", editor, hint)
-        # hint==QAbstractItemDelegate.EndEditHint.NoHint
+
         if hint==QAbstractItemDelegate.EndEditHint.NoHint or hint==QAbstractItemDelegate.EndEditHint.SubmitModelCache:
             if self.edition_error is not None:
                 if self.has_message_box==False:

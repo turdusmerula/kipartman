@@ -10,20 +10,25 @@ from api.unit import ureg
 import database.data.parameter
 from database.models import Parameter
 
+class Column():
+    NAME = 0
+    UNIT = 1
+    VALUE_TYPE = 2
+    DESCRIPTION = 3
+
 class ParameterNode(Node):
-    def __init__(self, parameter, alias):
+    def __init__(self, parameter):
         super(ParameterNode, self).__init__()
         self.parameter = parameter
-        self.alias = alias
         
     def GetValue(self, column):
-        if column==0:
-            return self.alias
-        elif column==1:
+        if column==Column.NAME:
+            return self.parameter.name
+        elif column==Column.UNIT:
             return self.parameter.unit
-        elif column==2:
+        elif column==Column.VALUE_TYPE:
             return self.parameter.value_type
-        elif column==3:
+        elif column==Column.DESCRIPTION:
             return self.parameter.description
         return None
 
@@ -79,7 +84,7 @@ class ParameterModel(TreeModel):
         return None
 
     def AddParameter(self, parameter, pos=None):
-        node = ParameterNode(parameter, parameter.name[0])
+        node = ParameterNode(parameter)
         self.InsertNode(node, pos=pos)
         
     def RemoveParameter(self, parameter):

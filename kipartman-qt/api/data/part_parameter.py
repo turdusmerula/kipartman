@@ -52,10 +52,14 @@ class KicadPartParameter():
     SYMBOL = "Symbol"
     MODEL3D = "3D Model"
     VALUE = "Value"
-    
-class HeaderNode(Node):
+
+class PartParameterGroup():
+    KICAD = "Kicad"
+    PARAMETER = "Parameters"
+
+class PartParameterGroupNode(Node):
     def __init__(self, title, parent=None):
-        super(HeaderNode, self).__init__(parent)
+        super(PartParameterGroupNode, self).__init__(parent)
         self.title = title
 
         self.font = QFont()
@@ -129,6 +133,14 @@ class PartParameterNode(Node):
                 return self.part_parameter.parameter.description
             return ""
         return None
+
+    def GetEditValue(self, column):
+        if column==PartParameterColumn.PARAMETER:
+            if hasattr(self.part_parameter, 'parameter'):
+                return self.part_parameter.parameter
+            else:
+                return None
+        return self.GetValue(column)
 
     def SetValue(self, column, value):
         
@@ -209,7 +221,8 @@ class PartParameterModel(TreeModel):
         self.loaded = False        
         self.part = None
 
-        self.AddHeaderNodes()
+        self.group_nodes = [PartParameterGroup.KICAD, PartParameterGroup.PARAMETER]
+        self.kicad_nodes = [KicadPartParameter.FOOTPRINT, KicadPartParameter.MODEL3D, KicadPartParameter.SYMBOL, KicadPartParameter.VALUE]
 
     def SetPart(self, part):
         self.part = part
@@ -222,28 +235,42 @@ class PartParameterModel(TreeModel):
         return not self.loaded
 
     def Fetch(self, parent):
-        # create a state
-        nodes = self.node_to_id.copy()
-        # nodes to keep
-        del nodes[self.rootNode]
+        print("PartParameterModel.Fetch")
+        
+        self.SaveState()
+            
+        # prevent recursive Fetch
+        self.loaded = True
 
         if self.part is not None:
-            self.AddHeaderNodes()
-            self.AddKicadPartParameterNodes()
-            
-            if self.part is not None:
-                for part_parameter in self.part.parameters.all():
-                    part_parameter_node = self.FindPartParameterNode(part_parameter.id)
-                    if part_parameter_node is None:
-                        part_parameter_node = self.AddPartParameter(part_parameter, header=self.parameters_nodes)
-                    else:
-                        # TODO send update model signal
-                        part_parameter_node.part_parameter = part_parameter
-                        del nodes[part_parameter_node]
+            for group in self.group_nodes:
+                group_node = self.FindPartParameterGroupNode(group)
+                if group_node is None:
+                    group_node = PartParameterGroupNode(group)
+                    self.InsertNode(group_node)
+                else:
+                    self.UpdateNode(group_node)
+
+            for kicad_part_parameter in self.kicad_nodes:
+                kicad_part_parameter_node = self.FindKicadPartParameterNode(kicad_part_parameter)
+                if kicad_part_parameter_node is None:
+                    kicad_part_parameter_node = KicadPartParameterNode(part=self.part, kicad_part_parameter=kicad_part_parameter)
+                    self.InsertNode(kicad_part_parameter_node, parent=self.FindPartParameterGroupNode(PartParameterGroup.KICAD))
+                else:
+                    kicad_part_parameter_node.part = self.part
+                    kicad_part_parameter_node.kicad_part_parameter = kicad_part_parameter
+                    self.UpdateNode(kicad_part_parameter_node)
+        
+            for part_parameter in self.part.parameters.all():
+                part_parameter_node = self.FindPartParameterNode(part_parameter.id)
+                if part_parameter_node is None:
+                    part_parameter_node = self.AddPartParameter(part_parameter, header=self.FindPartParameterGroupNode(PartParameterGroup.PARAMETER))
+                else:
+                    part_parameter_node.part_parameter = part_parameter
+                    self.UpdateNode(part_parameter_node)
         
         # remove remaining nodes
-        self.RemoveNodes(list(nodes.keys()))
-        self.loaded = True
+        self.PurgeState()
 
     def Update(self):
         self.loaded = False
@@ -256,41 +283,26 @@ class PartParameterModel(TreeModel):
     def CreateEditNode(self, parent):
         if self.part is None:
             return None
-        return PartParameterNode(PartParameter(part=self.part))
-
-
-    def FindHeaderNode(self, title):
-        for node in self.node_to_id:
-            if isinstance(node, HeaderNode) and node.title==title:
-                return node
+        
+        if self.part.instance==PartInstance.PART:
+            return PartParameterNode(PartParameter(part=self.part, metaparameter=False))
+        elif self.part.instance==PartInstance.METAPART:
+            return PartParameterNode(PartParameter(part=self.part, metaparameter=True))
         return None
 
-    def AddHeaderNodes(self):
-        if self.FindHeaderNode("Kicad") is None:
-            self.kicad_nodes = HeaderNode("Kicad")
-            self.InsertNode(self.kicad_nodes)
-        if self.FindHeaderNode("Parameters") is None:
-            self.parameters_nodes = HeaderNode("Parameters")
-            self.InsertNode(self.parameters_nodes)
 
+    def FindPartParameterGroupNode(self, title):
+        for node in self.node_to_id:
+            if isinstance(node, PartParameterGroupNode) and node.title==title:
+                return node
+        return None
     
     def FindKicadPartParameterNode(self, kicad_part_parameter):
         for node in self.node_to_id:
-            if isinstance(node, KicadPartParameterNode) and node.kicad_part_parameter==kicad_part_parameter and node.part==self.part:
+            if isinstance(node, KicadPartParameterNode) and node.kicad_part_parameter==kicad_part_parameter:
                 return node
         return None
-
-    def AddKicadPartParameterNodes(self):
-        if self.FindKicadPartParameterNode(KicadPartParameter.FOOTPRINT) is None:
-            self.InsertNode(KicadPartParameterNode(part=self.part, kicad_part_parameter=KicadPartParameter.FOOTPRINT), parent=self.kicad_nodes)
-        if self.FindKicadPartParameterNode(KicadPartParameter.MODEL3D) is None:
-            self.InsertNode(KicadPartParameterNode(part=self.part, kicad_part_parameter=KicadPartParameter.MODEL3D), parent=self.kicad_nodes)
-        if self.FindKicadPartParameterNode(KicadPartParameter.SYMBOL) is None:
-            self.InsertNode(KicadPartParameterNode(part=self.part, kicad_part_parameter=KicadPartParameter.SYMBOL), parent=self.kicad_nodes)
-        if self.FindKicadPartParameterNode(KicadPartParameter.VALUE) is None:
-            self.InsertNode(KicadPartParameterNode(part=self.part, kicad_part_parameter=KicadPartParameter.VALUE), parent=self.kicad_nodes)
-    
-    
+        
     def FindPartParameterNode(self, id):
         for node in self.node_to_id:
             if isinstance(node, PartParameterNode) and node.part_parameter.id==id:
@@ -322,18 +334,33 @@ class QPartParameterTreeView(QTreeViewData):
         events.objectAdded.connect(self.objectChanged)
         events.objectDeleted.connect(self.objectChanged)
 
-        self.parameterSelectDelegate = QParameterSelectDelegate(self.model)
-        self.treeView.setItemDelegateForColumn(PartParameterColumn.PARAMETER, self.parameterSelectDelegate) 
-
-        self.unitDelegate = QUnitDelegate(self.model)
-        self.treeView.setItemDelegateForColumn(PartParameterColumn.UNIT, self.unitDelegate) 
 
     def setModel(self, model):
         super(QPartParameterTreeView, self).setModel(model)
         
+        self.parameterSelectDelegate = QParameterSelectDelegate(model)
+        self.setItemDelegateForColumn(PartParameterColumn.PARAMETER, self.parameterSelectDelegate) 
+
+        self.unitDelegate = QUnitDelegate(model)
+        self.setItemDelegateForColumn(PartParameterColumn.UNIT, self.unitDelegate) 
+
         self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)        
 
+        self.setAlternatingRowColors(True)
+        self.setIndentation(0)
+
+    def rowsInserted(self, parent, first, last):
+        if self.isExpanded(parent)==False:
+            self.expand(parent)
+    
+        # span first column for group nodes to make a title line
+        node = self.model().node_from_id(parent.internalId())
+        if isinstance(node, PartParameterGroupNode):
+            parent_index = self.model().index_from_node(node.parent)
+            self.setFirstColumnSpanned(node.parent.row_from_child(node), parent_index, True)
+
     def SetPart(self, part):
+        print("QPartParameterTreeView.SetPart")
         if part is None or part.instance!=PartInstance.METAPART:
             self.setColumnHidden(PartParameterColumn.OPERATOR, True)
         else:
