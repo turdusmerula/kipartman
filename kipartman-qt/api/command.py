@@ -174,12 +174,16 @@ class CommandUpdateDatabaseObject(Command):
         events.objectUpdated.emit(self.object)
 
 class CommandAddDatabaseObject(Command):
-    def __init__(self, description, object):
+    def __init__(self, description, object, fields={}):
         super(CommandAddDatabaseObject, self).__init__(description)
         self.object = object
-
+        self.fields = fields
+        
     def Do(self):
         self.sid = transaction.savepoint()
+
+        for field, value in self.fields.items():
+            setattr(self.object, field, value)
 
         self.object.save()
         events.objectAdded.emit(self.object)

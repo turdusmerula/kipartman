@@ -151,7 +151,6 @@ class MainWindow(QtWidgets.QMainWindow):
         query.search("ATSAMD21G18A-MU")
 
     def mdiAreaSubWindowActivated(self, window):
-        print("++", self.activeWindow)
         self.update_menus()
         if self.activeWindow is not None:
             self.activeWindow.widget().deactivated()

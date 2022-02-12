@@ -13,18 +13,18 @@ from api.event import events
 from api.filter import FilterSet, Filter
 from api.unit import ureg, UnitValue
 from helper.dialog import ShowErrorDialog
-from ui.unit_widget import QUnitWidget
+from ui.unit_range_widget import QUnitRangeWidget
 
-class QUnitDelegate(QStyledItemDelegate):
+class QUnitRangeDelegate(QStyledItemDelegate):
     buttonUnitClicked = pyqtSignal(QModelIndex)
 
     def __init__(self, parent):
-        super(QUnitDelegate, self).__init__(parent)
+        super(QUnitRangeDelegate, self).__init__(parent)
         
         self.widget = None
 
     def createEditor(self, parent, option, index):
-        self.widget = QUnitWidget(parent)
+        self.widget = QUnitRangeWidget(parent)
         return self.widget
 
     def setEditorData(self, editor, index):

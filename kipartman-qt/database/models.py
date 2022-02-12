@@ -161,8 +161,8 @@ class ParameterType(models.TextChoices):
     INTEGER = "integer"
     FLOAT = "float"
     TEXT = "text"
-    BOOLEAN = "boolean"
-    LIST = "list"
+    # BOOLEAN = "boolean"
+    # LIST = "list"
 
 class Parameter(models.Model):
     name = models.TextField(unique=True, blank=False, null=False)
@@ -175,65 +175,65 @@ class Parameter(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     
-class ParameterOperator(models.TextChoices):
+class PartParameterOperator(models.TextChoices):
     EQ = "="
-    NE = "!="
-    GT = ">"
-    GE = ">="
-    MT = "<"
-    ME = "<="
     RANGE = "x, y"
-    LIST = "x, y, z"
-#    FUNC = "f="
+    ANYOF = "x, y, z"
 
 class PartParameter(models.Model):
     part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)
     parameter = models.ForeignKey('Parameter', related_name='part_parameters', on_delete=models.CASCADE, null=False, blank=False)
-    unit = models.TextField(null=True)
-
-    int_value = models.IntegerField(null=True)
-    float_value = models.FloatField(null=True)
-    text_value = models.TextField(null=True, blank=True)
-    boolean_value = models.BooleanField(null=True)
-    list_value = models.JSONField(null=True)
-
     metaparameter = models.BooleanField(null=False, default=False)
-    operator = models.TextField(null=True, choices=ParameterOperator.choices, default=ParameterOperator.EQ)
+
+    operator = models.TextField(null=True, choices=PartParameterOperator.choices, default=None)
+    value = models.JSONField(blank=True, default=dict)
     
     updated = models.DateTimeField(auto_now=True)
 
-    @property
-    def value_type_field(self):
-        field = {
-            ParameterType.INTEGER: 'int_value',
-            ParameterType.FLOAT: 'float_value',
-            ParameterType.TEXT: 'text_value',
-            ParameterType.BOOLEAN: 'boolean_value',
-            ParameterType.LIST: 'list_value',
-        }
-        if hasattr(self, 'parameter') and self.parameter.value_type in field:
-            return field[self.parameter.value_type]
-        return None
+    # @property
+    # def value_type_field(self):
+    #     field = {
+    #         ParameterType.INTEGER: 'int_value',
+    #         ParameterType.FLOAT: 'float_value',
+    #         ParameterType.TEXT: 'text_value',
+    #         ParameterType.BOOLEAN: 'boolean_value',
+    #         ParameterType.LIST: 'list_value',
+    #     }
+    #     if hasattr(self, 'parameter') and self.parameter.value_type in field:
+    #         return field[self.parameter.value_type]
+    #     return None
     
+    def unit_value(self, v):
+        if 'unit' in v:
+            return str(ureg.Quantity(v['value'], v['unit']))
+        elif self.parameter.unit is not None:
+            return str(ureg.Quantity(v['value'], self.parameter.unit))
+        else:
+            return v['value']
+        
     @property
     def display_value(self):
-        # TODO
-        return ""
-    
-    @property
-    def value(self):
-        # TODO
-        return None
-    
-    @value.setter
-    def value(self, value):
-        pass
-    
-    def validate(self, value):
-        if hasattr(self, 'parameter')==False:
-            raise ValueException("No parameter set")
-        if self.parameter in [ParameterType.INTEGER, ParameterType.FLOAT]:
+        if self.metaparameter:
             pass
+        else:
+            if self.parameter.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
+                return self.unit_value(self.value) 
+        return ""
+    #
+    # @property
+    # def value(self):
+    #     # TODO
+    #     return None
+    #
+    # @value.setter
+    # def value(self, value):
+    #     pass
+    #
+    # def validate(self, value):
+    #     if hasattr(self, 'parameter')==False:
+    #         raise ValueException("No parameter set")
+    #     if self.parameter in [ParameterType.INTEGER, ParameterType.FLOAT]:
+    #         pass
     
     def __unicode__(self):
         if self.id:

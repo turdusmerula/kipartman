@@ -4,7 +4,7 @@ from PyQt6.QtCore import QEvent, pyqtSignal
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
 from PyQt6.QtWidgets import QAbstractItemView, QMessageBox
 
-from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObject, commands
+from api.command import commands
 from api.data.parameter import ParameterColumn, ParameterModel, ParameterNode, CommandDeleteParameters, CommandAddParameter
 from api.event import events
 from database.models import Parameter

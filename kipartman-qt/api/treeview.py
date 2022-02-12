@@ -784,8 +784,10 @@ class QTreeViewData(QTreeView):
         self.closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint)
     
     def currentChanged(self, current, previous):
-        print("QTreeViewData.currentChanged", current.row(), current.column(), type(self.indexWidget(current)))
-        pass
+        print("QTreeViewData.currentChanged", current.row(), current.column())
+        delegate = self.getItemDelegate(current)
+        if current!=self.rootIndex() and delegate is not None:
+            self.setItemDelegate(delegate)
     
     def currentIndex(self):
         index = super(QTreeViewData, self).currentIndex()
@@ -971,4 +973,11 @@ class QTreeViewData(QTreeView):
             self.edition_error = None
             self.model().ClearEditCache()
             return super(QTreeViewData, self).closeEditor(editor, hint)
- 
+
+    def getItemDelegate(self, index):
+        print("QTreeViewData.getItemDelegate", self, index.row(), index.column())
+        return None
+
+    def getItemWidget(self, index):
+        # TODO
+        pass

@@ -9,11 +9,12 @@ from enum import Enum
 from api.treeview import TreeModel, Node, TreeColumn, ValidationError, QTreeViewData
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObjects, commands
 from api.event import events
-from api.unit import ureg
+from api.unit import ureg, UnitValue
 import database.data.part_parameter
-from database.models import Part, Parameter, PartParameter, ParameterType, PartInstance
+from database.models import Part, Parameter, PartParameter, ParameterType, PartInstance, PartParameterOperator
 from ui.parameter_select_delegate import QParameterSelectDelegate
 from ui.unit_delegate import QUnitDelegate
+from ui.unit_range_delegate import QUnitRangeDelegate
 
 class CommandUpatePartParameter(CommandUpdateDatabaseField):
     def __init__(self, part_parameter, field, value, other_fields):
@@ -21,8 +22,8 @@ class CommandUpatePartParameter(CommandUpdateDatabaseField):
                                             description=f"change part parameter {field} to '{value}'")
 
 class CommandAddPartParameter(CommandAddDatabaseObject):
-    def __init__(self, part_parameter):
-        super(CommandAddPartParameter, self).__init__(object=part_parameter,
+    def __init__(self, part_parameter, fields):
+        super(CommandAddPartParameter, self).__init__(object=part_parameter, fields=fields,
                                             description=f"add new part parameter")
 
 class CommandDeletePartParameters(CommandDeleteDatabaseObjects):
@@ -32,20 +33,20 @@ class CommandDeletePartParameters(CommandDeleteDatabaseObjects):
             description = f"delete {len(part_parameters)} part parameters"
         elif isinstance(part_parameters, list) and len(part_parameters)==1:
             objects = part_parameters
-            description = f"delete part parameter '{part_parameters[0].name}'"
+            description = f"delete part parameter '{part_parameters[0].parameter.name}'"
         else:
             objects = [part_parameters]
-            description = f"delete part parameter '{part_parameters.name}'"
+            description = f"delete part parameter '{part_parameters.parameter.name}'"
         
         super(CommandDeletePartParameters, self).__init__(objects=objects,
                                             description=description)
-        
+
+
 class PartParameterColumn():
     PARAMETER = 0
     OPERATOR = 1
     VALUE = 2
-    UNIT = 3
-    DESCRIPTION = 4
+    DESCRIPTION = 3
 
 class KicadPartParameter():
     FOOTPRINT = "Footprint"
@@ -117,17 +118,9 @@ class PartParameterNode(Node):
             if hasattr(self.part_parameter, 'parameter'):
                 return self.part_parameter.parameter.name
         elif column==PartParameterColumn.OPERATOR:
-            pass
+            return self.part_parameter.operator
         elif column==PartParameterColumn.VALUE:
-            field = self.part_parameter.value_type_field
-            if field is not None:
-                return getattr(self.part_parameter, field)
-        elif column==PartParameterColumn.UNIT:
-            if self.part_parameter.unit is not None:
-                return self.part_parameter.unit
-            elif hasattr(self.part_parameter, 'parameter'):
-                return self.part_parameter.parameter.unit
-            return None
+            return self.part_parameter.display_value
         elif column==PartParameterColumn.DESCRIPTION:
             if hasattr(self.part_parameter, 'parameter'):
                 return self.part_parameter.parameter.description
@@ -140,6 +133,18 @@ class PartParameterNode(Node):
                 return self.part_parameter.parameter
             else:
                 return None
+        if column==PartParameterColumn.VALUE:
+            if hasattr(self.part_parameter, 'parameter'):
+                if self.part_parameter.parameter.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
+                    value = UnitValue()
+                    value.from_dict(self.part_parameter.value)
+                    if value.unit is None:
+                        value.unit = self.part_parameter.parameter.unit
+                    return value
+            elif self.part_parameter.parameter.value_type==ParameterType.TEXT:
+                return self.part_parameter.value
+            else:
+                return None
         return self.GetValue(column)
 
     def SetValue(self, column, value):
@@ -147,33 +152,41 @@ class PartParameterNode(Node):
         if column!=PartParameterColumn.PARAMETER and hasattr(self.part_parameter, 'parameter')==False:
             # can not set any value until parameter is set
             return False
-        
+
         field = {
             PartParameterColumn.PARAMETER: "parameter",
-            PartParameterColumn.VALUE: self.part_parameter.value_type_field,
-            PartParameterColumn.UNIT: "unit",
+            PartParameterColumn.OPERATOR: "operator",
+            PartParameterColumn.VALUE: "value",
         }
-            
-        other_fields = {}
-        
-        if column==PartParameterColumn.PARAMETER:
-            other_fields = {
-                "unit": None,
-                
-                "int_value": None,
-                "float_value": None,
-                "text_value": None,
-                "boolean_value": None,
-                "list_value": None,
-            }
 
+        other_fields = {}
+
+        if column==PartParameterColumn.PARAMETER:
+            other_fields = {}
+            if self.part_parameter.metaparameter:
+                other_fields['operator'] = ParameterOperator.EQ
+            else:
+                other_fields['operator'] = None
+            if value.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
+                other_fields['value'] = {'value': 0}
+            else:
+                other_fields['value'] = {'value': ''}
+        # elif column==PartParameterColumn.VALUE:
+        #     if self.part_parameter.parameter.
+        #     # cut value into quantity and unit
+        #     value =  ureg.Quantity(value)
+        #     if value.dimensionless:
+        #         pass
+        #     else:
+        #         pass
+        #
         if self.part_parameter.id is None:
             # item has not yet been commited at this point and have no id
             # set edited field value
             setattr(self.part_parameter, field[column], value)
             if hasattr(self.part_parameter, 'parameter'):
                 # save object in database
-                commands.Do(CommandAddPartParameter, part_parameter=self.part_parameter)
+                commands.Do(CommandAddPartParameter, part_parameter=self.part_parameter, fields=other_fields)
             return True
         else:
             if column in field and getattr(self.part_parameter, field[column])!=value:
@@ -187,7 +200,7 @@ class PartParameterNode(Node):
             if value is None:
                 return ValidationError("No parameter set")
             # TODO check duplicates in database
-        elif column==PartParameterColumn.UNIT:
+        elif column==PartParameterColumn.VALUE:
             try:
                 # check unit consistency
                 ureg.parse_expression(value)
@@ -196,11 +209,12 @@ class PartParameterNode(Node):
         return None
 
     def GetFlags(self, column, flags):
-        if hasattr(self.part_parameter, 'parameter')==False and column>0:
+        if hasattr(self.part_parameter, 'parameter')==False and column!=PartParameterColumn.PARAMETER:
             # when parameter is not set we prevent edition of other fields 
             return flags & ~Qt.ItemFlag.ItemIsEditable
         if column==PartParameterColumn.DESCRIPTION:
-            return flags & ~Qt.ItemFlag.ItemIsEditable            
+            #  description is just a proxy from parameter, not editable
+            return flags & ~Qt.ItemFlag.ItemIsEditable
         return flags
 
 class PartMetaParameterNode(Node):
@@ -212,10 +226,10 @@ class PartParameterModel(TreeModel):
     def __init__(self):
         super(PartParameterModel, self).__init__()
 
+        # TODO remove Unit and merge it with value
         self.InsertColumn(TreeColumn("Parameter"))
         self.InsertColumn(TreeColumn("Operator"))
         self.InsertColumn(TreeColumn("Value"))
-        self.InsertColumn(TreeColumn("Unit"))
         self.InsertColumn(TreeColumn("Description"))
 
         self.loaded = False        
@@ -250,7 +264,7 @@ class PartParameterModel(TreeModel):
                     self.InsertNode(group_node)
                 else:
                     self.UpdateNode(group_node)
-
+        
             for kicad_part_parameter in self.kicad_nodes:
                 kicad_part_parameter_node = self.FindKicadPartParameterNode(kicad_part_parameter)
                 if kicad_part_parameter_node is None:
@@ -339,10 +353,9 @@ class QPartParameterTreeView(QTreeViewData):
         super(QPartParameterTreeView, self).setModel(model)
         
         self.parameterSelectDelegate = QParameterSelectDelegate(model)
-        self.setItemDelegateForColumn(PartParameterColumn.PARAMETER, self.parameterSelectDelegate) 
-
         self.unitDelegate = QUnitDelegate(model)
-        self.setItemDelegateForColumn(PartParameterColumn.UNIT, self.unitDelegate) 
+        self.unitRangeDelegate = QUnitRangeDelegate(model)
+        # self.unitListDelegate = QUnitListDelegate(model)
 
         self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)        
 
@@ -366,6 +379,25 @@ class QPartParameterTreeView(QTreeViewData):
         else:
             self.setColumnHidden(PartParameterColumn.OPERATOR, False)
         self.model().SetPart(part)
+
+    def getItemDelegate(self, index):
+        if self.model() is None:
+            return None
+        
+        node = self.model().node_from_index(index)
+        
+        if isinstance(node, PartParameterNode):
+            if index.column()==PartParameterColumn.PARAMETER:
+                return self.parameterSelectDelegate
+            elif index.column()==PartParameterColumn.VALUE:
+                if hasattr(node.part_parameter, "parameter") and node.part_parameter.parameter.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
+                    if node.part_parameter.operator==PartParameterOperator.RANGE:
+                        return self.unitRangeDelegate
+                    # elif node.part_parameter.operator==PartParameterOperator.ANYOF:
+                    #     return self.unitListDelegate
+                    else:
+                        return self.unitDelegate
+        return None
 
     def objectChanged(self, object):
         if isinstance(object, PartParameter) or (isinstance(object, Part) and part==self.model().part) or isinstance(object, Parameter):

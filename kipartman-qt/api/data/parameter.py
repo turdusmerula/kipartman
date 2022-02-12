@@ -57,6 +57,8 @@ class ParameterNode(Node):
         elif column==ParameterColumn.VALUE_TYPE:
             return self.parameter.value_type
         elif column==ParameterColumn.NAME:
+            return self.parameter.name
+        elif column==ParameterColumn.DESCRIPTION:
             return self.parameter.description
         return None
 
