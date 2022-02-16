@@ -26,27 +26,29 @@ class QParameterSelectDelegate(QStyledItemDelegate):
         self.parameter = None
 
     def createEditor(self, parent, option, index):
-        self.widget = QFrame(parent)
-        uic.loadUi('ui/parameter_select_delegate.ui', self.widget)
+        editor = QFrame(parent)
+        uic.loadUi('ui/parameter_select_delegate.ui', editor)
         
-        self.widget.toolButton.clicked.connect(self.toolButtonTriggered)
-        return self.widget
+        editor.toolButton.clicked.connect(self.toolButtonTriggered)
+        
+        self.widget = editor
+        return editor
 
     def setEditorData(self, editor, index):
         self.parameter = index.model().data(index, Qt.ItemDataRole.EditRole)
         if self.parameter is None:
-            self.widget.label.setText("<None>")
+            editor.label.setText("<None>")
         else:
-            self.widget.label.setText(self.parameter.name)
+            editor.label.setText(self.parameter.name)
         
     def setModelData(self, editor, model, index):
         model.setData(index, self.parameter, Qt.ItemDataRole.EditRole)
 
-    # def updateEditorGeometry(self, editor, option, index):
-    #     rect = option.rect
-    #     rect.setWidth(self.widget.rect().width())
-    #     rect.setHeight(self.widget.rect().height())
-    #     editor.setGeometry(rect)
+    def updateEditorGeometry(self, editor, option, index):
+        rect = option.rect
+        if editor is not None:
+            rect.setWidth(editor.rect().width())
+            editor.setGeometry(rect)
 
     def toolButtonTriggered(self, value):
         dialog = QModalDialog(self.widget, title="Select parameter") 

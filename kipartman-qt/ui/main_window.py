@@ -146,9 +146,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def actionConfigurationTriggered(self, value):
-        from api.octopart.queries import OctopartPartQuery
-        query = OctopartPartQuery()
-        query.search("ATSAMD21G18A-MU")
+        # from api.octopart.queries import OctopartPartQuery
+        # query = OctopartPartQuery()
+        # query.search("ATSAMD21G18A-MU")
+        from api.unit import ureg, Quantity
+        a = ureg.Quantity("2")
+        b = ureg.Quantity("2 mF")
+        c = ureg.Quantity("2 mF", "F")
+        pass
 
     def mdiAreaSubWindowActivated(self, window):
         self.update_menus()

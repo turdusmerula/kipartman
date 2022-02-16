@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QMenu
 from PyQt6.QtGui import QAction
 
 base_units = [
-    (["A", "ampere", "amp"],),
+    (["A", "ampere", "amp"]),
     (["C", "coulomb"], "ampere*second"),
     (["°C", "celsius", "degC", "degreeC", "degree_Celsius"], "kelvin; offset: 273.15"),
     (["F", "farad"], "coulomb/volt"),
@@ -20,7 +20,7 @@ base_units = [
     (["Wb", "weber"], "volt*second"),
     (["Wh", "watt_hour", "watthour"], "watt*hour"),
     "",
-    ("bit",),
+    ("bit"),
     (["B", "byte", "octet"], "8*bit"),
 ]
 
@@ -80,7 +80,7 @@ units = [
     "Amount of substance",
         (["particle", "molec", "molecule"], "1/N_A"),
     "Angle",
-        ("radian",),
+        ("radian"),
         (["turn", "revolution", "cycle", "circle"], "2π*radian"),
         (["degree", "deg", "arcdeg", "arcdegree", "angular_degree"], "π/180*radian"),
         (["arcminute", "arcmin", "arc_minute", "angular_minute"], "degree/60"),
@@ -113,11 +113,11 @@ units = [
         (["S", "siemens", "mho"], "ampere/volt"),
         (["absiemens", "abS", "abmho"], "1e9*siemens"), 
     "Count",
-        ("count",),
+        ("count"),
     "Current",
-        (["A", "ampere", "amp"],),
+        (["A", "ampere", "amp"]),
         (["biot", "Bi"], "10*ampere"), 
-        (["abampere", "abA", "biot", "abA"],),
+        (["abampere", "abA", "biot", "abA"]),
         (["atomic_unit_of_current", "a_u_current"], "e/atomic_unit_of_time"), 
         (["mean_international_ampere", "A_it"], "mean_international_volt/mean_international_ohm"),
         (["US_international_ampere", "A_US"], "US_international_volt/US_international_ohm"), 
@@ -187,7 +187,7 @@ units = [
         (["abhenry", "abH"], "1e-9*henry"), 
         (["conventional_henry_90", "H_90"], "R_K/R_K90*henry"),
     "Information",
-        ("bit",),
+        ("bit"),
         (["bps", "baud", "Bd"], "bit/second"), 
         (["B", "byte", "octet"], "8*bit"),
     "Intensity",
@@ -195,10 +195,10 @@ units = [
     "Kinematic viscosity",
         # stokes = centimeter ** 2 / second = St
     "Length",
-        (["m", "meter", "metre"],),
+        (["m", "meter", "metre"]),
         (["angstrom", "Å", "ångström", "Å"], "1e-10*meter"),
-        (["micron", "micrometer", "µ"],),
-        (["fermi", "femtometer", "fm"],),
+        (["micron", "micrometer", "µ"]),
+        (["fermi", "femtometer", "fm"]),
         (["light_year", "ly", "lightyear"], "speed_of_light*julian_year"), 
         (["astronomical_unit", "au"], "149597870700*meter"),
         (["parsec", "pc"], "1/tansec*astronomical_unit"),
@@ -756,10 +756,10 @@ class QUnitMenu(QMenu):
     def AddUnit(self, item, menu):
         unit = ""
         description = None
-        if len(item)==1:
-            unit, = item
-        elif len(item)==2:
+        if isinstance(item, tuple):
             unit, description = item
+        else:
+            unit = item
         
         if isinstance(unit, list):
             text = f"{'/'.join(unit)}"
@@ -775,14 +775,13 @@ class QUnitMenu(QMenu):
         
     def selectUnitAction(self):
         item = self.sender().unit
-        if isinstance(item, tuple)==False:
-            return
-        if len(item)==1:
+        
+        if isinstance(item, tuple):
             unit, = item
-            self.unitSelected.emit(unit)
-        elif len(item)==2:
-            unit, description = item
-            if isinstance(unit, list):
-                self.unitSelected.emit(unit[0])
-            else:
-                self.unitSelected.emit(unit)
+        else:
+            unit = item
+        
+        if isinstance(unit, list):
+            unit = unit[0]
+        
+        self.unitSelected.emit(unit)

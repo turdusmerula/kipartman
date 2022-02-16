@@ -25,12 +25,13 @@ class QComboboxDelegate(QStyledItemDelegate):
         self.items = items
         
     def createEditor(self, parent, option, index):
-        self.widget = QFrame(parent)
-        uic.loadUi('ui/combobox_delegate.ui', self.widget)
+        editor = QFrame(parent)
+        uic.loadUi('ui/combobox_delegate.ui', editor)
         
-        self.widget.comboBox.addItems(self.items)
+        editor.comboBox.addItems(self.items)
         
-        return self.widget
+        self.widget = editor
+        return editor
 
     def setEditorData(self, editor, index):
         value = index.model().data(index, Qt.ItemDataRole.EditRole)
@@ -41,7 +42,7 @@ class QComboboxDelegate(QStyledItemDelegate):
 
     def updateEditorGeometry(self, editor, option, index):
         rect = option.rect
-        rect.setWidth(self.widget.rect().width())
-        rect.setHeight(self.widget.rect().height())
-        editor.setGeometry(rect)
+        if editor is not None:
+            rect.setWidth(editor.rect().width())
+            editor.setGeometry(rect)
 

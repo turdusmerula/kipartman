@@ -59,7 +59,9 @@ class QUnitWidget(QFrame):
         except Exception as e:
             self.lineEdit.setPalette(self.errorPalette)
             
-
     def insertItem(self, value):
         self.lineEdit.insert(value)
+        self.lineEdit.setFocus()
+
+    def setFocus(self):
         self.lineEdit.setFocus()

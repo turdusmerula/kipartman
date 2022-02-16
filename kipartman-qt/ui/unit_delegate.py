@@ -11,33 +11,32 @@ from api.command import commands
 from api.data.filter import FilterModel, GroupNode, FilterNode
 from api.event import events
 from api.filter import FilterSet, Filter
-from api.unit import ureg, UnitValue
+from api.treeview import ValidationError
+from api.unit import ureg, Quantity
 from helper.dialog import ShowErrorDialog
 from ui.unit_widget import QUnitWidget
 
 class QUnitDelegate(QStyledItemDelegate):
-    buttonUnitClicked = pyqtSignal(QModelIndex)
-
     def __init__(self, parent):
         super(QUnitDelegate, self).__init__(parent)
-        
-        self.widget = None
 
     def createEditor(self, parent, option, index):
-        self.widget = QUnitWidget(parent)
-        return self.widget
+        editor = QUnitWidget(parent)
+        return editor
 
     def setEditorData(self, editor, index):
         value = str(index.model().data(index, Qt.ItemDataRole.EditRole))
         editor.setText(value)
         
     def setModelData(self, editor, model, index):
-        value = UnitValue()
-        value.from_str(editor.text())
-        model.setData(index, value, Qt.ItemDataRole.EditRole)
+        try:
+            value = Quantity(editor.text())
+            model.setData(index, value, Qt.ItemDataRole.EditRole)
+        except Exception as e:
+            model.dataError.emit(ValidationError(str(e)))
 
-    # def updateEditorGeometry(self, editor, option, index):
-    #     rect = option.rect
-    #     rect.setWidth(self.widget.rect().width())
-    #     rect.setHeight(self.widget.rect().height())
-    #     editor.setGeometry(rect)
+    def updateEditorGeometry(self, editor, option, index):
+        rect = option.rect
+        if editor is not None:
+            rect.setWidth(editor.rect().width())
+            editor.setGeometry(rect)

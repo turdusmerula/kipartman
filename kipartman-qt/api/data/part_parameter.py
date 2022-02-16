@@ -9,12 +9,13 @@ from enum import Enum
 from api.treeview import TreeModel, Node, TreeColumn, ValidationError, QTreeViewData
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObjects, commands
 from api.event import events
-from api.unit import ureg, UnitValue
+from api.unit import ureg, Quantity
 import database.data.part_parameter
 from database.models import Part, Parameter, PartParameter, ParameterType, PartInstance, PartParameterOperator
 from ui.parameter_select_delegate import QParameterSelectDelegate
 from ui.unit_delegate import QUnitDelegate
 from ui.unit_range_delegate import QUnitRangeDelegate
+from ui.combobox_delegate import QComboboxDelegate
 
 class CommandUpatePartParameter(CommandUpdateDatabaseField):
     def __init__(self, part_parameter, field, value, other_fields):
@@ -134,17 +135,7 @@ class PartParameterNode(Node):
             else:
                 return None
         if column==PartParameterColumn.VALUE:
-            if hasattr(self.part_parameter, 'parameter'):
-                if self.part_parameter.parameter.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
-                    value = UnitValue()
-                    value.from_dict(self.part_parameter.value)
-                    if value.unit is None:
-                        value.unit = self.part_parameter.parameter.unit
-                    return value
-            elif self.part_parameter.parameter.value_type==ParameterType.TEXT:
-                return self.part_parameter.value
-            else:
-                return None
+            return self.part_parameter.decoded_value
         return self.GetValue(column)
 
     def SetValue(self, column, value):
@@ -164,22 +155,20 @@ class PartParameterNode(Node):
         if column==PartParameterColumn.PARAMETER:
             other_fields = {}
             if self.part_parameter.metaparameter:
-                other_fields['operator'] = ParameterOperator.EQ
+                other_fields['operator'] = PartParameterOperator.EQ
             else:
                 other_fields['operator'] = None
             if value.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
                 other_fields['value'] = {'value': 0}
             else:
                 other_fields['value'] = {'value': ''}
-        # elif column==PartParameterColumn.VALUE:
-        #     if self.part_parameter.parameter.
-        #     # cut value into quantity and unit
-        #     value =  ureg.Quantity(value)
-        #     if value.dimensionless:
-        #         pass
-        #     else:
-        #         pass
-        #
+        elif column==PartParameterColumn.OPERATOR:
+            other_fields = {
+                'value': {}
+            }
+        elif column==PartParameterColumn.VALUE:
+            value = self.part_parameter.encode_value(value)
+
         if self.part_parameter.id is None:
             # item has not yet been commited at this point and have no id
             # set edited field value
@@ -201,11 +190,36 @@ class PartParameterNode(Node):
                 return ValidationError("No parameter set")
             # TODO check duplicates in database
         elif column==PartParameterColumn.VALUE:
-            try:
-                # check unit consistency
-                ureg.parse_expression(value)
-            except Exception as e:
-                return ValidationError(f"{e}")
+            if self.part_parameter.operator is None or self.part_parameter.operator==PartParameterOperator.EQ:
+                return self.ValidateUnitValue(value)
+            elif self.part_parameter==PartParameterOperator.RANGE:
+                validate_min = self.ValidateUnitValue(value.min, "minimum value")
+                if validate_min is not None:
+                    return validate_min
+                return self.ValidateUnitValue(value.min, "maximum value")
+        return None
+    
+    def ValidateUnitValue(self, value, name="value"):
+        try:
+            # check expression parse
+            ureg.parse_expression(str(value))
+        except Exception as e:
+            return ValidationError(f"{name}: {e}")
+        # check unit consistency
+        if self.part_parameter.parameter is not None:
+            value_unit = ureg.Quantity(str(value))
+            parameter_unit = ureg.Quantity(str(self.part_parameter.parameter.unit))
+            if value_unit.dimensionless==False and parameter_unit.dimensionless==True:
+                return ValidationError(f"{name}: parameter has no dimension")
+            elif value_unit.dimensionless==True and parameter_unit.dimensionless==False:
+                value_unit = value_unit*parameter_unit 
+            
+            if value_unit.dimensionless==False:
+                try:
+                    value_unit.to(parameter_unit)
+                except Exception as e:
+                    return ValidationError(f"{name}: {e}")
+            
         return None
 
     def GetFlags(self, column, flags):
@@ -355,6 +369,7 @@ class QPartParameterTreeView(QTreeViewData):
         self.parameterSelectDelegate = QParameterSelectDelegate(model)
         self.unitDelegate = QUnitDelegate(model)
         self.unitRangeDelegate = QUnitRangeDelegate(model)
+        self.operatorDelegate = QComboboxDelegate(model, PartParameterOperator.list())
         # self.unitListDelegate = QUnitListDelegate(model)
 
         self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)        
@@ -397,6 +412,9 @@ class QPartParameterTreeView(QTreeViewData):
                     #     return self.unitListDelegate
                     else:
                         return self.unitDelegate
+            elif index.column()==PartParameterColumn.OPERATOR:
+                return self.operatorDelegate
+            
         return None
 
     def objectChanged(self, object):

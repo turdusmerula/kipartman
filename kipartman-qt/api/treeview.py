@@ -939,6 +939,7 @@ class QTreeViewData(QTreeView):
                     self.has_message_box = False 
                     
                     editor.setFocus()
+                    editor.activateWindow()
             elif self.action_state==QTreeViewData.ActionState.EditNew:
                 if self.edit_index is not None:
                     # if self.state()!=QAbstractItemView.State.EditingState and self.edit_index is not None:
@@ -955,7 +956,9 @@ class QTreeViewData(QTreeView):
                         self.endInsertEditNode.emit(node)
                     self.model().ClearEditCache()
                     self.action_state = QTreeViewData.ActionState.Default
+                    
                     self.setFocus()
+                    self.activateWindow()
             else:
                 self.model().ClearEditCache()
                 return super(QTreeViewData, self).closeEditor(editor, hint)
@@ -969,7 +972,9 @@ class QTreeViewData(QTreeView):
                 self.model().RemoveNode(node)
                 self.setCurrentIndex(self.rootIndex())
                 self.action_state = QTreeViewData.ActionState.Default
+
                 self.setFocus()
+                self.activateWindow()
             self.edition_error = None
             self.model().ClearEditCache()
             return super(QTreeViewData, self).closeEditor(editor, hint)

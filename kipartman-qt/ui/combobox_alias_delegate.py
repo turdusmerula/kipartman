@@ -13,27 +13,27 @@ from api.event import events
 from api.filter import FilterSet, Filter
 from helper.dialog import ShowErrorDialog
 
-
-# from PyQt6.QtWidgets import qApp
-class ComboboxAliasDelegate(QStyledItemDelegate):
+class QComboboxAliasDelegate(QStyledItemDelegate):
     buttonCloseClicked = pyqtSignal(QModelIndex)
 
     def __init__(self, parent):
-        super(ComboboxAliasDelegate, self).__init__(parent)
+        super(QComboboxAliasDelegate, self).__init__(parent)
         
         self.widget = None
-        
+
     def createEditor(self, parent, option, index):
-        self.widget = QFrame(parent)
-        uic.loadUi('ui/combobox_alias_delegate.ui', self.widget)
-        self.widget.comboBox.currentTextChanged.connect(self.comboBoxCurrentTextChanged)
-        self.widget.toolButtonAdd.clicked.connect(self.toolButtonAddTriggered)
-        self.widget.toolButtonRemove.clicked.connect(self.toolButtonRemoveTriggered)
+        editor = QFrame(parent)
+        uic.loadUi('ui/combobox_alias_delegate.ui', editor)
+        editor.comboBox.currentTextChanged.connect(self.comboBoxCurrentTextChanged)
+        editor.toolButtonAdd.clicked.connect(self.toolButtonAddTriggered)
+        editor.toolButtonRemove.clicked.connect(self.toolButtonRemoveTriggered)
 
-        self.widget.toolButtonAdd.setEnabled(False)
-        self.widget.toolButtonAdd.setEnabled(False)
-
-        return self.widget
+        editor.toolButtonAdd.setEnabled(False)
+        editor.toolButtonAdd.setEnabled(False)
+        
+        self.widget = editor
+        
+        return editor
 
     def setEditorData(self, editor, index):
         values = index.model().data(index, Qt.ItemDataRole.EditRole)
@@ -51,9 +51,9 @@ class ComboboxAliasDelegate(QStyledItemDelegate):
 
     def updateEditorGeometry(self, editor, option, index):
         rect = option.rect
-        rect.setWidth(self.widget.rect().width())
-        rect.setHeight(self.widget.rect().height())
-        editor.setGeometry(rect)
+        if editor is not None:
+            rect.setWidth(editor.rect().width())
+            editor.setGeometry(rect)
 
     def comboBoxCurrentTextChanged(self):
         self.widget.toolButtonAdd.setEnabled(False)

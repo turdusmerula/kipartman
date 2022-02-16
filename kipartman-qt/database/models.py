@@ -1,6 +1,5 @@
-from api.unit import ureg
+from api.unit import Quantity, QuantityRange
 
-import copy
 from django.db import models
 import django.utils
 from django.utils.translation import gettext_lazy as _
@@ -177,8 +176,12 @@ class Parameter(models.Model):
     
 class PartParameterOperator(models.TextChoices):
     EQ = "="
-    RANGE = "x, y"
-    ANYOF = "x, y, z"
+    RANGE = "range"
+    # ANYOF = "x, y, z"
+    
+    @staticmethod
+    def list():
+        return [PartParameterOperator.EQ, PartParameterOperator.RANGE]
 
 class PartParameter(models.Model):
     part = models.ForeignKey('Part', related_name='parameters', null=False, blank=False, default=None, on_delete=models.CASCADE)
@@ -203,37 +206,42 @@ class PartParameter(models.Model):
     #         return field[self.parameter.value_type]
     #     return None
     
-    def unit_value(self, v):
-        if 'unit' in v:
-            return str(ureg.Quantity(v['value'], v['unit']))
-        elif self.parameter.unit is not None:
-            return str(ureg.Quantity(v['value'], self.parameter.unit))
-        else:
-            return v['value']
+
+    def encode_value(self, value):
+        if hasattr(self, 'parameter')==False:
+            return None
         
+        res = {}
+        if self.parameter.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
+            value.base_unit = self.parameter.unit
+            res = value.to_dict()
+        elif self.parameter.value_type==ParameterType.TEXT:
+            res = {'value': value}
+        return res
+
+    @property
+    def decoded_value(self):
+        res = None
+        
+        if hasattr(self, 'parameter')==False:
+            return None
+
+        if self.parameter.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
+            if self.operator is None or self.operator==PartParameterOperator.EQ:
+                res = Quantity.from_dict(self.value, self.parameter.unit)
+            elif self.operator==PartParameterOperator.RANGE:
+                res = QuantityRange.from_dict(self.value, self.parameter.unit)
+        elif self.parameter.value_type==ParameterType.TEXT:
+            res = self.value['value']
+        
+        return res
+    
     @property
     def display_value(self):
-        if self.metaparameter:
-            pass
-        else:
-            if self.parameter.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
-                return self.unit_value(self.value) 
-        return ""
-    #
-    # @property
-    # def value(self):
-    #     # TODO
-    #     return None
-    #
-    # @value.setter
-    # def value(self, value):
-    #     pass
-    #
-    # def validate(self, value):
-    #     if hasattr(self, 'parameter')==False:
-    #         raise ValueException("No parameter set")
-    #     if self.parameter in [ParameterType.INTEGER, ParameterType.FLOAT]:
-    #         pass
+        v = self.decoded_value
+        if v is None:
+            return ""
+        return str(v)
     
     def __unicode__(self):
         if self.id:

@@ -11,33 +11,47 @@ from api.command import commands
 from api.data.filter import FilterModel, GroupNode, FilterNode
 from api.event import events
 from api.filter import FilterSet, Filter
-from api.unit import ureg, UnitValue
+from api.treeview import ValidationError
+from api.unit import ureg, Quantity, QuantityRange
 from helper.dialog import ShowErrorDialog
 from ui.unit_range_widget import QUnitRangeWidget
 
 class QUnitRangeDelegate(QStyledItemDelegate):
-    buttonUnitClicked = pyqtSignal(QModelIndex)
-
     def __init__(self, parent):
         super(QUnitRangeDelegate, self).__init__(parent)
-        
-        self.widget = None
 
     def createEditor(self, parent, option, index):
-        self.widget = QUnitRangeWidget(parent)
-        return self.widget
+        editor = QUnitRangeWidget(parent)
+        return editor
 
     def setEditorData(self, editor, index):
-        value = str(index.model().data(index, Qt.ItemDataRole.EditRole))
-        editor.setText(value)
+        value = index.model().data(index, Qt.ItemDataRole.EditRole)
+        editor.setMinText('')
+        editor.setMaxText('')
+        if value.min is not None:
+            editor.setMinText(str(value.min))
+        if value.max is not None:
+            editor.setMaxText(str(value.max))
         
     def setModelData(self, editor, model, index):
-        value = UnitValue()
-        value.from_str(editor.text())
-        model.setData(index, value, Qt.ItemDataRole.EditRole)
+        value = QuantityRange()
 
-    # def updateEditorGeometry(self, editor, option, index):
-    #     rect = option.rect
-    #     rect.setWidth(self.widget.rect().width())
-    #     rect.setHeight(self.widget.rect().height())
-    #     editor.setGeometry(rect)
+        try:
+            if editor.minText()!="":
+                value.min = Quantity(editor.minText())
+            if editor.maxText()!="":
+                value.max = Quantity(editor.maxText())
+        except Exception as e:
+            model.dataError.emit(ValidationError(str(e)))
+            return 
+        
+        if value.min is not None and value.max is not None and value.min.value>value.max.value:
+            model.dataError.emit(ValidationError("Invalid range, maximum is greater than min"))
+            
+        model.setData(index, value, Qt.ItemDataRole.EditRole)
+        
+    def updateEditorGeometry(self, editor, option, index):
+        rect = option.rect
+        if editor is not None:
+            rect.setWidth(editor.rect().width())
+            editor.setGeometry(rect)
