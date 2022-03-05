@@ -1,6 +1,27 @@
-from pint import UnitRegistry, set_application_registry
+import pint
 
 # https://pint.readthedocs.io/en/stable/tutorial.html
+
+def _fix_percent(x: str) -> str:
+    return x.replace("%%", " per_mille ").replace("%", " percent ")
+
+class UnitRegistry(pint.UnitRegistry):
+    def __call__(self, input_string, **kwargs):
+        """Hack around `pint#429 <https://github.com/hgrecco/pint/issues/429>`_
+        to support % sign
+        """
+        return super().__call__(_fix_percent(input_string), **kwargs)
+
+    def parse_expression(self, input_string, *args, **kwargs):
+        """Allow % sign
+        """
+        return super().parse_expression(_fix_percent(input_string), *args, **kwargs)
+
+    def parse_units(self, input_string, *args, **kwargs):
+        """Allow % sign
+        """
+        return super().parse_units(_fix_percent(input_string), *args, **kwargs)
+
 
 # ureg = UnitRegistry(system='SI')
 ureg = UnitRegistry()
@@ -8,7 +29,10 @@ ureg = UnitRegistry()
 ureg.default_format = "~#P"
 # Q_ = ureg.Quantity
 
-set_application_registry(ureg)
+# add dimensionless units
+ureg.define('percent = 0.01*count = %')
+
+pint.set_application_registry(ureg)
 
 def format_float(v, digits=3, trailing_zeros=False):
     epsilon = 1e-5  
@@ -65,6 +89,10 @@ class Quantity():
             if self.value.unitless:
                 self.value = ureg.Quantity(self.value.m, self._base_unit)
 
+    def _quantity(self, value):
+        # if value.
+        pass
+        
     @staticmethod
     def from_dict(d, base_unit=None):
         if 'value' in d:
@@ -99,7 +127,17 @@ class Quantity():
 
         return res
 
+    @property
+    def magnitude(self):
+        if self.base_unit is not None:
+            return self.value.to(self.base_unit).m
+        else:
+            return self.value.m
 
+    @property
+    def unit(self):
+        return self.value.u
+        
     def __str__(self):
         s = ""
         if self.integer:

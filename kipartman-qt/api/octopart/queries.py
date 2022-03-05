@@ -1,9 +1,13 @@
 from api.configuration import configuration
-from six.moves import urllib
+from api.unit import Quantity, QuantityRange
+from api.log import log
+from api.ndict import ndict
+
+from diskcache import Cache
 import json
-from munch import munchify, DefaultMunch
 import os
 from string import Template
+import urllib.request
 import yaml
 
 # see https://octopart.com/api/v4/reference
@@ -117,7 +121,6 @@ class GraphQLClient:
         """
         
         self.introspect = json.loads(self.send(query))
-        # self.introspect = munchify(json.loads(self.send(query)))
         print(yaml.dump(self.introspect))
 
     def get_type(self, name):
@@ -137,6 +140,8 @@ class GraphQLClient:
         return (kind, name)
     
     def type_to_query(self, name, ignore=[], tab="", state=[]):
+        """ Extract all fileds for type to be used in a query """
+
         res = ""
         type = self.get_type(name)
         for field in type['fields']:
@@ -181,6 +186,18 @@ class OctopartPartQuery(GraphQLClient):
     def __init__(self):
         super(OctopartPartQuery, self).__init__()
     
+        self.ttl = Quantity("1 week", base_unit="s").magnitude
+        try:
+            self.ttl = Quantity(configuration.providers.octopart.cache_ttl, base_unit="s").magnitude
+        except Exception as e:
+            log.error(f"Octopart cache_ttl configuration: {e}")
+        
+        self.limit = configuration.providers.octopart.limit
+        if self.limit is None:
+            self.limit = 1
+
+        self.cache = Cache(directory=os.path.expanduser('~/.kipartman/cache/octopart'))
+
     def Part_to_query(self, tab=""):
         return """
             part {
@@ -372,11 +389,60 @@ class OctopartPartQuery(GraphQLClient):
         #     'spec_aggs'],
         #     tab=tab)
         pass
+    
+    def _encode_filters(self, filters):
+        params = []
+        for filter, value in filters.items():
+            if isinstance(value, Quantity):
+                params.append(f'{filter}: "{str(value)}"')
+            elif isinstance(value, QuantityRange):
+                min = ""
+                if value.min is not None:
+                    min = str(value.min)
+                max = ""
+                if value.max is not None:
+                    max = str(value.max)
+                params.append(f'{filter}: "({min}__{max})"')
+            elif isinstance(value, str):
+                params.append(f'{filter}: "{value}"')
+            else:
+                params.append(f'{filter}: {value}')
         
-    def Search(self, name):
+        return f"filters: {{{', '.join(params)}}}"
+
+    def _set_cache_part_query(self, query, data):
+        res = self.cache.set(query, yaml.dump(data), expire=self.ttl)
+        log.debug(f"add cache query: {query}")
+        
+        results = data.search.results
+        if results is not None:
+            for result in results:
+                self.cache.set(result.part.id, yaml.dump(result.part), expire=self.ttl)
+                log.debug(f"add cache part: {result.part.id}")
+
+        return res
+    
+    def _get_cache_part_query(self, query):
+        c = self.cache.get(query)
+        if c is not None:
+            log.debug(f"fetch cache query: {query}")
+            return yaml.safe_load(c)
+
+        return c
+        
+    def _get_cache_part(self, id):
+        c = self.cache.get(id)
+        if c is not None:
+            log.debug(f"fetch cache part: {id}")
+            
+        data = yaml.safe_load(data)
+
+        return 
+
+    def _search(self, request, q=None, start=0, limit=None, country=None, currency=None, sort='median_price_1000', sort_dir='asc', in_stock_only=None, filters={}):
         query = """
             query PartSearch {
-              search(q: "$name") {
+              $request($params) {
                 hits
                 results {
                   _cache_id
@@ -390,17 +456,54 @@ class OctopartPartQuery(GraphQLClient):
               }
             }        
         """
+        
+        params = []
+        if q is not None:
+            params.append(f'q: "{q}"')
+        params.append(f"start: {start}")
+        if limit is None:
+            params.append(f"limit: {self.limit}")
+        else:
+            params.append(f"limit: {limit}")
+        if country is not None:
+            params.append(f'country: "{country}"')        
+        if currency is not None:
+            params.append(f'currency: "{currency}"')
+        if sort is not None:
+            params.append(f'sort: "{sort}"')
+        if sort_dir is not None:
+            params.append(f'sort_dir: {sort_dir}')
+        if in_stock_only is not None:
+            params.append(f'in_stock_only: {int(in_stock_only)}')
+        if len(filters)>0:
+            params.append(self._encode_filters(filters))
+        
 
-        query = Template(query).substitute(name=name, Part=self.Part_to_query())
-        print(query)
-        data = json.loads(self.send(query))
-        print(yaml.dump(data))
+        query = Template(query).substitute(request=request, params=", ".join(params), Part=self.Part_to_query())
+        query_id = Template("$request($params)").substitute(request=request, params=", ".join(params))
+        log.debug(query_id)
+        
+        data = self._get_cache_part_query(query_id)
+        if data is None:
+            try:
+                data = ndict(json.loads(self.send(query))).data
+                self._set_cache_part_query(query_id, data)
+            except Exception as e:
+                log.error(f"{query_id}: {e}")
+                return None
 
-    def SearchMpn(self, name, start=0, limit=1):
-        # filters: {resistance: 10000}
+        return data
+    
+    def Search(self, q=None, start=0, limit=None, country=None, currency=None, sort='median_price_1000', sort_dir='asc', in_stock_only=None, filters={}):
+        return self._search("search", q, start, limit, country, currency, sort, sort_dir, in_stock_only, filters)
+
+    def SearchMpn(self, q=None, start=0, limit=None, country=None, currency=None, sort='median_price_1000', sort_dir='asc', in_stock_only=None, filters={}):
+        return self._search("search_mpn", q, start, limit, country, currency, sort, sort_dir, in_stock_only, filters)
+
+    def SearchPart(self, ids, country=None, currency=None):
         query = """
             query PartSearch {
-              search_mpn(q: "$name", start: $start, limit: $limit) {
+              parts($params) {
                 hits
                 results {
                   _cache_id
@@ -414,8 +517,57 @@ class OctopartPartQuery(GraphQLClient):
               }
             }        
         """
-
-        query = Template(query).substitute(name=name, Part=self.Part_to_query(), start=start, limit=limit)
+        
+        params = []
+        params.append(f"ids: [{', '.join(ids)}]")
+        if country is not None:
+            params.append(f'country: "{country}"')        
+        if currency is not None:
+            params.append(f'currency: "{currency}"')
+        
+        query = Template(query).substitute(params=", ".join(params), Part=self.Part_to_query())
         print(query)
-        data = json.loads(self.send(query))
-        print(yaml.dump(data))
+        data = ndict(json.loads(self.send(query))).data
+        print(yaml.dump(data))        
+        return data
+
+    def MultiMatch(self):
+        # TODO
+        pass
+
+    def Suggest(self):
+        # TODO
+        pass
+
+    def SpellingCorrection(self):
+        # TODO
+        pass
+    
+    def Attributes(self):
+        query = """
+            query AttributesSearch {
+              attributes() {
+                id
+                name
+                shortname
+                group
+              }
+            }        
+        """
+        res = ndict(json.loads(self.send(query)))
+        return res.data.attributes
+    
+    def Manufaturers(self):
+        # TODO
+        pass
+    
+    def Sellers(self):
+        # TODO
+        pass
+
+    def Categories(self):
+        # TODO
+        pass
+
+    def ClearCache(self):
+        self.cache.clear()

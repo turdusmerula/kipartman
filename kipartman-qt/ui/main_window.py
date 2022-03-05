@@ -146,15 +146,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def actionConfigurationTriggered(self, value):
-        # from api.octopart.queries import OctopartPartQuery
-        # query = OctopartPartQuery()
-        # query.search("ATSAMD21G18A-MU")
-        from api.unit import ureg, Quantity
-        a = ureg.Quantity("2")
-        b = ureg.Quantity("2 mF")
-        c = ureg.Quantity("2 mF", "F")
-        pass
-
+        from api.octopart.queries import OctopartPartQuery
+        from api.unit import Quantity, QuantityRange
+        query = OctopartPartQuery()
+        query.Search(filters={'case_package': "0603", "tolerance": 0.05, "resistance": QuantityRange("10 ohm", "20 ohm")})
+        
+        # from diskcache import Cache
+        # cache = Cache(directory='/tmp/')
+        # # cache.set("value", "data") 
+        # for key in list(cache.iterkeys()):
+        #     print(len(key), len(cache[key]))
+        
     def mdiAreaSubWindowActivated(self, window):
         self.update_menus()
         if self.activeWindow is not None:

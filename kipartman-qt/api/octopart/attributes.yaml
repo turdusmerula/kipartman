@@ -1,0 +1,9600 @@
+-3db Bandwidth:
+  display_values:
+  - 500 Hz
+  - 100 kHz
+  - 9 MHz
+  group: Technical
+  id: '207'
+  name: -3db Bandwidth
+  shortname: _3dbbandwidth
+  unit: Hz
+  value_type: float
+AC Outlets:
+  display_values:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
+  - '5'
+  - '6'
+  - '7'
+  - '8'
+  - '9'
+  group: Technical
+  id: '621'
+  name: AC Outlets
+  shortname: acoutlets
+  value_type: int
+Access Time:
+  display_values:
+  - 600 ns
+  - "10 \xB5s"
+  - 900 ns
+  - 70 ns
+  group: Technical
+  id: '801'
+  name: Access Time
+  shortname: accesstime
+  unit: s
+  value_type: float
+Accuracy:
+  display_values:
+  - 2 %
+  - 2 %
+  - 5 %
+  group: Technical
+  id: '280'
+  name: Accuracy
+  shortname: accuracy
+  unit: '%'
+  value_type: float
+Actuating System:
+  group: Technical
+  id: '661'
+  name: Actuating System
+  shortname: actuatingsystem
+Actuator Diameter:
+  display_values:
+  - 10 mm
+  - 5.9944 mm
+  group: Dimensions
+  id: '652'
+  name: Actuator Diameter
+  shortname: actuatordiameter
+  unit: m
+  value_type: float
+Actuator Length:
+  display_values:
+  - 3.9 mm
+  - 9.53 mm
+  - 21.4884 mm
+  - 2.3 mm
+  group: Dimensions
+  id: '466'
+  name: Actuator Length
+  shortname: actuatorlength
+  unit: m
+  value_type: float
+Actuator Material:
+  display_values:
+  - Stainless Steel
+  group: Physical
+  id: '426'
+  name: Actuator Material
+  shortname: actuatormaterial
+  value_type: text
+Address Bus Width:
+  display_values:
+  - 1 b
+  - 16 b
+  group: Technical
+  id: '476'
+  name: Address Bus Width
+  shortname: addressbuswidth
+  unit: bit
+  value_type: int
+Airflow:
+  display_values:
+  - 50 CFM
+  group: Technical
+  id: '799'
+  name: Airflow
+  shortname: airflow
+  unit: CFM
+  value_type: float
+Ambient Temperature Range High:
+  display_values:
+  - "70 \xB0C"
+  - "105 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  group: Technical
+  id: '903'
+  name: Ambient Temperature Range High
+  shortname: ambienttemperaturerangehigh
+  unit: "\xB0C"
+  value_type: float
+Ambient Temperature Range Low:
+  display_values:
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  group: Technical
+  id: '904'
+  name: Ambient Temperature Range Low
+  shortname: ambienttemperaturerangelow
+  unit: "\xB0C"
+  value_type: float
+Approvals:
+  display_values:
+  - CSA, UL
+  - TUV, UL
+  - TUV, cULus
+  - CE, CSA, IEC, UR
+  - CE, UL
+  - CSA
+  - UL
+  - CSA, IEC, UL
+  - EN, TUV, UL
+  - CB, CE, TUV, UL
+  - CE, CSA, EN, UL
+  - UL, cULus, cURus
+  - CE
+  group: Compliance
+  id: '853'
+  name: Approvals
+  shortname: approvals
+  value_type: text
+Assembly Length:
+  display_values:
+  - 4 mm
+  group: Dimensions
+  id: '808'
+  name: Assembly Length
+  shortname: assemblylength
+  unit: m
+  value_type: float
+Attenuation Value:
+  display_values:
+  - 30 dB
+  group: Technical
+  id: '566'
+  name: Attenuation Value
+  shortname: attenuationvalue
+  unit: dB
+  value_type: float
+Average Rectified Current:
+  display_values:
+  - 1 A
+  - 1.5 A
+  group: Technical
+  id: '543'
+  name: Average Rectified Current
+  shortname: averagerectifiedcurrent
+  unit: A
+  value_type: float
+Axis:
+  display_values:
+  - X, Y
+  group: Technical
+  id: '494'
+  name: Axis
+  shortname: axis
+  value_type: text
+B Parameter:
+  group: Technical
+  id: '301'
+  name: B Parameter
+  shortname: bparameter
+Background Color:
+  display_values:
+  - Grey
+  group: Technical
+  id: '575'
+  name: Background Color
+  shortname: backgroundcolor
+  value_type: text
+Backlight Color:
+  group: Technical
+  id: '605'
+  name: Backlight Color
+  shortname: backlightcolor
+  value_type: text
+Backlight Type:
+  display_values:
+  - LED
+  group: Technical
+  id: '298'
+  name: Backlight Type
+  shortname: backlighttype
+  value_type: text
+Backwall/Post Interruptions:
+  group: Technical
+  id: '316'
+  name: Backwall/Post Interruptions
+  shortname: backwall_postinterruptions
+Bandwidth:
+  display_values:
+  - 500 Hz
+  - 100 kHz
+  - 3 GHz
+  - 9 MHz
+  - 60 MHz
+  - 3 MHz
+  - 200 MHz
+  - 400 Hz
+  group: Technical
+  id: '211'
+  name: Bandwidth
+  shortname: bandwidth
+  unit: Hz
+  value_type: float
+Battery Pack Voltage:
+  display_values:
+  - 4.7 V
+  group: Technical
+  id: '669'
+  name: Battery Pack Voltage
+  shortname: batterypackvoltage
+  unit: V
+  value_type: float
+Baud Rate:
+  display_values:
+  - 15 baud
+  group: Technical
+  id: '816'
+  name: Baud Rate
+  shortname: baudrate
+  unit: baud
+  value_type: float
+Bearing Type:
+  group: Technical
+  id: '353'
+  name: Bearing Type
+  shortname: bearingtype
+Board Standoff:
+  group: Technical
+  id: '800'
+  name: Board Standoff
+  shortname: boardstandoff
+Board Thickness:
+  display_values:
+  - 1.524 mm
+  group: Dimensions
+  id: '813'
+  name: Board Thickness
+  shortname: boardthickness
+  unit: m
+  value_type: float
+Body Material:
+  display_values:
+  - Bronze, Liquid Crystal Polymer, Polymer
+  - Plastic
+  - Metal
+  - Brass
+  - Brass
+  - Brass
+  - Thermoplastic
+  group: Physical
+  id: '429'
+  name: Body Material
+  shortname: bodymaterial
+  value_type: text
+Body Plating:
+  display_values:
+  - Tin
+  group: Physical
+  id: '613'
+  name: Body Plating
+  shortname: bodyplating
+  value_type: text
+Boss:
+  group: Technical
+  id: '556'
+  name: Boss
+  shortname: boss
+Breakdown Voltage:
+  display_values:
+  - 1 kV
+  - 120 V
+  - 700 V
+  - 7 V
+  - 51 V
+  group: Technical
+  id: '677'
+  name: Breakdown Voltage
+  shortname: breakdownvoltage
+  unit: V
+  value_type: float
+Breaker Type:
+  group: Technical
+  id: '431'
+  name: Breaker Type
+  shortname: breakertype
+Brightness:
+  display_values:
+  - 250 cd/m^2
+  group: Technical
+  id: '580'
+  name: Brightness
+  shortname: brightness
+  unit: cd/m^2
+  value_type: float
+Built in Switch:
+  group: Technical
+  id: '765'
+  name: Built in Switch
+  shortname: builtinswitch
+Bundle Diameter:
+  display_values:
+  - 39.624 mm
+  group: Dimensions
+  id: '393'
+  name: Bundle Diameter
+  shortname: bundlediameter
+  unit: m
+  value_type: float
+Bus Directional:
+  group: Technical
+  id: '753'
+  name: Bus Directional
+  shortname: busdirectional
+Cable Length:
+  display_values:
+  - 57 mm
+  - 30.48 m
+  - 1.2 m
+  - 3.048 m
+  group: Dimensions
+  id: '595'
+  name: Cable Length
+  shortname: cablelength
+  unit: m
+  value_type: float
+Cable Pitch:
+  display_values:
+  - 2.54 mm
+  group: Dimensions
+  id: '358'
+  name: Cable Pitch
+  shortname: cablepitch
+  unit: m
+  value_type: float
+Capacitance:
+  display_values:
+  - 15 pF
+  - 15 pF
+  - 100 nF
+  - "22 \xB5F"
+  - 30 pF
+  - 220 pF
+  - 25 pF
+  - 22 pF
+  - "47 \xB5F"
+  - "33 \xB5F"
+  - "10 \xB5F"
+  group: Technical
+  id: '548'
+  name: Capacitance
+  shortname: capacitance
+  unit: F
+  value_type: float
+Capacity:
+  group: Technical
+  id: '589'
+  name: Capacity
+  shortname: capacity
+Card Thickness:
+  display_values:
+  - 1.5748 mm
+  group: Dimensions
+  id: '694'
+  name: Card Thickness
+  shortname: cardthickness
+  unit: m
+  value_type: float
+Case Code (Imperial):
+  display_values:
+  - '0603'
+  - 0805
+  - '0603'
+  - '0402'
+  - '0402'
+  - '0603'
+  - '0402'
+  - '1007'
+  - '1206'
+  - '0504'
+  - '0402'
+  - '0603'
+  group: Physical
+  id: '572'
+  name: Case Code (Imperial)
+  shortname: casecode_imperial_
+  value_type: text
+Case Code (Metric):
+  display_values:
+  - '1608'
+  - '2012'
+  - '1608'
+  - '1005'
+  - '1005'
+  - '1608'
+  - '1005'
+  - '2518'
+  - '3216'
+  - '1410'
+  - '1005'
+  - '1608'
+  group: Physical
+  id: '769'
+  name: Case Code (Metric)
+  shortname: casecode_metric_
+  value_type: text
+Case/Package:
+  display_values:
+  - SOT-23-8
+  - TSSOP
+  - '0603'
+  - SOT-23
+  - '0402'
+  - 0805
+  - PDIP
+  - '125'
+  - '100'
+  - TO-92-3
+  - SMD/SMT
+  - DIP
+  - '0603'
+  - DIP
+  - TO-263-3
+  - SC
+  - SMD/SMT
+  - SOT-23-3
+  - SC
+  - SOT-23
+  - SMD/SMT
+  - DFN
+  - WFQFN
+  - SOIC
+  - '0402'
+  - Metal
+  - Radial
+  - '100'
+  - '0402'
+  - SOT-23-3
+  - SOIC
+  - Radial
+  - QFN
+  - Axial
+  - SMD/SMT
+  - '0603'
+  - TO-92
+  - '0402'
+  - DFN
+  - TO-92-3
+  - MSOP
+  - SOT
+  - '100'
+  - Axial
+  - Radial
+  - SMD/SMT
+  - SOIC
+  - QFN
+  - TSSOP
+  - SOIC
+  - TSOP
+  - SOIC
+  - '1007'
+  - '1206'
+  - QFN
+  - SOT-23-6
+  - TO-92
+  - Radial
+  - DO-15
+  - SOT-23-3
+  - QFN
+  - '120'
+  - SOT-353
+  - TO-236-3
+  - TSSOP
+  - VQFN
+  - SMD/SMT
+  - SMD/SMT
+  - DFN
+  - '0504'
+  - '100'
+  - TSSOP
+  - PDIP
+  - SOT-353
+  - SO
+  - TSSOP
+  - TFBGA
+  - TO-236-3
+  - TQFP
+  - 0804
+  - SOT-25
+  - TSSOP
+  - SOT-23
+  - SOIC
+  - SOT
+  - '0402'
+  - TSSOP
+  - '1206'
+  - TO-236-3
+  - '0603'
+  - SOD
+  - '100'
+  - Radial
+  - Module
+  - LGA
+  - SIL
+  - SC
+  - Radial
+  - '200'
+  - SOT
+  - Radial
+  - Nonstandard
+  - 0805
+  - '0606'
+  - SIL
+  - TO-220
+  - TSOP
+  - '600'
+  group: Physical
+  id: '842'
+  name: Case/Package
+  shortname: case_package
+  value_type: text
+Cathode Current:
+  display_values:
+  - 1 mA
+  - "400 \xB5A"
+  group: Technical
+  id: '667'
+  name: Cathode Current
+  shortname: cathodecurrent
+  unit: A
+  value_type: float
+Channel Type:
+  display_values:
+  - Unidirectional
+  - Unidirectional
+  group: Technical
+  id: '829'
+  name: Channel Type
+  shortname: channeltype
+  value_type: text
+Character Height:
+  display_values:
+  - 14.22 mm
+  - 7.87 mm
+  group: Technical
+  id: '738'
+  name: Character Height
+  shortname: characterheight
+  unit: m
+  value_type: float
+Character Width:
+  display_values:
+  - 14.224 mm
+  - 4.38 mm
+  group: Technical
+  id: '565'
+  name: Character Width
+  shortname: characterwidth
+  unit: m
+  value_type: float
+Chemistry/Technology:
+  group: Technical
+  id: '564'
+  name: Chemistry/Technology
+  shortname: chemistry_technology
+Circuit Application:
+  display_values:
+  - Signal
+  group: Technical
+  id: '846'
+  name: Circuit Application
+  shortname: circuitapplication
+  value_type: text
+Circuit Type:
+  display_values:
+  - Filter
+  - Isolated
+  - Isolated
+  group: Technical
+  id: '741'
+  name: Circuit Type
+  shortname: circuittype
+  value_type: text
+Clamping Current:
+  display_values:
+  - 1 A
+  group: Technical
+  id: '331'
+  name: Clamping Current
+  shortname: clampingcurrent
+  unit: A
+  value_type: float
+Clamping Voltage:
+  display_values:
+  - 120 V
+  - 11 V
+  - 70.1 V
+  - 70.1 V
+  - 150 V
+  group: Technical
+  id: '518'
+  name: Clamping Voltage
+  shortname: clampingvoltage
+  unit: V
+  value_type: float
+Clock Edge Trigger Type:
+  display_values:
+  - Positive Edge
+  group: Technical
+  id: '836'
+  name: Clock Edge Trigger Type
+  shortname: clockedgetriggertype
+  value_type: text
+Clock Rate:
+  display_values:
+  - 167 MHz
+  group: Technical
+  id: '943'
+  name: Clock Rate
+  shortname: clockrate
+  unit: Hz
+  value_type: float
+Clock Sync:
+  display_values:
+  - 'No'
+  group: Technical
+  id: '651'
+  name: Clock Sync
+  shortname: clocksync
+  value_type: text
+Closed End:
+  group: Technical
+  id: '675'
+  name: Closed End
+  shortname: closedend
+Coil Current:
+  display_values:
+  - 37.5 mA
+  - 11 mA
+  - 133.3 mA
+  group: Technical
+  id: '777'
+  name: Coil Current
+  shortname: coilcurrent
+  unit: A
+  value_type: float
+Coil Power:
+  display_values:
+  - 520 mW
+  - 1.6 W
+  - 720 mW
+  group: Technical
+  id: '665'
+  name: Coil Power
+  shortname: coilpower
+  unit: W
+  value_type: float
+Coil Resistance:
+  display_values:
+  - "320 \u03A9"
+  - "4.38 k\u03A9"
+  - "90 \u03A9"
+  - "820 \u03A9"
+  group: Technical
+  id: '857'
+  name: Coil Resistance
+  shortname: coilresistance
+  unit: "\u03A9"
+  value_type: float
+Coil Type:
+  group: Technical
+  id: '574'
+  name: Coil Type
+  shortname: coiltype
+Coil Voltage (AC):
+  display_values:
+  - 12 V
+  group: Technical
+  id: '657'
+  name: Coil Voltage (AC)
+  shortname: coilvoltage_ac_
+  unit: V
+  value_type: float
+Coil Voltage (DC):
+  display_values:
+  - 12 V
+  - 48 V
+  - 12 V
+  - 24 V
+  group: Technical
+  id: '205'
+  name: Coil Voltage (DC)
+  shortname: coilvoltage_dc_
+  unit: V
+  value_type: float
+Collector Base Breakdown Voltage (VCES):
+  display_values:
+  - 600 V
+  group: Technical
+  id: '927'
+  name: Collector Base Breakdown Voltage (VCES)
+  shortname: collectorbasebreakdownvoltage
+  unit: V
+  value_type: float
+Collector Base Voltage (VCBO):
+  display_values:
+  - 30 V
+  - -50 V
+  - 30 V
+  - 5 V
+  - -40 V
+  - 30 V
+  - 25 V
+  group: Technical
+  id: '315'
+  name: Collector Base Voltage (VCBO)
+  shortname: collectorbasevoltage_vcbo_
+  unit: V
+  value_type: float
+Collector Emitter Breakdown Voltage:
+  display_values:
+  - 600 V
+  - 30 V
+  - 50 V
+  - 30 V
+  - 30 V
+  - 30 V
+  - 50 V
+  - 30 V
+  - 15 V
+  group: Technical
+  id: '438'
+  name: Collector Emitter Breakdown Voltage
+  shortname: collectoremitterbreakdownvoltage
+  unit: V
+  value_type: float
+Collector Emitter Saturation Voltage:
+  display_values:
+  - 1.5 V
+  - -300 mV
+  - 1 V
+  - 300 mV
+  - -400 mV
+  - 600 mV
+  - 400 mV
+  group: Technical
+  id: '474'
+  name: Collector Emitter Saturation Voltage
+  shortname: collectoremittersaturationvoltage
+  unit: V
+  value_type: float
+Collector Emitter Voltage (VCEO):
+  display_values:
+  - 1.95 V
+  - 30 V
+  - 50 V
+  - 30 V
+  - 30 V
+  - 50 V
+  - 50 V
+  - 30 V
+  - 15 V
+  group: Technical
+  id: '198'
+  name: Collector Emitter Voltage (VCEO)
+  shortname: collectoremittervoltage_vceo_
+  unit: V
+  value_type: float
+Color:
+  display_values:
+  - Beige
+  - White
+  - Natural
+  - Natural
+  - Grey, Red
+  - White
+  - Green
+  - Green
+  - White
+  - Orange
+  - Green
+  - Black
+  - Blue
+  - Black
+  - Brown
+  - White
+  - Green
+  - Red
+  - Clear
+  - Grey
+  - Black
+  - Grey
+  - Black, Green, Yellow
+  - Blue
+  - Black
+  - Green
+  - Black
+  - Red
+  - Clear
+  - Green
+  - Blue
+  - Natural, White
+  - Grey
+  - Black
+  group: Physical
+  id: '743'
+  name: Color
+  shortname: color
+  value_type: text
+Color Rendering Index (CRI):
+  display_values:
+  - '80'
+  group: Technical
+  id: '260'
+  name: Color Rendering Index (CRI)
+  shortname: colorrenderingindex_cri_
+  value_type: int
+Common Mode Impedance:
+  display_values:
+  - "35 \u03A9"
+  group: Technical
+  id: '929'
+  name: Common Mode Impedance
+  shortname: commonmodeimpedance
+  unit: "\u03A9"
+  value_type: float
+Common Mode Inductance:
+  display_values:
+  - 5 mH
+  group: Technical
+  id: '930'
+  name: Common Mode Inductance
+  shortname: commonmodeinductance
+  unit: H
+  value_type: float
+Common Mode Rejection Ratio:
+  display_values:
+  - 140 dB
+  - 77 dB
+  - 70 dB
+  group: Technical
+  id: '774'
+  name: Common Mode Rejection Ratio
+  shortname: commonmoderejectionratio
+  unit: dB
+  value_type: float
+Composition:
+  display_values:
+  - Thick Film
+  - Metal Film
+  - Carbon Film
+  - Wirewound
+  - Zener
+  - Ceramic
+  - Potentiometer
+  - Zener
+  - Wirewound
+  group: Technical
+  id: '371'
+  name: Composition
+  shortname: composition
+  value_type: text
+Conductor Diameter:
+  display_values:
+  - 1.016 mm
+  group: Dimensions
+  id: '450'
+  name: Conductor Diameter
+  shortname: conductordiameter
+  unit: m
+  value_type: float
+Conductor Material:
+  display_values:
+  - Copper
+  - Copper, Tin
+  - Silver
+  - Copper
+  - Copper
+  group: Physical
+  id: '314'
+  name: Conductor Material
+  shortname: conductormaterial
+  value_type: text
+Connector Pitch:
+  display_values:
+  - 7.5 mm
+  group: Dimensions
+  id: '402'
+  name: Connector Pitch
+  shortname: connectorpitch
+  unit: m
+  value_type: float
+Connector System:
+  group: Technical
+  id: '398'
+  name: Connector System
+  shortname: connectorsystem
+Connector Type:
+  display_values:
+  - Male Pin
+  - Connector, Pin, Plug
+  - Socket
+  - Connector, Crimp, PCB, Signal
+  - Connector, Receptacle, Socket
+  - Coaxial, Receptacle
+  - Plug
+  - Plug
+  - Plug
+  - Male Pin
+  - Connector, PCB, Signal, Socket
+  - RJ45
+  - Plug
+  - Male Pin
+  - Header, Pin, Plug
+  - Power, Receptacle, Rectangular, Socket
+  group: Technical
+  id: '250'
+  name: Connector Type
+  shortname: connectortype
+  value_type: text
+Connector Type A:
+  group: Technical
+  id: '830'
+  name: Connector Type A
+  shortname: connectortypea
+Connector Type B:
+  group: Technical
+  id: '410'
+  name: Connector Type B
+  shortname: connectortypeb
+Connectors Color:
+  group: Physical
+  id: '262'
+  name: Connectors Color
+  shortname: connectorscolor
+Contact Current Rating:
+  display_values:
+  - 15 A
+  - 40 A
+  - 1.25 A
+  - 15 A
+  - 100 mA
+  - 750 mA
+  - 10 A
+  group: Technical
+  id: '584'
+  name: Contact Current Rating
+  shortname: contactcurrentrating
+  unit: A
+  value_type: float
+Contact Finish Thickness:
+  display_values:
+  - 380 nm
+  group: Dimensions
+  id: '653'
+  name: Contact Finish Thickness
+  shortname: contactfinishthickness
+  unit: m
+  value_type: float
+Contact Finish Thickness - Mating:
+  display_values:
+  - 120 nm
+  group: Dimensions
+  id: '350'
+  name: Contact Finish Thickness - Mating
+  shortname: contactfinishthickness_mating
+  unit: m
+  value_type: float
+Contact Finish Thickness - Post:
+  group: Dimensions
+  id: '297'
+  name: Contact Finish Thickness - Post
+  shortname: contactfinishthickness_post
+Contact Gender:
+  display_values:
+  - Male
+  - Male
+  - Male
+  group: Technical
+  id: '850'
+  name: Contact Gender
+  shortname: contactgender
+  value_type: text
+Contact Length - Mating:
+  group: Dimensions
+  id: '467'
+  name: Contact Length - Mating
+  shortname: contactlength_mating
+Contact Length - Post:
+  group: Dimensions
+  id: '561'
+  name: Contact Length - Post
+  shortname: contactlength_post
+Contact Location:
+  group: Technical
+  id: '229'
+  name: Contact Location
+  shortname: contactlocation
+Contact Material:
+  display_values:
+  - Silver
+  - Silver
+  - Brass
+  - Brass
+  - Bronze
+  - Bronze
+  - Gold, Silver
+  - Brass
+  - Brass, Copper
+  - Bronze
+  - Brass
+  - Steel
+  - Brass
+  - Bronze
+  - Silver
+  - Brass
+  - Bronze
+  - Brass
+  - Silver
+  - Brass
+  - Brass
+  - Brass, Copper
+  - Bronze
+  - Brass
+  group: Physical
+  id: '383'
+  name: Contact Material
+  shortname: contactmaterial
+  value_type: text
+Contact Mating Length:
+  display_values:
+  - 6.096 mm
+  - 5.842 mm
+  - 5.842 mm
+  - 10.0076 mm
+  group: Dimensions
+  id: '516'
+  name: Contact Mating Length
+  shortname: contactmatinglength
+  unit: m
+  value_type: float
+Contact Pitch:
+  display_values:
+  - 2 mm
+  group: Dimensions
+  id: '759'
+  name: Contact Pitch
+  shortname: contactpitch
+  unit: m
+  value_type: float
+Contact Plating:
+  display_values:
+  - Gold
+  - Tin
+  - Tin
+  - Copper
+  - Gold
+  - Gold, Nickel
+  - Tin
+  - Gold
+  - Gold
+  - Gold, Tin
+  - Gold
+  - Tin
+  - Gold
+  - Gold
+  - Gold
+  - Tin
+  - Tin
+  - Tin
+  - Gold
+  - Tin
+  - Tin
+  - Tin
+  - Tin
+  - Tin
+  - Tin
+  - Gold
+  - Tin
+  - Gold
+  - Gold
+  - Gold, Tin
+  - Tin
+  - Tin
+  - GXT, Gold, Tin
+  - Tin
+  - Gold
+  - Tin
+  - Tin
+  - Tin
+  - Tin
+  - Gold
+  - Gold, Tin
+  - Gold, Tin
+  - Tin
+  group: Physical
+  id: '384'
+  name: Contact Plating
+  shortname: contactplating
+  value_type: text
+Contact Protection:
+  group: Technical
+  id: '693'
+  name: Contact Protection
+  shortname: contactprotection
+Contact Resistance:
+  display_values:
+  - "20 m\u03A9"
+  - "30 m\u03A9"
+  - "10 m\u03A9"
+  - "200 m\u03A9"
+  - "20 m\u03A9"
+  - "4 m\u03A9"
+  - "50 m\u03A9"
+  - "12 m\u03A9"
+  - "50 m\u03A9"
+  - "20 m\u03A9"
+  group: Technical
+  id: '604'
+  name: Contact Resistance
+  shortname: contactresistance
+  unit: "\u03A9"
+  value_type: float
+Contact Retention:
+  group: Technical
+  id: '722'
+  name: Contact Retention
+  shortname: contactretention
+Contact Shape:
+  display_values:
+  - Square
+  - Square
+  group: Physical
+  id: '432'
+  name: Contact Shape
+  shortname: contactshape
+  value_type: text
+Contact Style:
+  display_values:
+  - Pin
+  - Press-Fit
+  - Non-Shorting
+  - Press-Fit
+  - Pin
+  group: Technical
+  id: '871'
+  name: Contact Style
+  shortname: contactstyle
+  value_type: text
+Contact Voltage Rating (AC):
+  display_values:
+  - 250 V
+  - 50 V
+  group: Technical
+  id: '827'
+  name: Contact Voltage Rating (AC)
+  shortname: contactvoltagerating_ac_
+  unit: V
+  value_type: float
+Contact Voltage Rating (DC):
+  display_values:
+  - 50 V
+  group: Technical
+  id: '803'
+  name: Contact Voltage Rating (DC)
+  shortname: contactvoltagerating_dc_
+  unit: V
+  value_type: float
+Continuous Collector Current:
+  display_values:
+  - -100 mA
+  - 20 mA
+  - -200 mA
+  group: Technical
+  id: '579'
+  name: Continuous Collector Current
+  shortname: continuouscollectorcurrent
+  unit: A
+  value_type: float
+Continuous Drain Current (ID):
+  display_values:
+  - 100 mA
+  - 300 mA
+  - 1 mA
+  - 300 mA
+  group: Technical
+  id: '745'
+  name: Continuous Drain Current (ID)
+  shortname: continuousdraincurrent_id_
+  unit: A
+  value_type: float
+Contrast Ratio:
+  group: Technical
+  id: '240'
+  name: Contrast Ratio
+  shortname: contrastratio
+Control Method:
+  group: Technical
+  id: '772'
+  name: Control Method
+  shortname: controlmethod
+Conversion Rate:
+  display_values:
+  - 128 sps
+  - 225 ksps
+  group: Technical
+  id: '764'
+  name: Conversion Rate
+  shortname: conversionrate
+  unit: sps
+  value_type: float
+Cord Length:
+  display_values:
+  - 902.208 mm
+  - 1.2192 m
+  - 914.4 mm
+  - 3.048 m
+  - 1.8288 m
+  group: Dimensions
+  id: '607'
+  name: Cord Length
+  shortname: cordlength
+  unit: m
+  value_type: float
+Core Architecture:
+  display_values:
+  - HCS08
+  group: Technical
+  id: '512'
+  name: Core Architecture
+  shortname: corearchitecture
+  value_type: text
+Core Clock Rate:
+  group: Technical
+  id: '949'
+  name: Core Clock Rate
+  shortname: coreclockrate
+Core Material:
+  display_values:
+  - Ceramic
+  - Metal
+  - Non-Magnetic
+  - Ferrite
+  - Ferrite
+  group: Physical
+  id: '392'
+  name: Core Material
+  shortname: corematerial
+  value_type: text
+Correlated Color Temperature (CCT):
+  group: Technical
+  id: '664'
+  name: Correlated Color Temperature (CCT)
+  shortname: correlatedcolortemperature_cct_
+Country of Origin:
+  display_values:
+  - TH
+  - TH
+  - US
+  - US
+  - SK
+  - JP
+  group: Supply Chain
+  id: '912'
+  name: Country of Origin
+  shortname: countryoforigin
+  value_type: text
+Current:
+  display_values:
+  - 100 mA
+  - 320 mA
+  - 310 mA
+  - 25 A
+  - 21 A
+  - 20 A
+  group: Technical
+  id: '299'
+  name: Current
+  shortname: current
+  unit: A
+  value_type: float
+Current - Output 1:
+  display_values:
+  - 500 mA
+  - 150 mA
+  - 1.2 A
+  - 100 mA
+  - 6 A
+  - 300 mA
+  - 3 A
+  - 1 A
+  - 400 mA
+  - 10 A
+  - 8 A
+  group: Technical
+  id: '382'
+  name: Current - Output 1
+  shortname: current_output1
+  unit: A
+  value_type: float
+Current - Output 2:
+  display_values:
+  - 150 mA
+  - 600 mA
+  - 3 A
+  - 100 mA
+  - 1 A
+  - 2 A
+  - 250 mA
+  - 400 mA
+  - 10 A
+  - 8 A
+  - 4.5 A
+  group: Technical
+  id: '506'
+  name: Current - Output 2
+  shortname: current_output2
+  unit: A
+  value_type: float
+Current - Output 3:
+  display_values:
+  - 400 mA
+  - 0 A
+  - 1 A
+  - 2 A
+  - 3 A
+  - 4 A
+  - 5 A
+  - 6 A
+  - 8 A
+  - 9 A
+  group: Technical
+  id: '501'
+  name: Current - Output 3
+  shortname: current_output3
+Current - Receiving:
+  display_values:
+  - 4 mA
+  group: Technical
+  id: '226'
+  name: Current - Receiving
+  shortname: current_receiving
+  unit: A
+  value_type: float
+Current - Transmitting:
+  display_values:
+  - 3 mA
+  group: Technical
+  id: '859'
+  name: Current - Transmitting
+  shortname: current_transmitting
+  unit: A
+  value_type: float
+Current Rating:
+  display_values:
+  - 100 mA
+  - 1 A
+  - 7.7 mA
+  - 100 mA
+  - 100 mA
+  - 320 mA
+  - 12 A
+  - 4 A
+  - 3 A
+  - 2 A
+  - -100 mA
+  - 300 mA
+  - 100 mA
+  - 375 mA
+  - 20 mA
+  - 600 mA
+  - 1 mA
+  - -500 mA
+  - 3 A
+  - 60 mA
+  - 3 A
+  - 70 mA
+  - 10 A
+  - 1.5 A
+  - 100 mA
+  - 250 mA
+  - 750 mA
+  - 24 A
+  - 3 A
+  - 30 A
+  - 10 mA
+  - 10 A
+  - 5 A
+  - 5 A
+  - 20 mA
+  - 3 A
+  - 1.57 A
+  - 1.1 A
+  - 1 A
+  - 15 A
+  group: Technical
+  id: '638'
+  name: Current Rating
+  shortname: currentrating
+  unit: A
+  value_type: float
+Current Sensing:
+  display_values:
+  - 31 A
+  group: Technical
+  id: '436'
+  name: Current Sensing
+  shortname: currentsensing
+  unit: A
+  value_type: float
+Current Transfer Ratio:
+  display_values:
+  - 1000 %
+  group: Technical
+  id: '520'
+  name: Current Transfer Ratio
+  shortname: currenttransferratio
+  unit: '%'
+  value_type: float
+Cutoff Frequency:
+  display_values:
+  - 5 GHz
+  group: Technical
+  id: '941'
+  name: Cutoff Frequency
+  shortname: cutofffrequency
+  unit: Hz
+  value_type: float
+Cycle Time:
+  display_values:
+  - 6 ns
+  group: Technical
+  id: '944'
+  name: Cycle Time
+  shortname: cycletime
+  unit: s
+  value_type: float
+DC Cold Resistance:
+  group: Technical
+  id: '819'
+  name: DC Cold Resistance
+  shortname: dccoldresistance
+DC Current:
+  display_values:
+  - 300 mA
+  - 70 mA
+  group: Technical
+  id: '282'
+  name: DC Current
+  shortname: dccurrent
+  unit: A
+  value_type: float
+DC Resistance (DCR):
+  display_values:
+  - "5 \u03A9"
+  - "2.5 \u03A9"
+  - "420 m\u03A9"
+  - "1.344 \u03A9"
+  - "160 m\u03A9"
+  - "28.6 \u03A9"
+  - "1.1 \u03A9"
+  - "2.5 \u03A9"
+  - "72 m\u03A9"
+  group: Technical
+  id: '201'
+  name: DC Resistance (DCR)
+  shortname: dcresistance_dcr_
+  unit: "\u03A9"
+  value_type: float
+DC Resistance (DCR) - Parallel:
+  group: Technical
+  id: '804'
+  name: DC Resistance (DCR) - Parallel
+  shortname: dcresistance_dcr__parallel
+DC Resistance (DCR) - Series:
+  display_values:
+  - "2.687 \u03A9"
+  group: Technical
+  id: '272'
+  name: DC Resistance (DCR) - Series
+  shortname: dcresistance_dcr__series
+Dark Current:
+  display_values:
+  - 100 nA
+  group: Technical
+  id: '705'
+  name: Dark Current
+  shortname: darkcurrent
+  unit: A
+  value_type: float
+Data Bus Width:
+  display_values:
+  - 32 b
+  - 8 b
+  - 8 b
+  - 8 b
+  group: Technical
+  id: '305'
+  name: Data Bus Width
+  shortname: databuswidth
+  unit: b
+  value_type: int
+Data Polarity:
+  group: Technical
+  id: '906'
+  name: Data Polarity
+  shortname: datapolarity
+Data Rate:
+  display_values:
+  - 15 Mbps
+  - 3.4 Mbps
+  - 25 Gbps
+  - 12 Mbps
+  - 1 Mbps
+  - 150 Mbps
+  - 400 Mbps
+  - 25 Gbps
+  - 1 Mbps
+  - 120 kbps
+  group: Technical
+  id: '624'
+  name: Data Rate
+  shortname: datarate
+  unit: bps
+  value_type: float
+Date Code:
+  group: Supply Chain
+  id: '911'
+  name: Date Code
+  shortname: datecode
+Date Format:
+  display_values:
+  - YY-MM-DD-dd
+  group: Technical
+  id: '462'
+  name: Date Format
+  shortname: dateformat
+  value_type: text
+Density:
+  display_values:
+  - 8 kb
+  - 256 Mb
+  - 2 kb
+  - 8 Mb
+  - 512 kb
+  group: Technical
+  id: '236'
+  name: Density
+  shortname: density
+  unit: b
+  value_type: float
+Depth:
+  display_values:
+  - "800 \xB5m"
+  - 1.25 mm
+  - 63.9 mm
+  - 12.4 mm
+  - "800 \xB5m"
+  - 12.7 mm
+  - 3 mm
+  - "550 \xB5m"
+  - 13.97 mm
+  - "500 \xB5m"
+  - 2.85 mm
+  - 9.39 mm
+  - "810 \xB5m"
+  - 3.15 mm
+  - 5.08 mm
+  - 1.55 mm
+  - 1.55 mm
+  - 2 mm
+  - 27.43 mm
+  - 7 mm
+  - 41.8 mm
+  - 1 mm
+  - 7.62 mm
+  - 1 mm
+  - 5.4 mm
+  - "800 \xB5m"
+  - 8.8 mm
+  - 4.26 mm
+  - 2.5 mm
+  - 4.8 mm
+  - 53.4 mm
+  - 32 mm
+  - 50 mm
+  - 127 mm
+  - 99 mm
+  - 107.95 mm
+  group: Dimensions
+  id: '291'
+  name: Depth
+  shortname: depth
+  unit: m
+  value_type: float
+Detent:
+  group: Technical
+  id: '336'
+  name: Detent
+  shortname: detent
+Diagonal Size:
+  display_values:
+  - 2.4 in
+  group: Dimensions
+  id: '844'
+  name: Diagonal Size
+  shortname: diagonalsize
+  unit: in
+  value_type: float
+Diameter:
+  display_values:
+  - 2.72 mm
+  - 5 mm
+  - 5.969 mm
+  - 3.6 mm
+  - 41.8 mm
+  - 4 mm
+  - 6.3 mm
+  group: Dimensions
+  id: '418'
+  name: Diameter
+  shortname: diameter
+  unit: m
+  value_type: float
+Dielectric:
+  display_values:
+  - Y5V
+  - C0G
+  - X5R
+  group: Technical
+  id: '357'
+  name: Dielectric
+  shortname: dielectric
+  value_type: text
+Dielectric Material:
+  display_values:
+  - Ceramic
+  - Aluminium
+  - Ceramic
+  group: Physical
+  id: '834'
+  name: Dielectric Material
+  shortname: dielectricmaterial
+  value_type: text
+Differential Nonlinearity:
+  display_values:
+  - 1 LSB
+  - 0.5 LSB
+  group: Technical
+  id: '533'
+  name: Differential Nonlinearity
+  shortname: differentialnonlinearity
+  unit: LSB
+  value_type: float
+Differential Output:
+  group: Technical
+  id: '596'
+  name: Differential Output
+  shortname: differentialoutput
+Differential Pairs per Column:
+  display_values:
+  - '3'
+  - '2'
+  group: Technical
+  id: '486'
+  name: Differential Pairs per Column
+  shortname: differentialpairspercolumn
+  value_type: int
+Differential Signaling:
+  display_values:
+  - 'No'
+  - 'Yes'
+  group: Technical
+  id: '680'
+  name: Differential Signaling
+  shortname: differentialsignaling
+  value_type: text
+Differential Travel:
+  display_values:
+  - "508 \xB5m"
+  group: Technical
+  id: '833'
+  name: Differential Travel
+  shortname: differentialtravel
+  unit: m
+  value_type: float
+Dimming:
+  display_values:
+  - Multi-Step
+  group: Technical
+  id: '815'
+  name: Dimming
+  shortname: dimming
+  value_type: text
+Diode Type:
+  display_values:
+  - PIN - Single
+  group: Technical
+  id: '647'
+  name: Diode Type
+  shortname: diodetype
+  value_type: text
+Direction:
+  display_values:
+  - Unidirectional
+  - Down
+  group: Technical
+  id: '437'
+  name: Direction
+  shortname: direction
+  value_type: text
+Display Type:
+  display_values:
+  - LCD
+  group: Technical
+  id: '409'
+  name: Display Type
+  shortname: displaytype
+  value_type: text
+Dissipation Factor:
+  display_values:
+  - 7 %
+  group: Technical
+  id: '389'
+  name: Dissipation Factor
+  shortname: dissipationfactor
+  unit: '%'
+  value_type: float
+Dominant Wavelength:
+  display_values:
+  - 572 nm
+  - 573 nm
+  group: Technical
+  id: '594'
+  name: Dominant Wavelength
+  shortname: dominantwavelength
+  unit: m
+  value_type: float
+Drain to Source Breakdown Voltage:
+  display_values:
+  - 30 V
+  - 60 V
+  - 60 V
+  group: Technical
+  id: '785'
+  name: Drain to Source Breakdown Voltage
+  shortname: draintosourcebreakdownvoltage
+  unit: V
+  value_type: float
+Drain to Source Resistance:
+  display_values:
+  - "5 \u03A9"
+  - "7.5 \u03A9"
+  - "1.6 \u03A9"
+  group: Technical
+  id: '459'
+  name: Drain to Source Resistance
+  shortname: draintosourceresistance
+  unit: "\u03A9"
+  value_type: float
+Drain to Source Voltage (Vdss):
+  display_values:
+  - 30 V
+  - 60 V
+  - -60 V
+  - 60 V
+  group: Technical
+  id: '780'
+  name: Drain to Source Voltage (Vdss)
+  shortname: draintosourcevoltage_vdss_
+  unit: V
+  value_type: float
+Dropout Voltage:
+  display_values:
+  - 4.8 V
+  - 200 mV
+  - 950 mV
+  - 450 mV
+  group: Technical
+  id: '287'
+  name: Dropout Voltage
+  shortname: dropoutvoltage
+  unit: V
+  value_type: float
+Dual Supply Voltage:
+  display_values:
+  - 60 V
+  - 9 V
+  group: Technical
+  id: '243'
+  name: Dual Supply Voltage
+  shortname: dualsupplyvoltage
+  unit: V
+  value_type: float
+Durability Rating:
+  display_values:
+  - 30 cycles
+  group: Technical
+  id: '534'
+  name: Durability Rating
+  shortname: durabilityrating
+  unit: cycles
+  value_type: float
+Duty Cycle:
+  display_values:
+  - 80 %
+  group: Technical
+  id: '807'
+  name: Duty Cycle
+  shortname: dutycycle
+  unit: '%'
+  value_type: float
+EEPROM Memory Size:
+  display_values:
+  - 128 B
+  - 296 B
+  group: Technical
+  id: '951'
+  name: EEPROM Memory Size
+  shortname: eeprommemorysize
+  unit: B
+  value_type: float
+ELV:
+  display_values:
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  group: Compliance
+  id: '751'
+  name: ELV
+  shortname: elv
+  value_type: text
+ESD Protection:
+  display_values:
+  - 'No'
+  group: Technical
+  id: '273'
+  name: ESD Protection
+  shortname: esdprotection
+  value_type: text
+ESR (Equivalent Series Resistance):
+  display_values:
+  - "7.5357 \u03A9"
+  - "8.47 \u03A9"
+  group: Technical
+  id: '308'
+  name: ESR (Equivalent Series Resistance)
+  shortname: esr_equivalentseriesresistance_
+  unit: "\u03A9"
+  value_type: float
+Efficiency:
+  display_values:
+  - 88 %
+  - 93 %
+  - 80 %
+  - 76 %
+  - 75 %
+  - 70 %
+  group: Technical
+  id: '654'
+  name: Efficiency
+  shortname: efficiency
+  unit: '%'
+  value_type: float
+Electrical Life:
+  display_values:
+  - 100 kcycles
+  - 50 kcycles
+  group: Technical
+  id: '797'
+  name: Electrical Life
+  shortname: electricallife
+  unit: cycle
+  value_type: float
+Element Configuration:
+  display_values:
+  - Single
+  - Common Anode
+  - Common Cathode
+  - Single
+  - Single
+  - Single
+  - Single
+  - Single
+  - Single
+  - Single
+  - Single
+  - Single
+  - Dual
+  - Single
+  - Single
+  - Single
+  group: Technical
+  id: '522'
+  name: Element Configuration
+  shortname: elementconfiguration
+  value_type: text
+Emitter Base Voltage (VEBO):
+  display_values:
+  - 5 V
+  - -10 V
+  - 4 V
+  - 40 V
+  - 5 V
+  - 2.5 V
+  group: Technical
+  id: '310'
+  name: Emitter Base Voltage (VEBO)
+  shortname: emitterbasevoltage_vebo_
+  unit: V
+  value_type: float
+Encoder Type:
+  group: Technical
+  id: '644'
+  name: Encoder Type
+  shortname: encodertype
+Energy:
+  display_values:
+  - 50 mJ
+  - 540 J
+  - 660 J
+  - 390 J
+  - 1.08 kJ
+  - 3.24 kJ
+  - 70 J
+  group: Technical
+  id: '387'
+  name: Energy
+  shortname: energy
+  unit: J
+  value_type: float
+Environmental Protection:
+  group: Compliance
+  id: '367'
+  name: Environmental Protection
+  shortname: environmentalprotection
+Evaluation Kit:
+  group: Technical
+  id: '788'
+  name: Evaluation Kit
+  shortname: evaluationkit
+Export Control Classification Number (ECCN) Code:
+  group: Supply Chain
+  id: '913'
+  name: Export Control Classification Number (ECCN) Code
+  shortname: eccncode
+Exterior Housing Material:
+  group: Physical
+  id: '397'
+  name: Exterior Housing Material
+  shortname: exteriorhousingmaterial
+FIFO Buffer Size:
+  display_values:
+  - 608 B
+  group: Technical
+  id: '950'
+  name: FIFO Buffer Size
+  shortname: fifobuffersize
+  unit: B
+  value_type: float
+FWFT Support:
+  group: Technical
+  id: '700'
+  name: FWFT Support
+  shortname: fwftsupport
+Factory Installed Backshell:
+  group: Technical
+  id: '317'
+  name: Factory Installed Backshell
+  shortname: factoryinstalledbackshell
+Fail Short:
+  group: Technical
+  id: '736'
+  name: Fail Short
+  shortname: failshort
+Failure Rate:
+  display_values:
+  - 0.001 %
+  group: Technical
+  id: '233'
+  name: Failure Rate
+  shortname: failurerate
+  unit: '%'
+  value_type: float
+Fall Time:
+  display_values:
+  - 20 ns
+  - 28 ns
+  group: Technical
+  id: '619'
+  name: Fall Time
+  shortname: falltime
+  unit: s
+  value_type: float
+Fastening Type:
+  display_values:
+  - Snap
+  - Snap
+  group: Technical
+  id: '374'
+  name: Fastening Type
+  shortname: fasteningtype
+  value_type: text
+Fault Protection:
+  display_values:
+  - Over Temperature, Over Voltage
+  - Over Temperature, Over Voltage, Short Circuit
+  group: Technical
+  id: '740'
+  name: Fault Protection
+  shortname: faultprotection
+  value_type: text
+Features:
+  display_values:
+  - General Purpose
+  - OCP, UVLO
+  - Military, Moisture Resistant, Weldable
+  - "I\xB2C"
+  - "I\xB2C"
+  - OCP, OTP, OVP, SCP
+  group: Technical
+  id: '587'
+  name: Features
+  shortname: features
+  value_type: text
+Feed Type:
+  group: Technical
+  id: '754'
+  name: Feed Type
+  shortname: feedtype
+Feedthrough Type:
+  group: Technical
+  id: '757'
+  name: Feedthrough Type
+  shortname: feedthroughtype
+Fiber Cladding Diameter:
+  display_values:
+  - 1 mm
+  - "125 \xB5m"
+  group: Dimensions
+  id: '649'
+  name: Fiber Cladding Diameter
+  shortname: fibercladdingdiameter
+  unit: m
+  value_type: float
+Fiber Core Diameter:
+  display_values:
+  - "9.5 \xB5m"
+  group: Dimensions
+  id: '598'
+  name: Fiber Core Diameter
+  shortname: fibercorediameter
+  unit: m
+  value_type: float
+First Conductor Mark:
+  group: Technical
+  id: '244'
+  name: First Conductor Mark
+  shortname: firstconductormark
+Flammability Rating:
+  display_values:
+  - UL94 V-0
+  - UL VW-1
+  - UL94 V-2
+  - UL94 V-0
+  - UL94 V-0
+  - UL94 V-0
+  - UL94 V-0
+  - UL94 V-0
+  - UL94 V-0
+  - UL94 V-0
+  - UL94 V-0
+  - UL94 V-0
+  - UL94 V-0
+  group: Compliance
+  id: '790'
+  name: Flammability Rating
+  shortname: flammabilityrating
+  value_type: text
+Flange Diameter:
+  display_values:
+  - 11.8872 mm
+  - 2.032 mm
+  - 1.8288 mm
+  group: Dimensions
+  id: '408'
+  name: Flange Diameter
+  shortname: flangediameter
+  unit: m
+  value_type: float
+Flash Memory Size:
+  group: Technical
+  id: '947'
+  name: Flash Memory Size
+  shortname: flashmemorysize
+Fluid Type:
+  display_values:
+  - Air
+  group: Technical
+  id: '723'
+  name: Fluid Type
+  shortname: fluidtype
+  value_type: text
+Forward Current:
+  display_values:
+  - 1 A
+  - 15 mA
+  - 20 mA
+  - 60 mA
+  - 7 A
+  - 150 mA
+  - 60 mA
+  - 25 mA
+  - 10 mA
+  - 1.5 A
+  - 10 mA
+  - 150 mA
+  - 100 mA
+  group: Technical
+  id: '448'
+  name: Forward Current
+  shortname: forwardcurrent
+  unit: A
+  value_type: float
+Forward Voltage:
+  display_values:
+  - 1.1 V
+  - 1.75 V
+  - 2.25 V
+  - 2.6 V
+  - 1.5 V
+  - 2.95 V
+  - 1.3 V
+  - 2 V
+  - 1 V
+  - 1.4 V
+  - 2.1 V
+  - 1 V
+  - 1.1 V
+  - 3.25 V
+  group: Technical
+  id: '688'
+  name: Forward Voltage
+  shortname: forwardvoltage
+  unit: V
+  value_type: float
+Frequency:
+  display_values:
+  - 400 kHz
+  - 2 GHz
+  - 100 MHz
+  - 2.4 GHz
+  - 100 kHz
+  - -6 GHz
+  - 48 MHz
+  - 32.768 kHz
+  - 700 MHz
+  - 50 MHz
+  - 1.88 GHz
+  - 1 MHz
+  - 100 MHz
+  - 108 MHz
+  - 2.64 GHz
+  - 8 MHz
+  - 140 MHz
+  - 1.8797 GHz
+  - 400 kHz
+  - 104 MHz
+  - 2.5 GHz
+  - 500 kHz
+  - 2.4 GHz
+  - 60 Hz
+  - 28 MHz
+  - 65 Hz
+  group: Technical
+  id: '505'
+  name: Frequency
+  shortname: frequency
+  unit: Hz
+  value_type: float
+Frequency Stability:
+  display_values:
+  - 50 ppm
+  group: Technical
+  id: '223'
+  name: Frequency Stability
+  shortname: frequencystability
+  unit: ppm
+  value_type: float
+Frequency Tolerance:
+  display_values:
+  - 0.002 %
+  group: Technical
+  id: '513'
+  name: Frequency Tolerance
+  shortname: frequencytolerance
+  unit: '%'
+  value_type: float
+Full Scale Error:
+  group: Technical
+  id: '203'
+  name: Full Scale Error
+  shortname: fullscaleerror
+Fuse:
+  group: Technical
+  id: '725'
+  name: Fuse
+  shortname: fuse
+Fuse Current:
+  display_values:
+  - 375 mA
+  - 150 mA
+  - 10 A
+  group: Technical
+  id: '691'
+  name: Fuse Current
+  shortname: fusecurrent
+  unit: A
+  value_type: float
+Gain:
+  display_values:
+  - 24 dB
+  group: Technical
+  id: '812'
+  name: Gain
+  shortname: gain
+  unit: dB
+  value_type: float
+Gain Bandwidth Product:
+  display_values:
+  - 500 Hz
+  - 100 MHz
+  - 700 MHz
+  - 9 MHz
+  - 3 MHz
+  - 1 MHz
+  - 100 MHz
+  group: Technical
+  id: '508'
+  name: Gain Bandwidth Product
+  shortname: gainbandwidthproduct
+  unit: Hz
+  value_type: float
+Gasket:
+  group: Technical
+  id: '296'
+  name: Gasket
+  shortname: gasket
+Gate Charge (Qg):
+  group: Technical
+  id: '915'
+  name: Gate Charge (Qg)
+  shortname: gatecharge
+Gate to Source Voltage (Vgs):
+  display_values:
+  - 20 V
+  - 20 V
+  - -20 V
+  - -1.5 V
+  - 20 V
+  group: Technical
+  id: '212'
+  name: Gate to Source Voltage (Vgs)
+  shortname: gatetosourcevoltage_vgs_
+  unit: V
+  value_type: float
+Gender:
+  display_values:
+  - Male
+  - Male
+  - Receptacle
+  - Female
+  - Female
+  - Male
+  - Male
+  - Female
+  - Female
+  - Male
+  - Male
+  - Female
+  - Receptacle
+  group: Technical
+  id: '737'
+  name: Gender
+  shortname: gender
+  value_type: text
+Gender Type A:
+  group: Technical
+  id: '318'
+  name: Gender Type A
+  shortname: gendertypea
+Gender Type B:
+  group: Technical
+  id: '843'
+  name: Gender Type B
+  shortname: gendertypeb
+Glow Wire Compliant:
+  display_values:
+  - Non-compliant
+  - Non-compliant
+  - Non-compliant
+  group: Compliance
+  id: '360'
+  name: Glow Wire Compliant
+  shortname: glowwirecompliant
+  value_type: text
+Government Qualified:
+  display_values:
+  - 'No'
+  - 'No'
+  group: Compliance
+  id: '672'
+  name: Government Qualified
+  shortname: governmentqualified
+  value_type: text
+Guide Hardware:
+  group: Technical
+  id: '247'
+  name: Guide Hardware
+  shortname: guidehardware
+HS Code:
+  group: Technical
+  id: '974'
+  name: HS Code
+  shortname: hscode
+Halogen Free:
+  display_values:
+  - Low Halogen
+  - Not Halogen Free
+  - Not Halogen Free
+  - Halogen Free
+  - Halogen Free
+  - Halogen Free
+  - Halogen Free
+  - Halogen Free
+  - Halogen Free
+  - Halogen Free
+  - Halogen Free
+  group: Compliance
+  id: '687'
+  name: Halogen Free
+  shortname: halogenfree
+  value_type: text
+Harmonized Tariff Schedule (HTS) Code:
+  group: Supply Chain
+  id: '914'
+  name: Harmonized Tariff Schedule (HTS) Code
+  shortname: htscode
+Head Diameter:
+  display_values:
+  - 5.3086 mm
+  group: Dimensions
+  id: '277'
+  name: Head Diameter
+  shortname: headdiameter
+  unit: m
+  value_type: float
+Head Height:
+  display_values:
+  - 1.778 mm
+  group: Dimensions
+  id: '479'
+  name: Head Height
+  shortname: headheight
+  unit: m
+  value_type: float
+Heavy Duty:
+  display_values:
+  - 'No'
+  - 'No'
+  group: Technical
+  id: '847'
+  name: Heavy Duty
+  shortname: heavyduty
+  value_type: text
+Height:
+  display_values:
+  - 1.45 mm
+  - 1.25 mm
+  - "400 \xB5m"
+  - "600 \xB5m"
+  - "990.6 \xB5m"
+  - 2.72 mm
+  - 1.524 mm
+  - 4.3 mm
+  - 16.9926 mm
+  - 17.0942 mm
+  - "350 \xB5m"
+  - 16 mm
+  - 2.29 mm
+  - 4.06 mm
+  - 6.8 mm
+  - "930 \xB5m"
+  - 0 m
+  - 1.016 mm
+  - "555 \xB5m"
+  - 1 mm
+  - "550 \xB5m"
+  - 6.35 mm
+  - 9.8 mm
+  - "500 \xB5m"
+  - 11 mm
+  - "750 \xB5m"
+  - 6 mm
+  - "600 \xB5m"
+  - "480 \xB5m"
+  - 2.03 mm
+  - "950 \xB5m"
+  - "900 \xB5m"
+  - 6.2 mm
+  - 14.9 mm
+  - 5.72 mm
+  - "950 \xB5m"
+  - 1.2 mm
+  - 1.5 mm
+  - "550 \xB5m"
+  - 1.04 mm
+  - 2 mm
+  - "850 \xB5m"
+  - 7.6 mm
+  - "940 \xB5m"
+  - 15 mm
+  - 30.5 mm
+  - 22 mm
+  - 1.05 mm
+  - 16.2 mm
+  - 1 mm
+  - "990.6 \xB5m"
+  - "600 \xB5m"
+  - 4.953 mm
+  - 1 mm
+  - 11.95 mm
+  - 1.05 mm
+  - 29 mm
+  - 1 mm
+  - "700 \xB5m"
+  - "457.2 \xB5m"
+  - "500 \xB5m"
+  - 1 mm
+  - 12.7 mm
+  - "800 \xB5m"
+  - 5.4 mm
+  - "950 \xB5m"
+  - 15.8 mm
+  - 1 mm
+  - 7 mm
+  - 29.6 mm
+  - 1.1 mm
+  - "600 \xB5m"
+  - 7 mm
+  - 1 mm
+  - 1.9 mm
+  - 10.0076 mm
+  - 4.064 mm
+  - 9.53 mm
+  - 30.48 mm
+  - 50.8 mm
+  - 241 mm
+  - 63.5 mm
+  - 350.012 mm
+  - 86 mm
+  - 21.59 mm
+  - 29.464 mm
+  - 99 mm
+  - 45.72 mm
+  group: Dimensions
+  id: '468'
+  name: Height
+  shortname: height
+  unit: m
+  value_type: float
+Height - Seated (Max):
+  display_values:
+  - "609.6 \xB5m"
+  - 2.0066 mm
+  - "889 \xB5m"
+  - 5.4 mm
+  - 7.0104 mm
+  - "990.6 \xB5m"
+  group: Dimensions
+  id: '386'
+  name: Height - Seated (Max)
+  shortname: height_seated_max_
+  unit: m
+  value_type: float
+Height Off Base:
+  display_values:
+  - 2.2098 mm
+  - 9.525 mm
+  group: Dimensions
+  id: '332'
+  name: Height Off Base
+  shortname: heightoffbase
+  unit: m
+  value_type: float
+High Level Output Current:
+  display_values:
+  - -32 mA
+  - -4 mA
+  - -32 mA
+  - -2.6 mA
+  - -8 mA
+  group: Technical
+  id: '685'
+  name: High Level Output Current
+  shortname: highleveloutputcurrent
+  unit: A
+  value_type: float
+High Speed Serial Data Connector:
+  group: Technical
+  id: '528'
+  name: High Speed Serial Data Connector
+  shortname: highspeedserialdataconnector
+High Temperature Compatible:
+  group: Technical
+  id: '541'
+  name: High Temperature Compatible
+  shortname: hightemperaturecompatible
+High Temperature Housing:
+  group: Technical
+  id: '284'
+  name: High Temperature Housing
+  shortname: hightemperaturehousing
+Hold Current:
+  display_values:
+  - 150 mA
+  - 50 mA
+  - 6 A
+  group: Technical
+  id: '390'
+  name: Hold Current
+  shortname: holdcurrent
+  unit: A
+  value_type: float
+Hole Diameter:
+  display_values:
+  - "723.9 \xB5m"
+  - 9.525 mm
+  - "457.2 \xB5m"
+  - 1.27 mm
+  - 1.55 mm
+  group: Dimensions
+  id: '539'
+  name: Hole Diameter
+  shortname: holediameter
+  unit: m
+  value_type: float
+Housing Color:
+  display_values:
+  - Black
+  - Black
+  - Black
+  - Black
+  - Blue
+  - White
+  - Black
+  - Black
+  - Black
+  - Blue
+  - Green
+  - Black
+  - Natural
+  group: Physical
+  id: '719'
+  name: Housing Color
+  shortname: housingcolor
+  value_type: text
+Housing Material:
+  display_values:
+  - PBT
+  - Thermoplastic
+  - Polymer
+  - Polyamide
+  - Thermoplastic
+  - Plastic
+  - Ceramic
+  - Polyester
+  - Thermoplastic
+  - Phenolic
+  - Thermoplastic
+  - Polymer
+  - Thermoplastic
+  - Polycarbonate
+  - Glass fibre
+  - Polyamide
+  - Polyamide
+  group: Physical
+  id: '255'
+  name: Housing Material
+  shortname: housingmaterial
+  value_type: text
+Hybrid Connector:
+  group: Technical
+  id: '511'
+  name: Hybrid Connector
+  shortname: hybridconnector
+Hysteresis:
+  display_values:
+  - 50 mV
+  group: Technical
+  id: '372'
+  name: Hysteresis
+  shortname: hysteresis
+  unit: V
+  value_type: float
+IIP3:
+  display_values:
+  - 58 dBm
+  group: Technical
+  id: '546'
+  name: IIP3
+  shortname: iip3
+  unit: dBm
+  value_type: float
+Illumination Color:
+  display_values:
+  - Green
+  - Green
+  - Green
+  group: Technical
+  id: '618'
+  name: Illumination Color
+  shortname: illuminationcolor
+  value_type: text
+Illumination Type:
+  display_values:
+  - Illuminated
+  - Non-Illuminated
+  - Non-Illuminated
+  group: Technical
+  id: '583'
+  name: Illumination Type
+  shortname: illuminationtype
+  value_type: text
+Impedance:
+  display_values:
+  - "50 \u03A9"
+  - "50 \u03A9"
+  - "50 \u03A9"
+  - "4 \u03A9"
+  - "50 \u03A9"
+  - "50 \u03A9"
+  - "100 \u03A9"
+  - "100 \u03A9"
+  group: Technical
+  id: '495'
+  name: Impedance
+  shortname: impedance
+  unit: ohm
+  value_type: float
+Independent Circuits:
+  display_values:
+  - '1'
+  group: Technical
+  id: '403'
+  name: Independent Circuits
+  shortname: independentcircuits
+  value_type: int
+Index Angle:
+  display_values:
+  - "45 \xB0"
+  - "36 \xB0"
+  group: Technical
+  id: '420'
+  name: Index Angle
+  shortname: indexangle
+  unit: "\xB0C"
+  value_type: float
+Index Stops:
+  display_values:
+  - Fixed
+  group: Technical
+  id: '569'
+  name: Index Stops
+  shortname: indexstops
+  value_type: text
+Inductance:
+  display_values:
+  - 5 mH
+  - 10 nH
+  - "298.12 \xB5H"
+  - 7.5 nH
+  - "470 \xB5H"
+  - "320 \xB5H"
+  - 100 nH
+  - 680 nH
+  group: Technical
+  id: '375'
+  name: Inductance
+  shortname: inductance
+  unit: H
+  value_type: float
+Inductance - Parallel:
+  display_values:
+  - "298.12 \xB5H"
+  group: Technical
+  id: '525'
+  name: Inductance - Parallel
+  shortname: inductance_parallel
+  unit: H
+  value_type: float
+Inductance - Series:
+  display_values:
+  - 1.19 mH
+  group: Technical
+  id: '245'
+  name: Inductance - Series
+  shortname: inductance_series
+  unit: H
+  value_type: float
+Inductance Tolerance:
+  display_values:
+  - 5 %
+  - 5 %
+  - 20 %
+  - 30 %
+  group: Technical
+  id: '682'
+  name: Inductance Tolerance
+  shortname: inductancetolerance
+  unit: '%'
+  value_type: float
+Input:
+  group: Technical
+  id: '709'
+  name: Input
+  shortname: input
+Input Bias Current:
+  display_values:
+  - 400 pA
+  - 100 fA
+  - 500 nA
+  group: Technical
+  id: '423'
+  name: Input Bias Current
+  shortname: inputbiascurrent
+  unit: A
+  value_type: float
+Input Capacitance:
+  display_values:
+  - 3.5 pF
+  - 436 pF
+  - 13 pF
+  group: Technical
+  id: '817'
+  name: Input Capacitance
+  shortname: inputcapacitance
+  unit: F
+  value_type: float
+Input Current:
+  display_values:
+  - 15 mA
+  - 10 A
+  group: Technical
+  id: '234'
+  name: Input Current
+  shortname: inputcurrent
+  unit: A
+  value_type: float
+Input Noise Current Density:
+  display_values:
+  - 0.005 pA/sqrt Hz
+  group: Technical
+  id: '388'
+  name: Input Noise Current Density
+  shortname: inputnoisecurrentdensity
+  unit: pA/Hz**-1
+  value_type: float
+Input Offset Voltage (Vos):
+  display_values:
+  - "9 \xB5V"
+  - "300 \xB5V"
+  - "500 \xB5V"
+  group: Technical
+  id: '640'
+  name: Input Offset Voltage (Vos)
+  shortname: inputoffsetvoltage_vos_
+  unit: V
+  value_type: float
+Input Resistance:
+  display_values:
+  - "1 k\u03A9"
+  group: Technical
+  id: '493'
+  name: Input Resistance
+  shortname: inputresistance
+  unit: ohm
+  value_type: float
+Input Voltage Noise Density:
+  display_values:
+  - 10 nV/sqrt Hz
+  group: Technical
+  id: '395'
+  name: Input Voltage Noise Density
+  shortname: inputvoltagenoisedensity
+  unit: V/Hz**-1
+  value_type: float
+Insertion Loss (dB):
+  display_values:
+  - 0.45 dB
+  - 2.5 dB
+  - 1.2 dB
+  group: Technical
+  id: '874'
+  name: Insertion Loss (dB)
+  shortname: insertionloss_db_
+  unit: dB
+  value_type: float
+Inside Diameter:
+  display_values:
+  - 3.1 mm
+  - 3.81 mm
+  - 1.39 mm
+  group: Dimensions
+  id: '488'
+  name: Inside Diameter
+  shortname: insidediameter
+  unit: m
+  value_type: float
+Insulated Wire Support:
+  display_values:
+  - 'No'
+  - 'Yes'
+  - 'No'
+  - 'No'
+  group: Technical
+  id: '557'
+  name: Insulated Wire Support
+  shortname: insulatedwiresupport
+  value_type: text
+Insulation:
+  display_values:
+  - Non-Insulated
+  - Non-Insulated
+  - Non-Insulated
+  - Non-Insulated
+  group: Technical
+  id: '400'
+  name: Insulation
+  shortname: insulation
+  value_type: text
+Insulation Color:
+  group: Physical
+  id: '239'
+  name: Insulation Color
+  shortname: insulationcolor
+Insulation Diameter:
+  display_values:
+  - 2.22 mm
+  - 2.5654 mm
+  - 6.477 mm
+  - 3.1242 mm
+  group: Dimensions
+  id: '600'
+  name: Insulation Diameter
+  shortname: insulationdiameter
+  unit: m
+  value_type: float
+Insulation Height:
+  display_values:
+  - 2.5 mm
+  group: Dimensions
+  id: '302'
+  name: Insulation Height
+  shortname: insulationheight
+  unit: m
+  value_type: float
+Insulation Material:
+  display_values:
+  - PVC
+  - PVC
+  - Nylon
+  - Polyalkene
+  - Polymer
+  - PVC
+  - Thermoplastic
+  - Thermoplastic
+  - Silicone
+  group: Physical
+  id: '702'
+  name: Insulation Material
+  shortname: insulationmaterial
+  value_type: text
+Insulation Resistance:
+  display_values:
+  - "5 G\u03A9"
+  - "1 G\u03A9"
+  - "100 M\u03A9"
+  - "5 G\u03A9"
+  - "10 G\u03A9"
+  - "5 G\u03A9"
+  - "500 M\u03A9"
+  - "5 G\u03A9"
+  - "200 M\u03A9"
+  - "5 G\u03A9"
+  - "500 M\u03A9"
+  group: Technical
+  id: '563'
+  name: Insulation Resistance
+  shortname: insulationresistance
+  unit: ohm
+  value_type: float
+Insulation Thickness:
+  display_values:
+  - "812.8 \xB5m"
+  group: Dimensions
+  id: '263'
+  name: Insulation Thickness
+  shortname: insulationthickness
+  unit: m
+  value_type: float
+Integral Nonlinearity (INL):
+  display_values:
+  - 1 LSB
+  - 0.5 LSB
+  group: Technical
+  id: '686'
+  name: Integral Nonlinearity (INL)
+  shortname: integralnonlinearity_inl_
+  unit: LSB
+  value_type: float
+Interface:
+  display_values:
+  - 2-Wire, I2C, Serial
+  - I2C
+  - I2C
+  - Parallel, Serial
+  - I2C
+  - I2C, SPI, UART
+  - 2-Wire, I2C, Serial
+  - I2C, SPI, Serial
+  - I2C, SCI, SPI
+  - CAN, SPI
+  - I2C
+  - 2-Wire, Serial
+  - 2-Wire, I2C, Serial
+  - SPI, Serial
+  - Parallel, Serial
+  - Serial
+  - SPI
+  - Parallel
+  group: Technical
+  id: '731'
+  name: Interface
+  shortname: interface
+  value_type: text
+Interface Speed:
+  group: Technical
+  id: '953'
+  name: Interface Speed
+  shortname: interfacespeed
+Interior Housing Material:
+  group: Physical
+  id: '351'
+  name: Interior Housing Material
+  shortname: interiorhousingmaterial
+Interlock:
+  group: Technical
+  id: '793'
+  name: Interlock
+  shortname: interlock
+Isolated Power:
+  display_values:
+  - 'No'
+  - 'No'
+  group: Technical
+  id: '484'
+  name: Isolated Power
+  shortname: isolatedpower
+  value_type: text
+Isolation:
+  group: Technical
+  id: '544'
+  name: Isolation
+  shortname: isolation
+Isolation Voltage:
+  display_values:
+  - 3.75 kV
+  - 100 V
+  - 2.5 kV
+  - 5.3 kV
+  - 3.75 kV
+  - 2.5 kV
+  - 500 V
+  - 3 kV
+  - 2.6 kV
+  - 4 kV
+  group: Technical
+  id: '499'
+  name: Isolation Voltage
+  shortname: isolationvoltage
+  unit: V
+  value_type: float
+Keyed:
+  display_values:
+  - 'No'
+  group: Technical
+  id: '503'
+  name: Keyed
+  shortname: keyed
+  value_type: text
+Lead Diameter:
+  display_values:
+  - "500 \xB5m"
+  - "540 \xB5m"
+  - "450 \xB5m"
+  group: Dimensions
+  id: '473'
+  name: Lead Diameter
+  shortname: leaddiameter
+  unit: m
+  value_type: float
+Lead Free:
+  display_values:
+  - Contains Lead
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Contains Lead
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Contains Lead
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Not Applicable
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Contains Lead
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Contains Lead
+  - Contains Lead
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Contains Lead
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Not Applicable
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  - Lead Free
+  group: Compliance
+  id: '724'
+  name: Lead Free
+  shortname: leadfree
+  value_type: text
+Lead Length:
+  display_values:
+  - 28 mm
+  - 2.79 mm
+  - 3.81 mm
+  - 3.3 mm
+  - 2.3114 mm
+  group: Dimensions
+  id: '545'
+  name: Lead Length
+  shortname: leadlength
+  unit: m
+  value_type: float
+Lead Pitch:
+  display_values:
+  - 7.5 mm
+  - 2.54 mm
+  - 2 mm
+  - 2 mm
+  - 2.54 mm
+  - 1.5 mm
+  - 3.96 mm
+  - 2.5 mm
+  - 1.5 mm
+  group: Dimensions
+  id: '285'
+  name: Lead Pitch
+  shortname: leadpitch
+  unit: m
+  value_type: float
+Lead/Base Style:
+  display_values:
+  - Wire Leads
+  - Gull Wing
+  group: Technical
+  id: '852'
+  name: Lead/Base Style
+  shortname: lead_basestyle
+  value_type: text
+Leakage Current:
+  display_values:
+  - "6 \xB5A"
+  - 100 nA
+  - "5.3 \xB5A"
+  group: Technical
+  id: '434'
+  name: Leakage Current
+  shortname: leakagecurrent
+  unit: A
+  value_type: float
+Length:
+  display_values:
+  - 1.6 mm
+  - 3 mm
+  - 4 mm
+  - 2 mm
+  - 5.2 mm
+  - 1.524 mm
+  - 160.02 mm
+  - 30.48 m
+  - 25.4 mm
+  - 17.1 mm
+  - 1.6 mm
+  - 29 mm
+  - 5 mm
+  - 16.9926 mm
+  - 10.16 mm
+  - 6 mm
+  - 2.92 mm
+  - 2.9 mm
+  - 2.54 mm
+  - 1.88 mm
+  - "990.6 \xB5m"
+  - 13.97 mm
+  - 14.98 mm
+  - 1 mm
+  - 3 mm
+  - 25.4 mm
+  - 4 mm
+  - 6.35 mm
+  - 29.97 mm
+  - 33 mm
+  - 2 mm
+  - 1.6 mm
+  - 20.828 mm
+  - "990.6 \xB5m"
+  - 4.6 mm
+  - 2 mm
+  - 3 mm
+  - 2.9 mm
+  - 304.8 m
+  - 3.15 mm
+  - 1.4 mm
+  - 15.0114 mm
+  - 16.89 mm
+  - 7 mm
+  - 5 mm
+  - 5 mm
+  - 3 mm
+  - 10 mm
+  - 2.5 mm
+  - 5 mm
+  - 2.4892 mm
+  - 6.35 mm
+  - 2.9 mm
+  - 7 mm
+  - 138 mm
+  - 35.6 mm
+  - 59.5 mm
+  - 3.1 mm
+  - 30.7 mm
+  - 4 mm
+  - 6 mm
+  - 1.37 mm
+  - 10.16 mm
+  - 2.25 mm
+  - 21.6916 mm
+  - 14.48 mm
+  - 6.6 mm
+  - 33.5 mm
+  - 6 mm
+  - 3 mm
+  - 2.0066 mm
+  - 3.1 mm
+  - 2.9 mm
+  - 8.3312 mm
+  - 19 mm
+  - 2 mm
+  - 8.3 mm
+  - 3.4 mm
+  - 3 mm
+  - 1.6 mm
+  - 15.24 m
+  - 50 mm
+  - 6.2 mm
+  - 2 mm
+  - 1.6 mm
+  - 7 mm
+  - 8.3 mm
+  - 7.366 mm
+  - 2.4 mm
+  - 2.0066 mm
+  - 38.989 mm
+  - 6 mm
+  - 19.1 mm
+  - 127 mm
+  - 42.5 mm
+  - 152.4 mm
+  - 1.2192 m
+  - 190.5 mm
+  - 914.4 mm
+  - 2.1336 m
+  - 152 mm
+  - 150 mm
+  - 8 mm
+  - 88.9 mm
+  - 100 mm
+  - 199 mm
+  - 76.2 mm
+  - 106.934 mm
+  - 177.8 mm
+  group: Dimensions
+  id: '755'
+  name: Length
+  shortname: length
+  unit: m
+  value_type: float
+Lens Color:
+  display_values:
+  - Green
+  group: Physical
+  id: '231'
+  name: Lens Color
+  shortname: lenscolor
+  value_type: text
+Lens Size:
+  display_values:
+  - 3 mm
+  group: Dimensions
+  id: '210'
+  name: Lens Size
+  shortname: lenssize
+  unit: m
+  value_type: float
+Lens Style:
+  display_values:
+  - Rectangular
+  - Circular, Colored, Diffused, Dome
+  - Round
+  group: Technical
+  id: '582'
+  name: Lens Style
+  shortname: lensstyle
+  value_type: text
+Lens Transparency:
+  display_values:
+  - Diffused
+  group: Technical
+  id: '795'
+  name: Lens Transparency
+  shortname: lenstransparency
+  value_type: text
+Life (Cycles):
+  display_values:
+  - 107 cycles
+  group: Technical
+  id: '858'
+  name: Life (Cycles)
+  shortname: life_cycles_
+  unit: cycles
+  value_type: int
+Life (Hours):
+  display_values:
+  - 2000 hours
+  - 10000 hours
+  - 1000 hours
+  - 1000 hours
+  group: Technical
+  id: '839'
+  name: Life (Hours)
+  shortname: life_hours_
+  unit: hour
+  value_type: float
+Lifecycle Status:
+  display_values:
+  - 'Production (Last Updated: 1 week ago)'
+  - 'Obsolete (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 5 days ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'EOL (Last Updated: 1 year ago)'
+  - 'Obsolete (Last Updated: 2 years ago)'
+  - 'Obsolete (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Obsolete (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 10 months ago)'
+  - 'Production (Last Updated: 1 day ago)'
+  - 'Production (Last Updated: 5 days ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 3 weeks ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 1 week ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Obsolete (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 5 days ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 19 hours ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'EOL (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 1 year ago)'
+  - 'NRND (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 1 year ago)'
+  - 'Obsolete (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 5 days ago)'
+  - 'Production (Last Updated: 5 days ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 7 months ago)'
+  - 'EOL (Last Updated: 8 months ago)'
+  - 'Production (Last Updated: 1 week ago)'
+  - 'Obsolete (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 1 day ago)'
+  - 'NRND (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 1 day ago)'
+  - 'Production (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 7 months ago)'
+  - 'NRND (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 5 months ago)'
+  - 'Production (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 7 months ago)'
+  - 'Production (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 1 week ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 5 days ago)'
+  - 'Production (Last Updated: 5 days ago)'
+  - 'EOL (Last Updated: 1 day ago)'
+  - 'NRND (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 1 week ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 2 years ago)'
+  - 'NRND (Last Updated: 2 years ago)'
+  - 'NRND (Last Updated: 2 years ago)'
+  - 'NRND (Last Updated: 2 years ago)'
+  - 'Production (Last Updated: 3 weeks ago)'
+  - 'Production (Last Updated: 1 week ago)'
+  - 'Production (Last Updated: 1 week ago)'
+  - 'Production (Last Updated: 1 year ago)'
+  - 'Production (Last Updated: 5 days ago)'
+  - 'Production (Last Updated: 6 days ago)'
+  - 'Production (Last Updated: 5 days ago)'
+  - 'Production (Last Updated: 4 days ago)'
+  group: Supply Chain
+  id: '910'
+  name: Lifecycle Status
+  shortname: lifecyclestatus
+  value_type: text
+Linearity:
+  display_values:
+  - 1 %
+  group: Technical
+  id: '348'
+  name: Linearity
+  shortname: linearity
+  unit: '%'
+  value_type: float
+Load Capacitance:
+  display_values:
+  - 50 pF
+  - 12.5 pF
+  group: Technical
+  id: '763'
+  name: Load Capacitance
+  shortname: loadcapacitance
+  unit: F
+  value_type: float
+Load Current:
+  display_values:
+  - 120 mA
+  group: Technical
+  id: '271'
+  name: Load Current
+  shortname: loadcurrent
+  unit: A
+  value_type: float
+Load Impedance:
+  display_values:
+  - "50 \u03A9"
+  group: Technical
+  id: '739'
+  name: Load Impedance
+  shortname: loadimpedance
+  unit: ohm
+  value_type: float
+Logic Function:
+  display_values:
+  - OR, XOR
+  - Buffer
+  - Clock
+  - Buffer, Inverting, Schmitt Trigger
+  - OR
+  - AND, D-Type, Flip-Flop
+  - Demultiplexer, Multiplexer
+  - Transceiver
+  - OR
+  - Receiver
+  group: Technical
+  id: '258'
+  name: Logic Function
+  shortname: logicfunction
+  value_type: text
+Low Level Output Current:
+  display_values:
+  - 128 mA
+  - 32 mA
+  - 4 mA
+  - 32 mA
+  - 2.6 mA
+  - 8 mA
+  group: Technical
+  id: '218'
+  name: Low Level Output Current
+  shortname: lowleveloutputcurrent
+  unit: A
+  value_type: float
+Luminous Flux:
+  display_values:
+  - 25.5 lm
+  group: Technical
+  id: '325'
+  name: Luminous Flux
+  shortname: luminousflux
+  unit: lm
+  value_type: float
+Luminous Intensity:
+  display_values:
+  - 4.5 mcd
+  - "900 \xB5cd"
+  - 32 mcd
+  - 10 mcd
+  group: Technical
+  id: '749'
+  name: Luminous Intensity
+  shortname: luminousintensity
+  unit: cd
+  value_type: float
+MSCP:
+  display_values:
+  - 0.03 MSCP
+  - 0.3 MSCP
+  group: Technical
+  id: '404'
+  name: MSCP
+  shortname: mscp
+  unit: MSCP
+  value_type: float
+Make First / Break Last:
+  display_values:
+  - 'No'
+  - 'No'
+  group: Technical
+  id: '439'
+  name: Make First / Break Last
+  shortname: makefirst_breaklast
+  value_type: text
+Manufacturer Lifecycle Status:
+  display_values:
+  - 'PRODUCTION (Last Updated: 1 week ago)'
+  - 'OBSOLETE (Last Updated: 1 year ago)'
+  - 'ACTIVE (Last Updated: 5 days ago)'
+  - 'LAST SHIPMENTS (Last Updated: 1 year ago)'
+  - 'OBSOLETE (Last Updated: 2 years ago)'
+  - 'OBSOLETE (Last Updated: 2 years ago)'
+  - 'ACTIVE (Last Updated: 2 years ago)'
+  - 'OBSOLETE (Last Updated: 1 year ago)'
+  - 'RELEASED FOR SUPPLY (Last Updated: 1 day ago)'
+  - 'ACTIVE (Last Updated: 2 years ago)'
+  - 'ACTIVE (Last Updated: 1 week ago)'
+  - 'ACTIVE (Last Updated: 5 days ago)'
+  - 'FULL PRODUCTION (Last Updated: 19 hours ago)'
+  - 'PRODUCTION (Last Updated: 2 years ago)'
+  - 'LAST SHIPMENTS (Last Updated: 1 year ago)'
+  - 'ACTIVE (Last Updated: 1 year ago)'
+  - 'ACTIVE (Last Updated: 2 years ago)'
+  - 'OBSOLETE (Last Updated: 2 years ago)'
+  - 'FULL PRODUCTION (Last Updated: 7 months ago)'
+  - 'END OF LIFE (Last Updated: 8 months ago)'
+  - 'ACTIVE (Last Updated: 1 week ago)'
+  - 'OBSOLETE (Last Updated: 1 year ago)'
+  - 'RELEASED FOR SUPPLY (Last Updated: 1 day ago)'
+  - 'RELEASED FOR SUPPLY (Last Updated: 1 day ago)'
+  - 'FULL PRODUCTION (Last Updated: 7 months ago)'
+  - 'NRND (Last Updated: 1 year ago)'
+  - 'ACTIVE (Last Updated: 1 year ago)'
+  - 'FULL PRODUCTION (Last Updated: 7 months ago)'
+  - 'ACTIVE (Last Updated: 1 week ago)'
+  - 'ACTIVE (Last Updated: 5 days ago)'
+  - 'DISCONTINUATION OF DELIVERY (Last Updated: 1 day ago)'
+  - 'FULL PRODUCTION (Last Updated: 1 week ago)'
+  - 'ACTIVE (Last Updated: 2 years ago)'
+  - 'PRODUCTION (NOT RECOMMENDED FOR NEW DESIGN) (Last Updated: 2 years ago)'
+  - 'ACTIVE (Last Updated: 3 weeks ago)'
+  - 'ACTIVE (Last Updated: 1 week ago)'
+  - 'ACTIVE (Last Updated: 1 week ago)'
+  - 'ACTIVE (Last Updated: 5 days ago)'
+  - 'IN PRODUCTION (Last Updated: 6 days ago)'
+  - 'ACTIVE (Last Updated: 5 days ago)'
+  - 'ACTIVE (Last Updated: 4 days ago)'
+  group: Supply Chain
+  id: '942'
+  name: Manufacturer Lifecycle Status
+  shortname: manufacturerlifecyclestatus
+  value_type: text
+Manufacturer Package Identifier:
+  group: Technical
+  id: '907'
+  name: Manufacturer Package Identifier
+  shortname: mfgpackage_id
+Marketplace Lifecycle Status [DEPRECATED SPECDEF DO NOT USE]:
+  group: Supply Chain
+  id: '916'
+  name: Marketplace Lifecycle Status [DEPRECATED SPECDEF DO NOT USE]
+  shortname: marketplacelifecyclestatus
+Mated Stacking Heights:
+  display_values:
+  - "600 \xB5m"
+  group: Dimensions
+  id: '824'
+  name: Mated Stacking Heights
+  shortname: matedstackingheights
+  unit: m
+  value_type: float
+Material:
+  display_values:
+  - Thermoplastic
+  - Nylon, Polyamide
+  - Plastic
+  - Nylon
+  - Nylon
+  - Aluminium
+  - Glass, Polyester
+  - Plastic
+  - Brass
+  - Brass
+  - Brass
+  - Brass, Steel, Tin
+  - Polycarbonate
+  - Brass
+  - Ceramic
+  - Nylon
+  - Fiberglass, Rubber, Silicone
+  - Aluminium
+  group: Physical
+  id: '354'
+  name: Material
+  shortname: material
+  value_type: text
+Material Thickness:
+  display_values:
+  - 1.016 mm
+  - "635 \xB5m"
+  group: Technical
+  id: '220'
+  name: Material Thickness
+  shortname: materialthickness
+  unit: m
+  value_type: float
+Mating Alignment:
+  display_values:
+  - Without
+  - With
+  group: Technical
+  id: '221'
+  name: Mating Alignment
+  shortname: matingalignment
+  value_type: text
+Mating Connector Lock:
+  group: Technical
+  id: '475'
+  name: Mating Connector Lock
+  shortname: matingconnectorlock
+Mating Cycles:
+  group: Technical
+  id: '810'
+  name: Mating Cycles
+  shortname: matingcycles
+Mating Pitch:
+  group: Dimensions
+  id: '217'
+  name: Mating Pitch
+  shortname: matingpitch
+Mating Post Length:
+  display_values:
+  - 5.84 mm
+  - 5.84 mm
+  - 10 mm
+  group: Dimensions
+  id: '304'
+  name: Mating Post Length
+  shortname: matingpostlength
+  unit: m
+  value_type: float
+Mating Retention:
+  group: Technical
+  id: '253'
+  name: Mating Retention
+  shortname: matingretention
+Mating Tab Width:
+  display_values:
+  - 3.18 mm
+  - 2.794 mm
+  group: Dimensions
+  id: '461'
+  name: Mating Tab Width
+  shortname: matingtabwidth
+  unit: m
+  value_type: float
+Max Acceleration:
+  group: Technical
+  id: '671'
+  name: Max Acceleration
+  shortname: maxacceleration
+Max Bandwidth:
+  display_values:
+  - 4 mHz
+  group: Technical
+  id: '972'
+  name: Max Bandwidth
+  shortname: maxbandwidth
+  unit: Hz
+  value_type: float
+Max Battery Voltage:
+  display_values:
+  - -106 V
+  group: Technical
+  id: '955'
+  name: Max Battery Voltage
+  shortname: maxbatteryvoltage
+  unit: V
+  value_type: float
+Max Breakdown Voltage:
+  display_values:
+  - 600 V
+  - 50 V
+  - 160 V
+  - 50 V
+  - 9.8 V
+  - 30 V
+  - 15 V
+  group: Technical
+  id: '502'
+  name: Max Breakdown Voltage
+  shortname: maxbreakdownvoltage
+  unit: V
+  value_type: float
+Max Charge Current:
+  display_values:
+  - 1.25 A
+  group: Technical
+  id: '227'
+  name: Max Charge Current
+  shortname: maxchargecurrent
+  unit: A
+  value_type: float
+Max Collector Current:
+  display_values:
+  - 14 A
+  - 100 mA
+  - 100 mA
+  - 150 mA
+  - 40 mA
+  - 20 mA
+  - 500 mA
+  - 100 mA
+  - 25 mA
+  group: Technical
+  id: '292'
+  name: Max Collector Current
+  shortname: maxcollectorcurrent
+  unit: A
+  value_type: float
+Max Current Rating:
+  display_values:
+  - 100 mA
+  - 15 A
+  - 120 A
+  - 150 mA
+  - 300 mA
+  - 10 A
+  - 100 A
+  - 750 mA
+  - 100 mA
+  - 250 mA
+  - 700 mA
+  - 8 A
+  group: Technical
+  id: '767'
+  name: Max Current Rating
+  shortname: maxcurrentrating
+  unit: A
+  value_type: float
+Max DC Current:
+  display_values:
+  - 100 mA
+  - 320 mA
+  - 300 mA
+  - 600 mA
+  - 80 mA
+  - 100 mA
+  - 2.2 A
+  group: Technical
+  id: '359'
+  name: Max DC Current
+  shortname: maxdccurrent
+  unit: A
+  value_type: float
+Max Data Rate:
+  display_values:
+  - '1'
+  - '150'
+  group: Technical
+  id: '917'
+  name: Max Data Rate
+  shortname: maxdatarate
+  value_type: int
+Max Digital Supply Voltage:
+  display_values:
+  - 3.6 V
+  group: Technical
+  id: '952'
+  name: Max Digital Supply Voltage
+  shortname: maxdigitalsupplyvoltage
+  unit: V
+  value_type: float
+Max Dual Supply Voltage:
+  display_values:
+  - 2.5 V
+  - 15 V
+  - 60 V
+  group: Technical
+  id: '443'
+  name: Max Dual Supply Voltage
+  shortname: maxdualsupplyvoltage
+  unit: V
+  value_type: float
+Max Duty Cycle:
+  display_values:
+  - 80 %
+  - 50 %
+  group: Technical
+  id: '482'
+  name: Max Duty Cycle
+  shortname: maxdutycycle
+  unit: '%'
+  value_type: float
+Max Forward Surge Current (Ifsm):
+  display_values:
+  - 30 A
+  - 2.5 A
+  - 50 A
+  - 2 A
+  group: Technical
+  id: '368'
+  name: Max Forward Surge Current (Ifsm)
+  shortname: maxforwardsurgecurrent_ifsm_
+  unit: A
+  value_type: float
+Max Frequency:
+  display_values:
+  - 100 kHz
+  - 166 MHz
+  - 6 GHz
+  - 178 kHz
+  - 700 MHz
+  - 3 GHz
+  - 1.8 GHz
+  - 100 MHz
+  - 108 MHz
+  - 2.64 GHz
+  - 8 MHz
+  - 80 MHz
+  - 304 MHz
+  - 400 kHz
+  - 104 MHz
+  - 500 kHz
+  group: Technical
+  id: '507'
+  name: Max Frequency
+  shortname: maxfrequency
+  unit: Hz
+  value_type: float
+Max I/O Voltage:
+  display_values:
+  - 6 mV
+  group: Technical
+  id: '356'
+  name: Max I/O Voltage
+  shortname: maxi_ovoltage
+  unit: V
+  value_type: float
+Max Input Current:
+  display_values:
+  - 15 mA
+  - 2.7 mA
+  - 2.5 A
+  group: Technical
+  id: '490'
+  name: Max Input Current
+  shortname: maxinputcurrent
+  unit: A
+  value_type: float
+Max Input Frequency:
+  display_values:
+  - 750 MHz
+  group: Technical
+  id: '960'
+  name: Max Input Frequency
+  shortname: maxinputfrequency
+  unit: Hz
+  value_type: float
+Max Input Voltage:
+  display_values:
+  - 37 V
+  - 5.5 V
+  - 6 V
+  - 5.5 V
+  - 265 V
+  - 40 V
+  - 5.5 V
+  - 37 V
+  - 18 V
+  - 12 V
+  - 18 V
+  - 125 V
+  - 264 V
+  group: Technical
+  id: '214'
+  name: Max Input Voltage
+  shortname: maxinputvoltage
+  unit: V
+  value_type: float
+Max Input Voltage (AC):
+  display_values:
+  - 265 V
+  - 264 V
+  group: Technical
+  id: '469'
+  name: Max Input Voltage (AC)
+  shortname: maxinputvoltage_ac_
+  unit: V
+  value_type: float
+Max Input Voltage (DC):
+  display_values:
+  - 40 V
+  - 5.5 V
+  group: Technical
+  id: '491'
+  name: Max Input Voltage (DC)
+  shortname: maxinputvoltage_dc_
+  unit: V
+  value_type: float
+Max Inside Diameter:
+  group: Technical
+  id: '918'
+  name: Max Inside Diameter
+  shortname: maxinsidediameter
+Max Junction Temperature (Tj):
+  display_values:
+  - "150 \xB0C"
+  - "175 \xB0C"
+  - "150 \xB0C"
+  - "70 \xB0C"
+  - "150 \xB0C"
+  group: Technical
+  id: '905'
+  name: Max Junction Temperature (Tj)
+  shortname: maxjunctiontemperature
+  unit: "\xB0C"
+  value_type: float
+Max Length:
+  display_values:
+  - 1.05 mm
+  - 2.7 mm
+  - 2.5 mm
+  group: Dimensions
+  id: '939'
+  name: Max Length
+  shortname: maxlength
+  unit: m
+  value_type: float
+Max Operating Temperature:
+  display_values:
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "155 \xB0C"
+  - "105 \xB0C"
+  - "170 \xB0C"
+  - "85 \xB0C"
+  - "175 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "70 \xB0C"
+  - "105 \xB0C"
+  - "75 \xB0C"
+  - "85 \xB0C"
+  - "105 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "90 \xB0C"
+  - "70 \xB0C"
+  - "125 \xB0C"
+  - "150 \xB0C"
+  - "85 \xB0C"
+  - "105 \xB0C"
+  - "150 \xB0C"
+  - "125 \xB0C"
+  - "75 \xB0C"
+  - "257 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "150 \xB0C"
+  - "150 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "100 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "185 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "150 \xB0C"
+  - "-90 \xB0C"
+  - "125 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "70 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "150 \xB0C"
+  - "125 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "150 \xB0C"
+  - "85 \xB0C"
+  - "150 \xB0C"
+  - "125 \xB0C"
+  - "105 \xB0C"
+  - "155 \xB0C"
+  - "85 \xB0C"
+  - "65 \xB0C"
+  - "150 \xB0C"
+  - "85 \xB0C"
+  - "221 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "150 \xB0C"
+  - "85 \xB0C"
+  - "105 \xB0C"
+  - "125 \xB0C"
+  - "105 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "70 \xB0C"
+  - "85 \xB0C"
+  - "150 \xB0C"
+  - "150 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "50 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "125 \xB0C"
+  - "80 \xB0C"
+  - "70 \xB0C"
+  - "125 \xB0C"
+  - "105 \xB0C"
+  - "125 \xB0C"
+  - "185 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "105 \xB0C"
+  - "85 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "150 \xB0C"
+  - "105 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "150 \xB0C"
+  - "50 \xB0C"
+  - "105 \xB0C"
+  - "85 \xB0C"
+  - "150 \xB0C"
+  - "125 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "200 \xB0C"
+  - "70 \xB0C"
+  - "85 \xB0C"
+  - "70 \xB0C"
+  - "85 \xB0C"
+  - "150 \xB0C"
+  - "165 \xB0C"
+  - "85 \xB0C"
+  - "70 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "105 \xB0C"
+  - "125 \xB0C"
+  - "70 \xB0C"
+  - "125 \xB0C"
+  - "105 \xB0C"
+  - "125 \xB0C"
+  - "120 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "85 \xB0C"
+  - "180 \xB0C"
+  - "70 \xB0C"
+  - "70 \xB0C"
+  - "40 \xB0C"
+  - "25 \xB0C"
+  - "60 \xB0C"
+  group: Technical
+  id: '849'
+  name: Max Operating Temperature
+  shortname: maxoperatingtemperature
+  unit: "\xB0C"
+  value_type: float
+Max Output Current:
+  display_values:
+  - 50 mA
+  - 500 mA
+  - 150 mA
+  - 30 mA
+  - 5 mA
+  - 23 mA
+  - 20 mA
+  - 15 mA
+  - 10 mA
+  - 3 A
+  - 14 A
+  - 6 A
+  - 8 A
+  - 4.5 A
+  group: Technical
+  id: '602'
+  name: Max Output Current
+  shortname: maxoutputcurrent
+  unit: A
+  value_type: float
+Max Output Frequency:
+  display_values:
+  - 718.5 MHz
+  - 350 MHz
+  group: Technical
+  id: '970'
+  name: Max Output Frequency
+  shortname: maxoutputfrequency
+  unit: Hz
+  value_type: float
+Max Output Power:
+  display_values:
+  - 40 mW
+  - 63 W
+  - 350 W
+  - 30 W
+  - 75 W
+  - 150.2 W
+  - 40 W
+  - 110 W
+  group: Technical
+  id: '760'
+  name: Max Output Power
+  shortname: maxoutputpower
+  unit: W
+  value_type: float
+Max Output Voltage:
+  display_values:
+  - 36 V
+  - 5.2 V
+  - 38 V
+  - 5.5 V
+  - 18 V
+  - 5 V
+  - 12 V
+  - 15 V
+  group: Technical
+  id: '288'
+  name: Max Output Voltage
+  shortname: maxoutputvoltage
+  unit: V
+  value_type: float
+Max Power Dissipation:
+  display_values:
+  - 100 mW
+  - 60 mW
+  - 65 mW
+  - 70 mW
+  - 88 W
+  - 200 mW
+  - 200 mW
+  - "750 \xB5W"
+  - 1 W
+  - 2.2 W
+  - 250 mW
+  - 75 mW
+  - 225 mW
+  - 250 mW
+  - 250 mW
+  - 200 mW
+  - 100 mW
+  - 330 mW
+  - 1.5 W
+  - 1.1 W
+  - 6.5 W
+  - 300 mW
+  - 3 W
+  - 50 mW
+  - 1.4 W
+  - 1.925 W
+  - 500 mW
+  - 280 mW
+  - 400 mW
+  - 130 mW
+  - "880 \xB5W"
+  - 63 W
+  - 30 W
+  - 120 W
+  - 80 W
+  group: Technical
+  id: '663'
+  name: Max Power Dissipation
+  shortname: maxpowerdissipation
+  unit: W
+  value_type: float
+Max Pressure:
+  display_values:
+  - 290.08 PSI
+  group: Technical
+  id: '453'
+  name: Max Pressure
+  shortname: maxpressure
+  unit: PSI
+  value_type: float
+Max Propogation Delay:
+  display_values:
+  - "9.5 \xB5s"
+  group: Technical
+  id: '962'
+  name: Max Propogation Delay
+  shortname: maxpropogationdelay
+  unit: s
+  value_type: float
+Max RMS Current:
+  display_values:
+  - 1 A
+  group: Technical
+  id: '921'
+  name: Max RMS Current
+  shortname: maxrmscurrent
+  unit: A
+  value_type: float
+Max Repetitive Reverse Voltage (Vrrm):
+  display_values:
+  - 1 kV
+  - 250 V
+  - 200 V
+  - 75 V
+  group: Technical
+  id: '483'
+  name: Max Repetitive Reverse Voltage (Vrrm)
+  shortname: maxrepetitivereversevoltage_vrrm_
+  unit: V
+  value_type: float
+Max Reset Threshold Voltage:
+  display_values:
+  - 3.45 V
+  - 2.3 V
+  group: Technical
+  id: '826'
+  name: Max Reset Threshold Voltage
+  shortname: maxresetthresholdvoltage
+  unit: V
+  value_type: float
+Max Reverse Leakage Current:
+  display_values:
+  - "50 \xB5A"
+  - "1 \xB5A"
+  - 25 nA
+  group: Technical
+  id: '435'
+  name: Max Reverse Leakage Current
+  shortname: maxreverseleakagecurrent
+  unit: A
+  value_type: float
+Max Reverse Voltage (DC):
+  display_values:
+  - 1 kV
+  - 200 V
+  group: Technical
+  id: '355'
+  name: Max Reverse Voltage (DC)
+  shortname: maxreversevoltage_dc_
+  unit: V
+  value_type: float
+Max Saturation Current:
+  display_values:
+  - 80 mA
+  - 2.2 A
+  group: Technical
+  id: '928'
+  name: Max Saturation Current
+  shortname: maxsatcurrent
+  unit: A
+  value_type: float
+Max Speed:
+  group: Technical
+  id: '645'
+  name: Max Speed
+  shortname: maxspeed
+Max Supply Current:
+  display_values:
+  - 5.5 mA
+  - "500 \xB5A"
+  - 13 mA
+  - 10 mA
+  - "20 \xB5A"
+  - "40 \xB5A"
+  - 15 mA
+  group: Technical
+  id: '225'
+  name: Max Supply Current
+  shortname: maxsupplycurrent
+  unit: A
+  value_type: float
+Max Supply Voltage:
+  display_values:
+  - 5.5 V
+  - 3.6 V
+  - 5.5 V
+  - 5.5 V
+  - 5.5 V
+  - 4.3 V
+  - 5.5 V
+  - 5.5 V
+  - 3.6 V
+  - 5.5 V
+  - 15 V
+  - 5.3 V
+  - 5 V
+  - 3.3 V
+  - 30 V
+  - 16 V
+  - 40 V
+  - 5.5 V
+  - 3.6 V
+  - 5.5 V
+  - 5.5 V
+  - 3.3 V
+  - 37 V
+  - 3.6 V
+  - 18 V
+  - 5.5 V
+  - 1.95 V
+  - 5.5 V
+  - 3.6 V
+  - 5.5 V
+  - 6 V
+  - 5.5 V
+  - 5.5 V
+  - 1.89 V
+  - 5.5 V
+  - 18 V
+  - 5.5 V
+  - 5.5 V
+  - 3.6 V
+  - 5.5 V
+  - 3.6 V
+  - 5 V
+  - 5.5 V
+  - 3.6 V
+  - 3.6 V
+  group: Technical
+  id: '588'
+  name: Max Supply Voltage
+  shortname: maxsupplyvoltage
+  unit: V
+  value_type: float
+Max Supply Voltage (AC):
+  display_values:
+  - 600 V
+  - 265 V
+  group: Technical
+  id: '364'
+  name: Max Supply Voltage (AC)
+  shortname: maxsupplyvoltage_ac_
+  unit: V
+  value_type: float
+Max Supply Voltage (DC):
+  display_values:
+  - 3.6 V
+  - 5 V
+  group: Technical
+  id: '695'
+  name: Max Supply Voltage (DC)
+  shortname: maxsupplyvoltage_dc_
+  unit: V
+  value_type: float
+Max Surge Current:
+  display_values:
+  - 30 A
+  - 5 A
+  - 50 A
+  - 50 A
+  - 2 A
+  - 36 kA
+  group: Technical
+  id: '264'
+  name: Max Surge Current
+  shortname: maxsurgecurrent
+  unit: A
+  value_type: float
+Max Switching Frequency:
+  display_values:
+  - 150 kHz
+  group: Technical
+  id: '956'
+  name: Max Switching Frequency
+  shortname: maxswitchingfrequency
+  unit: Hz
+  value_type: float
+Max Temperature Rise Current:
+  display_values:
+  - 70 mA
+  - 1.57 A
+  group: Technical
+  id: '931'
+  name: Max Temperature Rise Current
+  shortname: maxtemprisecurrent
+  unit: A
+  value_type: float
+Max Thickness:
+  display_values:
+  - "550 \xB5m"
+  group: Dimensions
+  id: '937'
+  name: Max Thickness
+  shortname: maxthickness
+  unit: m
+  value_type: float
+Max Varistor Voltage:
+  display_values:
+  - 70.15 V
+  group: Technical
+  id: '413'
+  name: Max Varistor Voltage
+  shortname: maxvaristorvoltage
+  unit: V
+  value_type: float
+Max Voltage Rating (AC):
+  display_values:
+  - 25 V
+  - 380 V
+  - 400 V
+  - 750 V
+  - 125 V
+  - 600 V
+  - 115 V
+  - 50 V
+  - 250 V
+  - 14.4 V
+  group: Technical
+  id: '385'
+  name: Max Voltage Rating (AC)
+  shortname: maxvoltagerating_ac_
+  unit: V
+  value_type: float
+Max Voltage Rating (DC):
+  display_values:
+  - 10 V
+  - 32 V
+  - 150 V
+  - 250.25 kV
+  - 30 V
+  - 50 V
+  - 350.35 kV
+  - 60 V
+  - 16 V
+  - 30 V
+  - 15 V
+  - 50 V
+  group: Technical
+  id: '428'
+  name: Max Voltage Rating (DC)
+  shortname: maxvoltagerating_dc_
+  unit: V
+  value_type: float
+Max Width:
+  display_values:
+  - "550 \xB5m"
+  - 2 mm
+  - 2.5 mm
+  group: Dimensions
+  id: '933'
+  name: Max Width
+  shortname: maxwidth
+  unit: m
+  value_type: float
+Maximum Resistance 1 Hour (R1max):
+  display_values:
+  - "50 \u03A9"
+  - "28 m\u03A9"
+  group: Technical
+  id: '926'
+  name: Maximum Resistance 1 Hour (R1max)
+  shortname: maxresistance1hour
+  unit: ohm
+  value_type: float
+Mechanical Life:
+  display_values:
+  - 500 kcycles
+  - 10 Mcycles
+  - 50 kcycles
+  group: Physical
+  id: '500'
+  name: Mechanical Life
+  shortname: mechanicallife
+  unit: cycle
+  value_type: int
+Melting Point (I2T):
+  group: Technical
+  id: '924'
+  name: Melting Point (I2T)
+  shortname: meltingpoint
+Memory Size:
+  display_values:
+  - 1 kB
+  - 128 kB
+  - 64 B
+  - 4 kB
+  - 1 kB
+  - 256 B
+  - 1 MB
+  - 64 kB
+  group: Technical
+  id: '241'
+  name: Memory Size
+  shortname: memorysize
+  unit: B
+  value_type: float
+Memory Type:
+  display_values:
+  - EEPROM
+  - FLASH
+  - FLASH
+  - Volatile
+  - EEPROM
+  - FLASH, NOR
+  - FLASH, NOR
+  group: Technical
+  id: '732'
+  name: Memory Type
+  shortname: memorytype
+  value_type: text
+Military Standard:
+  display_values:
+  - Not
+  - Not
+  - Not
+  - Not
+  group: Technical
+  id: '478'
+  name: Military Standard
+  shortname: militarystandard
+  value_type: text
+Min Bandwidth:
+  display_values:
+  - 1 mHz
+  group: Technical
+  id: '961'
+  name: Min Bandwidth
+  shortname: minbandwidth
+  unit: Hz
+  value_type: float
+Min Breakdown Voltage:
+  display_values:
+  - 7 V
+  - 25.4 V
+  - 48.5 V
+  group: Technical
+  id: '641'
+  name: Min Breakdown Voltage
+  shortname: minbreakdownvoltage
+  unit: V
+  value_type: float
+Min Current Limit:
+  display_values:
+  - 200 mA
+  - 350 mA
+  group: Technical
+  id: '744'
+  name: Min Current Limit
+  shortname: mincurrentlimit
+  unit: A
+  value_type: float
+Min Digital Supply Voltage:
+  display_values:
+  - 3 V
+  group: Technical
+  id: '965'
+  name: Min Digital Supply Voltage
+  shortname: mindigitalsupplyvoltage
+  unit: V
+  value_type: float
+Min Dual Supply Voltage:
+  display_values:
+  - 1.25 V
+  - 5 V
+  - 3 V
+  group: Technical
+  id: '729'
+  name: Min Dual Supply Voltage
+  shortname: mindualsupplyvoltage
+  unit: V
+  value_type: float
+Min Input Frequency:
+  display_values:
+  - 1 Hz
+  group: Technical
+  id: '971'
+  name: Min Input Frequency
+  shortname: mininputfrequency
+  unit: Hz
+  value_type: float
+Min Input Voltage:
+  display_values:
+  - 2.3 V
+  - 2 V
+  - 85 V
+  - 2.8 V
+  - 2.2 V
+  - 4.5 V
+  - 2.5 V
+  - 110 V
+  - 90 V
+  group: Technical
+  id: '200'
+  name: Min Input Voltage
+  shortname: mininputvoltage
+  unit: V
+  value_type: float
+Min Input Voltage (AC):
+  display_values:
+  - 85 V
+  - 90 V
+  - 10.8 V
+  group: Technical
+  id: '394'
+  name: Min Input Voltage (AC)
+  shortname: mininputvoltage_ac_
+  unit: V
+  value_type: float
+Min Input Voltage (DC):
+  display_values:
+  - 2.8 V
+  group: Technical
+  id: '622'
+  name: Min Input Voltage (DC)
+  shortname: mininputvoltage_dc_
+  unit: V
+  value_type: float
+Min Inside Diameter:
+  group: Technical
+  id: '919'
+  name: Min Inside Diameter
+  shortname: mininsidediameter
+Min Length:
+  display_values:
+  - "950 \xB5m"
+  - 2.3 mm
+  - 2.3 mm
+  group: Dimensions
+  id: '940'
+  name: Min Length
+  shortname: minlength
+  unit: m
+  value_type: float
+Min Operating Temperature:
+  display_values:
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-50 \xB0C"
+  - "-40 \xB0C"
+  - "-65 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-20 \xB0C"
+  - "-20 \xB0C"
+  - "0 \xB0C"
+  - "-25 \xB0C"
+  - "-40 \xB0C"
+  - "-35 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-65 \xB0C"
+  - "-40 \xB0C"
+  - "-25 \xB0C"
+  - "-65 \xB0C"
+  - "-20 \xB0C"
+  - "-40 \xB0C"
+  - "-85 \xB0C"
+  - "-30 \xB0C"
+  - "-35 \xB0C"
+  - "-55 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-25 \xB0C"
+  - "-67 \xB0C"
+  - "-25 \xB0C"
+  - "-30 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "0 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-25 \xB0C"
+  - "-40 \xB0C"
+  - "-55 \xB0C"
+  - "-55 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-25 \xB0C"
+  - "-45 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-65 \xB0C"
+  - "-55 \xB0C"
+  - "-20 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "40 \xB0C"
+  - "-55 \xB0C"
+  - "-30 \xB0C"
+  - "-67 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-25 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-30 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "0 \xB0C"
+  - "-40 \xB0C"
+  - "-55 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-30 \xB0C"
+  - "-40 \xB0C"
+  - "0 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-55 \xB0C"
+  - "-20 \xB0C"
+  - "0 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-67 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "0 \xB0C"
+  - "-40 \xB0C"
+  - "-30 \xB0C"
+  - "-40 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-55 \xB0C"
+  - "-5 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-65 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-65 \xB0C"
+  - "-30 \xB0C"
+  - "-40 \xB0C"
+  - "-25 \xB0C"
+  - "-40 \xB0C"
+  - "-65 \xB0C"
+  - "-65 \xB0C"
+  - "-40 \xB0C"
+  - "-40 \xB0C"
+  - "-30 \xB0C"
+  - "-65 \xB0C"
+  - "-40 \xB0C"
+  - "-20 \xB0C"
+  - "-40 \xB0C"
+  - "-55 \xB0C"
+  - "-55 \xB0C"
+  - "-25 \xB0C"
+  - "-55 \xB0C"
+  - "-40 \xB0C"
+  - "-25 \xB0C"
+  - "-60 \xB0C"
+  - "0 \xB0C"
+  - "0 \xB0C"
+  - "-10 \xB0C"
+  group: Technical
+  id: '456'
+  name: Min Operating Temperature
+  shortname: minoperatingtemperature
+  unit: "\xB0C"
+  value_type: float
+Min Output Frequency:
+  display_values:
+  - 1 kHz
+  group: Technical
+  id: '959'
+  name: Min Output Frequency
+  shortname: minoutputfrequency
+  unit: Hz
+  value_type: float
+Min Output Power:
+  group: Technical
+  id: '967'
+  name: Min Output Power
+  shortname: minoutputpower
+Min Output Voltage:
+  display_values:
+  - 4.9 V
+  - 200 mV
+  - 10 V
+  group: Technical
+  id: '269'
+  name: Min Output Voltage
+  shortname: minoutputvoltage
+  unit: V
+  value_type: float
+Min Reset Threshold Voltage:
+  display_values:
+  - 3.15 V
+  - 2.2 V
+  group: Technical
+  id: '510'
+  name: Min Reset Threshold Voltage
+  shortname: minresetthresholdvoltage
+  unit: V
+  value_type: float
+Min Supply Voltage:
+  display_values:
+  - 1.8 V
+  - 2.5 V
+  - 4 V
+  - 2.7 V
+  - 1.62 V
+  - 3 V
+  - 2.95 V
+  - 3 V
+  - 1.65 V
+  - 300 mV
+  - 1.8 V
+  - 2.5 V
+  - 1.8 V
+  - 3 V
+  - 2.5 V
+  - 1.7 V
+  - 2.7 V
+  - 1.8 V
+  - 4.5 V
+  - 1.62 V
+  - 1.8 V
+  - 1.65 V
+  - 3 V
+  - 2.7 V
+  - 2 V
+  - 4.5 V
+  - 2.7 V
+  - 1.71 V
+  - 4 V
+  - 2.5 V
+  - 1.7 V
+  - 2.5 V
+  - 2.3 V
+  - 1.1 V
+  - 2.2 V
+  - 2.3 V
+  - 1.8 V
+  - 1.4 V
+  - 2.7 V
+  group: Technical
+  id: '339'
+  name: Min Supply Voltage
+  shortname: minsupplyvoltage
+  unit: V
+  value_type: float
+Min Supply Voltage (AC):
+  display_values:
+  - 85 V
+  group: Technical
+  id: '662'
+  name: Min Supply Voltage (AC)
+  shortname: minsupplyvoltage_ac_
+  unit: V
+  value_type: float
+Min Supply Voltage (DC):
+  display_values:
+  - 800 mV
+  group: Technical
+  id: '571'
+  name: Min Supply Voltage (DC)
+  shortname: minsupplyvoltage_dc_
+  unit: V
+  value_type: float
+Min Switching Frequency:
+  display_values:
+  - 100 Hz
+  group: Technical
+  id: '969'
+  name: Min Switching Frequency
+  shortname: minswitchingfrequency
+  unit: Hz
+  value_type: float
+Min Thickness:
+  display_values:
+  - "450 \xB5m"
+  group: Dimensions
+  id: '938'
+  name: Min Thickness
+  shortname: minthickness
+  unit: m
+  value_type: float
+Min Varistor Voltage:
+  display_values:
+  - 51.85 V
+  group: Technical
+  id: '306'
+  name: Min Varistor Voltage
+  shortname: minvaristorvoltage
+  unit: V
+  value_type: float
+Min Width:
+  display_values:
+  - "450 \xB5m"
+  - 1.6 mm
+  - 2.3 mm
+  group: Dimensions
+  id: '934'
+  name: Min Width
+  shortname: minwidth
+  unit: m
+  value_type: float
+Minimum Resistance Initial (Rmin):
+  display_values:
+  - "10 m\u03A9"
+  group: Technical
+  id: '925'
+  name: Minimum Resistance Initial (Rmin)
+  shortname: minresistanceinitial
+  unit: m
+  value_type: float
+Mode:
+  display_values:
+  - Singlemode
+  group: Technical
+  id: '338'
+  name: Mode
+  shortname: mode
+  value_type: text
+Motor Type:
+  display_values:
+  - Brushed
+  group: Technical
+  id: '447'
+  name: Motor Type
+  shortname: motortype
+  value_type: text
+Mount:
+  display_values:
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Panel
+  - Surface Mount
+  - Front
+  - Surface Mount
+  - Through Hole
+  - Through Hole
+  - PCB
+  - Free Hanging
+  - Cable
+  - Free Hanging
+  - Through Hole
+  - Through Hole
+  - Surface Mount
+  - Through Hole
+  - Through Hole
+  - Through Hole
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Cable
+  - Standard
+  - Through Hole
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Adhesive
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Chassis Mount, Screw, Solder
+  - Surface Mount
+  - Surface Mount
+  - Cable, Free Hanging
+  - Free Hanging
+  - Surface Mount
+  - Through Hole
+  - Screw
+  - Surface Mount
+  - Press Fit
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Through Hole
+  - Surface Mount
+  - Surface Mount
+  - Wire
+  - Surface Mount
+  - Through Hole
+  - Cable
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Cable
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Through Hole
+  - Screw
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Flanges
+  - Through Hole
+  - Surface Mount
+  - Surface Mount
+  - PCB, Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Cable
+  - Through Hole
+  - Panel, Through Hole
+  - Surface Mount
+  - Through Hole
+  - Snap in, Through Hole
+  - Surface Mount
+  - Free Hanging
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Through Hole
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Chassis, Panel
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Base
+  - Flanges
+  - External
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - PCB
+  - Surface Mount
+  - Surface Mount
+  - Surface Mount
+  - Cable
+  - Through Hole
+  - Chassis
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Through Hole
+  - Surface Mount
+  - Through Hole
+  - Free Hanging
+  - Through Hole
+  - Surface Mount
+  - Surface Mount
+  - Through Hole
+  - Surface Mount
+  - Cable, Free Hanging, PCB
+  - Bolt
+  - Chassis, Chassis Mount
+  - Surface Mount
+  - Wall
+  - Plug-In
+  - Desktop
+  - Chassis Mount, Panel
+  - DIN Rail
+  - Chassis Mount, Screw
+  group: Physical
+  id: '773'
+  name: Mount
+  shortname: mount
+  value_type: text
+Mounting Ears:
+  group: Technical
+  id: '248'
+  name: Mounting Ears
+  shortname: mountingears
+Mounting Hole Diameter:
+  display_values:
+  - 19 mm
+  - 1.7018 mm
+  group: Dimensions
+  id: '748'
+  name: Mounting Hole Diameter
+  shortname: mountingholediameter
+  unit: m
+  value_type: float
+Mounting Hole Spacing:
+  display_values:
+  - 8.001 mm
+  group: Dimensions
+  id: '711'
+  name: Mounting Hole Spacing
+  shortname: mountingholespacing
+  unit: m
+  value_type: float
+Mounting Insert:
+  group: Technical
+  id: '216'
+  name: Mounting Insert
+  shortname: mountinginsert
+NTC Thermistor:
+  group: Technical
+  id: '599'
+  name: NTC Thermistor
+  shortname: ntcthermistor
+Natural Thermal Resistance:
+  display_values:
+  - "26 \xB0C/W"
+  - "30.86 \xB0C/W"
+  - "1.4 \xB0C/W"
+  - "28 \xB0C/W"
+  group: Technical
+  id: '232'
+  name: Natural Thermal Resistance
+  shortname: naturalthermalresistance
+  unit: W
+  value_type: float
+Noise:
+  display_values:
+  - '230'
+  group: Technical
+  id: '698'
+  name: Noise
+  shortname: noise
+  value_type: float
+Noise Figure:
+  display_values:
+  - 10 dB
+  - 3.5 dB
+  group: Technical
+  id: '735'
+  name: Noise Figure
+  shortname: noisefigure
+  unit: dB
+  value_type: float
+Noise Level:
+  group: Technical
+  id: '617'
+  name: Noise Level
+  shortname: noiselevel
+Nominal Analog Supply Voltage:
+  display_values:
+  - 3.3 V
+  group: Technical
+  id: '958'
+  name: Nominal Analog Supply Voltage
+  shortname: nominalanalogsupplyvoltage
+  unit: V
+  value_type: float
+Nominal Digital Suppy Voltage:
+  display_values:
+  - 1.8 V
+  group: Technical
+  id: '957'
+  name: Nominal Digital Suppy Voltage
+  shortname: nominaldigitalsupplyvoltage
+  unit: V
+  value_type: float
+Nominal Gain Bandwidth Product:
+  display_values:
+  - 3 MHz
+  group: Technical
+  id: '696'
+  name: Nominal Gain Bandwidth Product
+  shortname: nominalgainbandwidthproduct
+  unit: Hz
+  value_type: float
+Nominal Input Voltage:
+  display_values:
+  - 3.6 V
+  - 15.5 V
+  - 120 V
+  group: Technical
+  id: '697'
+  name: Nominal Input Voltage
+  shortname: nominalinputvoltage
+  unit: V
+  value_type: float
+Nominal Input Voltage (AC):
+  display_values:
+  - 240 V
+  group: Technical
+  id: '445'
+  name: Nominal Input Voltage (AC)
+  shortname: nominalinputvoltage_ac_
+  unit: V
+  value_type: float
+Nominal Input Voltage (DC):
+  display_values:
+  - 12 V
+  group: Technical
+  id: '690'
+  name: Nominal Input Voltage (DC)
+  shortname: nominalinputvoltage_dc_
+  unit: V
+  value_type: float
+Nominal Output Voltage:
+  display_values:
+  - 5 V
+  - 24 V
+  - -12 V
+  group: Technical
+  id: '303'
+  name: Nominal Output Voltage
+  shortname: nominaloutputvoltage
+  unit: V
+  value_type: float
+Nominal Primary Voltage:
+  display_values:
+  - 115 V
+  group: Technical
+  id: '267'
+  name: Nominal Primary Voltage
+  shortname: nominalprimaryvoltage
+  unit: V
+  value_type: float
+Nominal Secondary Voltage:
+  display_values:
+  - 5 V
+  group: Technical
+  id: '452'
+  name: Nominal Secondary Voltage
+  shortname: nominalsecondaryvoltage
+  unit: V
+  value_type: float
+Nominal Supply Current:
+  display_values:
+  - 1 mA
+  - 1 mA
+  - "90 \xB5A"
+  - "5 \xB5A"
+  - "800 \xB5A"
+  - 1.7 mA
+  - 5.6 mA
+  - 4.6 mA
+  - 25 nA
+  - 35 mA
+  - 10 mA
+  - 40 mA
+  - 2.5 mA
+  - "20 \xB5A"
+  - 2 mA
+  - "19 \xB5A"
+  - "400 \xB5A"
+  - 20 mA
+  - 15 A
+  group: Technical
+  id: '422'
+  name: Nominal Supply Current
+  shortname: nominalsupplycurrent
+  unit: A
+  value_type: float
+Nominal Supply Voltage (AC):
+  display_values:
+  - 220 V
+  group: Technical
+  id: '656'
+  name: Nominal Supply Voltage (AC)
+  shortname: nominalsupplyvoltage_ac_
+  unit: V
+  value_type: float
+Nominal Supply Voltage (DC):
+  display_values:
+  - 3.3 V
+  - 1.8 V
+  group: Technical
+  id: '670'
+  name: Nominal Supply Voltage (DC)
+  shortname: nominalsupplyvoltage_dc_
+  unit: V
+  value_type: float
+Nominal Vgs:
+  display_values:
+  - 2.5 V
+  group: Technical
+  id: '222'
+  name: Nominal Vgs
+  shortname: nominalvgs
+  unit: V
+  value_type: float
+Non-volatile Memory Size:
+  display_values:
+  - 64 B
+  group: Technical
+  id: '562'
+  name: Non-volatile Memory Size
+  shortname: non_volatilememorysize
+  unit: B
+  value_type: float
+Number Of Characters Per Row:
+  display_values:
+  - '3'
+  group: Technical
+  id: '530'
+  name: Number Of Characters Per Row
+  shortname: numberofcharactersperrow
+  value_type: int
+Number of A/D Converters:
+  display_values:
+  - '1'
+  - '1'
+  - '1'
+  group: Technical
+  id: '603'
+  name: Number of A/D Converters
+  shortname: numberofa_dconverters
+  value_type: int
+Number of ADC Channels:
+  display_values:
+  - '4'
+  - '0'
+  - '4'
+  group: Technical
+  id: '444'
+  name: Number of ADC Channels
+  shortname: numberofadcchannels
+  value_type: int
+Number of Amplifiers:
+  display_values:
+  - '1'
+  - '2'
+  - '2'
+  group: Technical
+  id: '519'
+  name: Number of Amplifiers
+  shortname: numberofamplifiers
+  value_type: int
+Number of Analog Inputs:
+  display_values:
+  - '1'
+  - '2'
+  group: Technical
+  id: '851'
+  name: Number of Analog Inputs
+  shortname: numberofanaloginputs
+  value_type: int
+Number of Analog Outputs:
+  display_values:
+  - '2'
+  group: Technical
+  id: '470'
+  name: Number of Analog Outputs
+  shortname: numberofanalogoutputs
+  value_type: int
+Number of Bands:
+  display_values:
+  - '1'
+  group: Technical
+  id: '311'
+  name: Number of Bands
+  shortname: numberofbands
+  value_type: int
+Number of Batteries:
+  display_values:
+  - '1'
+  group: Technical
+  id: '809'
+  name: Number of Batteries
+  shortname: numberofbatteries
+  value_type: int
+Number of Bidirectional Channels:
+  display_values:
+  - '1'
+  group: Technical
+  id: '628'
+  name: Number of Bidirectional Channels
+  shortname: numberofbidirectionalchannels
+  value_type: int
+Number of Bits:
+  display_values:
+  - '1'
+  - '12'
+  - '8'
+  - '2'
+  - '19'
+  - '10'
+  group: Technical
+  id: '252'
+  name: Number of Bits
+  shortname: numberofbits
+  value_type: int
+Number of Bits per Element:
+  display_values:
+  - '1'
+  - '1'
+  group: Technical
+  id: '237'
+  name: Number of Bits per Element
+  shortname: numberofbitsperelement
+  value_type: int
+Number of Capacitors:
+  display_values:
+  - '2'
+  group: Technical
+  id: '326'
+  name: Number of Capacitors
+  shortname: numberofcapacitors
+  value_type: int
+Number of Cells:
+  display_values:
+  - '1'
+  group: Technical
+  id: '782'
+  name: Number of Cells
+  shortname: numberofcells
+  value_type: int
+Number of Channels:
+  display_values:
+  - '1'
+  - '1'
+  - '1'
+  - '2'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '2'
+  - '0'
+  - '1'
+  - '2'
+  - '1'
+  - '1'
+  - '1'
+  - '5'
+  - '2'
+  - '1'
+  - '1'
+  - '1'
+  - '2'
+  - '3'
+  - '1'
+  group: Technical
+  id: '756'
+  name: Number of Channels
+  shortname: numberofchannels
+  value_type: int
+Number of Characters:
+  display_values:
+  - '2'
+  - '1'
+  - '3'
+  group: Technical
+  id: '365'
+  name: Number of Characters
+  shortname: numberofcharacters
+  value_type: int
+Number of Circuits:
+  display_values:
+  - '1'
+  - '3'
+  - '16'
+  - '3'
+  - '1'
+  - '4'
+  - '1'
+  - '1'
+  - '2'
+  - '3'
+  - '30'
+  - '2'
+  - '2'
+  - '2'
+  - '2'
+  - '1'
+  - '17'
+  - '3'
+  group: Technical
+  id: '796'
+  name: Number of Circuits
+  shortname: numberofcircuits
+  value_type: int
+Number of Coils:
+  display_values:
+  - '2'
+  group: Technical
+  id: '460'
+  name: Number of Coils
+  shortname: numberofcoils
+  value_type: int
+Number of Columns:
+  display_values:
+  - '2'
+  - '10'
+  group: Technical
+  id: '266'
+  name: Number of Columns
+  shortname: numberofcolumns
+  value_type: int
+Number of Conductors:
+  display_values:
+  - '16'
+  - '1'
+  - '1'
+  - '1'
+  - '5'
+  - '2'
+  group: Technical
+  id: '762'
+  name: Number of Conductors
+  shortname: numberofconductors
+  value_type: int
+Number of Contacts:
+  display_values:
+  - '1'
+  - '3'
+  - '4'
+  - '84'
+  - '2'
+  - '4'
+  - '2'
+  - '24'
+  - '60'
+  - '2'
+  - '3'
+  - '2'
+  - '2'
+  - '64'
+  - '3'
+  - '9'
+  group: Technical
+  id: '197'
+  name: Number of Contacts
+  shortname: numberofcontacts
+  value_type: int
+Number of Converters:
+  display_values:
+  - '1'
+  - '1'
+  group: Technical
+  id: '492'
+  name: Number of Converters
+  shortname: numberofconverters
+  value_type: int
+Number of Cores:
+  display_values:
+  - '5'
+  group: Technical
+  id: '219'
+  name: Number of Cores
+  shortname: numberofcores
+  value_type: int
+Number of Cores per Jack:
+  display_values:
+  - '4'
+  group: Technical
+  id: '778'
+  name: Number of Cores per Jack
+  shortname: numberofcoresperjack
+  value_type: int
+Number of D/A Converters:
+  display_values:
+  - '0'
+  - '2'
+  group: Technical
+  id: '840'
+  name: Number of D/A Converters
+  shortname: numberofd_aconverters
+  value_type: int
+Number of DAC Channels:
+  display_values:
+  - '2'
+  - '1'
+  group: Technical
+  id: '626'
+  name: Number of DAC Channels
+  shortname: numberofdacchannels
+  value_type: int
+Number of Decks:
+  display_values:
+  - '1'
+  group: Technical
+  id: '855'
+  name: Number of Decks
+  shortname: numberofdecks
+  value_type: int
+Number of Digital IO:
+  display_values:
+  - '5'
+  - '12'
+  group: Technical
+  id: '948'
+  name: Number of Digital IO
+  shortname: numberofdigitalio
+  value_type: int
+Number of Drivers:
+  display_values:
+  - '4'
+  - '1'
+  group: Technical
+  id: '825'
+  name: Number of Drivers
+  shortname: numberofdrivers
+  value_type: int
+Number of Elements:
+  display_values:
+  - '1'
+  - '1'
+  - '2'
+  - '8'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '2'
+  - '1'
+  - '1'
+  - '1'
+  - '2'
+  - '1'
+  - '2'
+  - '1'
+  - '1'
+  group: Technical
+  id: '771'
+  name: Number of Elements
+  shortname: numberofelements
+  value_type: int
+Number of Ethernet Channels:
+  display_values:
+  - '0'
+  group: Technical
+  id: '334'
+  name: Number of Ethernet Channels
+  shortname: numberofethernetchannels
+  value_type: int
+Number of GPIO:
+  display_values:
+  - '13'
+  group: Technical
+  id: '335'
+  name: Number of GPIO
+  shortname: numberofgpio
+  value_type: int
+Number of Gangs:
+  display_values:
+  - '1'
+  group: Technical
+  id: '590'
+  name: Number of Gangs
+  shortname: numberofgangs
+  value_type: int
+Number of Gates:
+  display_values:
+  - '1'
+  group: Technical
+  id: '309'
+  name: Number of Gates
+  shortname: numberofgates
+  value_type: int
+Number of Ground Positions:
+  display_values:
+  - '20'
+  group: Technical
+  id: '396'
+  name: Number of Ground Positions
+  shortname: numberofgroundpositions
+  value_type: int
+Number of Holes:
+  display_values:
+  - '1'
+  group: Technical
+  id: '524'
+  name: Number of Holes
+  shortname: numberofholes
+  value_type: int
+Number of I/Os:
+  display_values:
+  - '15'
+  - '5'
+  - '12'
+  - '4'
+  - '80'
+  group: Technical
+  id: '721'
+  name: Number of I/Os
+  shortname: numberofi_os
+  value_type: int
+Number of I2C Channels:
+  display_values:
+  - '2'
+  - '1'
+  - '0'
+  group: Technical
+  id: '802'
+  name: Number of I2C Channels
+  shortname: numberofi2cchannels
+  value_type: int
+Number of Input Lines:
+  display_values:
+  - '1'
+  group: Technical
+  id: '707'
+  name: Number of Input Lines
+  shortname: numberofinputlines
+  value_type: int
+Number of Inputs:
+  display_values:
+  - '1'
+  - '2'
+  - '5'
+  - '4'
+  - '1'
+  - '2'
+  group: Technical
+  id: '290'
+  name: Number of Inputs
+  shortname: numberofinputs
+  value_type: int
+Number of Interrupts:
+  display_values:
+  - '1'
+  group: Technical
+  id: '259'
+  name: Number of Interrupts
+  shortname: numberofinterrupts
+  value_type: int
+Number of LED Drivers:
+  display_values:
+  - '1'
+  group: Technical
+  id: '954'
+  name: Number of LED Drivers
+  shortname: numberofleddrivers
+  value_type: int
+Number of LEDs:
+  display_values:
+  - '1'
+  - '1'
+  group: Technical
+  id: '550'
+  name: Number of LEDs
+  shortname: numberofleds
+  value_type: int
+Number of Levels:
+  display_values:
+  - '1'
+  - '1'
+  group: Technical
+  id: '715'
+  name: Number of Levels
+  shortname: numberoflevels
+  value_type: int
+Number of Lines:
+  display_values:
+  - '2'
+  group: Technical
+  id: '726'
+  name: Number of Lines
+  shortname: numberoflines
+  value_type: int
+Number of Logic Blocks (LABs):
+  display_values:
+  - '24'
+  group: Technical
+  id: '689'
+  name: Number of Logic Blocks (LABs)
+  shortname: numberoflogicblocks_labs_
+  value_type: int
+Number of Logic Elements/Cells:
+  display_values:
+  - '240'
+  group: Technical
+  id: '411'
+  name: Number of Logic Elements/Cells
+  shortname: numberoflogicelements_cells
+  value_type: int
+Number of Macrocells:
+  display_values:
+  - '192'
+  group: Technical
+  id: '643'
+  name: Number of Macrocells
+  shortname: numberofmacrocells
+  value_type: int
+Number of Monitored Inputs:
+  display_values:
+  - '1'
+  - '1'
+  group: Technical
+  id: '330'
+  name: Number of Monitored Inputs
+  shortname: numberofmonitoredinputs
+  value_type: int
+Number of Output Frequencies:
+  group: Technical
+  id: '945'
+  name: Number of Output Frequencies
+  shortname: numberofoutputfrequencies
+  value_type: int
+Number of Output Lines:
+  display_values:
+  - '1'
+  group: Technical
+  id: '856'
+  name: Number of Output Lines
+  shortname: numberofoutputlines
+  value_type: int
+Number of Output Phases:
+  display_values:
+  - '2'
+  group: Technical
+  id: '454'
+  name: Number of Output Phases
+  shortname: numberofoutputphases
+  value_type: int
+Number of Outputs:
+  display_values:
+  - '1'
+  - '2'
+  - '6'
+  - '2'
+  - '1'
+  - '2'
+  - '8'
+  - '1'
+  - '1'
+  - '1'
+  - '5'
+  - '4'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  - '4'
+  - '3'
+  group: Technical
+  id: '578'
+  name: Number of Outputs
+  shortname: numberofoutputs
+  value_type: int
+Number of PWM Channels:
+  display_values:
+  - '4'
+  group: Technical
+  id: '535'
+  name: Number of PWM Channels
+  shortname: numberofpwmchannels
+  value_type: int
+Number of Pairs:
+  display_values:
+  - '2'
+  - '20'
+  group: Technical
+  id: '820'
+  name: Number of Pairs
+  shortname: numberofpairs
+  value_type: int
+Number of Parallel RGB Channels:
+  group: Technical
+  id: '449'
+  name: Number of Parallel RGB Channels
+  shortname: numberofparallelrgbchannels
+  value_type: int
+Number of Pins:
+  display_values:
+  - '8'
+  - '8'
+  - '2'
+  - '5'
+  - '2'
+  - '14'
+  - '8'
+  - '3'
+  - '3'
+  - '10'
+  - '4'
+  - '8'
+  - '5'
+  - '3'
+  - '5'
+  - '4'
+  - '2'
+  - '3'
+  - '3'
+  - '6'
+  - '4'
+  - '6'
+  - '12'
+  - '8'
+  - '3'
+  - '28'
+  - '2'
+  - '24'
+  - '2'
+  - '3'
+  - '6'
+  - '2'
+  - '3'
+  - '6'
+  - '3'
+  - '8'
+  - '3'
+  - '2'
+  - '2'
+  - '2'
+  - '5'
+  - '8'
+  - '32'
+  - '8'
+  - '14'
+  - '6'
+  - '12'
+  - '10'
+  - '8'
+  - '5'
+  - '2'
+  - '16'
+  - '3'
+  - '2'
+  - '5'
+  - '3'
+  - '48'
+  - '5'
+  - '3'
+  - '8'
+  - '24'
+  - '24'
+  - '6'
+  - '4'
+  - '16'
+  - '8'
+  - '5'
+  - '14'
+  - '20'
+  - '100'
+  - '2'
+  - '8'
+  - '5'
+  - '48'
+  - '8'
+  - '10'
+  - '3'
+  - '8'
+  - '2'
+  - '3'
+  - '2'
+  - '20'
+  - '2'
+  - '3'
+  - '6'
+  - '2'
+  - '14'
+  - '16'
+  - '2'
+  - '6'
+  - '6'
+  - '2'
+  - '2'
+  - '3'
+  - '32'
+  - '56'
+  - '9'
+  - '15'
+  group: Physical
+  id: '329'
+  name: Number of Pins
+  shortname: numberofpins
+  value_type: int
+Number of Poles:
+  display_values:
+  - '8'
+  - '4'
+  - '1'
+  group: Technical
+  id: '768'
+  name: Number of Poles
+  shortname: numberofpoles
+  value_type: int
+Number of Poles per Deck:
+  display_values:
+  - '2'
+  group: Technical
+  id: '369'
+  name: Number of Poles per Deck
+  shortname: numberofpolesperdeck
+  value_type: int
+Number of Ports:
+  display_values:
+  - '1'
+  - '3'
+  group: Technical
+  id: '733'
+  name: Number of Ports
+  shortname: numberofports
+  value_type: int
+Number of Positions:
+  display_values:
+  - '16'
+  - '3'
+  - '4'
+  - '84'
+  - '2'
+  - '1'
+  - '4'
+  - '4'
+  - '30'
+  - '8'
+  - '5'
+  - '60'
+  - '3'
+  - '2'
+  - '2'
+  - '64'
+  - '3'
+  group: Technical
+  id: '481'
+  name: Number of Positions
+  shortname: numberofpositions
+  value_type: int
+Number of Positions Loaded:
+  display_values:
+  - '2'
+  group: Technical
+  id: '281'
+  name: Number of Positions Loaded
+  shortname: numberofpositionsloaded
+  value_type: int
+Number of Positions Per Level:
+  display_values:
+  - '2'
+  group: Technical
+  id: '862'
+  name: Number of Positions Per Level
+  shortname: numberofpositionsperlevel
+  value_type: int
+Number of Power Positions:
+  display_values:
+  - '8'
+  group: Technical
+  id: '845'
+  name: Number of Power Positions
+  shortname: numberofpowerpositions
+  value_type: int
+Number of Programmable I/O:
+  display_values:
+  - '4'
+  - '80'
+  group: Technical
+  id: '592'
+  name: Number of Programmable I/O
+  shortname: numberofprogrammablei_o
+  value_type: int
+Number of Receive Buffers:
+  display_values:
+  - '2'
+  group: Technical
+  id: '758'
+  name: Number of Receive Buffers
+  shortname: numberofreceivebuffers
+  value_type: int
+Number of Receivers:
+  display_values:
+  - '1'
+  - '12'
+  group: Technical
+  id: '611'
+  name: Number of Receivers
+  shortname: numberofreceivers
+  value_type: int
+Number of Registers:
+  display_values:
+  - '630'
+  group: Technical
+  id: '615'
+  name: Number of Registers
+  shortname: numberofregisters
+  value_type: int
+Number of Regulators:
+  display_values:
+  - '2'
+  - '1'
+  - '1'
+  group: Technical
+  id: '838'
+  name: Number of Regulators
+  shortname: numberofregulators
+  value_type: int
+Number of Resistors:
+  display_values:
+  - '4'
+  group: Technical
+  id: '542'
+  name: Number of Resistors
+  shortname: numberofresistors
+  value_type: int
+Number of Rows:
+  display_values:
+  - '1'
+  - '1'
+  - '2'
+  - '1'
+  - '2'
+  - '1'
+  - '2'
+  - '2'
+  - '1'
+  - '1'
+  - '6'
+  - '2'
+  - '1'
+  - '1'
+  - '1'
+  - '1'
+  group: Technical
+  id: '451'
+  name: Number of Rows
+  shortname: numberofrows
+  value_type: int
+Number of SPI Channels:
+  display_values:
+  - '2'
+  - '1'
+  - '0'
+  group: Technical
+  id: '573'
+  name: Number of SPI Channels
+  shortname: numberofspichannels
+  value_type: int
+Number of Segments:
+  display_values:
+  - '12'
+  group: Technical
+  id: '529'
+  name: Number of Segments
+  shortname: numberofsegments
+  value_type: int
+Number of Signal Positions:
+  display_values:
+  - '40'
+  group: Technical
+  id: '363'
+  name: Number of Signal Positions
+  shortname: numberofsignalpositions
+  value_type: int
+Number of Strands:
+  display_values:
+  - '19'
+  group: Technical
+  id: '814'
+  name: Number of Strands
+  shortname: numberofstrands
+  value_type: int
+Number of Taps:
+  display_values:
+  - '32'
+  group: Technical
+  id: '215'
+  name: Number of Taps
+  shortname: numberoftaps
+  value_type: int
+Number of Terminals:
+  display_values:
+  - '2'
+  - '4'
+  - '8'
+  group: Physical
+  id: '300'
+  name: Number of Terminals
+  shortname: numberofterminals
+  value_type: int
+Number of Terminations:
+  display_values:
+  - '2'
+  group: Technical
+  id: '784'
+  name: Number of Terminations
+  shortname: numberofterminations
+  value_type: int
+Number of Timers/Counters:
+  display_values:
+  - '3'
+  - '1'
+  - '3'
+  group: Technical
+  id: '783'
+  name: Number of Timers/Counters
+  shortname: numberoftimers_counters
+  value_type: int
+Number of Transceivers:
+  display_values:
+  - '1'
+  - '1'
+  group: Technical
+  id: '289'
+  name: Number of Transceivers
+  shortname: numberoftransceivers
+  value_type: int
+Number of Transmit Buffers:
+  display_values:
+  - '3'
+  group: Technical
+  id: '627'
+  name: Number of Transmit Buffers
+  shortname: numberoftransmitbuffers
+  value_type: int
+Number of Transmitters:
+  display_values:
+  - '13'
+  group: Technical
+  id: '646'
+  name: Number of Transmitters
+  shortname: numberoftransmitters
+  value_type: int
+Number of Turns:
+  display_values:
+  - '1'
+  group: Technical
+  id: '517'
+  name: Number of Turns
+  shortname: numberofturns
+  value_type: int
+Number of UART Channels:
+  display_values:
+  - '2'
+  - '1'
+  group: Technical
+  id: '381'
+  name: Number of UART Channels
+  shortname: numberofuartchannels
+  value_type: int
+Number of USART Channels:
+  display_values:
+  - '0'
+  group: Technical
+  id: '966'
+  name: Number of USART Channels
+  shortname: numberofusartchannels
+  value_type: int
+Number of USB Channels:
+  display_values:
+  - '0'
+  group: Technical
+  id: '794'
+  name: Number of USB Channels
+  shortname: numberofusbchannels
+  value_type: int
+Number of Unidirectional Channels:
+  display_values:
+  - '1'
+  group: Technical
+  id: '279'
+  name: Number of Unidirectional Channels
+  shortname: numberofunidirectionalchannels
+  value_type: int
+Number of Voltages Monitored:
+  display_values:
+  - '1'
+  - '1'
+  group: Technical
+  id: '713'
+  name: Number of Voltages Monitored
+  shortname: numberofvoltagesmonitored
+  value_type: int
+Number of Wire Entries:
+  display_values:
+  - '3'
+  group: Technical
+  id: '714'
+  name: Number of Wire Entries
+  shortname: numberofwireentries
+  value_type: int
+Number of Words:
+  display_values:
+  - '256'
+  - '64000'
+  group: Technical
+  id: '399'
+  name: Number of Words
+  shortname: numberofwords
+  value_type: int
+On Resistance (RON):
+  display_values:
+  - "3 \u03A9"
+  group: Technical
+  id: '923'
+  name: On Resistance (RON)
+  shortname: onresistance
+  unit: ohm
+  value_type: float
+On-State Resistance:
+  display_values:
+  - "3 \u03A9"
+  group: Technical
+  id: '593'
+  name: On-State Resistance
+  shortname: on_stateresistance
+  unit: ohm
+  value_type: float
+Operate Time:
+  display_values:
+  - 8 ms
+  group: Technical
+  id: '718'
+  name: Operate Time
+  shortname: operatetime
+  unit: s
+  value_type: float
+Operating Force:
+  display_values:
+  - 490 mN
+  - 200 mN
+  - 2.6 N
+  group: Technical
+  id: '370'
+  name: Operating Force
+  shortname: operatingforce
+  unit: N
+  value_type: float
+Operating Position:
+  display_values:
+  - 6.8072 mm
+  group: Technical
+  id: '446'
+  name: Operating Position
+  shortname: operatingposition
+  unit: m
+  value_type: float
+Operating Pressure:
+  group: Technical
+  id: '441'
+  name: Operating Pressure
+  shortname: operatingpressure
+Operating Supply Current:
+  display_values:
+  - 1.3 mA
+  - 10 mA
+  - 17 mA
+  - "500 \xB5A"
+  - "900 \xB5A"
+  - "200 \xB5A"
+  - 2.5 mA
+  - 6 mA
+  - 2 mA
+  - 40 mA
+  - "240 \xB5A"
+  - 2.5 mA
+  - "30 \xB5A"
+  - "8 \xB5A"
+  group: Technical
+  id: '798'
+  name: Operating Supply Current
+  shortname: operatingsupplycurrent
+  unit: A
+  value_type: float
+Operating Supply Voltage:
+  display_values:
+  - 3.3 V
+  - 5 V
+  - 12 V
+  - 3.3 V
+  - 4 V
+  - 2.25 V
+  - 2.6 V
+  - 500 V
+  - 125 V
+  - 5 V
+  - 1.8 V
+  - 6.5 V
+  - 3.3 V
+  - 120 V
+  - 5 V
+  - 5 V
+  - 3.6 V
+  - 15 V
+  - 5 V
+  - 2.5 V
+  - 16 V
+  - 1.8 V
+  - 5 V
+  - 1.8 V
+  - 3.3 V
+  - 30 V
+  - 5 V
+  - 5 V
+  - 1.8 V
+  - 1.8 V
+  - 3.6 V
+  - 5 V
+  - 3 V
+  - 5 V
+  - 5 V
+  - 120 V
+  - 50 V
+  - 3.3 V
+  group: Technical
+  id: '637'
+  name: Operating Supply Voltage
+  shortname: operatingsupplyvoltage
+  unit: V
+  value_type: float
+Operating System:
+  group: Technical
+  id: '538'
+  name: Operating System
+  shortname: operatingsystem
+Orientation:
+  display_values:
+  - Straight
+  - Right Angle
+  - Vertical
+  - Vertical
+  - Straight
+  - Side View
+  - Vertical
+  - Straight
+  - Straight
+  - Straight
+  - Vertical
+  - Vertical
+  - Straight
+  - Straight
+  - Straight
+  - Right Angle
+  - Vertical
+  - Straight
+  - Straight
+  - Vertical
+  - Vertical
+  - Vertical
+  - Right Angle
+  - Straight
+  - Straight
+  - Vertical
+  - Straight
+  group: Technical
+  id: '373'
+  name: Orientation
+  shortname: orientation
+  value_type: text
+Orifice Diameter:
+  display_values:
+  - 2.6924 mm
+  group: Dimensions
+  id: '249'
+  name: Orifice Diameter
+  shortname: orificediameter
+  unit: m
+  value_type: float
+Oscillator Type:
+  display_values:
+  - Internal
+  group: Technical
+  id: '553'
+  name: Oscillator Type
+  shortname: oscillatortype
+  value_type: text
+Output Configuration:
+  display_values:
+  - Positive
+  group: Technical
+  id: '349'
+  name: Output Configuration
+  shortname: outputconfiguration
+  value_type: text
+Output Current:
+  display_values:
+  - 1 A
+  - 1.25 A
+  - 50 mA
+  - 100 mA
+  - 150 mA
+  - 400 mA
+  - 30 mA
+  - 600 mA
+  - 20 mA
+  - 2 A
+  - 100 mA
+  - 1.5 A
+  - 300 mA
+  - 2.6 mA
+  - 25 mA
+  - 34 mA
+  - 320 mA
+  - 200 mA
+  - 6 A
+  - 15 A
+  - 3 A
+  - 10 A
+  - 8 A
+  group: Technical
+  id: '254'
+  name: Output Current
+  shortname: outputcurrent
+  unit: A
+  value_type: float
+Output Current per Channel:
+  display_values:
+  - 35 mA
+  - 50 mA
+  - 150 mA
+  - 50 mA
+  - 20 mA
+  - 20 mA
+  group: Technical
+  id: '464'
+  name: Output Current per Channel
+  shortname: outputcurrentperchannel
+  unit: A
+  value_type: float
+Output Power:
+  display_values:
+  - 102 mW
+  - 6.5 W
+  - 60 W
+  - 75 W
+  - 40 W
+  - 100 W
+  - 110 W
+  group: Technical
+  id: '391'
+  name: Output Power
+  shortname: outputpower
+  unit: W
+  value_type: float
+Output Type:
+  display_values:
+  - Fixed
+  - Voltage
+  - I2C, SPI
+  - Fixed
+  - Analog Voltage
+  - Voltage
+  - Voltage
+  - Digital
+  group: Technical
+  id: '609'
+  name: Output Type
+  shortname: outputtype
+  value_type: text
+Output Voltage:
+  display_values:
+  - 5.05 V
+  - 7 V
+  - 36 V
+  - 2.5 V
+  - 3 V
+  - 1.5 V
+  - 30 V
+  - 1.55 V
+  - 5.2 V
+  - 38 V
+  - 5 V
+  - 5 V
+  - 18 V
+  - 5 V
+  - 36 V
+  - 5 V
+  - 5 V
+  - 120 V
+  - 115 V
+  - 3.3 V
+  - 24 V
+  - 12 V
+  group: Technical
+  id: '625'
+  name: Output Voltage
+  shortname: outputvoltage
+  unit: V
+  value_type: float
+Output Voltage Accuracy:
+  display_values:
+  - 2 %
+  group: Technical
+  id: '442'
+  name: Output Voltage Accuracy
+  shortname: outputvoltageaccuracy
+  unit: '%'
+  value_type: float
+Outside Diameter:
+  display_values:
+  - 10 mm
+  - 3.175 mm
+  - 1.4 mm
+  - 11 mm
+  group: Dimensions
+  id: '361'
+  name: Outside Diameter
+  shortname: outsidediameter
+  unit: m
+  value_type: float
+Overload Protection:
+  display_values:
+  - Circuit Breaker
+  - None
+  group: Technical
+  id: '327'
+  name: Overload Protection
+  shortname: overloadprotection
+  value_type: text
+Overtravel:
+  display_values:
+  - "558.8 \xB5m"
+  group: Technical
+  id: '497'
+  name: Overtravel
+  shortname: overtravel
+  unit: m
+  value_type: float
+Overvoltage Threshold:
+  display_values:
+  - 3.45 V
+  - 5.6 V
+  - 2.3 V
+  group: Technical
+  id: '630'
+  name: Overvoltage Threshold
+  shortname: overvoltagethreshold
+  unit: V
+  value_type: float
+P1dB:
+  display_values:
+  - 27 dBm
+  group: Technical
+  id: '509'
+  name: P1dB
+  shortname: p1db
+  unit: dBm
+  value_type: float
+PCB Mount Alignment:
+  display_values:
+  - With
+  group: Technical
+  id: '246'
+  name: PCB Mount Alignment
+  shortname: pcbmountalignment
+  value_type: text
+PCB Mount Retention:
+  display_values:
+  - With
+  group: Technical
+  id: '312'
+  name: PCB Mount Retention
+  shortname: pcbmountretention
+  value_type: text
+PCB Mounting Orientation:
+  display_values:
+  - Vertical
+  - Vertical
+  - Vertical
+  - Vertical
+  - Vertical
+  group: Technical
+  id: '761'
+  name: PCB Mounting Orientation
+  shortname: pcbmountingorientation
+  value_type: text
+PCB Thickness:
+  display_values:
+  - "50 \xB5m"
+  - 1.6 mm
+  - 1 mm
+  - 1.5748 mm
+  group: Dimensions
+  id: '526'
+  name: PCB Thickness
+  shortname: pcbthickness
+  unit: m
+  value_type: float
+PLL:
+  group: Technical
+  id: '238'
+  name: PLL
+  shortname: pll
+Package Cooled:
+  display_values:
+  - TO-220
+  - TO-220
+  group: Physical
+  id: '489'
+  name: Package Cooled
+  shortname: packagecooled
+  value_type: text
+Package Quantity:
+  display_values:
+  - '4000'
+  - '3000'
+  - '3000'
+  - '3000'
+  group: Technical
+  id: '419'
+  name: Package Quantity
+  shortname: packagequantity
+  value_type: int
+Packaging:
+  display_values:
+  - "Digi-Reel\xAE"
+  - Tape & Reel (TR)
+  - Tape & Reel (TR)
+  - Cut Tape
+  - Cut Tape
+  - Tape & Reel
+  - "Digi-Reel\xAE"
+  - Cut Tape
+  - Tape & Reel (TR)
+  - Bulk
+  - Bulk
+  - Cut Tape
+  - Tape & Reel (TR)
+  - Tape and Reel
+  - Bulk
+  - Bulk
+  - Bulk
+  - Cut Tape (CT)
+  - Tape and Reel
+  - Tape and Reel
+  - Cut Tape
+  - Cut Tape (CT)
+  - Tape & Reel (TR)
+  - Tape & Reel
+  - Cut Tape (CT)
+  - "Digi-Reel\xAE"
+  - Tape & Reel (TR)
+  - Tape & Reel (TR)
+  - Bulk
+  - Bulk
+  - Bulk
+  - Tape & Reel (TR)
+  - Tape and Reel
+  - Tape & Reel (TR)
+  - Tape & Box (TB)
+  - Tape & Reel (TR)
+  - Cut Tape (CT)
+  - Bulk
+  - Cut Tape
+  - Bulk
+  - Cut Tape
+  - Cut Tape (CT)
+  - Cut Tape
+  - Tape & Reel (TR)
+  - Tape & Reel
+  - Cut Tape
+  - Tape and Reel
+  - Cut Tape (CT)
+  - Tape & Reel (TR)
+  - Tape & Reel (TR)
+  - Tape & Reel (TR)
+  - Cut Tape (CT)
+  - Bulk
+  - Cut Tape (CT)
+  - Cut Tape
+  - Bulk
+  - Tape and Reel
+  - "Digi-Reel\xAE"
+  - Bulk
+  - "Digi-Reel\xAE"
+  - Cut Tape
+  - Tape & Reel (TR)
+  - Cut Tape
+  - Tape and Reel
+  - Bulk
+  - "Digi-Reel\xAE"
+  - Bulk
+  - Bulk
+  - Tape and Reel
+  - Cut Tape
+  - Bulk
+  - "Digi-Reel\xAE"
+  - Bulk
+  - Tape and Reel
+  - Tape & Reel
+  - Tape & Reel
+  - Bulk
+  - Tape & Reel
+  - Cut Tape
+  - Tape & Reel (TR)
+  - Cut Tape
+  - Cut Tape (CT)
+  - Tape and Reel
+  - Bulk
+  - Tape and Reel
+  - Carton
+  - Tape and Reel
+  - Tape & Reel (TR)
+  - Tape & Reel (TR)
+  - "Digi-Reel\xAE"
+  - Bulk
+  - Bulk
+  - Box
+  group: Technical
+  id: '412'
+  name: Packaging
+  shortname: packaging
+  value_type: text
+Page Size:
+  display_values:
+  - 256 B
+  group: Technical
+  id: '319'
+  name: Page Size
+  shortname: pagesize
+  unit: B
+  value_type: float
+Panel Mount Retention:
+  group: Technical
+  id: '208'
+  name: Panel Mount Retention
+  shortname: panelmountretention
+Panel Thickness:
+  display_values:
+  - 3.175 mm
+  - 3.5 mm
+  group: Dimensions
+  id: '860'
+  name: Panel Thickness
+  shortname: panelthickness
+  unit: m
+  value_type: float
+Peak Non-Repetitive Surge Current:
+  display_values:
+  - 30 A
+  - 8 A
+  - 50 A
+  - 2 A
+  group: Technical
+  id: '261'
+  name: Peak Non-Repetitive Surge Current
+  shortname: peaknon_repetitivesurgecurrent
+  unit: A
+  value_type: float
+Peak Pulse Current:
+  display_values:
+  - 150 A
+  - 2 A
+  - 21.4 A
+  - 5.8 A
+  group: Technical
+  id: '747'
+  name: Peak Pulse Current
+  shortname: peakpulsecurrent
+  unit: A
+  value_type: float
+'Peak Pulse Power ':
+  display_values:
+  - 1.5 kW
+  - 400 W
+  group: Technical
+  id: '781'
+  name: 'Peak Pulse Power '
+  shortname: peakpulsepower
+  unit: W
+  value_type: float
+Peak Reverse Current:
+  display_values:
+  - "5 \xB5A"
+  - "5 \xB5A"
+  - 25 nA
+  group: Technical
+  id: '487'
+  name: Peak Reverse Current
+  shortname: peakreversecurrent
+  unit: A
+  value_type: float
+Peak Wavelength:
+  display_values:
+  - 697 nm
+  group: Technical
+  id: '601'
+  name: Peak Wavelength
+  shortname: peakwavelength
+  unit: m
+  value_type: float
+Peripherals:
+  display_values:
+  - LVD, POR, PWM, WDT
+  group: Technical
+  id: '591'
+  name: Peripherals
+  shortname: peripherals
+  value_type: text
+Phase Jitter:
+  group: Technical
+  id: '946'
+  name: Phase Jitter
+  shortname: phasejitter
+Pin Diameter:
+  group: Technical
+  id: '920'
+  name: Pin Diameter
+  shortname: pindiameter
+Pin Hole Diameter:
+  display_values:
+  - 1.27 mm
+  group: Dimensions
+  id: '616'
+  name: Pin Hole Diameter
+  shortname: pinholediameter
+  unit: m
+  value_type: float
+Pin Length:
+  display_values:
+  - 6.5 mm
+  group: Dimensions
+  id: '823'
+  name: Pin Length
+  shortname: pinlength
+  unit: m
+  value_type: float
+Pitch:
+  display_values:
+  - 3.9624 mm
+  - 2.54 mm
+  - "800 \xB5m"
+  - 5.2 mm
+  - 2.54 mm
+  - "355.6 \xB5m"
+  - 2.54 mm
+  - 19.05 mm
+  - 1.905 mm
+  - 2.54 mm
+  - 5.0038 mm
+  - 9.525 mm
+  - 3.9624 mm
+  - 2.54 mm
+  - "990.6 \xB5m"
+  - 1.5 mm
+  group: Dimensions
+  id: '199'
+  name: Pitch
+  shortname: pitch
+  unit: m
+  value_type: float
+Pixel Height:
+  display_values:
+  - "282 \xB5m"
+  group: Technical
+  id: '567'
+  name: Pixel Height
+  shortname: pixelheight
+  unit: m
+  value_type: float
+Pixel Width:
+  display_values:
+  - "360 \xB5m"
+  group: Technical
+  id: '821'
+  name: Pixel Width
+  shortname: pixelwidth
+  unit: m
+  value_type: float
+Plating:
+  display_values:
+  - Tin
+  - Nickel
+  - Gold
+  - Tin
+  - Tin
+  - Unplated
+  group: Physical
+  id: '730'
+  name: Plating
+  shortname: plating
+  value_type: text
+Plating Thickness:
+  display_values:
+  - 760 nm
+  - "1.52 \xB5m"
+  - "1.01 \xB5m"
+  - "2.54 \xB5m"
+  group: Technical
+  id: '632'
+  name: Plating Thickness
+  shortname: platingthickness
+  unit: m
+  value_type: float
+Polarity:
+  display_values:
+  - Non-Inverting
+  - Standard
+  - PNP
+  - PNP
+  - Bipolar
+  - Positive
+  - Bidirectional
+  - Standard
+  - NPN
+  - Bidirectional
+  - PNP
+  - Unidirectional
+  - Non-Inverting
+  - Bidirectional
+  - Standard
+  - Positive
+  - NPN
+  - Non-Inverting
+  - Non-Inverting
+  - NPN
+  - Unipolar
+  - Polar
+  group: Technical
+  id: '597'
+  name: Polarity
+  shortname: polarity
+  value_type: text
+Polarized:
+  group: Technical
+  id: '841'
+  name: Polarized
+  shortname: polarized
+Port Style:
+  display_values:
+  - No Port
+  group: Technical
+  id: '344'
+  name: Port Style
+  shortname: portstyle
+  value_type: text
+Power Consumption:
+  display_values:
+  - 65 mW
+  - 1.6 W
+  - "210 \xB5W"
+  - 9.7 mW
+  group: Technical
+  id: '405'
+  name: Power Consumption
+  shortname: powerconsumption
+  unit: W
+  value_type: float
+Power Dissipation:
+  display_values:
+  - 3 W
+  - 60 mW
+  - 384 mW
+  - 70 mW
+  - 200 mW
+  - 200 mW
+  - 150 mW
+  - "450 \xB5W"
+  - 2.2 W
+  - 250 mW
+  - 350 mW
+  - 250 mW
+  - 200 mW
+  - 330 mW
+  - 60 mW
+  - 1.5 W
+  - 200 mW
+  - 140 mW
+  - 400 mW
+  - 150 mW
+  - 2.8 W
+  - 4.8 W
+  - 300 mW
+  - 500 mW
+  - 45 mW
+  - 280 mW
+  - 400 mW
+  - 130 mW
+  - 2 W
+  group: Technical
+  id: '283'
+  name: Power Dissipation
+  shortname: powerdissipation
+  unit: W
+  value_type: float
+Power Gain:
+  display_values:
+  - 12.7 dB
+  group: Technical
+  id: '614'
+  name: Power Gain
+  shortname: powergain
+  unit: dB
+  value_type: float
+Power Line Protection:
+  display_values:
+  - 'No'
+  - 'No'
+  group: Technical
+  id: '268'
+  name: Power Line Protection
+  shortname: powerlineprotection
+  value_type: text
+Power Per Element:
+  display_values:
+  - 62.5 mW
+  group: Technical
+  id: '585'
+  name: Power Per Element
+  shortname: powerperelement
+  unit: W
+  value_type: float
+Power Rating:
+  display_values:
+  - 3 W
+  - 62.5 mW
+  - 2.2 W
+  - 250 mW
+  - 500 mW
+  - 700 mW
+  - 2.4 W
+  - 3 W
+  - 450 mW
+  - 2 W
+  - 63 W
+  - 1.8 kW
+  - 75 W
+  - 150.2 W
+  - 30 W
+  - 110 W
+  group: Technical
+  id: '257'
+  name: Power Rating
+  shortname: powerrating
+  unit: W
+  value_type: float
+Power Supply Rejection Ratio (PSRR):
+  display_values:
+  - 94 dB
+  - 105 dB
+  - 63 dB
+  group: Technical
+  id: '293'
+  name: Power Supply Rejection Ratio (PSRR)
+  shortname: powersupplyrejectionratio_psrr_
+  unit: dB
+  value_type: float
+Preloaded:
+  group: Technical
+  id: '692'
+  name: Preloaded
+  shortname: preloaded
+Pressure Type:
+  display_values:
+  - Absolute
+  group: Technical
+  id: '766'
+  name: Pressure Type
+  shortname: pressuretype
+  value_type: text
+Pretravel:
+  display_values:
+  - 2.1082 mm
+  group: Technical
+  id: '209'
+  name: Pretravel
+  shortname: pretravel
+  unit: m
+  value_type: float
+Primary Current:
+  display_values:
+  - 10 A
+  group: Technical
+  id: '674'
+  name: Primary Current
+  shortname: primarycurrent
+  unit: A
+  value_type: float
+Primary Winding(s):
+  display_values:
+  - Dual
+  group: Technical
+  id: '523'
+  name: Primary Winding(s)
+  shortname: primarywinding_s_
+  value_type: text
+Programmable Flags Support:
+  group: Technical
+  id: '401'
+  name: Programmable Flags Support
+  shortname: programmableflagssupport
+Propagation Delay:
+  display_values:
+  - 250 ps
+  - 90 ns
+  - 4 ns
+  - 60 ns
+  - 9.5 ns
+  - 14 ns
+  - 2.5 ns
+  - 135 ns
+  - 14.5 ns
+  - 7.5 ns
+  group: Technical
+  id: '427'
+  name: Propagation Delay
+  shortname: propagationdelay
+  unit: s
+  value_type: float
+Pulse Width Distortion (PWD):
+  display_values:
+  - 20 ns
+  - 2.5 ns
+  group: Technical
+  id: '415'
+  name: Pulse Width Distortion (PWD)
+  shortname: pulsewidthdistortion_pwd_
+  unit: s
+  value_type: float
+Pulses per Revolution:
+  display_values:
+  - '9'
+  group: Technical
+  id: '274'
+  name: Pulses per Revolution
+  shortname: pulsesperrevolution
+  value_type: float
+Q Factor:
+  display_values:
+  - '10'
+  group: Technical
+  id: '577'
+  name: Q Factor
+  shortname: qfactor
+  value_type: float
+Quiescent Current:
+  display_values:
+  - "10 \xB5A"
+  - "80 \xB5A"
+  - 10 mA
+  - "200 \xB5A"
+  - 2 mA
+  - "1.4 \xB5A"
+  - 3 mA
+  - "200 \xB5A"
+  - "8 \xB5A"
+  - "790 \xB5A"
+  - "60 \xB5A"
+  group: Technical
+  id: '343'
+  name: Quiescent Current
+  shortname: quiescentcurrent
+  unit: A
+  value_type: float
+RAM Size:
+  display_values:
+  - 128 kB
+  - 1 kB
+  - 256 B
+  - 576 B
+  group: Technical
+  id: '832'
+  name: RAM Size
+  shortname: ramsize
+  unit: B
+  value_type: float
+REACH SVHC:
+  display_values:
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - Unknown
+  - No SVHC
+  - Unknown
+  - No SVHC
+  group: Compliance
+  id: '683'
+  name: REACH SVHC
+  shortname: reachsvhc
+  value_type: text
+RMS Current (Irms):
+  display_values:
+  - 70 mA
+  - 1.57 A
+  group: Technical
+  id: '465'
+  name: RMS Current (Irms)
+  shortname: rmscurrent_irms_
+  unit: A
+  value_type: float
+RPM:
+  display_values:
+  - 11100 RPM
+  group: Technical
+  id: '307'
+  name: RPM
+  shortname: rpm
+  unit: RPM
+  value_type: float
+Radiation Hardening:
+  display_values:
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  group: Compliance
+  id: '634'
+  name: Radiation Hardening
+  shortname: radiationhardening
+  value_type: text
+Ratings:
+  display_values:
+  - IP67
+  group: Compliance
+  id: '559'
+  name: Ratings
+  shortname: ratings
+  value_type: text
+Rds On Max:
+  display_values:
+  - "3 \u03A9"
+  group: Technical
+  id: '515'
+  name: Rds On Max
+  shortname: rdsonmax
+  unit: ohm
+  value_type: float
+Receiver Hysteresis:
+  display_values:
+  - 500 mV
+  group: Technical
+  id: '377'
+  name: Receiver Hysteresis
+  shortname: receiverhysteresis
+  unit: V
+  value_type: float
+Rechargeability:
+  group: Technical
+  id: '549'
+  name: Rechargeability
+  shortname: rechargeability
+Recovery Time:
+  display_values:
+  - 5 ns
+  group: Technical
+  id: '633'
+  name: Recovery Time
+  shortname: recoverytime
+  unit: s
+  value_type: float
+Reference Type:
+  display_values:
+  - Shunt
+  - Shunt
+  group: Technical
+  id: '704'
+  name: Reference Type
+  shortname: referencetype
+  value_type: text
+Reference Voltage:
+  display_values:
+  - 800 mV
+  - 1.25 V
+  group: Technical
+  id: '430'
+  name: Reference Voltage
+  shortname: referencevoltage
+  unit: V
+  value_type: float
+Relay Type:
+  group: Technical
+  id: '414'
+  name: Relay Type
+  shortname: relaytype
+Release Time:
+  display_values:
+  - 5 ms
+  group: Technical
+  id: '568'
+  name: Release Time
+  shortname: releasetime
+  unit: s
+  value_type: float
+Reset:
+  display_values:
+  - 'Active Low '
+  - 'Active High '
+  group: Technical
+  id: '536'
+  name: Reset
+  shortname: reset
+  value_type: text
+Reset Delay Time:
+  display_values:
+  - 200 ms
+  group: Technical
+  id: '480'
+  name: Reset Delay Time
+  shortname: resetdelaytime
+  unit: s
+  value_type: float
+Reset Timeout:
+  display_values:
+  - 140 ms
+  group: Technical
+  id: '629'
+  name: Reset Timeout
+  shortname: resettimeout
+  unit: s
+  value_type: float
+Resistance:
+  display_values:
+  - "10 G\u03A9"
+  - "2.2 k\u03A9"
+  - "20 \u03A9"
+  - "10 M\u03A9"
+  - "5 \u03A9"
+  - "600 \xB5\u03A9"
+  - "672 m\u03A9"
+  - "845 \u03A9"
+  - "1.25 \u03A9"
+  - "200 m\u03A9"
+  - "2.7 M\u03A9"
+  - "35 \u03A9"
+  - "28.6 \u03A9"
+  - "3.6 \u03A9"
+  - "28 m\u03A9"
+  - "5 k\u03A9"
+  - "12 \u03A9"
+  - "47 \u03A9"
+  - "50 k\u03A9"
+  - "3 \u03A9"
+  - "2.5 \u03A9"
+  group: Technical
+  id: '440'
+  name: Resistance
+  shortname: resistance
+  unit: ohm
+  value_type: float
+Resolution:
+  display_values:
+  - 1.5 B
+  - 0.875 B
+  - 1.25 B
+  group: Technical
+  id: '322'
+  name: Resolution
+  shortname: resolution
+  unit: B
+  value_type: float
+Resolution (height):
+  display_values:
+  - 240 pixel
+  group: Technical
+  id: '835'
+  name: Resolution (height)
+  shortname: resolution_height_
+  unit: pixel
+  value_type: float
+Resolution (width):
+  display_values:
+  - 320 pixel
+  group: Technical
+  id: '837'
+  name: Resolution (width)
+  shortname: resolution_width_
+  unit: pixel
+  value_type: float
+Response Frequency:
+  display_values:
+  - 800 Hz
+  group: Technical
+  id: '347'
+  name: Response Frequency
+  shortname: responsefrequency
+  unit: Hz
+  value_type: float
+Response Time:
+  display_values:
+  - 1.9 ms
+  - 50 ms
+  - "4.6 \xB5s"
+  - "1.3 \xB5s"
+  - 1 ns
+  group: Technical
+  id: '276'
+  name: Response Time
+  shortname: responsetime
+  unit: s
+  value_type: float
+Retransmit Capability:
+  group: Technical
+  id: '660'
+  name: Retransmit Capability
+  shortname: retransmitcapability
+Return Loss:
+  display_values:
+  - 10 dB
+  group: Technical
+  id: '606'
+  name: Return Loss
+  shortname: returnloss
+  unit: dB
+  value_type: float
+Reverse Breakdown Voltage:
+  display_values:
+  - 5 V
+  - 6 V
+  group: Technical
+  id: '433'
+  name: Reverse Breakdown Voltage
+  shortname: reversebreakdownvoltage
+  unit: V
+  value_type: float
+Reverse Recovery Time:
+  display_values:
+  - 136 ns
+  - 50 ns
+  - 4 ns
+  group: Technical
+  id: '376'
+  name: Reverse Recovery Time
+  shortname: reverserecoverytime
+  unit: s
+  value_type: float
+Reverse Standoff Voltage:
+  display_values:
+  - 108 V
+  - 5 V
+  - 24 V
+  - 43.6 V
+  group: Technical
+  id: '202'
+  name: Reverse Standoff Voltage
+  shortname: reversestandoffvoltage
+  unit: V
+  value_type: float
+Reverse Voltage:
+  display_values:
+  - 1 kV
+  - 5 V
+  - 1.2 V
+  - 5 V
+  - 200 V
+  - 50 V
+  group: Technical
+  id: '379'
+  name: Reverse Voltage
+  shortname: reversevoltage
+  unit: V
+  value_type: float
+Reverse Voltage (DC):
+  display_values:
+  - 50 V
+  group: Technical
+  id: '655'
+  name: Reverse Voltage (DC)
+  shortname: reversevoltage_dc_
+  unit: V
+  value_type: float
+Ribbon Thickness:
+  display_values:
+  - 2.032 mm
+  group: Dimensions
+  id: '570'
+  name: Ribbon Thickness
+  shortname: ribbonthickness
+  unit: m
+  value_type: float
+Ribbon Width:
+  display_values:
+  - 3.302 mm
+  group: Dimensions
+  id: '366'
+  name: Ribbon Width
+  shortname: ribbonwidth
+  unit: m
+  value_type: float
+Ripple Current:
+  display_values:
+  - 46 mA
+  - 65 mA
+  group: Technical
+  id: '521'
+  name: Ripple Current
+  shortname: ripplecurrent
+  unit: A
+  value_type: float
+Ripple Current (AC):
+  display_values:
+  - 65 mA
+  - 65 mA
+  group: Technical
+  id: '770'
+  name: Ripple Current (AC)
+  shortname: ripplecurrent_ac_
+  unit: A
+  value_type: float
+Ripple Current (DC):
+  display_values:
+  - "500 \xB5A"
+  group: Technical
+  id: '720'
+  name: Ripple Current (DC)
+  shortname: ripplecurrent_dc_
+  unit: A
+  value_type: float
+Rise Time:
+  display_values:
+  - 45 ns
+  - "1 \xB5s"
+  - 15 ns
+  - 67 ns
+  - 5 ns
+  - 3.3 ns
+  group: Technical
+  id: '811'
+  name: Rise Time
+  shortname: risetime
+  unit: s
+  value_type: float
+RoHS:
+  display_values:
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Non-Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  - Compliant
+  group: Compliance
+  id: '610'
+  name: RoHS
+  shortname: rohs
+  value_type: text
+Row Spacing:
+  display_values:
+  - 4.73 mm
+  - 6.14 mm
+  - 2.54 mm
+  - 1.35 mm
+  group: Dimensions
+  id: '635'
+  name: Row Spacing
+  shortname: rowspacing
+  unit: m
+  value_type: float
+Sampling Rate:
+  display_values:
+  - 128 sps
+  - 192 ksps
+  - 225 ksps
+  group: Technical
+  id: '537'
+  name: Sampling Rate
+  shortname: samplingrate
+  unit: sps
+  value_type: float
+Saturation Current:
+  display_values:
+  - 80 mA
+  - 2.2 A
+  group: Technical
+  id: '581'
+  name: Saturation Current
+  shortname: saturationcurrent
+  unit: A
+  value_type: float
+Schedule B:
+  display_values:
+  - 8542320050, 8542320050|8542320050|8542320050|8542320050|8542320050
+  - 8533400080, 8533400080|8533400080|8533400080|8533400080|8533400080
+  - '8542390000'
+  - 8533210025, 8533210025|8533210025, 8533210025|8533210025|8533210025, 8533210025|8533210025|8533210025|8533210025
+  - '8542390000'
+  - '8533400080'
+  - 8541290080, 8541290080|8541290080, 8541290080|8541290080|8541290080, 8541290080|8541290080|8541290080|8541290080
+  - 8541210080, 8541210080|8541210080|8541210080|8541210080|8541210080
+  - 8541402000, 8541402000|8541402000|8541402000|8541402000|8541402000
+  - 8536694040, 8536694040|8536694040|8536694040|8536694040|8536694040
+  - 8541210080, 8541210080|8541210080|8541210080|8541210080|8541210080
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - 8517690000, 8542310000|8542310000|8542310000|8542310000|8542310000
+  - '8542390000'
+  - '8541408000'
+  - 8504500000|8504500000|8504500000|8504500000|8504500000
+  - 8532240020, 8532240020|8532240020|8532240020|8532240020|8532240020
+  - '8542310000'
+  - '8542390000'
+  - 8533210090, 8533210090|8533210090|8533210090|8533210090|8533210090
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - '8542330000'
+  - 8541210080, 8541210080|8541210080|8541210080|8541210080|8541210080
+  - 8541402000, 8541402000|8541402000|8541402000|8541402000|8541402000
+  - 8541402000, 8541402000|8541402000, 8541402000|8541402000|8541402000, 8541402000|8541402000|8541402000|8541402000
+  - 8546900000, 8546900000|8546900000, 8546900000|8546900000|8546900000, 8546900000|8546900000|8546900000|8546900000
+  - '8542390000'
+  - '8542330000'
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - 8532240020, 8532240020|8532240020|8532240020|8532240020|8532240020
+  - '8542390000'
+  - '8542390000'
+  - 8504500000, 8504500000|8504500000|8504500000|8504500000|8504500000
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - 8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|8533290000|85
+  - 8536300000, 8536300000|8536300000|8536300000|8536300000|8536300000
+  - '8542390000'
+  - '8541100080'
+  - 8541210080, 8541210080|8541210080, 8541210080|8541210080|8541210080, 8541210080|8541210080|8541210080|8541210080
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - '8542390000'
+  - 8542390000, 8542390000|8542390000, 8542390000|8542390000|8542390000, 8542390000|8542390000|8542390000|8542390000
+  - 8532240020, 8532240020|8532240020|8532240020|8532240020|8532240020
+  - 8533400080, 8533400080|8533400080|8533400080|8533400080|8533400080
+  - 8536904000|8536904000|8536904000|8536904000|8536904000
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - '8542390000'
+  - 8536694040, 8536694040|8536694040|8536694040|8536694040|8536694040
+  - 8541100080, 8541100080|8541100080|8541100080|8541100080|8541100080
+  - 8542320050, 8542320050|8542320050|8542320050|8542320050|8542320050
+  - 8541210080, 8541210080|8541210080, 8541210080|8541210080|8541210080, 8541210080|8541210080|8541210080|8541210080
+  - 8542900000, 8542900000|8542900000, 8542900000|8542900000|8542900000, 8542900000|8542900000|8542900000|8542900000
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - 8541100060, 8541100070|8541100070|8541100070|8541100070|8541100070
+  - 8532220020, 8532220020|8532220020|8532220020|8532220020|8532220020
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - 8542390000, 8542390000|8542390000|8542390000|8542390000|8542390000
+  - '8542390000'
+  - 8536509065, 8536509065|8536509065|8536509065|8536509065|8536509065
+  - 8532220020, 8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|8532220020|85
+  - 8536904000, 8536904000|8536904000, 8536904000|8536904000|8536904000, 8536904000|8536904000|8536904000|8536904000
+  - 8504500000, 8504500000|8504500000|8504500000|8504500000|8504500000
+  - 8541402000, 8541402000|8541402000, 8541402000|8541402000|8541402000, 8541402000|8541402000|8541402000|8541402000
+  - 8536300000, 8536300000|8536300000, 8536300000|8536300000|8536300000, 8536300000|8536300000|8536300000|8536300000
+  group: Technical
+  id: '973'
+  name: Schedule B
+  shortname: scheduleB
+  value_type: text
+Schmitt Trigger Input:
+  display_values:
+  - 'No'
+  group: Technical
+  id: '416'
+  name: Schmitt Trigger Input
+  shortname: schmitttriggerinput
+  value_type: text
+Screw Flange:
+  group: Technical
+  id: '728'
+  name: Screw Flange
+  shortname: screwflange
+Screwless Terminal Block:
+  group: Technical
+  id: '337'
+  name: Screwless Terminal Block
+  shortname: screwlessterminalblock
+Sealable:
+  display_values:
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  - 'No'
+  group: Technical
+  id: '540'
+  name: Sealable
+  shortname: sealable
+  value_type: text
+Secondary Current:
+  display_values:
+  - 10 A
+  group: Technical
+  id: '552'
+  name: Secondary Current
+  shortname: secondarycurrent
+  unit: A
+  value_type: float
+Secondary Winding(s):
+  display_values:
+  - Dual
+  group: Technical
+  id: '648'
+  name: Secondary Winding(s)
+  shortname: secondarywinding_s_
+  value_type: text
+Selectively Loaded:
+  group: Technical
+  id: '278'
+  name: Selectively Loaded
+  shortname: selectivelyloaded
+Self Resonant Frequency:
+  display_values:
+  - 3.2 GHz
+  - 4 GHz
+  - 3.5 MHz
+  - 600 MHz
+  - 120 MHz
+  group: Technical
+  id: '230'
+  name: Self Resonant Frequency
+  shortname: selfresonantfrequency
+  unit: Hz
+  value_type: float
+Sensing Distance:
+  display_values:
+  - 5.0038 mm
+  group: Technical
+  id: '666'
+  name: Sensing Distance
+  shortname: sensingdistance
+  unit: m
+  value_type: float
+Sensing Method:
+  display_values:
+  - Inductive
+  group: Technical
+  id: '532'
+  name: Sensing Method
+  shortname: sensingmethod
+  value_type: text
+Sensitivity (LSB/g):
+  group: Technical
+  id: '869'
+  name: Sensitivity (LSB/g)
+  shortname: sensitivity_lsb_g_
+Sensitivity (dBm):
+  display_values:
+  - -96 dBm
+  group: Technical
+  id: '873'
+  name: Sensitivity (dBm)
+  shortname: sensitivity_dbm_
+  unit: dBm
+  value_type: float
+Sensitivity (mV/A):
+  display_values:
+  - 45 mV/A
+  group: Technical
+  id: '872'
+  name: Sensitivity (mV/A)
+  shortname: sensitivity_mv_a_
+  unit: V/A
+  value_type: float
+Sensitivity (mV/g):
+  display_values:
+  - 860 mV/g
+  group: Technical
+  id: '870'
+  name: Sensitivity (mV/g)
+  shortname: sensitivity_mv_g_
+  unit: V/g
+  value_type: float
+Sensor Type:
+  group: Technical
+  id: '848'
+  name: Sensor Type
+  shortname: sensortype
+Series Resistance:
+  display_values:
+  - "28.6 \u03A9"
+  - "72 m\u03A9"
+  group: Technical
+  id: '224'
+  name: Series Resistance
+  shortname: seriesresistance
+  unit: ohm
+  value_type: float
+Serviceable:
+  group: Technical
+  id: '608'
+  name: Serviceable
+  shortname: serviceable
+Settling Time:
+  display_values:
+  - "35 \xB5s"
+  - "6 \xB5s"
+  group: Technical
+  id: '706'
+  name: Settling Time
+  shortname: settlingtime
+  unit: s
+  value_type: float
+Shape:
+  display_values:
+  - Circular
+  - Cylindrical
+  - Round
+  - Round
+  - Rectangular
+  group: Physical
+  id: '699'
+  name: Shape
+  shortname: shape
+  value_type: text
+Shell Finish:
+  group: Physical
+  id: '636'
+  name: Shell Finish
+  shortname: shellfinish
+Shell Material:
+  display_values:
+  - Plastic
+  group: Physical
+  id: '746'
+  name: Shell Material
+  shortname: shellmaterial
+  value_type: text
+Shielding:
+  display_values:
+  - Unshielded
+  - Unshielded
+  - Unshielded
+  - Unshielded
+  - Unshielded
+  - Unshielded
+  - Unshielded
+  - Shielded
+  - Unshielded
+  - Unshielded
+  - Shielded
+  group: Technical
+  id: '831'
+  name: Shielding
+  shortname: shielding
+  value_type: text
+Short Circuit Current (ICC):
+  group: Technical
+  id: '922'
+  name: Short Circuit Current (ICC)
+  shortname: shortcircuitcurrent
+Shrouded:
+  display_values:
+  - Fully Shrouded
+  group: Technical
+  id: '792'
+  name: Shrouded
+  shortname: shrouded
+  value_type: text
+Shrouded End Dimension:
+  display_values:
+  - 1.143 mm
+  group: Dimensions
+  id: '228'
+  name: Shrouded End Dimension
+  shortname: shroudedenddimension
+  unit: m
+  value_type: float
+Side Stackable:
+  group: Technical
+  id: '558'
+  name: Side Stackable
+  shortname: sidestackable
+Signal to Noise Ratio (SNR):
+  display_values:
+  - 100 dB
+  - 81 dB
+  group: Technical
+  id: '265'
+  name: Signal to Noise Ratio (SNR)
+  shortname: signaltonoiseratio_snr_
+  unit: dB
+  value_type: float
+Simplex/Duplex:
+  display_values:
+  - Simplex
+  - Simplex
+  - Full Duplex
+  group: Technical
+  id: '294'
+  name: Simplex/Duplex
+  shortname: simplex_duplex
+  value_type: text
+Slew Rate:
+  display_values:
+  - "6 V/\xB5s"
+  - "1.7 V/\xB5s"
+  group: Technical
+  id: '313'
+  name: Slew Rate
+  shortname: slewrate
+  unit: V/s
+  value_type: float
+Socket Depth:
+  display_values:
+  - 5.5626 mm
+  - 3.7084 mm
+  group: Dimensions
+  id: '378'
+  name: Socket Depth
+  shortname: socketdepth
+  unit: m
+  value_type: float
+Speed - Read:
+  group: Technical
+  id: '471'
+  name: Speed - Read
+  shortname: speed_read
+Speed - Write:
+  group: Technical
+  id: '668'
+  name: Speed - Write
+  shortname: speed_write
+Speed Grade:
+  display_values:
+  - '5'
+  group: Technical
+  id: '676'
+  name: Speed Grade
+  shortname: speedgrade
+  value_type: int
+Spurious-free dynamic range (SFDR):
+  display_values:
+  - 65 dB
+  group: Technical
+  id: '631'
+  name: Spurious-free dynamic range (SFDR)
+  shortname: spurious_freedynamicrange_sfdr_
+  unit: dB
+  value_type: float
+Stabilizers:
+  group: Technical
+  id: '504'
+  name: Stabilizers
+  shortname: stabilizers
+Stack Height:
+  display_values:
+  - 5.0038 mm
+  group: Dimensions
+  id: '779'
+  name: Stack Height
+  shortname: stackheight
+  unit: m
+  value_type: float
+Stackable:
+  display_values:
+  - 'No'
+  - 'No'
+  - 'No'
+  group: Technical
+  id: '791'
+  name: Stackable
+  shortname: stackable
+  value_type: text
+Static Pressure:
+  group: Technical
+  id: '742'
+  name: Static Pressure
+  shortname: staticpressure
+Strain Relief:
+  group: Technical
+  id: '485'
+  name: Strain Relief
+  shortname: strainrelief
+Strand Size:
+  display_values:
+  - 32 AWG
+  group: Dimensions
+  id: '417'
+  name: Strand Size
+  shortname: strandsize
+  unit: AWG
+  value_type: float
+Stripping Length:
+  display_values:
+  - 10 mm
+  group: Dimensions
+  id: '679'
+  name: Stripping Length
+  shortname: strippinglength
+  unit: m
+  value_type: float
+Stud Diameter:
+  display_values:
+  - 3.5052 mm
+  group: Dimensions
+  id: '701'
+  name: Stud Diameter
+  shortname: studdiameter
+  unit: m
+  value_type: float
+Stud Size:
+  display_values:
+  - M3.5
+  group: Dimensions
+  id: '527'
+  name: Stud Size
+  shortname: studsize
+  value_type: text
+Supply Type:
+  display_values:
+  - Single
+  - Single
+  - Single
+  - Single
+  - Single
+  - Single
+  group: Technical
+  id: '425'
+  name: Supply Type
+  shortname: supplytype
+  value_type: text
+Switch Function:
+  display_values:
+  - On-Mom
+  - Off-Mom
+  group: Technical
+  id: '328'
+  name: Switch Function
+  shortname: switchfunction
+  value_type: text
+Switch Travel:
+  display_values:
+  - "250 \xB5m"
+  group: Technical
+  id: '256'
+  name: Switch Travel
+  shortname: switchtravel
+  unit: m
+  value_type: float
+Switching Capacity:
+  display_values:
+  - 10 W
+  group: Technical
+  id: '620'
+  name: Switching Capacity
+  shortname: switchingcapacity
+  unit: W
+  value_type: float
+Switching Current:
+  display_values:
+  - 2 A
+  - 500 mA
+  group: Technical
+  id: '612'
+  name: Switching Current
+  shortname: switchingcurrent
+  unit: A
+  value_type: float
+Switching Frequency:
+  display_values:
+  - 3.5 MHz
+  - 1.5 MHz
+  - 150 kHz
+  - 700 kHz
+  - 65 kHz
+  - 1.2 MHz
+  - 600 kHz
+  - 4.9 MHz
+  group: Technical
+  id: '551'
+  name: Switching Frequency
+  shortname: switchingfrequency
+  unit: Hz
+  value_type: float
+Switching Temperature:
+  display_values:
+  - "65 \xB0C"
+  group: Technical
+  id: '727'
+  name: Switching Temperature
+  shortname: switchingtemperature
+  unit: "\xB0C"
+  value_type: float
+Switching Voltage:
+  display_values:
+  - 16 V
+  group: Technical
+  id: '734'
+  name: Switching Voltage
+  shortname: switchingvoltage
+  unit: V
+  value_type: float
+Sync/Async:
+  display_values:
+  - Asynchronous
+  group: Technical
+  id: '554'
+  name: Sync/Async
+  shortname: sync_async
+  value_type: text
+Synchronous Rectifier:
+  display_values:
+  - 'Yes'
+  group: Technical
+  id: '477'
+  name: Synchronous Rectifier
+  shortname: synchronousrectifier
+  value_type: text
+Tab Length:
+  display_values:
+  - 3.556 mm
+  group: Dimensions
+  id: '678'
+  name: Tab Length
+  shortname: tablength
+  unit: m
+  value_type: float
+Tab Thickness:
+  display_values:
+  - "510 \xB5m"
+  - "406.4 \xB5m"
+  group: Dimensions
+  id: '235'
+  name: Tab Thickness
+  shortname: tabthickness
+  unit: m
+  value_type: float
+Tab Width:
+  display_values:
+  - 2.794 mm
+  group: Dimensions
+  id: '752'
+  name: Tab Width
+  shortname: tabwidth
+  unit: m
+  value_type: float
+Tail Diameter:
+  display_values:
+  - "508 \xB5m"
+  group: Dimensions
+  id: '242'
+  name: Tail Diameter
+  shortname: taildiameter
+  unit: m
+  value_type: float
+Tail Length:
+  display_values:
+  - 2.5 mm
+  - 1.4 mm
+  - 2.3 mm
+  group: Dimensions
+  id: '555'
+  name: Tail Length
+  shortname: taillength
+  unit: m
+  value_type: float
+Taper:
+  display_values:
+  - Logarithmic
+  group: Technical
+  id: '586'
+  name: Taper
+  shortname: taper
+  value_type: text
+Temperature Coefficient:
+  display_values:
+  - "100 ppm/\xB0C"
+  - "50 ppm/\xB0C"
+  - "100 ppm/\xB0C"
+  - "0 ppm/\xB0C"
+  - "50 ppm/\xB0C"
+  - "200 ppm/\xB0C"
+  - "35 ppm/\xB0C"
+  group: Technical
+  id: '321'
+  name: Temperature Coefficient
+  shortname: temperaturecoefficient
+  unit: "ppm/\xB0C"
+  value_type: float
+Temperature Rise Current:
+  display_values:
+  - 1.81 A
+  group: Technical
+  id: '932'
+  name: Temperature Rise Current
+  shortname: temprisecurrent
+  unit: A
+  value_type: float
+Terminal Material:
+  group: Physical
+  id: '531'
+  name: Terminal Material
+  shortname: terminalmaterial
+Terminal Pitch:
+  display_values:
+  - "640 \xB5m"
+  - "500 \xB5m"
+  group: Dimensions
+  id: '642'
+  name: Terminal Pitch
+  shortname: terminalpitch
+  unit: m
+  value_type: float
+Terminal Width:
+  display_values:
+  - "700 \xB5m"
+  group: Dimensions
+  id: '659'
+  name: Terminal Width
+  shortname: terminalwidth
+  unit: m
+  value_type: float
+Termination:
+  display_values:
+  - SMD/SMT
+  - Wire Leads
+  - SMD/SMT
+  - SMD/SMT
+  - PC Pin
+  - PCB
+  - Radial
+  - Through Hole
+  - Solder
+  - SMD/SMT
+  - Crimp
+  - Press-Fit
+  - Solder
+  - SMD/SMT
+  - SMD/SMT
+  - Solder
+  - Solder
+  - SMD/SMT
+  - Crimp
+  - Solder
+  - Receptacle
+  - SMD/SMT
+  - SMD/SMT
+  - Screw
+  - Radial
+  - Connector
+  - Wire
+  - Solder
+  - SMD/SMT
+  - SMD/SMT
+  - Solder
+  - PC Pins
+  - PCB
+  - Press-Fit
+  - Crimp
+  - Solder
+  - Solder
+  - Convex
+  - Press-Fit
+  - Gull Wing
+  - Solder
+  - Connector
+  - SMD/SMT
+  - Radial
+  - Through Hole
+  - PC Pin
+  - Radial
+  - Receptacle
+  - Solder
+  - SMD/SMT
+  - Solder
+  - Crimp
+  group: Technical
+  id: '717'
+  name: Termination
+  shortname: termination
+  value_type: text
+Termination Post Length:
+  display_values:
+  - 2.3 mm
+  group: Dimensions
+  id: '775'
+  name: Termination Post Length
+  shortname: terminationpostlength
+  unit: m
+  value_type: float
+Test Current:
+  display_values:
+  - 20 mA
+  - 20 mA
+  - 65 mA
+  - 20 mA
+  - 2.5 mA
+  - 175 mA
+  group: Technical
+  id: '346'
+  name: Test Current
+  shortname: testcurrent
+  unit: A
+  value_type: float
+Test Frequency:
+  display_values:
+  - 100 MHz
+  - 100 kHz
+  - 100 MHz
+  - 796 kHz
+  - 100 kHz
+  group: Technical
+  id: '684'
+  name: Test Frequency
+  shortname: testfrequency
+  unit: Hz
+  value_type: float
+Test Temperature:
+  display_values:
+  - "25 \xB0C"
+  group: Technical
+  id: '320'
+  name: Test Temperature
+  shortname: testtemperature
+  unit: "\xB0C"
+  value_type: float
+Test Voltage:
+  display_values:
+  - 500 V
+  group: Technical
+  id: '716'
+  name: Test Voltage
+  shortname: testvoltage
+  unit: V
+  value_type: float
+Thermal Conductivity:
+  display_values:
+  - 0.9 W/m-K
+  group: Technical
+  id: '472'
+  name: Thermal Conductivity
+  shortname: thermalconductivity
+  unit: W/m-K
+  value_type: float
+Thermal Resistance @ Forced Air Flow (100 LFM):
+  display_values:
+  - "8 \xB0C/W"
+  group: Technical
+  id: '828'
+  name: Thermal Resistance @ Forced Air Flow (100 LFM)
+  shortname: thermalresistance_forcedairflow_100lfm_
+  unit: "\xB0C/W"
+  value_type: float
+Thermal Resistance of Package:
+  group: Technical
+  id: '854'
+  name: Thermal Resistance of Package
+  shortname: thermalresistanceofpackage
+Thickness:
+  display_values:
+  - 1.2 mm
+  - "900 \xB5m"
+  - 1 mm
+  - "880 \xB5m"
+  - "635 \xB5m"
+  - "900 \xB5m"
+  - "550 \xB5m"
+  - 1.8 mm
+  - "228.6 \xB5m"
+  group: Dimensions
+  id: '286'
+  name: Thickness
+  shortname: thickness
+  unit: m
+  value_type: float
+Thread Size:
+  display_values:
+  - M14
+  - M3
+  group: Dimensions
+  id: '786'
+  name: Thread Size
+  shortname: threadsize
+  value_type: text
+Threaded/Unthreaded:
+  group: Technical
+  id: '362'
+  name: Threaded/Unthreaded
+  shortname: threaded_unthreaded
+Threshold Voltage:
+  display_values:
+  - 2.5 V
+  - 3.3 V
+  - 4.6 V
+  - 2.1 V
+  - 2.25 V
+  group: Technical
+  id: '352'
+  name: Threshold Voltage
+  shortname: thresholdvoltage
+  unit: V
+  value_type: float
+Throw Configuration:
+  display_values:
+  - SPST
+  - SPST
+  - DPDT
+  - SPST
+  - SPDT, SPST
+  - SPDT
+  - DP5T
+  - DPDT
+  - SPDT
+  - SPST
+  group: Technical
+  id: '623'
+  name: Throw Configuration
+  shortname: throwconfiguration
+  value_type: text
+Time Format:
+  display_values:
+  - HH:MM:SS
+  group: Technical
+  id: '498'
+  name: Time Format
+  shortname: timeformat
+  unit: date
+  value_type: float
+Time to Trip:
+  display_values:
+  - 1.5 s
+  - 3.3 s
+  group: Technical
+  id: '710'
+  name: Time to Trip
+  shortname: timetotrip
+  unit: s
+  value_type: float
+Tolerance:
+  display_values:
+  - 5 %
+  - 30 %
+  - 2 %
+  - 15 %
+  - 100 %
+  - 5 %
+  - 20 %
+  - 80 %
+  - 20 %
+  - 1 %
+  - 5 %
+  - 5 %
+  - 5 %
+  - 20 %
+  - 20 %
+  - 10 %
+  - 20 %
+  - 5 %
+  - 20 %
+  - 20 %
+  - 30 %
+  - 10 %
+  group: Technical
+  id: '342'
+  name: Tolerance
+  shortname: tolerance
+  unit: '%'
+  value_type: float
+Tongue Thickness:
+  display_values:
+  - "635 \xB5m"
+  group: Dimensions
+  id: '455'
+  name: Tongue Thickness
+  shortname: tonguethickness
+  unit: m
+  value_type: float
+Topology:
+  display_values:
+  - Flyback
+  - Boost, Charge Pump
+  - Flyback
+  - Boost
+  group: Technical
+  id: '458'
+  name: Topology
+  shortname: topology
+  value_type: text
+Touchscreen:
+  group: Technical
+  id: '822'
+  name: Touchscreen
+  shortname: touchscreen
+Transition Frequency:
+  display_values:
+  - 100 MHz
+  - 200 MHz
+  - 700 MHz
+  - 150 MHz
+  - 100 MHz
+  - 1.4 GHz
+  group: Technical
+  id: '639'
+  name: Transition Frequency
+  shortname: transitionfrequency
+  unit: Hz
+  value_type: float
+Trip Current:
+  display_values:
+  - 150 mA
+  - 10.2 A
+  group: Technical
+  id: '341'
+  name: Trip Current
+  shortname: tripcurrent
+  unit: A
+  value_type: float
+Turn-Off Delay Time:
+  display_values:
+  - 5.5 ns
+  group: Technical
+  id: '424'
+  name: Turn-Off Delay Time
+  shortname: turn_offdelaytime
+  unit: s
+  value_type: float
+Turn-On Delay Time:
+  display_values:
+  - 5.5 ns
+  - 90 ns
+  - 6 ns
+  - 14 ns
+  - 2.5 ns
+  - 4.8 ns
+  - 7.5 ns
+  - 3 ns
+  group: Technical
+  id: '806'
+  name: Turn-On Delay Time
+  shortname: turn_ondelaytime
+  unit: s
+  value_type: float
+Turns Ratio:
+  display_values:
+  - '1:40'
+  group: Technical
+  id: '750'
+  name: Turns Ratio
+  shortname: turnsratio
+  value_type: text
+Type:
+  display_values:
+  - Simple Reset/Power-On Reset, Voltage Detector
+  - General Purpose
+  - General Purpose
+  - General Purpose
+  - Simple Reset/Power-On Reset
+  - Passive
+  group: Technical
+  id: '206'
+  name: Type
+  shortname: type
+  value_type: text
+USB Standard:
+  group: Technical
+  id: '673'
+  name: USB Standard
+  shortname: usbstandard
+Under-Voltage Negative-Going Threshold:
+  group: Technical
+  id: '964'
+  name: Under-Voltage Negative-Going Threshold
+  shortname: undervoltagenegativegoingthreshold
+Under-Voltage Positive-Going Threshold:
+  group: Technical
+  id: '963'
+  name: Under-Voltage Positive-Going Threshold
+  shortname: undervoltagepositivegoingthreshold
+Underplate Material:
+  display_values:
+  - Nickel
+  - Nickel
+  group: Physical
+  id: '421'
+  name: Underplate Material
+  shortname: underplatematerial
+  value_type: text
+Undervoltage Threshold:
+  display_values:
+  - 3.15 V
+  - 4.65 V
+  - 2.2 V
+  group: Technical
+  id: '270'
+  name: Undervoltage Threshold
+  shortname: undervoltagethreshold
+  unit: V
+  value_type: float
+Unity Gain Bandwidth Product:
+  group: Technical
+  id: '789'
+  name: Unity Gain Bandwidth Product
+  shortname: unitygainbandwidthproduct
+VDE Tested:
+  group: Technical
+  id: '213'
+  name: VDE Tested
+  shortname: vdetested
+Varistor Voltage:
+  display_values:
+  - 61 V
+  group: Technical
+  id: '787'
+  name: Varistor Voltage
+  shortname: varistorvoltage
+  unit: V
+  value_type: float
+Viewing Angle:
+  display_values:
+  - "120 \xB0"
+  - "60 \xB0"
+  - "16 \xB0"
+  - "105 \xB0"
+  group: Technical
+  id: '514'
+  name: Viewing Angle
+  shortname: viewingangle
+  unit: "\xB0"
+  value_type: float
+Viewing Area (height):
+  display_values:
+  - 54.2 mm
+  - 14.22 mm
+  - 10 mm
+  - 37 mm
+  group: Technical
+  id: '406'
+  name: Viewing Area (height)
+  shortname: viewingarea_height_
+  unit: m
+  value_type: float
+Viewing Area (width):
+  display_values:
+  - 71.7 mm
+  - 27.9 mm
+  - 28 mm
+  group: Technical
+  id: '703'
+  name: Viewing Area (width)
+  shortname: viewingarea_width_
+  unit: m
+  value_type: float
+Voltage:
+  display_values:
+  - 600 V
+  - 2 V
+  - 300 V
+  - 12 kV
+  - 16 V
+  group: Technical
+  id: '324'
+  name: Voltage
+  shortname: voltage
+  unit: V
+  value_type: float
+Voltage - Output 1:
+  display_values:
+  - 2.5 V
+  - 1.8 V
+  - 5.5 V
+  - 5 V
+  - 5 V
+  - 3.3 V
+  - 600 mV
+  - 12 V
+  - 15 V
+  - 5.1 V
+  group: Technical
+  id: '463'
+  name: Voltage - Output 1
+  shortname: voltage_output1
+  unit: V
+  value_type: float
+Voltage - Output 2:
+  display_values:
+  - 3 V
+  - 5.5 V
+  - 12 V
+  - 5 V
+  - 600 mV
+  - -12 V
+  - 16 V
+  - 3.3 V
+  - 10 V
+  - 24 V
+  group: Technical
+  id: '560'
+  name: Voltage - Output 2
+  shortname: voltage_output2
+  unit: V
+  value_type: float
+Voltage - Output 3:
+  display_values:
+  - 1.5 V
+  - -12 V
+  - 12 V
+  - 600 mV
+  - 5.5 V
+  - 5 V
+  - 18 V
+  - 15 V
+  group: Technical
+  id: '658'
+  name: Voltage - Output 3
+  shortname: voltage_output3
+  unit: V
+  value_type: float
+Voltage - Output 4:
+  display_values:
+  - -5 V
+  - -12 V
+  group: Technical
+  id: '650'
+  name: Voltage - Output 4
+  shortname: voltage_output4
+  unit: V
+  value_type: float
+Voltage Gain:
+  display_values:
+  - 80 dB
+  - 115 dB
+  - 109.54 dB
+  group: Technical
+  id: '345'
+  name: Voltage Gain
+  shortname: voltagegain
+  unit: dB
+  value_type: float
+Voltage Rating:
+  display_values:
+  - 50 V
+  - 3.6 V
+  - 300 V
+  - 600 V
+  - 250 V
+  - 250 V
+  - 16 V
+  - 50 V
+  - 350 V
+  - 350 V
+  - 5 V
+  - 5 V
+  - 1.5 kV
+  - 60 V
+  - 50 V
+  - 8 kV
+  - 1.5 kV
+  - 300 V
+  - 12 kV
+  - 16 V
+  - 150 V
+  - 25 V
+  - 50 V
+  group: Technical
+  id: '457'
+  name: Voltage Rating
+  shortname: voltagerating
+  unit: V
+  value_type: float
+Voltage Rating (AC):
+  display_values:
+  - 25 V
+  - 400 V
+  - 750 V
+  - 30 V
+  - 125 V
+  - 50 V
+  - 50 V
+  - 350 V
+  - 350 V
+  - 300 V
+  - 115 V
+  - 50 V
+  - 120 V
+  - 250 V
+  group: Technical
+  id: '340'
+  name: Voltage Rating (AC)
+  shortname: voltagerating_ac_
+  unit: V
+  value_type: float
+Voltage Rating (DC):
+  display_values:
+  - 50 V
+  - 10 V
+  - 1 kV
+  - 300 V
+  - 32 V
+  - 10 V
+  - 250 V
+  - -50 V
+  - 30 V
+  - 16 V
+  - 50 V
+  - 50 V
+  - 30 V
+  - 120 V
+  - 20 V
+  - -50 V
+  - 350 V
+  - 350 V
+  - 50 V
+  - 16 V
+  - 200 V
+  - 30 V
+  - 50 V
+  - 300 V
+  - 30 V
+  - 15 V
+  - 16 V
+  - 25 V
+  - 50 V
+  group: Technical
+  id: '323'
+  name: Voltage Rating (DC)
+  shortname: voltagerating_dc_
+  unit: V
+  value_type: float
+Voltage Tolerance:
+  display_values:
+  - 35 %
+  - 5 %
+  group: Technical
+  id: '776'
+  name: Voltage Tolerance
+  shortname: voltagetolerance
+  unit: '%'
+  value_type: float
+Washable:
+  group: Compliance
+  id: '295'
+  name: Washable
+  shortname: washable
+Watchdog Timer:
+  display_values:
+  - 'No'
+  - 'No'
+  - 'Yes'
+  - 'No'
+  group: Technical
+  id: '204'
+  name: Watchdog Timer
+  shortname: watchdogtimer
+  value_type: text
+Wavelength:
+  display_values:
+  - 568 nm
+  - 571 nm
+  - 940 nm
+  - 650 nm
+  - 465 nm
+  group: Technical
+  id: '805'
+  name: Wavelength
+  shortname: wavelength
+  unit: m
+  value_type: float
+Weight:
+  display_values:
+  - 30 mg
+  - 245 mg
+  - 453.59237 mg
+  - 30 mg
+  - 45.359237 g
+  - 38.782148 mg
+  - 453.59237 mg
+  - 179 mg
+  - 240 mg
+  - 140 mg
+  - 188.609377 mg
+  - 95.396145 mg
+  - 36.003894 mg
+  - 5.896701 g
+  - 4.535924 g
+  - 150.507618 mg
+  - 50 g
+  - 12 g
+  - 7.994566 mg
+  - 24.94758 g
+  - 540.001716 mg
+  - 339.995831 mg
+  - 32.998845 mg
+  - 3.912234 g
+  - 28.349523 g
+  - 250 g
+  - 117.934016 g
+  - 453.59237 g
+  - 241.311141 g
+  - 498.951607 g
+  - 680.388555 g
+  - 176.901024 g
+  - 266 g
+  - 930 g
+  - 260 g
+  - 400.000006 g
+  - 600 g
+  group: Physical
+  id: '547'
+  name: Weight
+  shortname: weight
+  unit: g
+  value_type: float
+Width:
+  display_values:
+  - "800 \xB5m"
+  - 10 mm
+  - 1.7 mm
+  - 1.2446 mm
+  - 2.72 mm
+  - 76.9 mm
+  - 2.4892 mm
+  - 25.0952 mm
+  - 12.3952 mm
+  - "800 \xB5m"
+  - 11 mm
+  - 2.49 mm
+  - 4.6 mm
+  - 1.3 mm
+  - 1.6 mm
+  - 2.032 mm
+  - 2.075 mm
+  - 4 mm
+  - "508 \xB5m"
+  - 13.97 mm
+  - 11 mm
+  - "500 \xB5m"
+  - 6.35 mm
+  - 4 mm
+  - 2.29 mm
+  - 7.2 mm
+  - 1.2 mm
+  - "810 \xB5m"
+  - "508 \xB5m"
+  - 2.95 mm
+  - 1.25 mm
+  - 11.5 mm
+  - 3 mm
+  - 1.3 mm
+  - 7 mm
+  - 4 mm
+  - 5 mm
+  - 4.4 mm
+  - 4 mm
+  - 2.5 mm
+  - 4 mm
+  - 1.8034 mm
+  - 4.7 mm
+  - 6.35 mm
+  - 1.3 mm
+  - 82 mm
+  - 30.1 mm
+  - 4.5 mm
+  - 30.7 mm
+  - 4 mm
+  - 2 mm
+  - 1 mm
+  - 6.604 mm
+  - 1.35 mm
+  - 12.7 mm
+  - 4.5 mm
+  - 5.1 mm
+  - 6 mm
+  - 1.4 mm
+  - "990.6 \xB5m"
+  - 2.1 mm
+  - 1.3 mm
+  - 12.8 mm
+  - 40 mm
+  - 1.25 mm
+  - 7.2 mm
+  - 1 mm
+  - 1.7 mm
+  - 15.5 mm
+  - 1.4 mm
+  - 41 mm
+  - 1.25 mm
+  - 1.2 mm
+  - 1.83 mm
+  - 2.3876 mm
+  - 1.25 mm
+  - 8.7884 mm
+  - 3.4 mm
+  - 13.208 mm
+  - 76.2 mm
+  - 72 mm
+  - 101.6 mm
+  - 38.1 mm
+  - 171.45 mm
+  - 127 mm
+  - 138 mm
+  - 8 mm
+  - 63.5 mm
+  - 53 mm
+  - 99 mm
+  - 67.5 mm
+  - 107.95 mm
+  group: Dimensions
+  id: '576'
+  name: Width
+  shortname: width
+  unit: m
+  value_type: float
+Wire Gauge (Max):
+  display_values:
+  - 30 AWG
+  - 20 AWG
+  - 18 AWG
+  - 18 AWG
+  - 22 AWG
+  - 26 AWG
+  group: Dimensions
+  id: '681'
+  name: Wire Gauge (Max)
+  shortname: wiregauge_max_
+  unit: AWG
+  value_type: float
+Wire Gauge (Min):
+  display_values:
+  - 28 AWG
+  - 14 AWG
+  - 8 AWG
+  - 14 AWG
+  - 12 AWG
+  - 22 AWG
+  group: Dimensions
+  id: '380'
+  name: Wire Gauge (Min)
+  shortname: wiregauge_min_
+  unit: AWG
+  value_type: float
+Wire/Cable Color:
+  display_values:
+  - Orange
+  group: Physical
+  id: '407'
+  name: Wire/Cable Color
+  shortname: wire_cablecolor
+  value_type: text
+Wire/Cable Diameter:
+  display_values:
+  - 1.397 mm
+  - 2.2 mm
+  - "900 \xB5m"
+  - 3.1242 mm
+  - 5.9 mm
+  group: Dimensions
+  id: '251'
+  name: Wire/Cable Diameter
+  shortname: wire_cablediameter
+  unit: m
+  value_type: float
+Wire/Cable Gauge:
+  display_values:
+  - 26 AWG
+  - 30 AWG
+  - 20 AWG
+  - 20 AWG
+  - 20 AWG
+  - 28 AWG
+  - 28 AWG
+  group: Dimensions
+  id: '275'
+  name: Wire/Cable Gauge
+  shortname: wire_cablegauge
+  unit: AWG
+  value_type: float
+Wire/Cable Type:
+  display_values:
+  - Flat
+  - Discrete
+  - Discrete
+  - Flat
+  - Discrete
+  group: Technical
+  id: '712'
+  name: Wire/Cable Type
+  shortname: wire_cabletype
+  value_type: text
+Word Size:
+  display_values:
+  - 8 b
+  group: Technical
+  id: '496'
+  name: Word Size
+  shortname: wordsize
+  unit: b
+  value_type: float
+Working Voltage:
+  display_values:
+  - 350 V
+  group: Technical
+  id: '708'
+  name: Working Voltage
+  shortname: workingvoltage
+  unit: V
+  value_type: float
+Zener Current:
+  display_values:
+  - 140 mA
+  group: Technical
+  id: '333'
+  name: Zener Current
+  shortname: zenercurrent
+  unit: A
+  value_type: float
+Zener Voltage:
+  display_values:
+  - 9.1 V
+  - 75 V
+  group: Technical
+  id: '861'
+  name: Zener Voltage
+  shortname: zenervoltage
+  unit: V
+  value_type: float
+hFE Min:
+  display_values:
+  - '20'
+  group: Technical
+  id: '818'
+  name: hFE Min
+  shortname: hfemin
+  value_type: int
+lifecyclestatustest:
+  group: Technical
+  id: '909'
+  name: lifecyclestatustest
+  shortname: lifecyclestatustest
+testspecdef:
+  group: Technical
+  id: '908'
+  name: testspecdef
+  shortname: testspecdef

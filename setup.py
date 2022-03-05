@@ -32,7 +32,7 @@ setup(
     author='Sebastien Besombes',
     license='GPLv3',
 
-    scripts=['kipartman/__main__.py'],
+    scripts=['kipartman-qt/__main__.py'],
     packages=find_packages('.'),
     package_dir={'': '.'},
     package_data={
@@ -74,7 +74,10 @@ setup(
          
         'pyyaml',
         'munch',    # to use a dict with attribute like access
-        
+        'diskcache',
+        'schema',
+        'dpath',
+        'mergedeep'
     ],
 )
 

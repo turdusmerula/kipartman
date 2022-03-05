@@ -91,7 +91,7 @@ class OctopartModel(TreeModel):
 
     def Fetch(self, parent):
         with open("/home/seb/git/kipartman-v2/kipartman-qt/api/octopart/search-result.yaml", 'r') as stream:
-            request = munchify(yaml.load(stream, Loader=yaml. FullLoader))
+            request = munchify(yaml.load(stream, Loader=yaml. FullLoader), DefaultMunch)
         
         # when we add columns a fetch is made before load finishes 
         self.loaded = True

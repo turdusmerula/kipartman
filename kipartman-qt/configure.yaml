@@ -21,6 +21,8 @@ providers:
     api_key:
     user:
     password:
+    cache_ttl: 1 week
+    limit: 1
   snapeda:
     user:
     password:

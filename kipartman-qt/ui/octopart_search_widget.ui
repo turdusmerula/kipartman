@@ -80,7 +80,7 @@
     <widget class="QOctopartTreeView" name="treeView"/>
    </item>
    <item>
-    <widget class="QWebEngineView" name="webEngineView" native="true">
+    <widget class="QOctopartWebEngineView" name="webEngineView" native="true">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -98,9 +98,9 @@
    <header>api.data.octopart</header>
   </customwidget>
   <customwidget>
-   <class>QWebEngineView</class>
+   <class>QOctopartWebEngineView</class>
    <extends>QWidget</extends>
-   <header>ui.webview_widget.py</header>
+   <header>api.octopart.webview_widget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

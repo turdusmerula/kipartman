@@ -17,8 +17,6 @@ from ui.unit_menu import QUnitMenu
 from ui.unit_prefix_menu import QUnitPrefixMenu
 
 class QUnitWidget(QFrame):
-    buttonUnitClicked = pyqtSignal(QModelIndex)
-
     def __init__(self, parent):
         super(QUnitWidget, self).__init__(parent)
         uic.loadUi('ui/unit_widget.ui', self)
