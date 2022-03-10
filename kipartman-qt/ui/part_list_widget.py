@@ -4,8 +4,11 @@ from PyQt6.QtCore import pyqtSignal, QItemSelectionModel
 
 from api.data.part import PartModel, PartNode
 from api.event import events
+from api.octopart.imports import import_octopart
+from helper.dialog import ShowDialog, ShowErrorDialog
 from ui.modal_dialog import QModalDialog
 from ui.octopart_search_widget import QOctopartSearchWidget
+from PyQt6.QtWidgets import QMessageBox
 
 
 class QPartListWidget(QtWidgets.QWidget):
@@ -88,9 +91,19 @@ class QPartListWidget(QtWidgets.QWidget):
         dialog.validated.connect(self.dialogOctopartSearchValidated)
         dialog.show()
 
-    def dialogOctopartSearchValidated(self, object):
-        self.parameter = object
-        self.widget.lineEdit.setText(self.parameter.name[0])
+    def dialogOctopartSearchValidated(self, octoparts):
+        print("---", self.owner_category)
+        imported = []
+        for octopart in octoparts:
+            try:
+                part = import_octopart(octopart, self.owner_category)
+                if part is not None:
+                    imported.append(part)
+            except Exception as e:
+                ShowErrorDialog("Import from octopart", text=f"Import failed for part '{octopart['mpn']}'", detailed_text=f"{e}")
+        ShowDialog("Import from octopart", text=f"{len(imported)}/{len(octoparts)} parts imported", buttons=QMessageBox.StandardButton.Ok)
+        # self.parameter = object
+        # self.widget.lineEdit.setText(self.parameter.name[0])
 
     def actionPartDeleteTriggered(self, value):
         pass

@@ -1,7 +1,6 @@
 from api.configuration import configuration
 from api.unit import Quantity, QuantityRange
 from api.log import log
-from api.ndict import ndict
 
 from diskcache import Cache
 import json
@@ -411,14 +410,19 @@ class OctopartPartQuery(GraphQLClient):
         return f"filters: {{{', '.join(params)}}}"
 
     def _set_cache_part_query(self, query, data):
-        res = self.cache.set(query, yaml.dump(data), expire=self.ttl)
+        res = self.cache.set(query, json.dumps(data), expire=self.ttl)
         log.debug(f"add cache query: {query}")
         
-        results = data.search.results
+        results = None
+        if "search" in data:
+            results = data['search']['results']
+        elif "search_mpn" in data:
+            results = data['search_mpn']['results']
+            
         if results is not None:
             for result in results:
-                self.cache.set(result.part.id, yaml.dump(result.part), expire=self.ttl)
-                log.debug(f"add cache part: {result.part.id}")
+                self.cache.set(result['part']['id'], json.dumps(result['part']), expire=self.ttl)
+                log.debug(f"add cache part: {result['part']['id']}")
 
         return res
     
@@ -426,7 +430,7 @@ class OctopartPartQuery(GraphQLClient):
         c = self.cache.get(query)
         if c is not None:
             log.debug(f"fetch cache query: {query}")
-            return yaml.safe_load(c)
+            return json.loads(c)
 
         return c
         
@@ -435,7 +439,7 @@ class OctopartPartQuery(GraphQLClient):
         if c is not None:
             log.debug(f"fetch cache part: {id}")
             
-        data = yaml.safe_load(data)
+        data = json.loads(data)
 
         return 
 
@@ -481,12 +485,13 @@ class OctopartPartQuery(GraphQLClient):
 
         query = Template(query).substitute(request=request, params=", ".join(params), Part=self.Part_to_query())
         query_id = Template("$request($params)").substitute(request=request, params=", ".join(params))
+        # log.debug(query)
         log.debug(query_id)
         
         data = self._get_cache_part_query(query_id)
         if data is None:
             try:
-                data = ndict(json.loads(self.send(query))).data
+                data = json.loads(self.send(query))["data"]
                 self._set_cache_part_query(query_id, data)
             except Exception as e:
                 log.error(f"{query_id}: {e}")
@@ -527,7 +532,7 @@ class OctopartPartQuery(GraphQLClient):
         
         query = Template(query).substitute(params=", ".join(params), Part=self.Part_to_query())
         print(query)
-        data = ndict(json.loads(self.send(query))).data
+        data = json.loads(self.send(query))["data"]
         print(yaml.dump(data))        
         return data
 
@@ -554,7 +559,7 @@ class OctopartPartQuery(GraphQLClient):
               }
             }        
         """
-        res = ndict(json.loads(self.send(query)))
+        res = json.loads(self.send(query))
         return res.data.attributes
     
     def Manufaturers(self):

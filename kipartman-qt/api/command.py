@@ -9,7 +9,7 @@ class Command(QObject):
     undone = pyqtSignal()
 
     def __init__(self, description=""):
-        super(Command, self).__init__()
+        super().__init__()
         
         self.description = description
 
@@ -18,6 +18,23 @@ class Command(QObject):
     
     def Undo(self):
         pass
+
+class NestedCommand(Command):
+    def __init__(self, description=""):
+        super().__init__(description=description)
+        self.commands = []
+    
+    def Append(self, command):
+        self.commands.append(command)
+
+    def Do(self, *args, **kwargs):
+        for command in self.commands:
+            command.Do()
+    
+    def Undo(self):
+        for command in reversed(self.commands):
+            command.Undo()
+    
 
 class CommandStack(QObject):
     beforeDo = pyqtSignal(Command)
@@ -56,6 +73,61 @@ class CommandStack(QObject):
         self.done.emit(command)
         return command
 
+    def Begin(self, command_type, *args, **kwargs):
+        parent_command = NestedCommand()
+        command = command_type(*args, **kwargs)
+        
+        command.beforeDo.emit()
+        self.beforeDo.emit(command)
+
+        command.Do()
+        parent_command.Append(command)
+        self.undo.append(parent_command)
+        self.redo = []
+
+        command.done.emit()
+        self.done.emit(command)
+
+        return parent_command
+    
+    def Continue(self, command_type, *args, **kwargs):
+        parent_command = self.undo[-1]
+        command = command_type(*args, **kwargs)
+
+        command.beforeDo.emit()
+        self.beforeDo.emit(command)
+
+        command.Do()
+        parent_command.Append(command)
+
+        command.done.emit()
+        self.done.emit(command)
+
+        return parent_command
+    
+    def Cancel(self):
+        parent_command = self.undo[-1]
+        command = parent_command.commands.pop()
+
+        command.beforeUndo.emit()
+        self.beforeUndo.emit(command)
+
+        command.Undo()
+        self.redo.append(command)
+        
+        command.undone.emit()
+        self.undone.emit(command)
+        return command
+    
+    def CancelAll(self):
+        parent_command = self.undo[-1]
+        while len(parent_command.commands)>0:
+            self.Cancel()
+
+    def End(self):
+        pass
+    
+    
     def Undo(self):
         command = self.undo.pop()
 
@@ -113,6 +185,7 @@ class CommandStack(QObject):
     
 commands = CommandStack()
 
+    
 
 class CommandUpdateDatabaseField(Command):
     def __init__(self, description, object, field, value, other_fields={}):

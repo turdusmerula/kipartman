@@ -24,7 +24,7 @@ class UnitRegistry(pint.UnitRegistry):
 
 
 # ureg = UnitRegistry(system='SI')
-ureg = UnitRegistry()
+ureg = UnitRegistry(autoconvert_offset_to_baseunit=True)
 # ureg.default_format = "P~"
 ureg.default_format = "~#P"
 # Q_ = ureg.Quantity

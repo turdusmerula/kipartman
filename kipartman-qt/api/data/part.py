@@ -10,12 +10,12 @@ from database.models import Part, PartInstance
 class CommandUpatePart(CommandUpdateDatabaseField):
     def __init__(self, part, field, value, other_fields):
         super(CommandUpatePart, self).__init__(object=part, field=field, value=value, other_fields=other_fields,
-                                            description=f"change part parameter {field} to '{value}'")
+                                            description=f"change part {field} to '{value}'")
 
 class CommandAddPart(CommandAddDatabaseObject):
-    def __init__(self, part):
-        super(CommandAddPart, self).__init__(object=part,
-                                            description=f"add new part parameter")
+    def __init__(self, part, fields):
+        super(CommandAddPart, self).__init__(object=part, fields=fields,
+                                            description=f"add new part")
 
 class CommandDeleteParts(CommandDeleteDatabaseObjects):
     def __init__(self, parts):
@@ -65,6 +65,20 @@ class PartNode(Node):
     def HasChildren(self):
         return self.part.instance==PartInstance.METAPART
 
+class OctopartNode(Node):
+    def __init__(self, octopart, parent=None):
+        super(OctopartNode, self).__init__(parent)
+        self.part = part
+
+    def GetValue(self, column):
+        return None
+
+    def GetFlags(self, column, flags):
+        return flags & ~Qt.ItemFlag.ItemIsEditable
+
+class LoadMoreNode(Node):
+    def __init__(self, parent=None):
+        super(LoadMoreNode, self).__init__(parent)
 
 class PartCategoryNode(Node):
     def __init__(self, part, parent=None):
@@ -95,6 +109,12 @@ class PartModel(TreeModel):
         return not self.loaded[parent]
 
     def Fetch(self, parent):
+        if parent is self.rootNode:
+            self.FetchParts()
+        elif parent.part.instance==PartInstance.METAPART:
+            self.FetchMetapart(parent)
+    
+    def FetchParts(self):
         if self.request is None:
             self.request = database.data.part.find(self.filters).iterator()
         
@@ -112,9 +132,17 @@ class PartModel(TreeModel):
 
                 nodes.append(node)
         except StopIteration:
-            self.loaded[parent] = True
+            self.loaded[self.rootNode] = True
         self.InsertNodes(nodes)
-
+    
+    def FetchMetapart(self, metapart):
+        # add database parts
+        
+        # add octopart parts
+        
+        # add loading node
+        pass
+    
     def Clear(self):
         self.id_to_part.clear()
         self.loaded.clear()

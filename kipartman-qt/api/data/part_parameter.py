@@ -418,7 +418,7 @@ class QPartParameterTreeView(QTreeViewData):
         return None
 
     def objectChanged(self, object):
-        if isinstance(object, PartParameter) or (isinstance(object, Part) and part==self.model().part) or isinstance(object, Parameter):
+        if isinstance(object, PartParameter) or (isinstance(object, Part) and object==self.model().part) or isinstance(object, Parameter):
             self.model().Update()
             
     def OnEndInsertEditNode(self, node):

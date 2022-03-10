@@ -1,9 +1,6 @@
 from PyQt6.QtCore import Qt, QObject, pyqtSignal
 from PyQt6.QtWidgets import QTreeView, QHeaderView
 
-from munch import munchify, DefaultMunch
-import yaml
-
 from api.treeview import TreeModel, Node, TreeColumn, QTreeViewData
 from api.event import events
 
@@ -43,30 +40,24 @@ class OctopartNode(Node):
         
     def GetValue(self, column):
         if column==Column.MPN:
-            return self.part.mpn
+            return self.part.get("mpn", "")
         elif column==Column.NAME:
-            return self.part.name.strip()
+            return self.part.get("name", "").strip()
         elif column==Column.ID:
-            return self.part.id
+            return self.part.get("id", "")
         elif column==Column.DESCRIPTION:
-            return self.part.short_description.strip()
+            return self.part.get("short_description", "").strip()
         elif column==Column.SELLERS:
-            return len(self.part.sellers)
+            return len(self.part.get("sellers", ""))
         elif self.columns.NameFromPos(column) is not None:
             name = self.columns.NameFromPos(column)
-            for spec in self.part.specs:
-                if spec.attribute.name==name:
-                    return spec.display_value
+            for spec in self.part.get("specs", ""):
+                if spec["attribute"]["name"]==name:
+                    return spec.get("display_value", "")
         return None
 
     def GetFlags(self, column, flags):
         return flags & ~Qt.ItemFlag.ItemIsEditable
-
-
-class OctopartCategoryNode(Node):
-    def __init__(self, part, parent=None):
-        super(OctopartCategoryNode, self).__init__(parent)
-        self.category = category
 
 class OctopartModel(TreeModel):
     def __init__(self):
@@ -80,39 +71,49 @@ class OctopartModel(TreeModel):
 
         self.extra_columns = Column()
         self.loaded = False
-        self.request = None
+        self.results = []
     
-    def SetRequest(self, request):
-        self.request = request
-        self.Clear()
+    def SetResults(self, results):
+        for result in results:
+            self.results.append(result)
+        self.Update()
 
     def CanFetchMore(self, parent):
         return self.loaded==False
 
     def Fetch(self, parent):
-        with open("/home/seb/git/kipartman-v2/kipartman-qt/api/octopart/search-result.yaml", 'r') as stream:
-            request = munchify(yaml.load(stream, Loader=yaml. FullLoader), DefaultMunch)
+        # with open("/home/seb/git/kipartman-v2/kipartman-qt/api/octopart/search-result.yaml", 'r') as stream:
+        #     request = munchify(yaml.load(stream, Loader=yaml. FullLoader), DefaultMunch)
         
         # when we add columns a fetch is made before load finishes 
         self.loaded = True
 
-        for part in request.data.search.results:
-            # print(part)
-            node = OctopartNode(part.part, self.extra_columns)
-            
-            for spec in part.part.specs:
-                if self.extra_columns.PosFromName(spec.attribute.name) is None:
-                    self.extra_columns.AddColumn(spec.attribute.name)
-                    self.InsertColumn(TreeColumn(spec.attribute.name))
+        for part in self.results:
+            node = self.FindPart(part["part"])
+            if node is None:
+                node = OctopartNode(part["part"], self.extra_columns)
+                self.InsertNode(node)
 
-            self.InsertNode(node)
-        
+            for spec in part["part"]["specs"]:
+                if self.extra_columns.PosFromName(spec["attribute"]["name"]) is None:
+                    self.extra_columns.AddColumn(spec["attribute"]["name"])
+                    self.InsertColumn(TreeColumn(spec["attribute"]["name"]))
+    
+    
+    def FindPart(self, part):
+        for node in self.node_to_id:
+            if isinstance(node, OctopartNode) and node.part["mpn"]==part["mpn"]:
+                return node
+        return None
+
     def Clear(self):
-        super(OctopartModel, self).Clear()
+        super().Clear()
+        self.results = []
         self.loaded = False
 
     def Update(self):
-        self.Clear()
+        self.loaded = False
+        super().Update()
 
 class QOctopartTreeView(QTreeViewData):
     def __init__(self, *args, **kwargs):
