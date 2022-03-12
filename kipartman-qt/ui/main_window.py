@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QMdiSubWindow, QTextEdit, QMainWindow
 
 from api.command import commands
 from api.event import events
+from api.log import log
 from ui.parts_window import PartsWindow
 from ui.symbols_widget import SymbolsWidget
 
@@ -13,8 +14,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         uic.loadUi('ui/main_window.ui', self)
-
-
+        
         self.actionDatabaseSave.triggered.connect(self.actionDatabaseSaveTriggered)
         self.actionEditUndo.triggered.connect(self.actionEditUndoTriggered)
         self.actionEditRedo.triggered.connect(self.actionEditRedoTriggered)

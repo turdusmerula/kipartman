@@ -6,6 +6,8 @@ from PyQt6.QtWidgets import QAbstractItemView, QAbstractItemDelegate, QTreeView,
     QToolButton
 from PyQt6 import Qt6
 
+from api.log import log
+
 from enum import Enum
 from helper.dialog import ShowErrorDialog
 
@@ -595,44 +597,84 @@ class TreeModel(QAbstractItemModel):
     
     def GetValue(self, node, column):
         """ Overload here or inside Node to provide values """
-        return node.GetValue(column)
+        try:
+            return node.GetValue(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
     
     def GetEditValue(self, node, column):
         """ Overload here or inside Node to provide values """
-        return node.GetEditValue(column)
+        try:
+            return node.GetEditValue(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
 
     def GetDecoration(self, node, column):
         """ Overload here or inside Node to provide custom decoration """
         """ The decoration is the item at the left of text (icon, checkbox ...) """
-        return node.GetDecoration(column)
+        try:
+            return node.GetDecoration(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
 
     def GetTextAlignment(self, node, column):
         """ Overload here or inside Node to provide custom text alignment """
-        return node.GetTextAlignment(column)
+        try:
+            return node.GetTextAlignment(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
 
     def GetBackground(self, node, column):
         """ Overload here or inside Node to provide custom background """
-        return node.GetBackground(column)
-
+        try:
+            return node.GetBackground(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
+    
     def GetForeground(self, node, column):
         """ Overload here or inside Node to provide custom foreground """
-        return node.GetForeground(column)
+        try:
+            return node.GetForeground(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
 
     def GetFont(self, node, column):
         """ Overload here or inside Node to provide custom font """
-        return node.GetFont(column)
+        try:
+            return node.GetFont(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
 
     def GetCheckState(self, node, column):
         """ Overload here or inside Node to provide check state """
-        return node.GetCheckState(column)
+        try:
+            return node.GetCheckState(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
 
     def GetToolTip(self, node, column):
         """ Overload here or inside Node to provide tooltip"""
-        return node.GetToolTip(column)
+        try:
+            return node.GetToolTip(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
 
     def GetSizeHint(self, node, column):
         """ Overload here or inside Node to provide size hint"""
-        return node.GetSizeHint(column)
+        try:
+            return node.GetSizeHint(column)
+        except Exception as e:
+            log.error(f"{e}")
+            return None
 
     # def GetItemDelegate(self, node, column):
     #     """ Overload here or inside Node to provide a item delegate"""

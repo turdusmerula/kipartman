@@ -9,7 +9,7 @@ sys.path.append(base_path)
 
 from api.log import log
 from api.ndict import ndict
-from api.unit import QuantityRange, Quantity
+from api.unit import QuantityRange, Quantity, ureg
 from api.octopart.queries import OctopartPartQuery
 
 os.environ['DJANGO_SETTINGS_MODULE'] = "database.config.settings"
@@ -35,7 +35,7 @@ def save_attribute(attribute):
 
 def query_attribute(attribute, value):
     res = False
-    req = query.Search(filters={attribute.shortname: value})
+    req = ndict(query.Search(filters={attribute.shortname: value}))
     if req is not None:
         for part in req.search.results or {}:
             res = True
@@ -56,7 +56,7 @@ def main(args=None):
         pass
     
     # get attributes from octopart
-    attrs = query.Attributes()
+    attrs = ndict(query.Attributes())
     for attr in attrs:
         # add new attributes to list
         if attr.name not in attributes:
@@ -92,9 +92,8 @@ def main(args=None):
             parameter = Parameter.objects.filter(name=name).first()
             if parameter is None:
                 parameter = Parameter()
-            
-            parameter.name = name
-            parameter.show = True
+                parameter.name = name
+                parameter.show = True
             
             if attribute.value_type=='float':
                 parameter.value_type = ParameterType.FLOAT
@@ -105,7 +104,9 @@ def main(args=None):
             
             if attribute.unit is not None:
                 try:
-                    parameter.unit = Quantity(attribute.unit).unit
+                    # a = ureg.parse_units(attribute.unit)
+                    # unit = Quantity(attribute.unit, base_unit=attribute.unit).unit
+                    parameter.unit = str(ureg.parse_units(attribute.unit)).replace("Δ", "")
                 except Exception as e:
                     print(f"{name} / {attribute.shortname}: {e}")
                     add = False

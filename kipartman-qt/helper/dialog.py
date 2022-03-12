@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QMessageBox
 
+from api.log import log
+
 def ShowDialog(title, text, informative_text="", detailed_text="", icon=QMessageBox.Icon.Information, buttons=QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel):
     msg = QMessageBox()
     msg.setIcon(icon)

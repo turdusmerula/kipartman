@@ -560,7 +560,7 @@ class OctopartPartQuery(GraphQLClient):
             }        
         """
         res = json.loads(self.send(query))
-        return res.data.attributes
+        return res["data"]["attributes"]
     
     def Manufaturers(self):
         # TODO

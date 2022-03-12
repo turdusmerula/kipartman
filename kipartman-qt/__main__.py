@@ -20,7 +20,6 @@ from api.configuration import configuration
 from api.log import log
 
 def migrate():
-    print(sys.path)
     os.environ['DJANGO_SETTINGS_MODULE'] = "database.config.settings"
 
     try:

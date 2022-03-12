@@ -228,9 +228,9 @@ class PartParameter(models.Model):
 
         if self.parameter.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
             if self.operator is None or self.operator==PartParameterOperator.EQ:
-                res = Quantity.from_dict(self.value, self.parameter.unit)
+                res = Quantity.from_dict(self.value, base_unit=self.parameter.unit)
             elif self.operator==PartParameterOperator.RANGE:
-                res = QuantityRange.from_dict(self.value, self.parameter.unit)
+                res = QuantityRange.from_dict(self.value, base_unit=self.parameter.unit)
         elif self.parameter.value_type==ParameterType.TEXT:
             res = self.value['value']
         
@@ -241,7 +241,7 @@ class PartParameter(models.Model):
         v = self.decoded_value
         if v is None:
             return ""
-        return str(v)
+        return v.format()
     
     def __unicode__(self):
         if self.id:

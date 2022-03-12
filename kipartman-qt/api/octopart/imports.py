@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QTreeView, QHeaderView, QAbstractItemView,\
 
 from api.command import Command, CommandUpdateDatabaseObject, CommandAddDatabaseObject, commands
 from api.event import events
+from api.log import log
 from api.ndict import ndict
 from api.unit import Quantity
 from database.models import Part, PartInstance, Parameter, ParameterType, PartParameter
@@ -27,7 +28,7 @@ class CommandAddOctopart(CommandAddDatabaseObject):
 
 class CommandUpdateOctopartParameter(CommandUpdateDatabaseObject):
     def __init__(self, part_parameter, name, fields):
-        super(CommandUpateOctopartParameter, self).__init__(object=part_parameter, fields=fields,
+        super(CommandUpdateOctopartParameter, self).__init__(object=part_parameter, fields=fields,
                                             description=f"update part parameter '{name}' from octopart")
 
 class CommandAddOctopartParameter(CommandAddDatabaseObject):
@@ -38,6 +39,11 @@ class CommandAddOctopartParameter(CommandAddDatabaseObject):
 def import_octopart(octopart, category):
     octopart = ndict(octopart)
     
+    if category is None:
+        log.info(f"import from octopart '{octopart.mpn}'")
+    else:
+        log.info(f"import from octopart '{octopart.mpn}' on category '{category.name}'")
+    
     # check if part already exists
     part = Part.objects.filter(uid=octopart.id).first()
     if part is None:
@@ -46,12 +52,12 @@ def import_octopart(octopart, category):
     part_fields = {
         'name': octopart.mpn,
         'description': octopart.short_description,
-        'category': category,
         'instance': PartInstance.PART,
         'provider': 'octopart',
     }
     if part is None:
         part = Part()
+        part_fields['category'] = category  # category is set only for new parts
         commands.Begin(CommandAddOctopart, part=part, fields=part_fields)
     else:
         res = ShowDialog("Import from octopart", text=f"Part '{octopart.mpn}' already exists, update it from octopart?", icon=QMessageBox.Icon.Question, buttons=QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
@@ -80,15 +86,15 @@ def import_octopart(octopart, category):
             try:
                 if parameter.unit is None:
                     if parameter.value_type==ParameterType.FLOAT:
-                        part_parameter_fields['value'] = json.dumps({
+                        part_parameter_fields['value'] = {
                             'value': Quantity(spec.display_value).magnitude,
                             'integer': False
-                        })
+                        }
                     else:
-                        part_parameter_fields['value'] = json.dumps({
+                        part_parameter_fields['value'] = {
                             'value': Quantity(spec.display_value, integer=True).magnitude,
                             'integer': True
-                        })
+                        }
                         
                 else:
                     if parameter.value_type==ParameterType.FLOAT:
@@ -96,21 +102,21 @@ def import_octopart(octopart, category):
                     else:
                         value = Quantity(spec.display_value, base_unit=parameter.unit, integer=True)
                         
-                    part_parameter_fields['value'] = json.dumps({
+                    part_parameter_fields['value'] = {
                         'value': value.magnitude,
                         'unit': str(value.base_unit),
                         'show_as': str(value.unit),
                         'integer': value.integer,
-                    })
-                    
+                    }
             except Exception as e:
+                log.error(f"{e}")
                 ShowErrorDialog("Import from octopart", text=f"Import failed for '{spec.attribute.name}'", detailed_text=f"{e}\n\n{yaml.safe_dump(spec)}")
                 commands.CancelAll()
                 return None
         elif parameter.value_type==ParameterType.TEXT:
-            part_parameter_fields['value'] = json.dumps({
+            part_parameter_fields['value'] = {
                 'value': spec.display_value
-            })
+            }
         else:
             ShowErrorDialog("Import from octopart", text=f"Parameter type {parameter.value_type} not implemented", detailed_text=f"{yaml.safe_dump(spec)}")
             commands.CancelAll()

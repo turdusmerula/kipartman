@@ -110,8 +110,10 @@ class PartsWindow(QChildWindow):
         
         if len(part_categories)>0:
             self.category_filter_group.Append(FilterPartCategories(part_categories, main_window.actionSelectChildMode.isChecked()))
+            self.partList.SetOwnerCategory(part_categories[0])
         else:
             self.category_filter_group.Clear()
+            self.partList.SetOwnerCategory(None)
         
         self.update_menus()
             
