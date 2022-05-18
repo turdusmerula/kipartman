@@ -12,6 +12,7 @@ import yaml
 from api.data.octopart import OctopartModel, OctopartNode
 from api.event import events
 from api.filter import FilterSet, FilterGroup
+from api.log import log
 from api.ndict import ndict
 from api.octopart.queries import OctopartPartQuery
 from database.models import PartCategory
@@ -114,48 +115,52 @@ class QOctopartSearchWidget(QActionFrame):
         self._prevent_recurse -= 1
     
     def search(self):
-        print("search", self.comboBox.currentText())
-        if self.comboBox.currentText()=="":
-            return ""
-        
-        if self.comboBox.currentText() in self.previous_search:
-            self.previous_search.remove(self.comboBox.currentText())
-            self.previous_search.insert(1, self.comboBox.currentText())
-        else:
-            self.previous_search.insert(1, self.comboBox.currentText())
-        self.save_previous_search()
-        self.load_previous_search()
+        try:
+            print("search", self.comboBox.currentText())
+            if self.comboBox.currentText()=="":
+                return ""
             
-        search = self.cache.get(f"search.{self.comboBox.currentText()}")
-        if search is None:
-            search = {
-                "name": self.comboBox.currentText(),
-                "start": 0,
-                "limit": int(self.spinBoxLimit.value()),
-                "hits": None,
-                "results": []
-            }
-        else:
-            search = json.loads(search)
-            search["start"] += int(search["limit"])
-            search["limit"] = int(self.spinBoxLimit.value())
-        
-        res = self.query.SearchMpn(self.comboBox.currentText(), start=search["start"], limit=search["limit"])
-        if res is not None:
-            res = ndict(res)
-            self.model.SetResults(res.search_mpn.results)
-            search["hits"] = int(res.search_mpn.hits)
-            search["results"] += res.search_mpn.results
-
-            status = f"Shown {len(search['results'])} results / {search['hits']}" 
-            self.cache.set(f"search.{self.comboBox.currentText()}", json.dumps(search), expire=self.query.ttl)
-        else:
-            status = f"No item were found" 
-        
-        self.labelState.setText(status)
-        # hits = 
-        # loaded = 
-        # state = f"start: {search['start']}, limit: {search['limit']}, loaded: {"
+            if self.comboBox.currentText() in self.previous_search:
+                self.previous_search.remove(self.comboBox.currentText())
+                self.previous_search.insert(1, self.comboBox.currentText())
+            else:
+                self.previous_search.insert(1, self.comboBox.currentText())
+            self.save_previous_search()
+            self.load_previous_search()
+                
+            search = self.cache.get(f"search.{self.comboBox.currentText()}")
+            if search is None:
+                search = {
+                    "name": self.comboBox.currentText(),
+                    "start": 0,
+                    "limit": int(self.spinBoxLimit.value()),
+                    "hits": None,
+                    "results": []
+                }
+            else:
+                search = json.loads(search)
+                search["start"] += int(search["limit"])
+                search["limit"] = int(self.spinBoxLimit.value())
+            
+            res = self.query.SearchMpn(self.comboBox.currentText(), start=search["start"], limit=search["limit"])
+            if res is not None:
+                res = ndict(res)
+                self.model.SetResults(res.search_mpn.results)
+                search["hits"] = int(res.search_mpn.hits)
+                search["results"] += res.search_mpn.results
+    
+                status = f"Shown {len(search['results'])} results / {search['hits']}" 
+                self.cache.set(f"search.{self.comboBox.currentText()}", json.dumps(search), expire=self.query.ttl)
+            else:
+                status = f"No item were found" 
+            
+            self.labelState.setText(status)
+            # hits = 
+            # loaded = 
+            # state = f"start: {search['start']}, limit: {search['limit']}, loaded: {"
+        except Exception as e:
+            log.error(f"{e}")
+            ShowErrorDialog("Search failed", f"{e}")
 
     def save_previous_search(self):
         self.cache.set("previous_search", json.dumps(self.previous_search))

@@ -1,9 +1,10 @@
+from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QObject, pyqtSignal, QSize, QVariant
 from PyQt6.QtCore import QRunnable, QThreadPool
 from PyQt6.QtCore import QAbstractItemModel, QModelIndex, QItemSelectionModel
 from PyQt6.QtGui import QStandardItem, QStandardItemModel, QColor, QIcon, QFont
 from PyQt6.QtWidgets import QAbstractItemView, QAbstractItemDelegate, QTreeView,\
-    QToolButton
+    QToolButton, QWidget
 from PyQt6 import Qt6
 
 from api.log import log
@@ -179,7 +180,7 @@ class Node(object):
 
 
 class TreeModel(QAbstractItemModel):
-    dataError = pyqtSignal(ValidationError)
+    dataError = pyqtSignal(ValidationError) # event triggered when an error occurs during setData
     
     def __init__(self, parent=None, *args, **kwargs):
         super(TreeModel, self).__init__(parent, *args, **kwargs)
@@ -237,7 +238,7 @@ class TreeModel(QAbstractItemModel):
         if index.isValid():
             if index.internalId() not in self.id_to_node:
                 # There is a problem that should never happen
-                print("Error in data model", self, index, index.internalId(), role)
+                log.error("TreeView.data: Error in data model", self, index, index.internalId(), role)
                 return QVariant()
             node = self.id_to_node[index.internalId()]
         else:
@@ -248,7 +249,7 @@ class TreeModel(QAbstractItemModel):
         elif role==Qt.ItemDataRole.EditRole:
             # when in edition then prefill the edit zone with the cell content
             if self._edit_index is not None and self._edit_index.internalId()==index.internalId() and self._edit_index.column()==index.column():
-                print("data reedit", self._edit_index.row(), self._edit_index.column(), self._edit_value)
+                log.debug("TreeView.data: data reedit", self._edit_index.row(), self._edit_index.column(), self._edit_value)
                 # res = QVariant(self._edit_value)
                 res = self._edit_value
                 return res
@@ -392,6 +393,8 @@ class TreeModel(QAbstractItemModel):
             return len(self.rootNode)
         
     def setData(self, index, value, role=Qt.ItemDataRole.EditRole):
+        log.debug("TreeView.setData", index, value, role)
+        
         if self._prevent_setData==True:
             return False
         
@@ -426,13 +429,14 @@ class TreeModel(QAbstractItemModel):
     # def sibling (row, column, idx)
 
     def sort(self, column, order=Qt.SortOrder.AscendingOrder):
-        print("sort", column, order)
+        log.debug("TreeView.sort", column, order)
     #     return self.Sort(self.node_from_id(parent.internalId()), order)
 
     def span(self, index):
         pass
 
     def submit(self):
+        log.debug("TreeView.submit")
         return super(TreeModel, self).submit()
 
     # def supportedDragActions ()
@@ -793,10 +797,6 @@ class TreeState(object):
 class QTreeViewData(QTreeView):
     endInsertEditNode = pyqtSignal(Node)
 
-    class ActionState(Enum):
-        Default = 1
-        EditNew = 2
-
     def __init__(self, *args, **kwargs):
         super(QTreeViewData, self).__init__(*args, **kwargs)
 
@@ -804,42 +804,237 @@ class QTreeViewData(QTreeView):
         # self.tree_view.collapsed.connect(self.onCollapsed)
         # self.tree_view.expanded.connect(self.onExpanded)
 
-        self.edit_index = None    # item beeing currently edited
-        self.select_childs = False  # indicate if childs should be selected recursively when parent is selected
+        self.edit_index = None      # item beeing currently edited
+        self.edit_widget = None     # edition widget
         self.edition_error = None   # current error during edition
-        self.has_message_box = False
+        self.reedit = False         # item is reedited after a error
         
-        self.action_state = QTreeViewData.ActionState.Default
-
+        self.select_childs = False  # indicate if childs should be selected recursively when parent is selected
+        
+        self.has_message_box = False # prevent an error message to open when one is already here 
+        
         self.expanded.connect(self.OnExpanded)
         
+        self._default_delegate = self.itemDelegate()
+        
+
+    ### From TreeModel ###
+    
     def setModel(self, model):
+        log.debug("setModel", model)
         super(QTreeViewData, self).setModel(model)
         
         model.dataError.connect(self.dataError)
-        
-    def closeEditors(self):
-        index = self.currentIndex()
-        editor = self.indexWidget(index)
+        model.dataChanged.connect(self.dataChanged)
+        model.rowsInserted.connect(self.rowsInserted)
 
-        self.commitData(editor)
-        self.closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint)
-    
-    def currentChanged(self, current, previous):
-        print("QTreeViewData.currentChanged", current.row(), current.column())
-        delegate = self.getItemDelegate(current)
-        if current!=self.rootIndex() and delegate is not None:
-            self.setItemDelegate(delegate)
-    
+    def selectAll(self, selectChilds=None):
+        """ default behavior is Qt one, only select visible elements """
+        """ if selectChilds=True select all loaded elements (lazy loaded elements are not loaded) """
+        
+        if selectChilds is None:
+            selectChilds = self.select_childs
+            
+        if selectChilds==False:
+            super(QTreeViewData, self).selectAll()
+        else:
+            # self.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
+            model = self.model()
+            for id in model.id_to_node:
+                self.selectionModel().select(model.index_from_id(id), QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows)
+                
+    def OnExpanded(self, index):
+        model = self.model()
+        if self.selectionModel().isSelected(index) and self.select_childs==True:
+            node = self.model().node_from_id(index.internalId())
+            for child in node.childs:
+                self.selectRecursively(model.index_from_node(child))
+
+    # def focusOutEvent(self, event):
+    #     log.debug("focusOutEvent", event)
+    #     return super().focusOutEvent(event)
+    #
+    def focusInEvent(self, event):
+        log.debug("focusInEvent", event)
+        if self.edit_widget is not None:
+            try:
+                self.edit_widget.setFocus()
+            except Exception as e:
+                log.debug("setFocus failed: already destroyed")
+        return super().focusInEvent(event)
+
+    def edit(self, index: QtCore.QModelIndex) -> None: 
+        log.debug("edit", index)
+        if self.edit_index is not None:
+            # prevent an other editor to open if one is already opened
+            return
+        if self.reedit==False:
+            self.closeCurrentEditor()
+        return super().edit(index)
+        
+    def edit(self, index: QtCore.QModelIndex, trigger: 'QAbstractItemView.EditTrigger', event: QtCore.QEvent) -> bool:
+        log.debug("edit", index, trigger, event)
+        if self.edit_index is not None:
+            if self.model().node_from_index(self.edit_index) is None:
+                self.cancel()
+            else:
+                # prevent an other editor to open if one is already opened
+                return False
+        if self.reedit==False:
+            self.closeCurrentEditor()
+        return super().edit(index, trigger, event)
+
+    def commitData(self, editor: QWidget) -> None:
+        log.debug("commitData", editor)
+        # index = self.currentIndex()
+        # node = self.model().node_from_index(index)
+        # print("###", editor)
+        # if node.Validate(index.column(), )
+        return super().commitData(editor)
+
+    def closeEditor(self, editor: QWidget, hint: QAbstractItemDelegate.EndEditHint) -> None:
+        log.debug("closeEditor", editor, hint)
+
+        if self.edit_index is not None:
+            self.edit_widget = editor
+
+        if hint==QAbstractItemDelegate.EndEditHint.RevertModelCache:
+            # item was canceled 
+            if self.edit_index is not None:
+                # event comes from a element inserted by InsertEditNode
+                node = self.model().node_from_id(self.edit_index.internalId())
+                self.edit_index = None
+                self.edit_widget = None
+                # node was canceled
+                self.model().RemoveNode(node)
+                self.setCurrentIndex(self.rootIndex())
+        
+                self.setFocus()
+                self.activateWindow()
+            self.edition_error = None
+            self.model().ClearEditCache()
+            return super().closeEditor(editor, hint)
+
+        # if hint==QAbstractItemDelegate.EndEditHint.NoHint:  # user clicked somewhere, editor is closing
+        if self.edition_error is not None:
+            log.debug("closeEditor edition_error", self.edition_error, self.has_message_box)
+            # there was an error, open messagebox
+            error = self.edition_error
+            # self.edition_error = None
+            self.reedit = True
+            
+            if self.has_message_box==False:
+                self.has_message_box = True 
+                self.errorMessage(error)
+                self.has_message_box = False 
+            
+            editor.setFocus()
+            editor.activateWindow()
+        else:
+            log.debug("closeEditor validate")
+            self.reedit = False
+            self.edit_index = None
+            self.edit_widget = None
+            return super().closeEditor(editor, hint)
+
+    #     if hint==QAbstractItemDelegate.EndEditHint.NoHint or hint==QAbstractItemDelegate.EndEditHint.SubmitModelCache:
+    #         if self.edition_error is not None:
+    #             log.debug("closeEditor edition_error", self.edition_error)
+    #             if self.has_message_box==False:
+    #                 # there was an error, open messagebox and cancel editor
+    #                 error = self.edition_error
+    #                 self.edition_error = None
+    #
+    #                 self.has_message_box = True 
+    #                 self.errorMessage(error)
+    #                     self.has_message_box = False 
+    #
+    #                 editor.setFocus()
+    #                 editor.activateWindow()
+    #         elif self.action_state==QTreeViewData.ActionState.EditNew:
+    #             log.debug("closeEditor action_state", self.action_state)
+    #             if self.edit_index is not None:
+    #                 # event comes from an element inserted by InsertEditNode
+    #                 node = self.model().node_from_id(self.edit_index.internalId())
+    #                 self.edit_index = None
+    #                 if self.model().GetValue(node, self.insert_column)=="":
+    #                     # node was submitted empty, cancel it
+    #                     self.model().RemoveNode(node)
+    #                     self.setCurrentIndex(self.rootIndex())
+    #                 else:
+    #                     # edition ends ok
+    #                     self.model().RemoveNode(node)
+    #                     self.endInsertEditNode.emit(node)
+    #                 self.model().ClearEditCache()
+    #                 self.action_state = QTreeViewData.ActionState.Default
+    #
+    #                 self.setFocus()
+    #                 self.activateWindow()
+    #         else:
+    #             log.debug("closeEditor -")
+    #             self.model().ClearEditCache()
+    #             return super(QTreeViewData, self).closeEditor(editor, hint)
+    #     # elif hint==EndEditHint.RevertModelCache:
+    #     else:
+    #         if self.action_state==QTreeViewData.ActionState.EditNew:
+    #             # event comes from a element inserted by InsertEditNode
+    #             node = self.model().node_from_id(self.edit_index.internalId())
+    #             self.edit_index = None
+    #             # node was canceled
+    #             self.model().RemoveNode(node)
+    #             self.setCurrentIndex(self.rootIndex())
+    #             self.action_state = QTreeViewData.ActionState.Default
+    #
+    #             self.setFocus()
+    #             self.activateWindow()
+    #         self.edition_error = None
+    #         self.model().ClearEditCache()
+    #         return super(QTreeViewData, self).closeEditor(editor, hint)
+
+    def setCurrentIndex(self, index):
+        log.debug("setCurrentIndex", index)
+        
+        res = super().setCurrentIndex(index)
+        self.scrollTo(index)
+        return res
+
     def currentIndex(self):
-        index = super(QTreeViewData, self).currentIndex()
+        log.debug("currentIndex")
+        
+        index = super().currentIndex()
         if index.internalId() not in self.model().id_to_node:
             return self.model().index_from_node(self.model().rootNode)
         return index
-    
+
+
+    ### Implementation specific
+
+    def getItemDelegate(self, index):
+        # override to provide a custom item delegate when entering edit mode
+        return None
+
+    # def getItemWidget(self, index):
+    #     # override to provide a custom widget for the item
+    #     # TODO
+    #     pass
+
+    def selectRecursively(self, index):
+        model = self.model()
+        to_select = [model.node_from_index(index)]
+        while len(to_select)>0:
+            node = to_select.pop()
+            self.selectionModel().select(model.index_from_node(node), QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows)
+            for child in node.childs:
+                to_select.append(child)
+
+    def errorMessage(self, error):
+        # show error dialog, may be overriden for specific error message
+        ShowErrorDialog("Invalid data", error.message)
+
     def editNew(self, parent: QModelIndex=None, column: int=0, *args, **kwargs):
         """ Add a new element in edit mode on the first line of parent """
         """ *args and **kwarg are passed to CreateEditNode"""
+        log.debug("editNew", parent, column, args, kwargs)
         
         # cancel any previous action state
         self.cancel()
@@ -847,13 +1042,13 @@ class QTreeViewData(QTreeView):
         if parent is None:
             parent_index = self.currentIndex()
             parent_node = self.model().node_from_id(parent_index.internalId())
-        elif parent is not None:
-            parent_node = self.model().node_from_id(parent.internalId())
         else:
-            parent_node = self.model().rootNode
+            parent_node = self.model().node_from_id(parent.internalId())
         
+        # ask the model to create an edit node
         node = self.model().CreateEditNode(parent_node, *args, **kwargs)
         if node is None:
+            # model does not provide any edit node
             return 
         
         # insert node at first parent position
@@ -871,22 +1066,76 @@ class QTreeViewData(QTreeView):
             return 
 
         self.edit_index = edit_index
+        self.edit_widget = None         # initialized in closeEditor
         self.insert_column = column
-        self.action_state = QTreeViewData.ActionState.EditNew
 
     def cancel(self):
-        """ cancel current action and revert to default """
-        self.closeEditors()
+        """ cancel current edit action and revert to default """
+        log.debug("cancel")
+
+        if self.edit_index is not None:
+            if self.model().node_from_index(self.edit_index) is not None:
+                self.closeEditor(self.edit_index, QAbstractItemDelegate.EndEditHint.RevertModelCache)
+            else:
+                self.edit_index = None
+                self.edit_widget = None
+                self.edition_error = None
+            self.model().ClearEditCache()
+    #
+    def closeCurrentEditor(self):
+        log.debug("closeCurrentEditor", self.edit_widget    )
+        index = self.currentIndex()
+        editor = self.indexWidget(index)
+    
+        self.commitData(editor)
+        self.closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint)
+
+        
+    def selectionChanged(self, current, previous):
+        log.debug("selectionChanged", current, previous)
+
+        if self.edition_error is not None:
+            # prevent user from changing selection when an open editor is not valid
+            if self.edit_index is not None:
+                self.selectionModel().select(self.edit_index, 
+                    QItemSelectionModel.SelectionFlag.ClearAndSelect | 
+                    QItemSelectionModel.SelectionFlag.Rows)
+                # self.openPersistentEditor(self.edit_index)
+            return
+        super().selectionChanged(current, previous)
+
+    def currentChanged(self, current, previous):
+        log.debug("currentChanged", current, previous, self.edit_index)
+
+        if self.edition_error is not None:
+            # prevent user from changing current item when an open editor is not valid
+            if self.edit_index is not None:
+                super().setCurrentIndex(self.edit_index)
+            return 
+    
+        delegate = self.getItemDelegate(current)
+        if current!=self.rootIndex() and delegate is not None:
+            self.setItemDelegate(delegate)
+        else:
+            self.setItemDelegate(self._default_delegate)
+        
+    def dataError(self, error):
+        log.debug("dataError", error)
+        # triggered when an error comes from the model
+        self.edition_error = error
+
+    def dataChanged(self, topLeft: QtCore.QModelIndex, bottomRight: QtCore.QModelIndex, roles) -> None:
+        log.debug("dataChanged", topLeft, bottomRight, roles)
         self.edition_error = None
-        self.edit_index = None
-        self.model().ClearEditCache()
-        self.action_state = QTreeViewData.ActionState.Default
+
+    def rowsInserted(self, parent, first, last):
+        log.debug("rowsInserted")
 
     def isSelectedRoot(self):
         if self.currentIndex().internalId()==0:
             return True
         return False
-    
+
     def saveState(self):
         """ return selection and collapse state of tree """
         state = TreeState()
@@ -922,109 +1171,3 @@ class QTreeViewData(QTreeView):
         """ define how childs are selected, if true then childs are recursively selected when parent is selected """
         self.select_childs = select
 
-    ### From TreeModel ###
-            
-    def dataError(self, error):
-        self.edition_error = error
-        # self.errorMessage(error)
-        # self.reedit()
-
-    def selectAll(self, selectChilds=None):
-        """ default behavior is Qt one, only select visible elements """
-        """ if selectChilds=True select all loaded elements (lazy loaded elements are not loaded) """
-        
-        if selectChilds is None:
-            selectChilds = self.select_childs
-            
-        if selectChilds==False:
-            super(QTreeViewData, self).selectAll()
-        else:
-            # self.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
-            model = self.model()
-            for id in model.id_to_node:
-                self.selectionModel().select(model.index_from_id(id), QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows)
-
-    def selectRecursively(self, index):
-        model = self.model()
-        to_select = [model.node_from_index(index)]
-        while len(to_select)>0:
-            node = to_select.pop()
-            self.selectionModel().select(model.index_from_node(node), QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows)
-            for child in node.childs:
-                to_select.append(child)
-                
-    def OnExpanded(self, index):
-        model = self.model()
-        if self.selectionModel().isSelected(index) and self.select_childs==True:
-            node = self.model().node_from_id(index.internalId())
-            for child in node.childs:
-                self.selectRecursively(model.index_from_node(child))
-
-    def errorMessage(self, error):
-        ShowErrorDialog("Invalid data", error.message)
-    
-    def focusOutEvent(self, event):
-        # print("focusOutEvent", event)
-        return super(QTreeViewData, self).focusOutEvent(event)
-
-    def closeEditor(self, editor, hint):
-        print("closeEditor", editor, hint)
-
-        if hint==QAbstractItemDelegate.EndEditHint.NoHint or hint==QAbstractItemDelegate.EndEditHint.SubmitModelCache:
-            if self.edition_error is not None:
-                if self.has_message_box==False:
-                    error = self.edition_error
-                    self.edition_error = None
-    
-                    self.has_message_box = True 
-                    self.errorMessage(error)
-                    self.has_message_box = False 
-                    
-                    editor.setFocus()
-                    editor.activateWindow()
-            elif self.action_state==QTreeViewData.ActionState.EditNew:
-                if self.edit_index is not None:
-                    # if self.state()!=QAbstractItemView.State.EditingState and self.edit_index is not None:
-                    # event comes from an element inserted by InsertEditNode
-                    node = self.model().node_from_id(self.edit_index.internalId())
-                    self.edit_index = None
-                    if self.model().GetValue(node, self.insert_column)=="":
-                        # node was submitted empty, cancel it
-                        self.model().RemoveNode(node)
-                        self.setCurrentIndex(self.rootIndex())
-                    else:
-                        # edition ends ok
-                        self.model().RemoveNode(node)
-                        self.endInsertEditNode.emit(node)
-                    self.model().ClearEditCache()
-                    self.action_state = QTreeViewData.ActionState.Default
-                    
-                    self.setFocus()
-                    self.activateWindow()
-            else:
-                self.model().ClearEditCache()
-                return super(QTreeViewData, self).closeEditor(editor, hint)
-        # elif hint==EndEditHint.RevertModelCache:
-        else:
-            if self.action_state==QTreeViewData.ActionState.EditNew:
-                # event comes from a element inserted by InsertEditNode
-                node = self.model().node_from_id(self.edit_index.internalId())
-                self.edit_index = None
-                # node was canceled
-                self.model().RemoveNode(node)
-                self.setCurrentIndex(self.rootIndex())
-                self.action_state = QTreeViewData.ActionState.Default
-
-                self.setFocus()
-                self.activateWindow()
-            self.edition_error = None
-            self.model().ClearEditCache()
-            return super(QTreeViewData, self).closeEditor(editor, hint)
-
-    def getItemDelegate(self, index):
-        print("QTreeViewData.getItemDelegate", self, index.row(), index.column())
-        return None
-
-    def getItemWidget(self, index):
-        # TODO
-        pass

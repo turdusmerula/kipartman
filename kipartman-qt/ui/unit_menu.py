@@ -777,7 +777,10 @@ class QUnitMenu(QMenu):
         item = self.sender().unit
         
         if isinstance(item, tuple):
-            unit, = item
+            if len(item)==1:
+                unit, = item
+            else:
+                unit, _ = item
         else:
             unit = item
         

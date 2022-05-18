@@ -191,12 +191,13 @@ class PartParameterNode(Node):
             # TODO check duplicates in database
         elif column==PartParameterColumn.VALUE:
             if self.part_parameter.operator is None or self.part_parameter.operator==PartParameterOperator.EQ:
-                return self.ValidateUnitValue(value)
+                if hasattr(self.part_parameter, 'parameter') and self.part_parameter.parameter.value_type!=ParameterType.TEXT:
+                    return self.ValidateUnitValue(value)
             elif self.part_parameter==PartParameterOperator.RANGE:
                 validate_min = self.ValidateUnitValue(value.min, "minimum value")
                 if validate_min is not None:
                     return validate_min
-                return self.ValidateUnitValue(value.min, "maximum value")
+                return self.ValidateUnitValue(value.max, "maximum value")
         return None
     
     def ValidateUnitValue(self, value, name="value"):
@@ -226,6 +227,10 @@ class PartParameterNode(Node):
         if hasattr(self.part_parameter, 'parameter')==False and column!=PartParameterColumn.PARAMETER:
             # when parameter is not set we prevent edition of other fields 
             return flags & ~Qt.ItemFlag.ItemIsEditable
+        if hasattr(self.part_parameter, 'parameter') and column==PartParameterColumn.OPERATOR:
+            if self.part_parameter.parameter.value_type==ParameterType.TEXT:
+                # for text you can only chose EQ
+                return flags & ~Qt.ItemFlag.ItemIsEditable
         if column==PartParameterColumn.DESCRIPTION:
             #  description is just a proxy from parameter, not editable
             return flags & ~Qt.ItemFlag.ItemIsEditable
@@ -413,7 +418,9 @@ class QPartParameterTreeView(QTreeViewData):
                     else:
                         return self.unitDelegate
             elif index.column()==PartParameterColumn.OPERATOR:
-                return self.operatorDelegate
+                if hasattr(node.part_parameter, "parameter") and node.part_parameter.parameter.value_type in [ParameterType.INTEGER, ParameterType.FLOAT]:
+                    return self.operatorDelegate
+
             
         return None
 

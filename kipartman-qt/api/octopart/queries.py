@@ -197,6 +197,8 @@ class OctopartPartQuery(GraphQLClient):
 
         self.cache = Cache(directory=os.path.expanduser('~/.kipartman/cache/octopart'))
 
+        self.attributes = None
+        
     def Part_to_query(self, tab=""):
         return """
             part {
@@ -393,7 +395,7 @@ class OctopartPartQuery(GraphQLClient):
         params = []
         for filter, value in filters.items():
             if isinstance(value, Quantity):
-                params.append(f'{filter}: "{str(value)}"')
+                params.append(f'{filter}: "{value.magnitude}"')
             elif isinstance(value, QuantityRange):
                 min = ""
                 if value.min is not None:
@@ -485,14 +487,20 @@ class OctopartPartQuery(GraphQLClient):
 
         query = Template(query).substitute(request=request, params=", ".join(params), Part=self.Part_to_query())
         query_id = Template("$request($params)").substitute(request=request, params=", ".join(params))
-        # log.debug(query)
         log.debug(query_id)
+        # log.debug(query)
         
         data = self._get_cache_part_query(query_id)
         if data is None:
             try:
-                data = json.loads(self.send(query))["data"]
-                self._set_cache_part_query(query_id, data)
+                res = json.loads(self.send(query))
+                if 'errors' in res:
+                    log.error(res['errors'])
+                    return None
+
+                data = res["data"]
+                if data is not None:
+                    self._set_cache_part_query(query_id, data)
             except Exception as e:
                 log.error(f"{query_id}: {e}")
                 return None
@@ -576,3 +584,16 @@ class OctopartPartQuery(GraphQLClient):
 
     def ClearCache(self):
         self.cache.clear()
+
+
+    def name_to_shortname(self, name):
+        if self.attributes is None:
+            xpl_path = os.path.abspath(os.path.dirname(__file__))
+            with open(os.path.join(xpl_path, "attributes.yaml"), "r") as f:
+                self.attributes = yaml.safe_load(f)
+    
+        if name in self.attributes:
+            return self.attributes[name]['shortname']
+        return None
+
+    

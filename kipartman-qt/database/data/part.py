@@ -1,6 +1,8 @@
-from api.filter import Filter, FilterRequest
-from database.models import Part
+from api.filter import FilterGroup, Filter, FilterRequest
+
+from database.models import Part, PartInstance, Parameter, ParameterType, PartParameter, PartParameterOperator
 import database.data.part_parameter
+
 from django.db.models import Q, Count
 import math
 
@@ -132,36 +134,52 @@ class FilterPartCategories(FilterRequest):
 #
 #     def apply(self, request):
 #         return request.filter(parameters__parameter__unit__id=self.unit.id)
-#
-# class FilterMetapart(Filter):
-#     def __init__(self, metapart):
-#         self.metapart = metapart
-#         super(FilterMetapart, self).__init__()
-#
-#     def apply(self, request):
-#         return request.filter(metapart=self.metapart)
-#
-# class FilterMetaParameter(Filter):
-#     def __init__(self, parameter):
-#         self.parameter = parameter
-#         super(FilterMetaParameter, self).__init__()
-#
-#     def apply(self, request):
-#         operator = "="
-#         if self.parameter.operator is not None:
-#             operator = self.parameter.operator
-#
-#         if self.parameter.parameter.value_type==database.models.ParameterType.TEXT:
-#             if operator=="=":
-#                 return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__text_value=self.parameter.text_value))
-#             elif operator=="!=":
-#                 return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__text_value__ne=self.parameter.text_value))
-#         else:
-#             # we compute an epsilon at 2^-19 for equality comparison
-#             m, e = math.frexp(self.parameter.value)
-#             epsilon = math.ldexp(1, e-19)
-#             if operator=="=":
-#                 return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__value__gt=self.parameter.value-epsilon) & Q(parameters__value__lt=self.parameter.value+epsilon))
+
+class FilterMetapart(FilterRequest):
+    def __init__(self, metapart):
+        super(FilterMetapart, self).__init__(name="Filter metaparts", description=f"{metapart}")
+        self.metapart = metapart
+
+    def Apply(self, request):
+        if self.metapart:
+            return request.filter(instance=PartInstance.METAPART)
+        return request.exclude(instance=PartInstance.METAPART)
+
+class FilterNonePart(FilterRequest):
+    def __init__(self):
+        super().__init__(name="Filter no part", description=f"")
+
+    def Apply(self, request):
+        return request.filter(id=-1)
+
+class FilterMetaParameter(FilterRequest):
+    def __init__(self, part_parameter):
+        super(FilterMetaParameter, self).__init__(name="Filter metapart parameter", description=part_parameter.parameter.name)
+        self.part_parameter = part_parameter
+
+    def Apply(self, request):
+        operator = PartParameterOperator.EQ
+        if self.part_parameter.operator is not None:
+            operator = self.part_parameter.operator
+
+        if self.part_parameter.parameter.value_type==ParameterType.TEXT:
+            value = self.part_parameter.value['value']
+            if operator==PartParameterOperator.EQ:
+                return request.filter(
+                    Q(parameters__parameter__id=self.part_parameter.parameter.id) & 
+                    Q(parameters__value__value=value)
+                )
+        else:
+            # we compute an epsilon at 2^-19 for equality comparison
+            value = self.part_parameter.value['value']
+            m, e = math.frexp(value)
+            epsilon = math.ldexp(1, e-19)
+            if operator==PartParameterOperator.EQ:
+                return request.filter(
+                    Q(parameters__parameter__id=self.part_parameter.parameter.id) & 
+                    Q(parameters__value__value__gt=value-epsilon) & 
+                    Q(parameters__value__value__lt=value+epsilon)
+                )
 #             elif operator=="<":
 #                 return request.filter(Q(parameters__parameter__id=self.parameter.parameter.id) & Q(parameters__value__lt=self.parameter.value-epsilon))
 #             elif operator=="<=":
@@ -180,7 +198,7 @@ def _add_default_annotations(request):
     request = request.select_related('category') # preload for performance
     return request
 
-def find(filters=None):
+def find(filters: Filter=None):
     request = Part.objects
     
     request = _add_default_annotations(request)
@@ -189,16 +207,21 @@ def find(filters=None):
     if filters is not None:
         request = filters.Apply(request, filter=FilterRequest)
     
-    return request.order_by('id').all()
+    request = request.order_by('id')
+    print(request.query)
+    return request.all()
 
 def find_metapart_childs(part):
-    filters = [FilterMetapart(False)]
-    
-    for parameter in part.parameters.all():
-        filters.append(FilterMetaParameter(parameter))
+    filters = FilterGroup()
+    if len(part.parameters.all())>0:
+        filters.Append(FilterMetapart(False))
         
+        for part_parameter in part.parameters.all():
+            filters.Append(FilterMetaParameter(part_parameter))
+            
+    else:
+        filters.Append(FilterNonePart())
     return find(filters)
-
 # def save(part):
 #
 #     if part.pk is None:

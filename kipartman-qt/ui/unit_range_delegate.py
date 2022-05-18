@@ -45,7 +45,7 @@ class QUnitRangeDelegate(QStyledItemDelegate):
             model.dataError.emit(ValidationError(str(e)))
             return 
         
-        if value.min is not None and value.max is not None and value.min.value>value.max.value:
+        if value.min is not None and value.max is not None and value.min.magnitude>value.max.magnitude:
             model.dataError.emit(ValidationError("Invalid range, maximum is greater than min"))
             
         model.setData(index, value, Qt.ItemDataRole.EditRole)

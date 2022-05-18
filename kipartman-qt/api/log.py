@@ -4,12 +4,40 @@ import sys
 import traceback
 
 FORMAT = '[%(levelname)s] %(message)s'
-logging.basicConfig(format=FORMAT)
+logging.basicConfig(format='%(count)s [%(levelname)s] %(message)s')
+# logging.basicConfig(
+#     level = logging.NOTSET,
+#     format = '[%(levelname)s] %(count) %(message)s')
+logging.basicConfig(
+    level = logging.DEBUG,
+    format = '[%(levelname)s] %(count) %(message)s')
+# logging.basicConfig(
+#     level = logging.INFO,
+#     format = '[%(levelname)s] %(count) %(message)s')
+# logging.basicConfig(
+#     level = logging.WARNING,
+#     format = '[%(levelname)s] %(count) %(message)s')
+# logging.basicConfig(
+#     level = logging.ERROR,
+#     format = '[%(levelname)s] %(count) %(message)s')
+# logging.basicConfig(
+#     level = logging.FATAL,
+#     format = '[%(levelname)s] %(count) %(message)s')
+
+counter = 1
+
+class ContextFilter(logging.Filter):
+    def filter(self, record):
+        global counter
+        record.count = counter
+        counter += 1
+        return True
 
 class Logger():
     def __init__(self):
         self.log = logging.getLogger('console')
         self.log.setLevel('DEBUG') # default log mode warning
+        self.log.addFilter(ContextFilter())
 
     def _sprint(self, *args, **kwargs):
         ss = io.StringIO()

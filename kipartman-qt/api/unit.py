@@ -262,7 +262,20 @@ class QuantityRange():
             self._min.integer = self.integer
         if self._max is not None:
             self._min.integer = self.integer
-        
+
+    def format(self, digits=3, trailing_zeros=True):
+        res = ""
+        if self.min is None:
+            res = '*'
+        else:
+            res = self.min.format(digits, trailing_zeros)
+        res += " - "
+        if self.max is None:
+            res += "*"
+        else:
+            res += self.max.format(digits, trailing_zeros)
+        return res
+
     @staticmethod
     def from_dict(d, base_unit=None):
         res = QuantityRange()

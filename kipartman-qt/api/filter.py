@@ -2,8 +2,9 @@ from PyQt6.QtCore import QObject
 from PyQt6.QtCore import QEvent, pyqtSignal
 
 
-class Filter(object):
+class Filter(QObject):
     def __init__(self, name, description):
+        super().__init__()
         self.name = name
         self.description = description
     
@@ -13,13 +14,11 @@ class Filter(object):
     def __str__(self):
         return f"{self.name}: {self.description}"
 
-class FilterGroup(QObject):
+class FilterGroup(Filter):
     filterChanged = pyqtSignal()
 
-    def __init__(self, name, description):
-        super(FilterGroup, self).__init__()
-        self.name = name
-        self.description = description
+    def __init__(self, name="", description=""):
+        super().__init__(name, description)
         self.filters = []
 
     def Append(self, filter):
@@ -37,17 +36,19 @@ class FilterGroup(QObject):
     def IsEmpty(self):
         return len(self.filters)==0
 
-    def Apply(self, context, filter=Filter):
+    def Apply(self, context, filter: Filter=None):
         for f in self.filters:
-            if isinstance(f, filter):
+            if filter is None:
+                context = f.Apply(context)
+            elif isinstance(f, filter):
                 context = f.Apply(context)
         return context
 
-class FilterSet(QObject):
+class FilterSet(Filter):
     filterChanged = pyqtSignal()
     
-    def __init__(self):
-        super(FilterSet, self).__init__()
+    def __init__(self, name="", description=""):
+        super().__init__(name, description)
         self.groups = []
 
     def Append(self, group):

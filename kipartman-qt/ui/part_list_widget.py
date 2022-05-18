@@ -79,7 +79,7 @@ class QPartListWidget(QtWidgets.QWidget):
     def actionPartAddPartTriggered(self, value):
         # add a new element in edit mode
         self.treeView.setFocus()
-        self.treeView.editNew(category=self.owner_category, instance='part', column=1)
+        self.treeView.editNew(parent=self.treeView.rootIndex(), category=self.owner_category, instance='part', column=1)
 
     def actionPartAddMetapartTriggered(self, value):
         self.treeView.editNew(category=self.owner_category, instance='metapart', column=1)
