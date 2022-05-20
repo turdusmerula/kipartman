@@ -9,7 +9,7 @@ from api.log import log
 from api.ndict import ndict
 from api.octopart.queries import OctopartPartQuery
 import database.data.part
-from database.models import Part, PartInstance
+from database.models import Part, PartInstance, PartParameter
 from ui.metapart_load_widget import QMetapartLoadWidget
 from PyQt6.QtGui import QColor
 
@@ -114,10 +114,12 @@ class OctopartNode(Node):
         return flags & ~Qt.ItemFlag.ItemIsEditable
 
 class LoadMoreNode(Node):
-    def __init__(self, result, parent=None):
+    def __init__(self, result, loaded, count, parent=None):
         super(LoadMoreNode, self).__init__(parent)
         self.result = result
-
+        self.loaded = loaded
+        self.count = count
+        
     def GetValue(self, column):
         return None
 
@@ -134,8 +136,8 @@ class ErrorNode(Node):
             return self.error
         return None
     
-    def GetDecoration(self, column):
-        return QColor(255, 0, 0)
+    def GetFont(self, column):
+        return QColor(Qt.GlobalColor.red)
     
     def GetFlags(self, column, flags):
         return flags & ~Qt.ItemFlag.ItemIsEditable
@@ -232,7 +234,7 @@ class PartModel(TreeModel):
                 'start': 0,
                 'limit': self.octopart_query.limit
             }
-        
+
         error = None
         filters = {}
         for part_parameter in metapart.part.parameters.all():
@@ -241,7 +243,7 @@ class PartModel(TreeModel):
                 error = f"parameter '{part_parameter.parameter.name}' not known for octopart"
                 break
             filters[shortname] = part_parameter.decoded_value
-
+        
         if error is not None:
             node = ErrorNode(error)
             self.InsertNode(node, parent=metapart)
@@ -250,17 +252,23 @@ class PartModel(TreeModel):
         res = self.octopart_query.Search(start=query['start'], limit=query['limit'], filters=filters)
         if res is not None:
             res = ndict(res)
-            for part in res.search.results:
-                node = OctopartNode(part.part)
-                print("###", part)
+            if res.search.results is None:
+                node = ErrorNode("No result found on octopart")
                 self.InsertNode(node, parent=metapart)
-                
-            query['start'] += len(res.search.results)
-            self.octopart_loaded[metapart] = query
-
-        # add loading node
-        node = LoadMoreNode(res)
-        self.InsertNode(node, parent=metapart)
+                return
+            else:
+                for part in res.search.results:
+                    node = OctopartNode(part.part)
+                    self.InsertNode(node, parent=metapart)
+                    
+                query['start'] += len(res.search.results)
+                self.octopart_loaded[metapart] = query
+    
+                # add loading node
+                loaded = query['start']
+                count = res.search.hits
+                node = LoadMoreNode(res, loaded, count)
+                self.InsertNode(node, parent=metapart)
         #     search["results"] += res.search_mpn.results
         #
         #     status = f"Shown {len(search['results'])} results / {search['hits']}" 
@@ -304,13 +312,16 @@ class QPartTreeView(QTreeViewData):
         self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)        
 
     def OnObjectUpdated(self, object):
-        if isinstance(object, Part)==False:
-            return 
-        part = object
-        if part.id in self.model().id_to_part_node:
-            self.model().id_to_part_node[part.id].part.refresh_from_db()
-            self.model().layoutChanged.emit()
-
+        if isinstance(object, Part):
+            part = object
+            if part.id in self.model().id_to_part_node:
+                self.model().id_to_part_node[part.id].part.refresh_from_db()
+                self.model().layoutChanged.emit()
+        elif isinstance(object, PartParameter):
+            part_parameter = object
+            if part_parameter.part.instance==PartInstance.METAPARAMETER and part.id in self.model().id_to_part_node:
+                self.model().RemoveNodes(self.model().id_to_part_node[part.id].childs)
+        
     def OnObjectAdded(self, object):
         if isinstance(object, Part)==False:
             return 
@@ -343,9 +354,11 @@ class QPartTreeView(QTreeViewData):
             index = self.model().index(row, Column.ID, parent=parent)
             node = self.model().node_from_index(index)
             if isinstance(node, LoadMoreNode):
-                widget = QMetapartLoadWidget(self)
+                widget = QMetapartLoadWidget(self, node.loaded, node.count)
                 widget.clicked.connect(lambda: self.loadMore(parent_node))
                 self.setIndexWidget(index, widget)
+                self.setFirstColumnSpanned(row, parent, True)
+            elif isinstance(node, ErrorNode):
                 self.setFirstColumnSpanned(row, parent, True)
     
     def loadMore(self, parent):

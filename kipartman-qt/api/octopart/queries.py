@@ -395,7 +395,7 @@ class OctopartPartQuery(GraphQLClient):
         params = []
         for filter, value in filters.items():
             if isinstance(value, Quantity):
-                params.append(f'{filter}: "{value.magnitude}"')
+                params.append(f'{filter}: "'+"{:.9e}".format(value.magnitude)+'"')
             elif isinstance(value, QuantityRange):
                 min = ""
                 if value.min is not None:

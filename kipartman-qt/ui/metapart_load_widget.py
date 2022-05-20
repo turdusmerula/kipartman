@@ -12,10 +12,10 @@ from PyQt6.QtWidgets import QWidget, QStyledItemDelegate, QItemDelegate, QPushBu
 class QMetapartLoadWidget(QLabel):
     clicked = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, loaded, count):
         super(QMetapartLoadWidget, self).__init__(parent)
         
-        self.setText("Load more ...")
+        self.setText(f"Load more from Octopart ... ({loaded}/{count})")
         self.setStyleSheet("QLabel { color : blue; }") 
 
     def mousePressEvent(self, event):
