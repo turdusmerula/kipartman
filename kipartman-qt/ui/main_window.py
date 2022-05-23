@@ -40,6 +40,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.defaultDockPartCategoryWidget = self.dockPartCategoryWidget.widget()
         self.defaultDockFilterWidget = self.dockFilterWidget.widget()
         self.defaultDockPartParameterWidget = self.dockPartParameterWidget.widget()
+        self.defaultDockStorageWidget = self.dockStorageWidget.widget()
+        self.defaultDockPartStorageWidget = self.dockPartStorageWidget.widget()
 
         self.actionPartAddPart.setEnabled(False)
         self.actionPartAddMetapart.setEnabled(False)
@@ -76,6 +78,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionParameterAdd.setEnabled(False)
         self.actionMetaParameterAdd.setEnabled(False)
         self.actionParameterDelete.setEnabled(False)
+
+        self.actionPartParameterAdd.setEnabled(False)
+        self.actionPartParameterDelete.setEnabled(False)
 
     def update_dock_widgets(self):
         self.dockPartCategoryWidget.setVisible(False)
@@ -189,6 +194,14 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.dockPartParameterWidget.setWidget(widget)
             self.dockPartParameterWidget.setVisible(True)
+
+    def ChangeDockPartStorageWidget(self, widget=None):
+        if widget is None:
+            self.dockPartStorageWidget.setWidget(self.defaultDockPartStorageWidget)
+            self.dockPartStorageWidget.setVisible(False)
+        else:
+            self.dockPartStorageWidget.setWidget(widget)
+            self.dockPartStorageWidget.setVisible(True)
 
 main_window = None
 app = None

@@ -10,6 +10,7 @@ from ui.child_window import QChildWindow
 from ui.filter_list_widget import QFilterListWidget
 from ui.part_category_list_widget import QPartCategoryListWidget
 from ui.part_parameter_list_widget import QPartParameterListWidget
+from ui.part_storage_list_widget import QPartStorageListWidget
 
 
 class FilterGroupPartCategory(FilterGroup):
@@ -32,6 +33,7 @@ class PartsWindow(QChildWindow):
         self.filterList = QFilterListWidget(self)
         self.partCategoryList = QPartCategoryListWidget(self)
         self.partParameterList = QPartParameterListWidget(self)
+        self.partStorageList = QPartStorageListWidget(self)
         
         self.partCategoryList.selectionChanged.connect(self.partCategorySelectionChanged)
 
@@ -76,7 +78,8 @@ class PartsWindow(QChildWindow):
         main_window.ChangeDockPartCategoryWidget(self.partCategoryList)
         main_window.ChangeDockFilterWidget(self.filterList)
         main_window.ChangeDockPartParameterWidget(self.partParameterList)
-        # main_window.ChangeDockPartStoragesWidget(self.partStorageList)
+        main_window.ChangeDockPartStorageWidget(self.partStorageList)
+        
         main_window.dockParameterWidget.setVisible(True)
         main_window.dockStorageWidget.setVisible(True)
     
@@ -94,7 +97,8 @@ class PartsWindow(QChildWindow):
         main_window.ChangeDockPartCategoryWidget(None)
         main_window.ChangeDockFilterWidget(None)
         main_window.ChangeDockPartParameterWidget(None)
-        # main_window.ChangeDockPartStoragesWidget(self.partStorageList)
+        main_window.ChangeDockPartStorageWidget(None)
+        
         main_window.dockParameterWidget.setVisible(False)
         main_window.dockStorageWidget.setVisible(False)
 

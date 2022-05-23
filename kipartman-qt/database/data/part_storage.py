@@ -1,7 +1,8 @@
+from api.filter import Filter, FilterRequest
 import database.models
-from datetime import date, datetime
-from helper.filter import Filter
-from database.models import PartStorage
+import database.data
+from django.db.models import Count
+from django.db.models import Q
 
 # class FilterPart(Filter):
 #     def __init__(self, part):
@@ -32,18 +33,18 @@ def _add_default_annotations(request):
     request = request.select_related('part', 'storage') # preload for performance
     return request
 
-def find(filters=[]):
+def find(filters=None):
     request = database.models.PartStorage.objects
     
     request = _add_default_annotations(request)
     
-    for filter in filters:
-        request = filter.apply(request)
+    if filters is not None:
+        request = filters.Apply(request, filter=FilterRequest)
     
     return request.order_by('id').all()
-
-def create(part, **kwargs):
-    part_parameter = PartStorage(**kwargs)
-    part_parameter.part = part
-    
-    return part_parameter
+#
+# def create(part, **kwargs):
+#     part_parameter = PartStorage(**kwargs)
+#     part_parameter.part = part
+#
+#     return part_parameter

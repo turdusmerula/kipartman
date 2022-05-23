@@ -2,16 +2,16 @@ from PyQt6 import Qt6
 from PyQt6 import QtWidgets, uic
 
 from api.command import commands
-from api.data.part_parameter import PartParameterColumn, PartParameterModel, PartParameterGroup, KicadPartParameterNode, PartParameterNode, CommandDeletePartParameters
+from api.data.part_storage import PartStorageColumn, PartStorageModel, PartStorageNode, CommandDeletePartStorages
 from api.event import events
 
-class QPartParameterListWidget(QtWidgets.QWidget):
+class QPartStorageListWidget(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
-        super(QPartParameterListWidget, self).__init__(*args, **kwargs)
-        uic.loadUi('ui/part_parameter_list_widget.ui', self)
+        super(QPartStorageListWidget, self).__init__(*args, **kwargs)
+        uic.loadUi('ui/part_storage_list_widget.ui', self)
 
-        self.model = PartParameterModel()
+        self.model = PartStorageModel()
         self.treeView.setModel(self.model)
         self.treeView.selectionModel().selectionChanged.connect(self.update_menus)
 
@@ -22,7 +22,7 @@ class QPartParameterListWidget(QtWidgets.QWidget):
     def update(self):
         # update treeview
         self.model.Update()
-        super(QPartParameterListWidget, self).update()
+        super(QPartStorageListWidget, self).update()
 
     def update_menus(self):
         from ui.main_window import main_window
@@ -32,16 +32,16 @@ class QPartParameterListWidget(QtWidgets.QWidget):
         if self.treeView.hasFocus()==False:
             return
             
-        main_window.actionPartParameterAdd.setEnabled(True)
-        try: main_window.actionPartParameterAdd.triggered.disconnect()
+        main_window.actionPartStorageAdd.setEnabled(True)
+        try: main_window.actionPartStorageAdd.triggered.disconnect()
         except: pass
-        main_window.actionPartParameterAdd.triggered.connect(self.actionPartParameterAddTriggered)
+        main_window.actionPartStorageAdd.triggered.connect(self.actionPartStorageAddTriggered)
         
         if len(self.treeView.selectedIndexes())>0:
-            main_window.actionPartParameterDelete.setEnabled(True)
-        try: main_window.actionPartParameterDelete.triggered.disconnect()
+            main_window.actionPartStorageDelete.setEnabled(True)
+        try: main_window.actionPartStorageDelete.triggered.disconnect()
         except: pass
-        main_window.actionPartParameterDelete.triggered.connect(self.actionPartParameterDeleteTriggered)
+        main_window.actionPartStorageDelete.triggered.connect(self.actionPartStorageDeleteTriggered)
 
         
         main_window.actionSelectNone.setEnabled(True)
@@ -64,19 +64,19 @@ class QPartParameterListWidget(QtWidgets.QWidget):
     def SelectAll(self):
         self.treeView.selectAll(selectChilds=True)
 
-    def actionPartParameterAddTriggered(self):
-        parent = self.treeView.model().FindPartParameterGroupNode(PartParameterGroup.PARAMETER)
+    def actionPartStorageAddTriggered(self):
+        parent = self.treeView.model().FindPartStorageGroupNode(PartStorageGroup.PARAMETER)
         self.treeView.editNew(parent=self.treeView.model().index_from_node(parent))
         
-    def actionPartParameterDeleteTriggered(self):
+    def actionPartStorageDeleteTriggered(self):
         nodes = []
         for index in self.treeView.selectionModel().selectedRows():
             node = self.treeView.model().node_from_id(index.internalId())
-            if isinstance(node, PartParameterNode):
-                nodes.append(node.part_parameter)
+            if isinstance(node, PartStorageNode):
+                nodes.append(node.part_storage)
 
         if len(nodes)>0:
-            commands.Do(CommandDeletePartParameters, part_parameters=nodes)
+            commands.Do(CommandDeletePartStorages, part_storages=nodes)
             self.treeView.selectionModel().clearSelection()
             commands.LastUndo.done.connect(
                 lambda treeView=self.treeView: 

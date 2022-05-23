@@ -118,6 +118,9 @@ class PartCategoryModel(TreeModel):
             return node.part_category.description
         return None
 
+    def GetEditValue(self, node, column):
+        return self.GetValue(node, column)
+
     def SetValue(self, node, column, value):
         field = {
             0: "name",

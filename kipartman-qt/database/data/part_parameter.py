@@ -1,8 +1,6 @@
 import database.models
 from datetime import date, datetime
-# from helper.filter import Filter
 from database.models import PartParameter
-# from helper.unit import format_unit_prefix, format_float
 
 # class FilterPart(Filter):
 #     def __init__(self, part):

@@ -227,7 +227,7 @@
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
-   <widget class="QWidget" name="dockStorageListWidget"/>
+   <widget class="QStorageListWidget" name="dockStorageListWidget"/>
   </widget>
   <widget class="QDockWidget" name="dockPartStorageWidget">
    <property name="windowTitle">
@@ -236,7 +236,7 @@
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="dockPartStorageListWidget"/>
+   <widget class="QPartStorageListWidget" name="dockPartStorageListWidget"/>
   </widget>
   <widget class="QToolBar" name="toolBar_3">
    <property name="windowTitle">
@@ -251,8 +251,14 @@
    <addaction name="actionParameterAdd"/>
    <addaction name="actionParameterDelete"/>
    <addaction name="separator"/>
+   <addaction name="actionPartParameterAdd"/>
+   <addaction name="actionPartParameterDelete"/>
+   <addaction name="separator"/>
    <addaction name="actionStorageAdd"/>
    <addaction name="actionStorageDelete"/>
+   <addaction name="separator"/>
+   <addaction name="actionPartStorageAdd"/>
+   <addaction name="actionPartStorageDelete"/>
   </widget>
   <action name="actionSchematicOpen">
    <property name="text">
@@ -482,6 +488,42 @@
     <string>Add parameter alias</string>
    </property>
   </action>
+  <action name="actionPartParameterAdd">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/part-parameter-add-48.png</normaloff>icons/part-parameter-add-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add part parameter</string>
+   </property>
+  </action>
+  <action name="actionPartParameterDelete">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/part-parameter-delete-48.png</normaloff>icons/part-parameter-delete-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete part parameter</string>
+   </property>
+  </action>
+  <action name="actionPartStorageAdd">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/part-storage-add-48.png</normaloff>icons/part-storage-add-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add part storage</string>
+   </property>
+  </action>
+  <action name="actionPartStorageDelete">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/part-storage-delete-48.png</normaloff>icons/part-storage-delete-48.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete part storage</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -506,6 +548,18 @@
    <class>QParameterListWidget</class>
    <extends>QWidget</extends>
    <header>ui.parameter_list_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QStorageListWidget</class>
+   <extends>QWidget</extends>
+   <header>ui.storage_list_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QPartStorageListWidget</class>
+   <extends>QWidget</extends>
+   <header>ui.part_storage_list_widget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

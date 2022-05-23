@@ -415,21 +415,9 @@ class VersionedFileHistory(models.Model):
     updated = models.DateTimeField(auto_now=True)
     operation = models.TextField()
 
-
-class StorageCategory(MPTTModel):
-    parent = TreeForeignKey('StorageCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
-    name = models.TextField()
-    description = models.TextField(blank=True, default='')
-    updated = models.DateTimeField(auto_now=True)
-
-    def __unicode__(self):
-        return '%d: %s' % (self.id, self.name)
-
 class Storage(models.Model):
-    category = models.ForeignKey('StorageCategory', on_delete=models.DO_NOTHING, null=True, default=None, blank=True)
     name = models.TextField()
     description = models.TextField(blank=True, default='')
-    comment = models.TextField(blank=True, default='')
     updated = models.DateTimeField(auto_now=True)
 
 class PartStorageHistory(models.Model):
