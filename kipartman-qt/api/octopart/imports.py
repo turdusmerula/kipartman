@@ -71,10 +71,13 @@ def import_octopart(octopart, category):
         parameter = Parameter.objects.filter(name=spec.attribute.name).first()
         if parameter is None:
             # TODO ask for parameter creation instead of error
-            ShowErrorDialog("Import from octopart", text=f"Parameter '{spec.attribute.name}' unknown", detailed_text=yaml.safe_dump(spec))
-            commands.CancelAll()
-            return None
-        
+            res = ShowDialog("Import from octopart", text=f"Parameter '{spec.attribute.name}' unknown", detailed_text=yaml.safe_dump(spec), icon=QMessageBox.Icon.Critical, buttons=QMessageBox.StandardButton.Cancel|QMessageBox.StandardButton.Ignore)
+            if res==QMessageBox.StandardButton.Cancel:
+                commands.CancelAll()
+                return None
+            else:
+                continue
+            
         part_parameter = PartParameter.objects.filter(part=part.id, parameter=parameter.id).first()
         part_parameter_fields = {
             'part': part,

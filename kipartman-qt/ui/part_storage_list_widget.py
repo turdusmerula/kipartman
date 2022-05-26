@@ -65,8 +65,7 @@ class QPartStorageListWidget(QtWidgets.QWidget):
         self.treeView.selectAll(selectChilds=True)
 
     def actionPartStorageAddTriggered(self):
-        parent = self.treeView.model().FindPartStorageGroupNode(PartStorageGroup.PARAMETER)
-        self.treeView.editNew(parent=self.treeView.model().index_from_node(parent))
+        self.treeView.editNew(column=PartStorageColumn.STORAGE, quantity=0)
         
     def actionPartStorageDeleteTriggered(self):
         nodes = []

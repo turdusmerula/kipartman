@@ -132,8 +132,10 @@ class PartsWindow(QChildWindow):
 
         if len(parts)==1:
             self.partParameterList.SetPart(parts[0])
+            self.partStorageList.SetPart(parts[0])
         else:
             self.partParameterList.SetPart(None)
+            self.partStorageList.SetPart(None)
             # node = self.treeView.model().node_from_index(self.treeView.selectionModel().selectedRows()[0])
             # self.validated.emit(node.parameter)
                     

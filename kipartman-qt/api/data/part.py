@@ -2,7 +2,7 @@ from PyQt6.QtCore import Qt, QObject, pyqtSignal
 from PyQt6.QtWidgets import QTreeView, QHeaderView
 
 from api.filter import FilterSet
-from api.treeview import TreeModel, Node, TreeColumn, QTreeViewData
+from api.treeview import TreeModel, Node, TreeColumn, QTreeViewData, ValidationError
 from api.command import Command, CommandUpdateDatabaseField, commands, CommandAddDatabaseObject, CommandDeleteDatabaseObjects
 from api.event import events
 from api.log import log
@@ -38,7 +38,7 @@ class CommandDeleteParts(CommandDeleteDatabaseObjects):
         super(CommandDeleteParts, self).__init__(objects=objects,
                                             description=description)
 
-class Column():
+class PartColumn():
     ID = 0
     NAME = 1
     DESCRIPTION = 2
@@ -50,7 +50,7 @@ class Column():
         self.name_to_pos = {}
 
     def AddColumn(self, name):
-        pos = Column._COUNT+len(self.pos_to_name)
+        pos = PartColumn._COUNT+len(self.pos_to_name)
         self.pos_to_name[pos] = name
         self.name_to_pos[name] = pos
     
@@ -71,28 +71,44 @@ class PartNode(Node):
         self.part = part
 
     def GetValue(self, column):
-        if column==Column.ID:
+        if column==PartColumn.ID:
             return self.part.id
-        elif column==Column.NAME:
+        elif column==PartColumn.NAME:
             return self.part.name
-        elif column==Column.DESCRIPTION:
+        elif column==PartColumn.DESCRIPTION:
             return self.part.description
 
     def GetFlags(self, column, flags):
-        if column==Column.ID:
+        if column==PartColumn.ID:
             return flags & ~Qt.ItemFlag.ItemIsEditable
         return flags
 
     def SetValue(self, column, value):
         field = {
-            Column.NAME: "name",
-            Column.DESCRIPTION: "description"
+            PartColumn.NAME: "name",
+            PartColumn.DESCRIPTION: "description"
         }
-        if column in field and getattr(self.part, field[column])!=value:
-            commands.Do(CommandUpatePart, part=self.part, field=field[column], value=value, other_fields={})
+
+        other_fields = {}
+        
+        if self.part.id is None:
+            # item has not yet been commited at this point and have no id
+            # set edited field value
+            setattr(self.part, field[column], value)
+            # save object in database
+            commands.Do(CommandAddPart, part=self.part, fields=other_fields)
             return True
+        else:
+            if column in field and getattr(self.part, field[column])!=value:
+                commands.Do(CommandUpatePart, part=self.part, field=field[column], value=value, other_fields=other_fields)
+                return True
 
         return False
+
+    def Validate(self, column, value):
+        if column==PartColumn.NAME:
+            if value is None or value=="":
+                return ValidationError("Part name not set")
 
     def HasChildren(self):
         return self.part.instance==PartInstance.METAPART
@@ -103,11 +119,11 @@ class OctopartNode(Node):
         self.part = octopart
 
     def GetValue(self, column):
-        if column==Column.ID:
+        if column==PartColumn.ID:
             return None
-        elif column==Column.NAME:
+        elif column==PartColumn.NAME:
             return self.part.mpn
-        elif column==Column.DESCRIPTION:
+        elif column==PartColumn.DESCRIPTION:
             return self.part.short_description
 
     def GetFlags(self, column, flags):
@@ -132,7 +148,7 @@ class ErrorNode(Node):
         self.error = error
 
     def GetValue(self, column):
-        if column==Column.ID:
+        if column==PartColumn.ID:
             return self.error
         return None
     
@@ -184,7 +200,10 @@ class PartModel(TreeModel):
             
     def FetchParts(self):
         if self.metapart_request is None:
-            self.metapart_request = database.data.part.find(self.filters).iterator()
+            try:
+                self.metapart_request = database.data.part.find(self.filters).iterator()
+            except:
+                return
         
         nodes = []
         try:
@@ -321,14 +340,14 @@ class QPartTreeView(QTreeViewData):
             part_parameter = object
             if part_parameter.part.instance==PartInstance.METAPARAMETER and part.id in self.model().id_to_part_node:
                 self.model().RemoveNodes(self.model().id_to_part_node[part.id].childs)
-        
+    
     def OnObjectAdded(self, object):
         if isinstance(object, Part)==False:
             return 
         part = object
         if part.id not in self.model().id_to_part_node:
             self.model().AddPart(part)
-            
+    
     def OnObjectDeleted(self, object, id):
         if isinstance(object, Part)==False:
             return 
@@ -351,7 +370,7 @@ class QPartTreeView(QTreeViewData):
     def rowsInserted(self, parent, first, last):
         parent_node = self.model().node_from_index(parent)
         for row in range(first, last+1):
-            index = self.model().index(row, Column.ID, parent=parent)
+            index = self.model().index(row, PartColumn.ID, parent=parent)
             node = self.model().node_from_index(index)
             if isinstance(node, LoadMoreNode):
                 widget = QMetapartLoadWidget(self, node.loaded, node.count)

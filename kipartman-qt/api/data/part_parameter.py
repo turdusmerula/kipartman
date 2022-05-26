@@ -307,11 +307,11 @@ class PartParameterModel(TreeModel):
 
     def Update(self):
         self.loaded = False
-        super(PartParameterModel, self).Update()
+        super().Update()
         
     def Clear(self):
         self.loaded = False
-        super(PartParameterModel, self).Clear()
+        super().Clear()
 
     def CreateEditNode(self, parent):
         if self.part is None:

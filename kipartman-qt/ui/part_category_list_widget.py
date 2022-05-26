@@ -91,6 +91,7 @@ class QPartCategoryListWidget(QtWidgets.QWidget):
 
     def actionCategoryAddTriggered(self):
         # add a new element in edit mode
+        self.treeView.setFocus()
         self.treeView.editNew()
         
     def actionCategoryDeleteTriggered(self):

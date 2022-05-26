@@ -11,7 +11,8 @@ from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, Co
 from api.event import events
 from api.unit import ureg, Quantity
 import database.data.part_storage
-from database.models import Part, Storage, PartStorage
+import database.data.storage
+from database.models import Part, Storage, PartStorage, PartInstance
 from ui.combobox_delegate import QComboboxDelegate
 
 class CommandUpatePartStorage(CommandUpdateDatabaseField):
@@ -41,8 +42,9 @@ class CommandDeletePartStorages(CommandDeleteDatabaseObjects):
 
 
 class PartStorageColumn():
-    STORAGE = 0
-    QUANTITY = 1
+    PART = 0
+    STORAGE = 1
+    QUANTITY = 2
 
 class PartStorageNode(Node):
     def __init__(self, part_storage, parent=None):
@@ -50,22 +52,24 @@ class PartStorageNode(Node):
         self.part_storage = part_storage
 
     def GetValue(self, column):
-        if column==PartStorageColumn.STORAGE:
-            if hasattr(self.part_storage, 'storage'):
+        if column==PartStorageColumn.PART:
+            return self.part_storage.part.name
+        elif column==PartStorageColumn.STORAGE:
+            if hasattr(self.part_storage, 'storage') and self.part_storage.storage is not None:
                 return self.part_storage.storage.name
         elif column==PartStorageColumn.QUANTITY:
             return self.part_storage.quantity
         return None
 
-    def GetEditValue(self, column):
-        if column==PartStorageColumn.STORAGE:
-            if hasattr(self.part_storage, 'storage'):
-                return self.part_storage.storage
-            else:
-                return None
-        elif column==PartStorageColumn.QUANTITY:
-            return self.part_storage.quantity
-        return self.GetValue(column)
+    # def GetEditValue(self, column):
+    #     if column==PartStorageColumn.STORAGE:
+    #         if hasattr(self.part_storage, 'storage'):
+    #             return self.part_storage.storage
+    #         else:
+    #             return None
+    #     elif column==PartStorageColumn.QUANTITY:
+    #         return self.part_storage.quantity
+    #     return self.GetValue(column)
 
     def SetValue(self, column, value):
         field = {
@@ -74,6 +78,9 @@ class PartStorageNode(Node):
         }
 
         other_fields = {}
+
+        if column==PartStorageColumn.STORAGE:
+            value = Storage.objects.get(name=value)
 
         if self.part_storage.id is None:
             # item has not yet been commited at this point and have no id
@@ -96,11 +103,17 @@ class PartStorageNode(Node):
                 return ValidationError(f"Quantity must be greater than 0")
         return None
 
+    def GetFlags(self, column, flags):
+        if column==PartStorageColumn.PART:
+            return flags & ~Qt.ItemFlag.ItemIsEditable
+        return flags
+    
 class PartStorageModel(TreeModel):
     def __init__(self):
         super(PartStorageModel, self).__init__()
 
         # TODO remove Unit and merge it with value
+        self.InsertColumn(TreeColumn("Part"))
         self.InsertColumn(TreeColumn("Storage"))
         self.InsertColumn(TreeColumn("Quantity"))
 
@@ -126,10 +139,20 @@ class PartStorageModel(TreeModel):
         self.loaded = True
 
         if self.part is not None:
+            if self.part.instance==PartInstance.METAPART:
+                for part in database.data.part.find_metapart_childs(self.part):
+                    for part_storage in part.storages.all():
+                        part_storage_node = self.FindPartStorageNode(part_storage.id)
+                        if part_storage_node is None:
+                            part_storage_node = self.AddPartStorage(part_storage)
+                        else:
+                            part_storage_node.part_storage = part_storage
+                            self.UpdateNode(part_storage_node)
+
             for part_storage in self.part.storages.all():
                 part_storage_node = self.FindPartStorageNode(part_storage.id)
                 if part_storage_node is None:
-                    part_storage_node = self.AddPartStorage(part_storage, header=self.FindPartStorageGroupNode(PartStorageGroup.PARAMETER))
+                    part_storage_node = self.AddPartStorage(part_storage)
                 else:
                     part_storage_node.part_storage = part_storage
                     self.UpdateNode(part_storage_node)
@@ -145,15 +168,11 @@ class PartStorageModel(TreeModel):
         self.loaded = False
         super(PartStorageModel, self).Clear()
 
-    def CreateEditNode(self, parent):
+    def CreateEditNode(self, parent, quantity):
         if self.part is None:
             return None
         
-        if self.part.instance==PartInstance.PART:
-            return PartStorageNode(PartStorage(part=self.part, metastorage=False))
-        elif self.part.instance==PartInstance.METAPART:
-            return PartStorageNode(PartStorage(part=self.part, metastorage=True))
-        return None
+        return PartStorageNode(PartStorage(part=self.part, quantity=quantity))
 
     def FindPartStorageNode(self, id):
         for node in self.node_to_id:
@@ -161,9 +180,9 @@ class PartStorageModel(TreeModel):
                 return node
         return None
 
-    def AddPartStorage(self, part_storage, header, pos=None):
+    def AddPartStorage(self, part_storage, pos=None):
         node = PartStorageNode(part_storage)
-        self.InsertNode(node, pos=pos, parent=header)
+        self.InsertNode(node, pos=pos)
 
     def RemovePartStorageId(self, id):
         node = self.part_storage_node_from_id(id)
@@ -190,7 +209,8 @@ class QPartStorageTreeView(QTreeViewData):
     def setModel(self, model):
         super(QPartStorageTreeView, self).setModel(model)
         
-        self.storageSelectDelegate = QComboboxDelegate(model, items=[])
+        storages = self.getStorages()
+        self.storageSelectDelegate = QComboboxDelegate(model, items=storages)
 
 
     def SetPart(self, part):
@@ -207,6 +227,12 @@ class QPartStorageTreeView(QTreeViewData):
             
         return None
 
+    def getStorages(self):
+        storages = []
+        for storage in database.data.storage.find():
+            storages.append(storage.name)
+        return storages
+    
     def objectChanged(self, object):
         if isinstance(object, PartStorage) or (isinstance(object, Part) and object==self.model().part) or isinstance(object, Storage):
             self.model().Update()

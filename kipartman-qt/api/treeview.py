@@ -178,6 +178,16 @@ class Node(object):
                 print(f"{'  '*level}- {i}: {self.childs[i]}")
                 self.childs[i].debug(level+1)
 
+class LazyNode(Node):
+    """ Base class for lazy loaded nodes, handles childs management """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.loaded = False
+
+    def Load(self, model):
+        self.loaded = True
+
 
 class TreeModel(QAbstractItemModel):
     dataError = pyqtSignal(ValidationError) # event triggered when an error occurs during setData
@@ -195,7 +205,7 @@ class TreeModel(QAbstractItemModel):
         self.node_to_id = {}
 
         # Create root item
-        self.rootNode = Node(parent=None)
+        self.rootNode = self.CreateRootNode(parent=None)
         self.id_to_node[QModelIndex().internalId()] = self.rootNode
         self.node_to_id[self.rootNode] = QModelIndex().internalId()
 
@@ -714,6 +724,10 @@ class TreeModel(QAbstractItemModel):
         """ Overload to provide a node for editNew """
         return None
 
+    def CreateRootNode(self, parent):
+        """ Overload to provide a root node """
+        return Node(parent=None)
+    
     def Clear(self):
         """ Overload to provide a clear method """
         self.beginResetModel()
@@ -737,11 +751,14 @@ class TreeModel(QAbstractItemModel):
         self._edit_index = None
         self._edit_value = None
     
-    def SaveState(self):
+    def SaveState(self, node=None):
         """ Backup objects state """
-        self._state = [node for node in self.node_to_id]
-        self._state.remove(self.rootNode)
-
+        if node is None:
+            self._state = [node for node in self.node_to_id]
+            self._state.remove(self.rootNode)
+        else:
+            self._state = [node for node in node.childs]
+            
     def PurgeState(self, remove_empty_parent=True):
         """ Remove from data every elements from state """
         
@@ -752,7 +769,7 @@ class TreeModel(QAbstractItemModel):
         container = []
         for node in self._state:
             if Node is not None:
-                if node.HasChildren():
+                if len(node.childs)>0:
                     container.append(node)
                 else:
                     non_container.append(node)
@@ -762,25 +779,51 @@ class TreeModel(QAbstractItemModel):
             node = non_container.pop()
             self.RemoveNode(node)
 
-        while len(container)>0:
-            # only remove container with empty childs
-            # implement pseudo recursively to remove childs first
-            for node in container:
-                if node.HasChildren()==False:
-                    self.RemoveNode(node)
-                    container.remove(node)
-
+        if remove_empty_parent==True:
+            while len(container)>0:
+                # only remove container with empty childs
+                # implement pseudo recursively to remove childs first
+                for node in container:
+                    if isinstance(node, LazyNode) and node.loaded==False:
+                        # not loaded lazy nodes are kept
+                        container.remove(node)
+                    elif len(node.childs)==0:
+                        self.RemoveNode(node)
+                        container.remove(node)
+                    
         self._state = None
         self._prevent_fetch -= 1
 
     def debug(self):
-        print("id_to_node:")
-        for id in self.id_to_node:
-            print(f"- {id}: {self.id_to_node[id]}")
-        print("node_to_id")
-        for node in self.node_to_id:
-            print(f"- {node}: {self.node_to_id[node]}")
+        print("debug model", self)
+        self.debug_node(self.rootNode)
+        # print("id_to_node:")
+        # for id in self.id_to_node:
+        #     print(f"- {id}: {self.id_to_node[id]}")
+        # print("node_to_id")
+        # for node in self.node_to_id:
+        #     print(f"- {node}: {self.node_to_id[node]}")
     
+    def debug_node(self, node, tab=""):
+        print(f"{tab} {type(node)} {str(node)} childs={len(node.childs)}", end="")
+        if isinstance(node, LazyNode):
+            print(f" loaded={node.loaded} has_children={node.HasChildren()}", end="")
+        #  self.id_to_node = {}
+        # self.node_to_id = {}
+        if node is not self.rootNode:
+            row = 0
+            for child in node.parent.childs:
+                if child is node: 
+                    print(f" row={row}", end="")
+                    break
+                row += 1
+            if row!=node.parent.child_to_row[node]:
+                print(f" !!child_to_row={node.parent.child_to_row[node]}", end="")
+        print("")
+        
+        for child in node.childs:
+            self.debug_node(child, tab=f"{tab}  ")
+
     def debug_nodes(self):
         print("rootNode:")
         self.rootNode.debug(level=1)
@@ -895,14 +938,18 @@ class QTreeViewData(QTreeView):
     def closeEditor(self, editor: QWidget, hint: QAbstractItemDelegate.EndEditHint) -> None:
         log.debug("closeEditor", editor, hint)
 
+        node = None
+        parent_node = None
         if self.edit_index is not None:
             self.edit_widget = editor
+            node = self.model().node_from_id(self.edit_index.internalId())
+        if node is not None:
+            parent_node = node.parent
 
         if hint==QAbstractItemDelegate.EndEditHint.RevertModelCache:
             # item was canceled 
             if self.edit_index is not None:
                 # event comes from a element inserted by InsertEditNode
-                node = self.model().node_from_id(self.edit_index.internalId())
                 self.edit_index = None
                 self.edit_widget = None
                 # node was canceled
@@ -911,6 +958,10 @@ class QTreeViewData(QTreeView):
         
                 self.setFocus()
                 self.activateWindow()
+            
+            if isinstance(parent_node, LazyNode):
+                parent_node.loaded = False   # force reload node
+
             self.edition_error = None
             self.model().ClearEditCache()
             return super().closeEditor(editor, hint)
@@ -927,7 +978,10 @@ class QTreeViewData(QTreeView):
                 self.has_message_box = True 
                 self.errorMessage(error)
                 self.has_message_box = False 
-            
+
+            if isinstance(parent_node, LazyNode):
+                parent_node.loaded = False   # force reload node
+
             editor.setFocus()
             editor.activateWindow()
         else:
@@ -935,6 +989,10 @@ class QTreeViewData(QTreeView):
             self.reedit = False
             self.edit_index = None
             self.edit_widget = None
+
+            if isinstance(parent_node, LazyNode):
+                parent_node.loaded = False   # force reload node
+            
             return super().closeEditor(editor, hint)
 
     #     if hint==QAbstractItemDelegate.EndEditHint.NoHint or hint==QAbstractItemDelegate.EndEditHint.SubmitModelCache:
@@ -1039,6 +1097,8 @@ class QTreeViewData(QTreeView):
         # cancel any previous action state
         self.cancel()
         
+        print("++++ model", self.model())
+        print("++++ parent", parent)
         if parent is None:
             parent_index = self.currentIndex()
             parent_node = self.model().node_from_id(parent_index.internalId())
@@ -1047,13 +1107,17 @@ class QTreeViewData(QTreeView):
         
         # ask the model to create an edit node
         node = self.model().CreateEditNode(parent_node, *args, **kwargs)
+        print("++++ node", node)
         if node is None:
             # model does not provide any edit node
             return 
+        if isinstance(parent_node, LazyNode):
+            parent_node.loaded = True   # prevent parent node to be fetched during edit
         
         # insert node at first parent position
         self.model().InsertNode(node, pos=0, parent=parent_node)
         edit_index = self.model().index_from_node(node, column)
+        self.model().debug()
         
         # edit inserted node 
         self.selectionModel().select(edit_index, 
@@ -1061,6 +1125,7 @@ class QTreeViewData(QTreeView):
             QItemSelectionModel.SelectionFlag.Rows)
         self.setCurrentIndex(edit_index)
         res = self.edit(edit_index, QAbstractItemView.EditTrigger.AllEditTriggers, None)
+        print("++++ res", res)
         if res==False:
             self.cancel()
             return 

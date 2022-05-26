@@ -3,7 +3,7 @@ from PyQt6.QtCore import QModelIndex
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QTreeView, QHeaderView, QAbstractItemView
 
-from api.treeview import TreeModel, Node, TreeColumn, QTreeViewData
+from api.treeview import TreeModel, LazyNode, TreeColumn, QTreeViewData
 from api.command import CommandUpdateDatabaseField, CommandAddDatabaseObject, CommandDeleteDatabaseObjects, commands
 from api.event import events
 import database.data.part_category
@@ -39,11 +39,67 @@ class CommandDeletePartCategories(CommandDeleteDatabaseObjects):
         super(CommandDeletePartCategories, self).__init__(objects=objects,
                                             description=description)
 
-class PartCategoryNode(Node):
-    def __init__(self, part_category):
-        super(PartCategoryNode, self).__init__()
+class PartCategoryColumn():
+    NAME = 0
+    DESCRIPTION = 1
+
+class PartCategoryNode(LazyNode):
+    def __init__(self, part_category, parent=None):
+        super().__init__(parent)
         self.part_category = part_category
         
+    def GetValue(self, column):
+        if self.part_category is None:
+            return None
+        
+        if column==PartCategoryColumn.NAME:
+            return self.part_category.name
+        elif column==PartCategoryColumn.DESCRIPTION:
+            return self.part_category.description
+        return None
+
+    def GetEditValue(self, column):
+        return self.GetValue(column)
+
+    def SetValue(self, column, value):
+        if self.part_category is None:
+            return False
+
+        field = {
+            0: "name",
+            1: "description"
+        }
+        if self.part_category.id is None:
+            # item has not yet be commited at this point and have no id
+            # set edited field value
+            setattr(self.part_category, field[column], value)
+            if self.part_category.name!="":
+                # save object in database
+                commands.Do(CommandAddPartCategory, part_category=self.part_category)
+            return True
+        else:
+            if column in field and getattr(self.part_category, field[column])!=value:
+                commands.Do(CommandUpatePartCategory, part_category=self.part_category, field=field[column], value=value)
+                return True
+
+        return False
+
+    def HasChildren(self):
+        if len(self.childs)>0:
+            return True # only here to treat the case node is not loaded but have an edit node
+        elif self.loaded==False and self.part_category is not None:
+            return not self.part_category.is_leaf_node()
+        else:
+            return super().HasChildren()
+    
+    def Load(self, model):
+        super().Load(model)
+    
+    def __str__(self):
+        if self.part_category is None:
+            return "[None]"
+        return f"[id={self.part_category.id}]"
+    
 class PartCategoryModel(TreeModel):
     def __init__(self):
         super(PartCategoryModel, self).__init__()
@@ -51,154 +107,102 @@ class PartCategoryModel(TreeModel):
         self.InsertColumn(TreeColumn("Name"))
         self.InsertColumn(TreeColumn("Description"))
 
-        self.id_to_part_category_node = {}
-        self.loaded = {
-            self.rootNode: False
-        }
-        self.has_child = {
-            self.rootNode: True
-        }
-
-    def index_from_part_category(self, part_category):
-        if part_category.id not in self.id_to_part_category_node:
-            return QModelIndex()
-        node = self.id_to_part_category_node[part_category.id]
-        return self.index_from_node(node)
-        
-    def part_category_node_from_id(self, id):
-        return self.id_to_part_category_node[id]
-
-
     def CanFetchMore(self, parent):
-        return not self.loaded[parent]
+        return not parent.loaded
 
     def Fetch(self, parent):
-        nodes = []
+        self.debug()
+        
         if parent is self.rootNode:
             self.find_childs(parent=None)
         else:
             self.find_childs(parent=parent)
             
+        self.debug()
+        
     def find_childs(self, parent):
         if parent is None:
             parent = self.rootNode
             parent_part_category = None
         else:
-            parent_part_category = parent.part_category
             
+            parent_part_category = parent.part_category
+        
+        # prevent recursive Fetch
+        parent.loaded = True
+    
+        self.SaveState(node=parent)
+
         for part_category in database.data.part_category.find_childs(parent_part_category):
             nodes = []
-            if part_category.id not in self.id_to_part_category_node:
+            node = self.FindPartCategoryNode(part_category)
+            if node is None:
                 node = PartCategoryNode(part_category)
-                self.id_to_part_category_node[part_category.id] = node
-
-                # if there is no child then mark category as already loaded
-                if part_category.is_leaf_node():
-                    self.loaded[node] = True
-                    self.has_child[node] = False
-                else:
-                    self.loaded[node] = False
-                    self.has_child[node] = True
-                    
                 nodes.append(node)
+            else:
+                self.UpdateNode(node)
             self.InsertNodes(nodes, parent=parent)
 
-        self.loaded[parent] = True
-        
-    def HasChildren(self, parent):
-        # new items may not yet be in has_child
-        if isinstance(parent, PartCategoryNode) and parent not in self.has_child:
-            return False
-        return self.has_child[parent]
+        # remove remaining nodes
+        self.PurgeState()
 
-    def GetValue(self, node, column):
-        if column==0:
-            return node.part_category.name
-        elif column==1:
-            return node.part_category.description
+    def FindPartCategoryNode(self, part_category):
+        for node in self.node_to_id:
+            if isinstance(node, PartCategoryNode) and node.part_category is not None and node.part_category.id==part_category.id:
+                return node
         return None
-
-    def GetEditValue(self, node, column):
-        return self.GetValue(node, column)
-
-    def SetValue(self, node, column, value):
-        field = {
-            0: "name",
-            1: "description"
-        }
-        if node.part_category.id is None:
-            # item has not yet be commited at this point and have no id
-            # set edited field value
-            setattr(node.part_category, field[column], value)
-            if node.part_category.name!="":
-                # save object in database
-                commands.Do(CommandAddPartCategory, part_category=node.part_category)
-            return True
-        else:
-            if column in field and getattr(node.part_category, field[column])!=value:
-                commands.Do(CommandUpatePartCategory, part_category=node.part_category, field=field[column], value=value)
-                return True
-
-        return False
 
     def AddPartCategory(self, part_category, pos=None):
         parent_node = None
         if part_category.parent is not None:
-            parent_node = self.id_to_part_category_node[part_category.parent.id]
+            parent_node = self.FindPartCategoryNode(part_category.parent) 
     
         node = PartCategoryNode(part_category)
-        self.loaded[node] = True
-        self.has_child[node] = False
-        self.id_to_part_category_node[part_category.id] = node
-        
-        self.has_child[parent_node] = True
-
         self.InsertNode(node, pos=pos, parent=parent_node)
 
-    def RemovePartCategoryId(self, id):
-        node = self.part_category_node_from_id(id)
-        del self.loaded[node]
-        del self.has_child[node]
-        del self.id_to_part_category_node[id]
-        self.RemoveNode(node)
-
-    def RemovePartCategory(self, part_category):
-        node = self.part_category_node_from_id(part_category.id)
-        del self.loaded[node]
-        del self.has_child[node]
-        del self.id_to_part_category_node[part_category.id]
-        self.RemoveNode(node)
-
     def CreateEditNode(self, parent):
-        self.has_child[parent] = True
-        if isinstance(parent, PartCategoryNode):
-            part_category = PartCategory(parent=parent.part_category)
-        else:
+        if parent==self.rootNode:
             part_category = PartCategory()
+        else:
+            part_category = PartCategory(parent=parent.part_category)
         return PartCategoryNode(part_category)
 
-    def debug(self):
-        super(PartCategoryModel, self).debug()
-        print("loaded / has_child")
-        for node in self.node_to_id:
-            print(f"- {node}: ", end="")
-            if node in self.loaded:
-                print(f"loaded={self.loaded[node]}\t", end="")
-            else:
-                print(f"loaded=None\t", end="")
-            if node in self.has_child:
-                print(f"has_child={self.has_child[node]}\t", end="")
-            else:
-                print(f"has_child=None\t", end="")
-            print("")
-        for node in self.loaded:
-            if node not in self.node_to_id:
-                print(f"- {node}: node does not exist")
+    def CreateRootNode(self, parent, *args, **kwargs):
+        """ Overload to provide a root node """
+        return PartCategoryNode(parent=None, part_category=None)
+    
 
-        print("id_to_part_category_node:")
-        for id in self.id_to_part_category_node:
-            node = self.id_to_part_category_node[id]
-            print(f"- {id}: {node} - {node.part_category.name}")
+    def Update(self):
+        for node in self.node_to_id:
+            node.loaded = False
+        super().Update()
+        
+    def Clear(self):
+        self.rootNode.loaded = False
+        super().Clear()
+
+    # def debug(self):
+    #     super(PartCategoryModel, self).debug()
+    #     print("loaded / has_child")
+    #     for node in self.node_to_id:
+    #         print(f"- {node}: ", end="")
+    #         if node in self.loaded:
+    #             print(f"loaded={self.loaded[node]}\t", end="")
+    #         else:
+    #             print(f"loaded=None\t", end="")
+    #         if node in self.has_child:
+    #             print(f"has_child={self.has_child[node]}\t", end="")
+    #         else:
+    #             print(f"has_child=None\t", end="")
+    #         print("")
+    #     for node in self.loaded:
+    #         if node not in self.node_to_id:
+    #             print(f"- {node}: node does not exist")
+    #
+    #     print("id_to_part_category_node:")
+    #     for id in self.id_to_part_category_node:
+    #         node = self.id_to_part_category_node[id]
+    #         print(f"- {id}: {node} - {node.part_category.name}")
 
 
 class QPartCategoryTreeView(QTreeViewData):
@@ -209,37 +213,18 @@ class QPartCategoryTreeView(QTreeViewData):
         
         self.endInsertEditNode.connect(self.OnEndInsertEditNode)
 
-        events.objectUpdated.connect(self.OnObjectUpdated)
-        events.objectAdded.connect(self.OnObjectAdded)
-        events.objectDeleted.connect(self.OnObjectDeleted)
+        events.objectUpdated.connect(self.objectChanged)
+        events.objectAdded.connect(self.objectChanged)
+        events.objectDeleted.connect(self.objectChanged)
 
     def setModel(self, model):
         super(QPartCategoryTreeView, self).setModel(model)
         
         self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)        
 
-    def OnObjectUpdated(self, object):
-        if isinstance(object, PartCategory)==False:
-            return 
-        part_category = object
-        if part_category.id in self.model().id_to_part_category_node:
-            self.model().id_to_part_category_node[part_category.id].part_category.refresh_from_db()
-            self.model().layoutChanged.emit()
-
-    def OnObjectAdded(self, object):
-        if isinstance(object, PartCategory)==False:
-            return 
-        part_category = object
-        if part_category.id not in self.model().id_to_part_category_node:
-            self.model().AddPartCategory(part_category)
-            
-    def OnObjectDeleted(self, object, id):
-        if isinstance(object, PartCategory)==False:
-            return 
-        part_category = object
-        if id in self.model().id_to_part_category_node:
-            node = self.model().id_to_part_category_node[id]
-            self.model().RemovePartCategoryId(id)
+    def objectChanged(self, object):
+        if isinstance(object, PartCategory):
+            self.model().Update()
 
     def OnEndInsertEditNode(self, node):
         part_category = node.part_category
